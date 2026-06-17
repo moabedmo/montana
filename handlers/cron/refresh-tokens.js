@@ -1,7 +1,7 @@
 'use strict';
 
-const { refreshExpiringTokens } = require('../lib/token-refresh');
-const { sendJson } = require('../lib/http');
+const { refreshExpiringTokens } = require('../../lib/token-refresh');
+const { sendJson } = require('../../lib/http');
 
 function checkCronAuth(req) {
   const secret = process.env.CRON_SECRET;

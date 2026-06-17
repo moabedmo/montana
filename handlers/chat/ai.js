@@ -1,8 +1,8 @@
 'use strict';
 
-const { resolveGeminiKey, validateKeyFormat: validateGeminiKey, callGeminiApi } = require('../lib/gemini');
-const { resolveGroqKey, validateKeyFormat: validateGroqKey, callGroqApi } = require('../lib/groq');
-const { setCors, sendJson, readJsonBody } = require('../lib/http');
+const { resolveGeminiKey, validateKeyFormat: validateGeminiKey, callGeminiApi } = require('../../lib/gemini');
+const { resolveGroqKey, validateKeyFormat: validateGroqKey, callGroqApi } = require('../../lib/groq');
+const { setCors, sendJson, readJsonBody } = require('../../lib/http');
 
 function resolveProvider() {
   const p = String(process.env.CHAT_PROVIDER || 'groq').trim().toLowerCase();

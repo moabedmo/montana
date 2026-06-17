@@ -1,7 +1,7 @@
 'use strict';
 
-const { trackShipping } = require('../lib/shipping');
-const { setCors, sendJson, checkAdmin } = require('../lib/http');
+const { trackShipping } = require('../../lib/shipping');
+const { setCors, sendJson, checkAdmin } = require('../../lib/http');
 
 async function handler(req, res) {
   setCors(res);

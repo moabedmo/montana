@@ -1,8 +1,8 @@
 'use strict';
 
-const { getSupabase } = require('../lib/supabase');
-const { sendFacebookMessage, sendInstagramMessage } = require('../lib/meta');
-const { setCors, sendJson, readJsonBody, checkAdmin } = require('../lib/http');
+const { getSupabase } = require('../../lib/supabase');
+const { sendFacebookMessage, sendInstagramMessage } = require('../../lib/meta');
+const { setCors, sendJson, readJsonBody, checkAdmin } = require('../../lib/http');
 
 async function handler(req, res) {
   setCors(res);

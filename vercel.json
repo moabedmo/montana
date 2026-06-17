@@ -1,27 +1,15 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "api/**/*.js", "use": "@vercel/node" },
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
-    }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "handle": "filesystem" },
-    { "src": "^/$", "dest": "/index.html" },
-    { "src": "^/admin/?$", "dest": "/admin/index.html" },
-    { "src": "^/shop/?$", "dest": "/shop.html" },
-    { "src": "^/cart/?$", "dest": "/cart.html" },
-    { "src": "^/checkout/?$", "dest": "/checkout.html" },
-    { "src": "^/product/?$", "dest": "/product.html" },
-    { "src": "^/ingredients/?$", "dest": "/ingredients.html" },
-    { "src": "^/privacy/?$", "dest": "/privacy.html" },
-    { "src": "^/privacy-policy/?$", "dest": "/privacy-policy.html" },
-    { "src": "^/order-success/?$", "dest": "/order-success.html" },
-    { "src": "/(.*)", "dest": "/$1" }
+  "rewrites": [
+    { "source": "/admin", "destination": "/admin/index.html" },
+    { "source": "/shop", "destination": "/shop.html" },
+    { "source": "/cart", "destination": "/cart.html" },
+    { "source": "/checkout", "destination": "/checkout.html" },
+    { "source": "/product", "destination": "/product.html" },
+    { "source": "/ingredients", "destination": "/ingredients.html" },
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/privacy-policy", "destination": "/privacy-policy.html" },
+    { "source": "/order-success", "destination": "/order-success.html" }
   ],
   "crons": [
     {

@@ -1,8 +1,8 @@
 'use strict';
 
-const { maskKey: maskGemini, resolveGeminiKey, testGeminiKey } = require('../lib/gemini');
-const { maskKey: maskGroq, resolveGroqKey, resolveGroqModels, testGroqKey } = require('../lib/groq');
-const { setCors, sendJson, readJsonBody } = require('../lib/http');
+const { maskKey: maskGemini, resolveGeminiKey, testGeminiKey } = require('../../lib/gemini');
+const { maskKey: maskGroq, resolveGroqKey, resolveGroqModels, testGroqKey } = require('../../lib/groq');
+const { setCors, sendJson, readJsonBody } = require('../../lib/http');
 
 function resolveProvider() {
   const p = String(process.env.CHAT_PROVIDER || 'groq').trim().toLowerCase();

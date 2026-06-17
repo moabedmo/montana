@@ -1,9 +1,9 @@
 'use strict';
 
-const { getSupabase } = require('../lib/supabase');
-const { validateFacebook, validateInstagram } = require('../lib/meta');
-const { prepareTokenForSave } = require('../lib/token-refresh');
-const { setCors, sendJson, readJsonBody, checkAdmin, maskToken } = require('../lib/http');
+const { getSupabase } = require('../../lib/supabase');
+const { validateFacebook, validateInstagram } = require('../../lib/meta');
+const { prepareTokenForSave } = require('../../lib/token-refresh');
+const { setCors, sendJson, readJsonBody, checkAdmin, maskToken } = require('../../lib/http');
 
 const PLATFORMS = ['facebook', 'instagram'];
 

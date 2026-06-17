@@ -1,7 +1,7 @@
 'use strict';
 
-const { resolveGeminiKey, validateKeyFormat, callGeminiApi } = require('../lib/gemini');
-const { setCors, sendJson, readJsonBody } = require('../lib/http');
+const { resolveGeminiKey, validateKeyFormat, callGeminiApi } = require('../../lib/gemini');
+const { setCors, sendJson, readJsonBody } = require('../../lib/http');
 
 async function handler(req, res) {
   setCors(res);

@@ -1,8 +1,8 @@
 'use strict';
 
-const { getSupabase } = require('../lib/supabase');
-const { extractInboundMessages, sendFacebookMessage, sendInstagramMessage } = require('../lib/meta');
-const { setCors, sendJson, readJsonBody } = require('../lib/http');
+const { getSupabase } = require('../../lib/supabase');
+const { extractInboundMessages, sendFacebookMessage, sendInstagramMessage } = require('../../lib/meta');
+const { setCors, sendJson, readJsonBody } = require('../../lib/http');
 
 async function getPlatformSettings(platform) {
   const supabase = getSupabase();

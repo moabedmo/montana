@@ -1,7 +1,7 @@
 'use strict';
 
-const { sendTelegramMessage, validateTelegramBot } = require('../lib/telegram');
-const { setCors, sendJson, readJsonBody, checkAdmin } = require('../lib/http');
+const { sendTelegramMessage, validateTelegramBot } = require('../../lib/telegram');
+const { setCors, sendJson, readJsonBody, checkAdmin } = require('../../lib/http');
 
 async function handler(req, res) {
   setCors(res);
