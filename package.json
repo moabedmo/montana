@@ -4,6 +4,7 @@
   "private": true,
   "description": "Montana Naturals — A Skin Story (bilingual landing page)",
   "scripts": {
+    "build": "node scripts/vercel-build.cjs",
     "start": "node server.js",
     "dev": "node server.js",
     "stop": "node scripts/stop-server.cjs",

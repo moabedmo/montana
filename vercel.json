@@ -1,22 +1,16 @@
 {
   "version": 2,
+  "builds": [
+    { "src": "api/**/*.js", "use": "@vercel/node" },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "." }
+    }
+  ],
   "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
     { "handle": "filesystem" },
-
-    { "src": "^/api/settings/chat$", "dest": "/api/settings/chat.js" },
-    { "src": "^/api/chat/ai$", "dest": "/api/chat/ai.js" },
-    { "src": "^/api/chat/gemini$", "dest": "/api/chat/gemini.js" },
-    { "src": "^/api/settings/gemini$", "dest": "/api/settings/gemini.js" },
-    { "src": "^/api/settings/social$", "dest": "/api/settings/social.js" },
-    { "src": "^/api/settings/shipping$", "dest": "/api/settings/shipping.js" },
-    { "src": "^/api/shipping/calculate$", "dest": "/api/shipping/calculate.js" },
-    { "src": "^/api/shipping/create$", "dest": "/api/shipping/create.js" },
-    { "src": "^/api/shipping/track$", "dest": "/api/shipping/track.js" },
-    { "src": "^/api/webhooks/meta$", "dest": "/api/webhooks/meta.js" },
-    { "src": "^/api/messages/social$", "dest": "/api/messages/social.js" },
-    { "src": "^/api/telegram/send$", "dest": "/api/telegram/send.js" },
-    { "src": "^/api/cron/refresh-tokens$", "dest": "/api/cron/refresh-tokens.js" },
-
     { "src": "^/$", "dest": "/index.html" },
     { "src": "^/admin/?$", "dest": "/admin/index.html" },
     { "src": "^/shop/?$", "dest": "/shop.html" },
@@ -26,7 +20,8 @@
     { "src": "^/ingredients/?$", "dest": "/ingredients.html" },
     { "src": "^/privacy/?$", "dest": "/privacy.html" },
     { "src": "^/privacy-policy/?$", "dest": "/privacy-policy.html" },
-    { "src": "^/order-success/?$", "dest": "/order-success.html" }
+    { "src": "^/order-success/?$", "dest": "/order-success.html" },
+    { "src": "/(.*)", "dest": "/$1" }
   ],
   "crons": [
     {
