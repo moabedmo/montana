@@ -112,7 +112,14 @@ window.MontanaChatKnowledge = (function () {
         en: 'Acne and brightening together is common! Use acne cleanser AM/PM on face, and brightening cream at night on spots — they work well together.'
       }
     },
-    'acne+dull': { products: ['acne-cleanser', 'whitening-cream'], pitch: { ar: 'للحبوب والبهتان: غسول الحبوب + كريم التفتيح — روتين متكامل.', en: 'For acne and dullness: acne cleanser + brightening cream.' } }
+    'acne+dull': { products: ['acne-cleanser', 'whitening-cream'], pitch: { ar: 'للحبوب والبهتان: غسول الحبوب + كريم التفتيح — روتين متكامل.', en: 'For acne and dullness: acne cleanser + brightening cream.' } },
+    'acne+dry': {
+      products: ['acne-cleanser', 'body-lotion'],
+      pitch: {
+        ar: 'جفاف مع حبوب — غسول الحبوب للوش صباحًا ومساءً، ولوشن الجسم للترطيب ٧٢ ساعة. الاتنين يكملوا بعض.',
+        en: 'Dry skin with breakouts — acne cleanser for face, body lotion for 72-hour hydration. They work together.'
+      }
+    }
   };
 
   function addProductUnique(list, product) {
@@ -183,7 +190,9 @@ window.MontanaChatKnowledge = (function () {
     concerns = concerns || [];
     var hasAcne = concerns.some(function (c) { return c === 'acne' || c === 'oily' || c === 'pores'; });
     var hasWhiten = concerns.some(function (c) { return c === 'whiten' || c === 'dull' || c === 'spots'; });
+    var hasDry = concerns.some(function (c) { return c === 'dry'; });
     if (hasAcne && hasWhiten) return MULTI_CONCERN_SETS['acne+whiten'].products.slice();
+    if (hasAcne && hasDry) return MULTI_CONCERN_SETS['acne+dry'].products.slice();
     var ids = [];
     concerns.forEach(function (c) {
       recommendProducts(c).forEach(function (id) {
@@ -197,7 +206,9 @@ window.MontanaChatKnowledge = (function () {
     products = products || [];
     var hasAcne = concerns.some(function (c) { return c === 'acne' || c === 'oily' || c === 'pores'; });
     var hasWhiten = concerns.some(function (c) { return c === 'whiten' || c === 'dull' || c === 'spots'; });
-    var preset = hasAcne && hasWhiten ? MULTI_CONCERN_SETS['acne+whiten'] : null;
+    var hasDry = concerns.some(function (c) { return c === 'dry'; });
+    var preset = hasAcne && hasWhiten ? MULTI_CONCERN_SETS['acne+whiten']
+      : (hasAcne && hasDry ? MULTI_CONCERN_SETS['acne+dry'] : null);
     var ids = preset ? preset.products.slice() : resolveMultiConcernIds(concerns);
     if (ids.length < 2) return null;
 

@@ -208,7 +208,9 @@ window.MontanaChatbot = (function () {
     }
     if ((brain.action === 'start_order' || brain.action === 'update_order') &&
         (!brain.order.product_names || !brain.order.product_names.length)) {
-      if (sessionSuggestedProduct && (sessionBotOfferedOrder || lastBotOfferedOrder())) {
+      if (sessionSuggestedProducts.length) {
+        brain.order.product_names = sessionSuggestedProducts.map(function (p) { return p.nameAr; });
+      } else if (sessionSuggestedProduct && (sessionBotOfferedOrder || lastBotOfferedOrder())) {
         brain.order.product_names = [sessionSuggestedProduct.nameAr];
       }
     }
@@ -350,6 +352,11 @@ window.MontanaChatbot = (function () {
       lines.push('- last_bot_message: "' + lastBot.slice(0, 500).replace(/"/g, '\'') + '"');
     }
     if (suggestedName) lines.push('- suggested_product: ' + suggestedName);
+    if (sessionSuggestedProducts.length > 1) {
+      lines.push('- suggested_products: ' + sessionSuggestedProducts.map(function (p) {
+        return lang === 'en' ? p.nameEn : p.nameAr;
+      }).join(', '));
+    }
     if (sessionLastConcern) lines.push('- last_skin_concern: ' + sessionLastConcern);
     if (offered) {
       lines.push(lang === 'en'
@@ -391,6 +398,7 @@ window.MontanaChatbot = (function () {
       '',
       'Rules:',
       '0. Short replies (1–3 words) usually answer the LAST bot question — use last_bot_message and bot_offered_order.',
+      '0b. If multiple products were recommended in chat (suggested_products), add ALL to product_names when customer agrees to order.',
       '1. If asking for name and customer mentions a product or skin issue → recommend product, add to product_names, ask for name again. Never use product request as a person\'s name.',
       '2. Name = person name (1–3 words), not a sentence.',
       '3. Phone = Egyptian number (10–11 digits).',
@@ -706,6 +714,20 @@ window.MontanaChatbot = (function () {
         return;
       }
     }
+    var inReply = matchAllProductsFromText(brain.reply);
+    if (inReply.length) {
+      markOrderOffers(inReply);
+      return;
+    }
+    var prods = getProducts();
+    var fromNames = [];
+    prods.forEach(function (p) {
+      if (brain.reply.indexOf(p.nameAr) > -1 || brain.reply.indexOf(p.nameEn) > -1) fromNames.push(p);
+    });
+    if (fromNames.length) {
+      markOrderOffers(fromNames);
+      return;
+    }
     var fromChat = productFromRecentChat();
     if (fromChat) markOrderOffer(fromChat);
   }
@@ -767,10 +789,37 @@ window.MontanaChatbot = (function () {
     return !!(orderData.items && orderData.items.length);
   }
 
+  function productsFromRecommendedInChat() {
+    var found = [];
+    var seen = {};
+    var prods = getProducts();
+    function push(p) {
+      if (p && !seen[p.id]) { seen[p.id] = true; found.push(p); }
+    }
+    sessionSuggestedProducts.forEach(push);
+    for (var i = history.length - 1; i >= 0 && i >= history.length - 14; i--) {
+      var h = history[i];
+      if (h.role !== 'model') continue;
+      var text = h.parts[0].text || '';
+      if (/منتجات Montana|كل منتجات|Montana collection|Our Montana collection/i.test(text)) continue;
+      if (!/جنيه|EGP|السعر|عايزة نعمل أوردر|Would you like to place/i.test(text)) continue;
+      matchAllProductsFromText(text).forEach(push);
+      prods.forEach(function (p) {
+        if (text.indexOf(p.nameAr) > -1 || text.indexOf(p.nameEn) > -1) push(p);
+      });
+    }
+    return found;
+  }
+
   function resolveStartOrderProducts(text, offeredOrder) {
     var fromText = matchAllProductsFromText(text);
     if (fromText.length) return fromText;
-    if (offeredOrder && sessionSuggestedProduct) return [sessionSuggestedProduct];
+    if (offeredOrder) {
+      if (sessionSuggestedProducts.length) return sessionSuggestedProducts.slice();
+      var fromRecs = productsFromRecommendedInChat();
+      if (fromRecs.length) return fromRecs;
+      if (sessionSuggestedProduct) return [sessionSuggestedProduct];
+    }
     return [];
   }
 
@@ -1521,7 +1570,9 @@ window.MontanaChatbot = (function () {
         var resolved = resolveProducts(o.product_names);
         if (resolved.length) orderData.items = resolved;
       } else if (!orderData.items || !orderData.items.length) {
-        if (sessionSuggestedProduct && (sessionBotOfferedOrder || lastBotOfferedOrder())) {
+        if (sessionSuggestedProducts.length) {
+          orderData.items = resolveProducts(sessionSuggestedProducts.map(function (p) { return p.nameAr; }));
+        } else if (sessionSuggestedProduct && (sessionBotOfferedOrder || lastBotOfferedOrder())) {
           orderData.items = resolveProducts([sessionSuggestedProduct.nameAr]);
         }
       }
