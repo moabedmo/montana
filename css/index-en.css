@@ -1,0 +1,79 @@
+/* Homepage story — English: slightly larger small text */
+
+html[lang="en"] #ov-open .pre {
+  font-size: 12px;
+}
+
+html[lang="en"] #ov-open .sub {
+  font-size: 15px;
+  line-height: 1.85;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 300;
+  letter-spacing: 0.06em;
+}
+
+html[lang="en"] #ov-open .pre {
+  color: rgba(221, 214, 254, 0.82);
+}
+
+html[lang="en"] #scroll-cue span,
+html[lang="en"] .fc-label {
+  font-size: 11px;
+}
+
+html[lang="en"] .pp-act,
+html[lang="en"] .ov-ch .ch-act,
+html[lang="en"] #ov-finale .ftag,
+html[lang="en"] .fsl,
+html[lang="en"] .pp-vol {
+  font-size: 11px;
+}
+
+html[lang="en"] .pp-problem,
+html[lang="en"] .pp-result {
+  font-size: 15px;
+}
+
+html[lang="en"] .pp-body {
+  font-size: 14px;
+  line-height: 2;
+}
+
+html[lang="en"] .pi {
+  font-size: 11px;
+  padding: 7px 13px;
+}
+
+html[lang="en"] .fcta {
+  font-size: 12px;
+  padding: 15px 34px;
+}
+
+html[lang="en"] .nl,
+html[lang="en"] .nav-cart-btn {
+  font-size: 14px;
+}
+
+html[lang="en"] .pp-add,
+html[lang="en"] .pp-view {
+  font-size: 15px;
+}
+
+html[lang="en"] #story-progress-label {
+  font-size: 15px;
+}
+
+html[lang="en"] #story-progress-num {
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  html[lang="en"] .nl,
+  html[lang="en"] .nav-cart-btn {
+    font-size: 14px;
+  }
+
+  html[lang="en"] .pp-body {
+    font-size: 15px;
+  }
+}

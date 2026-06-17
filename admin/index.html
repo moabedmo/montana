@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Montana - لوحة التحكم</title>
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#0D0618;--card:#160C2A;--border:#2D1B69;--purple:#7C3AED;--purple-l:#A78BFA;--purple-d:#4C1D95;--text:#F5F3FF;--text-m:#C4B5FD;--text-s:#7C6FAD;--green:#10B981;--red:#EF4444;--yellow:#F59E0B;}
+body{background:var(--bg);color:var(--text);font-family:'Alexandria',sans-serif;min-height:100vh;}
+#login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;}
+.login-box{background:var(--card);border:.5px solid var(--border);padding:48px;width:380px;text-align:center;}
+.login-box h2{font-size:18px;color:var(--text-m);margin-bottom:32px;font-weight:500;}
+.login-box input{width:100%;padding:12px 16px;background:rgba(124,58,237,.08);border:.5px solid var(--border);color:var(--text);font-family:'Alexandria',sans-serif;font-size:14px;margin-bottom:14px;outline:none;}
+.login-box button{width:100%;padding:13px;background:var(--purple);border:none;color:#fff;font-family:'Alexandria',sans-serif;font-size:14px;cursor:pointer;}
+.login-err{color:var(--red);font-size:12px;margin-top:10px;display:none;}
+#app{display:none;min-height:100vh;}
+.sidebar{position:fixed;top:0;right:0;width:240px;height:100vh;background:var(--card);border-left:.5px solid var(--border);padding:24px 0;display:flex;flex-direction:column;}
+.sidebar-logo{padding:0 24px 24px;border-bottom:.5px solid var(--border);margin-bottom:16px;}
+.sidebar-logo span{font-size:18px;font-weight:700;color:var(--purple-l);}
+.nav-item{display:flex;align-items:center;gap:10px;padding:12px 24px;cursor:pointer;color:var(--text-s);font-size:14px;}
+.nav-item:hover,.nav-item.active{background:rgba(124,58,237,.12);color:var(--purple-l);}
+.sidebar-bottom{margin-top:auto;padding:16px 24px;border-top:.5px solid var(--border);}
+.logout-btn{width:100%;padding:10px;background:none;border:.5px solid var(--border);color:var(--text-s);font-family:'Alexandria',sans-serif;font-size:13px;cursor:pointer;}
+.main{margin-right:240px;padding:32px;}
+.page{display:none;}
+.page.active{display:block;}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;}
+.page-header h1{font-size:22px;font-weight:600;}
+.btn{padding:10px 20px;background:var(--purple);border:none;color:#fff;font-family:'Alexandria',sans-serif;font-size:13px;cursor:pointer;}
+.btn-outline{background:none;border:.5px solid var(--purple);color:var(--purple-l);}
+.btn-red{background:var(--red);}
+.btn-sm{padding:7px 14px;font-size:12px;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;}
+.stat-card{background:var(--card);border:.5px solid var(--border);padding:20px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;right:0;width:3px;height:100%;background:var(--purple);}
+.stat-label{font-size:11px;color:var(--text-s);margin-bottom:8px;}
+.stat-val{font-size:28px;font-weight:700;}
+.stat-sub{font-size:11px;color:var(--green);margin-top:4px;}
+.card{background:var(--card);border:.5px solid var(--border);padding:24px;margin-bottom:20px;}
+.card-title{font-size:15px;font-weight:600;color:var(--text-m);margin-bottom:20px;padding-bottom:14px;border-bottom:.5px solid var(--border);}
+.table{width:100%;border-collapse:collapse;}
+.table th{padding:10px 14px;background:rgba(124,58,237,.08);font-size:11px;color:var(--text-s);border-bottom:.5px solid var(--border);text-align:right;}
+.table td{padding:12px 14px;border-bottom:.5px solid rgba(45,27,105,.4);font-size:13px;vertical-align:middle;}
+.badge{display:inline-block;padding:3px 10px;font-size:11px;}
+.badge-green{background:rgba(16,185,129,.15);color:var(--green);}
+.badge-red{background:rgba(239,68,68,.15);color:var(--red);}
+.badge-yellow{background:rgba(245,158,11,.15);color:var(--yellow);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-group{display:flex;flex-direction:column;gap:7px;}
+.form-group.full{grid-column:1/-1;}
+.form-group label{font-size:12px;color:var(--text-s);}
+.form-group input,.form-group textarea,.form-group select{padding:10px 14px;background:rgba(124,58,237,.06);border:.5px solid var(--border);color:var(--text);font-family:'Alexandria',sans-serif;font-size:13px;outline:none;}
+.form-group textarea{resize:vertical;min-height:80px;}
+.form-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--card);border:.5px solid var(--border);width:560px;max-height:90vh;overflow-y:auto;padding:32px;position:relative;}
+.modal-title{font-size:16px;font-weight:600;color:var(--text-m);margin-bottom:24px;padding-bottom:16px;border-bottom:.5px solid var(--border);}
+.modal-close{position:absolute;top:16px;left:16px;background:none;border:none;color:var(--text-s);font-size:20px;cursor:pointer;}
+.order-card{background:var(--card);border:.5px solid var(--border);padding:20px;margin-bottom:12px;border-right:3px solid var(--purple);}
+.order-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.order-id{font-size:13px;font-weight:600;color:var(--purple-l);}
+.order-time{font-size:11px;color:var(--text-s);}
+.order-info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
+.order-field label{font-size:10px;color:var(--text-s);display:block;margin-bottom:3px;}
+.order-products{font-size:12px;color:var(--text-m);background:rgba(124,58,237,.06);padding:10px;}
+.order-actions{display:flex;gap:8px;margin-top:12px;}
+.tg-status{display:flex;align-items:center;gap:10px;padding:14px;background:rgba(16,185,129,.08);border:.5px solid rgba(16,185,129,.3);margin-bottom:20px;}
+.social-block{margin-bottom:28px;padding-bottom:28px;border-bottom:.5px solid var(--border);}
+.social-block:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
+.social-title{font-size:14px;font-weight:600;color:var(--text-m);margin-bottom:14px;}
+.tg-dot{width:8px;height:8px;border-radius:50%;}
+.notify-card{display:flex;align-items:center;justify-content:space-between;padding:14px;border-bottom:.5px solid var(--border);}
+.toggle{position:relative;width:44px;height:24px;cursor:pointer;}
+.toggle input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{position:absolute;inset:0;background:var(--border);transition:.3s;}
+.toggle input:checked + .toggle-track{background:var(--purple);}
+.toggle-thumb{position:absolute;top:3px;right:3px;width:18px;height:18px;background:#fff;transition:.3s;}
+.toggle input:checked ~ .toggle-thumb{transform:translateX(-20px);}
+#toast{position:fixed;bottom:24px;left:24px;z-index:9999;background:var(--purple);color:#fff;padding:12px 20px;font-family:'Alexandria',sans-serif;font-size:13px;transform:translateY(80px);opacity:0;transition:all .4s;}
+#toast.show{transform:translateY(0);opacity:1;}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <h2>لوحة تحكم Montana</h2>
+    <input type="text" id="login-user" placeholder="اسم المستخدم">
+    <input type="password" id="login-pass" placeholder="كلمة المرور">
+    <button id="login-btn">دخول</button>
+    <div class="login-err" id="login-err">اسم المستخدم او كلمة المرور غلط</div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="sidebar">
+    <div class="sidebar-logo"><span>Montana Admin</span></div>
+    <div class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard',this)">الرئيسية</div>
+    <div class="nav-item" id="nav-products" onclick="showPage('products',this)">المنتجات</div>
+    <div class="nav-item" id="nav-orders" onclick="showPage('orders',this)">الاوردرات <span id="orders-badge" style="margin-right:auto;background:var(--purple);color:#fff;padding:2px 8px;font-size:11px;display:none;"></span></div>
+    <div class="nav-item" id="nav-telegram" onclick="showPage('telegram',this)">Telegram</div>
+    <div class="nav-item" id="nav-settings" onclick="showPage('settings',this)">الاعدادات</div>
+    <div class="sidebar-bottom"><button class="logout-btn" onclick="doLogout()">تسجيل الخروج</button></div>
+  </div>
+
+  <div class="main">
+    <div class="page active" id="page-dashboard">
+      <div class="page-header"><h1>الرئيسية</h1><span style="color:var(--text-s);font-size:13px;" id="dash-date"></span></div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">اجمالي الاوردرات</div><div class="stat-val" id="stat-orders">0</div><div class="stat-sub">منذ البداية</div></div>
+        <div class="stat-card"><div class="stat-label">اوردرات في الانتظار</div><div class="stat-val" id="stat-pending">0</div><div class="stat-sub" style="color:var(--yellow);">تحتاج متابعة</div></div>
+        <div class="stat-card"><div class="stat-label">المنتجات النشطة</div><div class="stat-val" id="stat-products">0</div><div class="stat-sub">متاحة للبيع</div></div>
+        <div class="stat-card"><div class="stat-label">للبوسطة (كل 5)</div><div class="stat-val" id="stat-postal">0/5</div><div class="stat-sub" id="stat-postal-sub">لم يحن الوقت بعد</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">اخر الاوردرات</div>
+        <table class="table"><thead><tr><th>رقم الاوردر</th><th>العميل</th><th>المنتجات</th><th>الاجمالي</th><th>الحالة</th><th>الوقت</th></tr></thead>
+        <tbody id="dash-orders-table"><tr><td colspan="6" style="text-align:center;color:var(--text-s);padding:24px;">لا توجد اوردرات بعد</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="page-products">
+      <div class="page-header"><h1>ادارة المنتجات</h1><button class="btn" onclick="openProductModal()">+ اضافة منتج</button></div>
+      <div class="card"><table class="table"><thead><tr><th>المنتج</th><th>الفئة</th><th>السعر</th><th>الكمية</th><th>الحالة</th><th>اجراءات</th></tr></thead><tbody id="products-table"></tbody></table></div>
+    </div>
+
+    <div class="page" id="page-orders">
+      <div class="page-header"><h1>الاوردرات</h1>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-outline btn-sm" onclick="exportOrders()">تصدير CSV</button>
+          <button class="btn btn-sm" id="send-postal-btn" onclick="sendToPostal()" style="display:none;">ارسال للبوسطة</button>
+        </div>
+      </div>
+      <div id="orders-list"></div>
+    </div>
+
+    <div class="page" id="page-telegram">
+      <div class="page-header"><h1>اعدادات Telegram</h1></div>
+      <div class="card">
+        <div class="tg-status"><div class="tg-dot" id="tg-dot" style="background:var(--red);"></div><span id="tg-status-text">غير متصل</span></div>
+        <div class="form-grid">
+          <div class="form-group"><label>Bot Token</label><input type="text" id="tg-token" placeholder="123456:ABC-DEF..."></div>
+          <div class="form-group"><label>Chat ID</label><input type="text" id="tg-chat-id" placeholder="-100123..."></div>
+        </div>
+        <p style="font-size:12px;color:rgba(255,255,255,.45);line-height:1.7;margin-bottom:14px;">
+          1) أنشئي بوت من <strong>@BotFather</strong> وانسخي التوكن.<br>
+          2) ابعتي <strong>/start</strong> للبوت من حسابك (أو ضيفيه للجروب).<br>
+          3) Chat ID: افتحي <code style="font-size:11px;">https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code> وخدي <strong>chat.id</strong> (للجروب بيكون سالب زي <strong>-100...</strong>).
+        </p>
+        <div class="form-actions">
+          <button class="btn btn-outline" onclick="testTelegram()">اختبار الاتصال</button>
+          <button class="btn" onclick="saveTelegramSettings()">حفظ</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">الاشعارات</div>
+        <div class="notify-card">
+          <div><div style="font-size:13px;margin-bottom:4px;">ارسال تلقائي كل 5 اوردرات للبوسطة</div></div>
+          <label class="toggle"><input type="checkbox" id="auto-postal" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+        <div class="notify-card">
+          <div><div style="font-size:13px;margin-bottom:4px;">اشعار عند كل اوردر جديد</div></div>
+          <label class="toggle"><input type="checkbox" id="notify-order" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Groq API (شات بوت نور)</div>
+        <p style="font-size:13px;color:rgba(255,255,255,.55);line-height:1.7;margin-bottom:14px;">
+          حطّي المفتاح في ملف <strong>.env</strong> في جذر المشروع:
+        </p>
+        <pre style="background:rgba(0,0,0,.25);padding:12px 14px;font-size:12px;border-radius:4px;margin-bottom:14px;overflow:auto;">GROQ_API_KEY=gsk_...
+CHAT_PROVIDER=groq
+CHAT_USE_AI=true</pre>
+        <p style="font-size:12px;color:rgba(255,255,255,.45);line-height:1.6;margin-bottom:12px;">
+          المفتاح المجاني من <a href="https://console.groq.com/keys" target="_blank" rel="noopener" style="color:var(--accent);">GroqCloud</a>.
+          الموديل الافتراضي: <strong>allam-2-7b</strong> (عربي — ~7000 طلب/يوم).
+        </p>
+          <p id="gemini-status" style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:14px;">جاري التحقق...</p>
+        <div class="form-actions">
+          <button class="btn" onclick="testGeminiEnv()">اختبار المفتاح من .env</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-settings">
+      <div class="page-header"><h1>الاعدادات</h1></div>
+      <div class="card">
+        <div class="card-title">بيانات الوصول</div>
+        <div class="form-grid">
+          <div class="form-group"><label>اسم المستخدم</label><input type="text" id="set-user" value="admin"></div>
+          <div class="form-group"><label>كلمة مرور جديدة</label><input type="password" id="set-pass" placeholder="اتركها فارغة اذا لم تريد تغييرها"></div>
+        </div>
+        <div class="form-actions"><button class="btn" onclick="saveSettings()">حفظ</button></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Social Media Integration</div>
+        <p style="font-size:12px;color:var(--text-s);margin-bottom:20px;line-height:1.7;">
+          اربطي صفحة Facebook وInstagram لاستقبال وإرسال الرسائل. عند الحفظ يتم تحويل التوكن تلقائياً إلى
+          <strong>Long-Lived Token</strong> عبر Graph API وتخزين تاريخ الانتهاء في Supabase.
+        </p>
+        <div class="form-group full" style="margin-bottom:20px;">
+          <label>API Admin Key (اختياري — نفس قيمة MONTANA_ADMIN_API_KEY على السيرفر)</label>
+          <input type="password" id="api-admin-key" placeholder="مفتاح حماية الـ API">
+        </div>
+
+        <div class="social-block">
+          <div class="social-title">Facebook</div>
+          <div class="tg-status" id="fb-status-bar">
+            <div class="tg-dot" id="fb-dot" style="background:var(--red);"></div>
+            <span id="fb-status-text">Disconnected</span>
+          </div>
+          <div class="form-grid">
+            <div class="form-group"><label>Page Access Token</label><input type="password" id="fb-token" placeholder="EAA..."></div>
+            <div class="form-group"><label>Page ID</label><input type="text" id="fb-page-id" placeholder="123456789012345"></div>
+          </div>
+          <div class="form-actions" style="justify-content:flex-start;">
+            <button class="btn" id="fb-save-btn" onclick="saveSocialFacebook()">Save &amp; Connect</button>
+          </div>
+          <p id="fb-expiry" style="font-size:11px;color:var(--text-s);margin-top:10px;"></p>
+        </div>
+
+        <div class="social-block">
+          <div class="social-title">Instagram</div>
+          <div class="tg-status" id="ig-status-bar">
+            <div class="tg-dot" id="ig-dot" style="background:var(--red);"></div>
+            <span id="ig-status-text">Disconnected</span>
+          </div>
+          <div class="form-grid">
+            <div class="form-group"><label>Page Access Token</label><input type="password" id="ig-token" placeholder="EAA..."></div>
+            <div class="form-group"><label>Instagram Account ID</label><input type="text" id="ig-account-id" placeholder="17841400000000000"></div>
+          </div>
+          <div class="form-actions" style="justify-content:flex-start;">
+            <button class="btn" id="ig-save-btn" onclick="saveSocialInstagram()">Save &amp; Connect</button>
+          </div>
+          <p id="ig-expiry" style="font-size:11px;color:var(--text-s);margin-top:10px;"></p>
+        </div>
+
+        <p style="font-size:11px;color:var(--text-s);margin-top:8px;line-height:1.6;">
+          Webhook URL للاستقبال: <strong id="webhook-url-display">/api/webhooks/meta</strong>
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Shipping Integration</div>
+        <p style="font-size:12px;color:var(--text-s);margin-bottom:20px;line-height:1.7;">
+          اربطي شركة الشحن (Bosta، Aramex، إلخ) لحساب تكلفة الشحن وإنشاء الشحنات وتتبعها.
+          البيانات تُحفظ في Supabase تحت مفتاح <strong>shipping</strong>.
+        </p>
+        <div class="tg-status" id="ship-status-bar">
+          <div class="tg-dot" id="ship-dot" style="background:var(--red);"></div>
+          <span id="ship-status-text">Disconnected</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label>Company Name</label>
+            <input type="text" id="ship-company" placeholder="Bosta / Aramex / ...">
+          </div>
+          <div class="form-group"><label>API URL / Endpoint</label>
+            <input type="url" id="ship-url" placeholder="https://app.bosta.co/api/v2">
+          </div>
+          <div class="form-group full"><label>API Key</label>
+            <input type="password" id="ship-key" placeholder="Your shipping API key">
+          </div>
+        </div>
+        <div class="form-actions" style="justify-content:flex-start;">
+          <button class="btn" id="ship-save-btn" onclick="saveShippingSettings()">Save &amp; Connect</button>
+        </div>
+        <p id="ship-meta" style="font-size:11px;color:var(--text-s);margin-top:10px;"></p>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="color:var(--red);">منطقة الخطر</div>
+        <button class="btn btn-red" id="clear-orders-btn">مسح كل الاوردرات</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="product-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeProductModal()">X</button>
+    <div class="modal-title" id="modal-title">اضافة منتج جديد</div>
+    <div class="form-grid">
+      <div class="form-group"><label>اسم المنتج (عربي)</label><input type="text" id="p-name-ar"></div>
+      <div class="form-group"><label>اسم المنتج (انجليزي)</label><input type="text" id="p-name-en"></div>
+      <div class="form-group"><label>الفئة</label><select id="p-cat"><option>وجه</option><option>جسم</option><option>علاجي</option><option>ما بعد الليزر</option><option>علاج الندوب</option></select></div>
+      <div class="form-group"><label>السعر (جنيه)</label><input type="number" id="p-price"></div>
+      <div class="form-group"><label>الكمية المتاحة</label><input type="number" id="p-stock"></div>
+      <div class="form-group"><label>الحجم</label><input type="text" id="p-size"></div>
+      <div class="form-group full"><label>وصف المنتج</label><textarea id="p-desc"></textarea></div>
+      <div class="form-group full"><label>المكونات الرئيسية</label><input type="text" id="p-ingr"></div>
+      <div class="form-group full"><label>مناسب لـ</label><input type="text" id="p-for"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-outline" onclick="closeProductModal()">الغاء</button>
+      <button class="btn" onclick="saveProduct()">حفظ المنتج</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+var ST = {
+  user: localStorage.getItem('mn_u') || 'admin',
+  pass: localStorage.getItem('mn_p') || 'montana2024',
+  products: JSON.parse(localStorage.getItem('mn_pr') || '[]'),
+  orders:   JSON.parse(localStorage.getItem('mn_or') || '[]'),
+  tgToken:  localStorage.getItem('mn_tt') || '',
+  tgChat:   localStorage.getItem('mn_tc') || '',
+  editing:  null
+};
+
+function sv(){
+  localStorage.setItem('mn_pr', JSON.stringify(ST.products));
+  localStorage.setItem('mn_or', JSON.stringify(ST.orders));
+}
+
+// LOGIN
+document.addEventListener('DOMContentLoaded', function(){
+  document.getElementById('login-btn').addEventListener('click', doLogin);
+  document.getElementById('login-pass').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+  document.getElementById('clear-orders-btn').addEventListener('click', function(){ if(confirm('هتمسح كل الاوردرات؟')) clearOrders(); });
+  window.addEventListener('storage', function(e){
+    if(e.key!=='mn_or') return;
+    try{ ST.orders=JSON.parse(e.newValue||'[]'); }catch(err){ ST.orders=[]; }
+    updateBadge();
+    if(document.getElementById('page-orders').classList.contains('active')) renderOrders();
+    if(document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
+  });
+});
+
+function doLogin(){
+  var u = document.getElementById('login-user').value;
+  var p = document.getElementById('login-pass').value;
+  if(u===ST.user && p===ST.pass){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    initApp();
+  } else {
+    document.getElementById('login-err').style.display='block';
+  }
+}
+
+function doLogout(){
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+}
+
+function showPage(id, el){
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  document.getElementById('page-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  if(id==='dashboard') renderDashboard();
+  if(id==='products')  renderProducts();
+  if(id==='orders')    renderOrders();
+  if(id==='telegram')  loadTgSettings();
+  if(id==='settings'){ loadSocialSettings(); loadShippingSettings(); }
+}
+
+function migrateShopOrders(){
+  if(localStorage.getItem('mn_shop_migrated')) return;
+  try{
+    var shop=JSON.parse(localStorage.getItem('montana_orders')||'[]');
+    if(!shop.length){ localStorage.setItem('mn_shop_migrated','1'); return; }
+    var known={};
+    ST.orders.forEach(function(o){ if(o.shopOrderId) known[o.shopOrderId]=true; });
+    var added=false;
+    shop.slice().reverse().forEach(function(o,idx){
+      if(!o||!o.customer||!o.id||known[o.id]) return;
+      var items=(o.items||[]).map(function(i){
+        return {name:String(i.name||'').trim(),qty:Math.max(1,parseInt(i.qty,10)||1),price:Number(i.price)||0};
+      }).filter(function(i){return i.name;});
+      if(!items.length) return;
+      ST.orders.push({
+        id:o.date?new Date(o.date).getTime():(Date.now()-idx),
+        name:String(o.customer.name||'').trim(),
+        phone:String(o.customer.phone||'').trim(),
+        address:String(o.customer.address||'').trim(),
+        items:items,
+        total:Number(o.total)||items.reduce(function(s,i){return s+i.price*i.qty;},0),
+        time:o.date?new Date(o.date).toLocaleString('ar-EG'):new Date().toLocaleString('ar-EG'),
+        status:'pending',
+        source:'shop',
+        shopOrderId:o.id,
+        payment:o.payment||'',
+        notes:o.customer.notes||''
+      });
+      known[o.id]=true;
+      added=true;
+    });
+    if(added) sv();
+  }catch(e){}
+  localStorage.setItem('mn_shop_migrated','1');
+}
+
+function initApp(){
+  migrateShopOrders();
+  if(ST.products.length===0){
+    ST.products = [
+      {id:1, nameAr:'غسول الوجه للحبوب', nameEn:'Acne Facial Cleanser', cat:'وجه', price:299, stock:50, size:'200ml', desc:'غسول بيوصل لجذر المشكلة. Zinc PCA بيوقف الزهم من اصله.', ingr:'Zinc PCA, Salicylic Acid, Argan Oil, Jojoba Oil', pfor:'البشرة الدهنية والمعرضة للحبوب', active:true},
+      {id:2, nameAr:'غسول التفتيح', nameEn:'Whitening Cleanser', cat:'وجه', price:279, stock:40, size:'200ml', desc:'بيفتح البشرة ويوحد اللون.', ingr:'Licorice Extract, Vitamin C, Niacinamide', pfor:'كل انواع البشرة', active:true},
+      {id:3, nameAr:'كريم التفتيح', nameEn:'Whitening Cream', cat:'وجه', price:349, stock:35, size:'50ml', desc:'بيخفف البقع الداكنة ويوحد اللون من اول يوم.', ingr:'Alpha-Arbutin, Vitamin C & E, Niacinamide', pfor:'الوجه والرقبة والابط والمرفقين والركبتين', active:true},
+      {id:4, nameAr:'لوشن اليدين والجسم', nameEn:'Hand & Body Lotion', cat:'جسم', price:229, stock:60, size:'50ml', desc:'ترطيب 72 ساعة مش دهني.', ingr:'Glycerin, Shea Butter, Coconut Oil, Vitamin E', pfor:'كل انواع البشرة', active:true},
+      {id:5, nameAr:'كريم ما بعد الليزر', nameEn:'Post Laser Cream', cat:'ما بعد الليزر', price:399, stock:25, size:'50ml', desc:'بيقلل الاحمرار والالتهاب بعد الجلسات.', ingr:'Green Tea Extract, Sesame Oil, Vitamin E & B3', pfor:'ما بعد اجراءات الليزر', active:true},
+      {id:6, nameAr:'جل السيليكون لعلاج الندوب', nameEn:'Anti-Scar Silicone Gel', cat:'علاج الندوب', price:449, stock:20, size:'50ml', desc:'بيسطح الندوب البارزة ويخفت التلون.', ingr:'Medical-Grade Silicone', pfor:'الندوب القديمة والجديدة', active:true}
+    ];
+    sv();
+  }
+  renderDashboard();
+  updateBadge();
+  document.getElementById('dash-date').textContent = new Date().toLocaleDateString('ar-EG',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+}
+
+function renderDashboard(){
+  var pending = ST.orders.filter(function(o){return o.status==='pending';}).length;
+  var active  = ST.products.filter(function(p){return p.active;}).length;
+  var cnt = ST.orders.length % 5;
+  document.getElementById('stat-orders').textContent   = ST.orders.length;
+  document.getElementById('stat-pending').textContent  = pending;
+  document.getElementById('stat-products').textContent = active;
+  document.getElementById('stat-postal').textContent   = cnt+'/5';
+  document.getElementById('stat-postal-sub').textContent = cnt>=4 ? 'جاهز للارسال!' : 'تحتاج '+(5-cnt)+' اوردر';
+  var last5 = ST.orders.slice(-5).reverse();
+  var tbody = document.getElementById('dash-orders-table');
+  if(!last5.length){ tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-s);padding:24px;">لا توجد اوردرات بعد</td></tr>'; return; }
+  tbody.innerHTML = last5.map(function(o){
+    var badge = o.status==='pending'?'badge-yellow':o.status==='done'?'badge-green':'badge-red';
+    var label = o.status==='pending'?'انتظار':o.status==='done'?'منتهي':'ملغي';
+    var names = o.items.map(function(i){return i.name;}).join(', ');
+    return '<tr><td style="color:var(--purple-l);font-weight:600;">#'+o.id+'</td><td>'+o.name+'</td><td style="font-size:12px;">'+names+'</td><td style="color:var(--green);">'+o.total+' ج.م</td><td><span class="badge '+badge+'">'+label+'</span></td><td style="color:var(--text-s);font-size:11px;">'+o.time+'</td></tr>';
+  }).join('');
+}
+
+function renderProducts(){
+  var tbody = document.getElementById('products-table');
+  tbody.innerHTML = ST.products.map(function(p){
+    var bg = p.active ? 'var(--yellow)' : 'var(--green)';
+    var lbl = p.active ? 'ايقاف' : 'تفعيل';
+    return '<tr><td><div style="font-weight:600;">'+p.nameAr+'</div><div style="font-size:11px;color:var(--text-s);">'+p.nameEn+'</div></td><td>'+p.cat+'</td><td style="color:var(--green);font-weight:600;">'+p.price+' ج.م</td><td>'+p.stock+'</td><td><span class="badge '+(p.active?'badge-green':'badge-red')+'">'+(p.active?'نشط':'متوقف')+'</span></td><td><div style="display:flex;gap:6px;"><button class="btn btn-outline btn-sm" onclick="editProduct('+p.id+')">تعديل</button><button class="btn btn-sm" style="background:'+bg+';" onclick="toggleProduct('+p.id+')">'+lbl+'</button><button class="btn btn-red btn-sm" onclick="deleteProduct('+p.id+')">حذف</button></div></td></tr>';
+  }).join('');
+}
+
+function openProductModal(){
+  ST.editing=null;
+  document.getElementById('modal-title').textContent='اضافة منتج جديد';
+  ['p-name-ar','p-name-en','p-price','p-stock','p-size','p-desc','p-ingr','p-for'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('product-modal').classList.add('open');
+}
+function closeProductModal(){ document.getElementById('product-modal').classList.remove('open'); }
+
+function editProduct(id){
+  var p=ST.products.find(function(x){return x.id===id;});
+  ST.editing=id;
+  document.getElementById('modal-title').textContent='تعديل المنتج';
+  document.getElementById('p-name-ar').value=p.nameAr;
+  document.getElementById('p-name-en').value=p.nameEn;
+  document.getElementById('p-cat').value=p.cat;
+  document.getElementById('p-price').value=p.price;
+  document.getElementById('p-stock').value=p.stock;
+  document.getElementById('p-size').value=p.size;
+  document.getElementById('p-desc').value=p.desc;
+  document.getElementById('p-ingr').value=p.ingr;
+  document.getElementById('p-for').value=p.pfor||'';
+  document.getElementById('product-modal').classList.add('open');
+}
+
+function saveProduct(){
+  var d={
+    nameAr:document.getElementById('p-name-ar').value,
+    nameEn:document.getElementById('p-name-en').value,
+    cat:document.getElementById('p-cat').value,
+    price:parseInt(document.getElementById('p-price').value)||0,
+    stock:parseInt(document.getElementById('p-stock').value)||0,
+    size:document.getElementById('p-size').value,
+    desc:document.getElementById('p-desc').value,
+    ingr:document.getElementById('p-ingr').value,
+    pfor:document.getElementById('p-for').value,
+    active:true
+  };
+  if(!d.nameAr){showToast('ادخل اسم المنتج');return;}
+  if(ST.editing){
+    var idx=ST.products.findIndex(function(p){return p.id===ST.editing;});
+    ST.products[idx]=Object.assign({},ST.products[idx],d);
+  } else {
+    d.id=Date.now();
+    ST.products.push(d);
+  }
+  sv(); closeProductModal(); renderProducts(); showToast('تم حفظ المنتج');
+}
+
+function toggleProduct(id){
+  var p=ST.products.find(function(x){return x.id===id;});
+  p.active=!p.active; sv(); renderProducts();
+}
+function deleteProduct(id){
+  if(!confirm('هتحذف المنتج؟'))return;
+  ST.products=ST.products.filter(function(p){return p.id!==id;});
+  sv(); renderProducts();
+}
+
+function renderOrders(){
+  var list=document.getElementById('orders-list');
+  var pending=ST.orders.filter(function(o){return o.status==='pending';});
+  var btn=document.getElementById('send-postal-btn');
+  btn.style.display=pending.length>=5?'block':'none';
+  if(!ST.orders.length){list.innerHTML='<div style="text-align:center;color:var(--text-s);padding:48px;">لا توجد اوردرات بعد</div>';return;}
+  list.innerHTML=ST.orders.slice().reverse().map(function(o){
+    var badge=o.status==='pending'?'badge-yellow':o.status==='done'?'badge-green':'badge-red';
+    var label=o.status==='pending'?'انتظار':o.status==='done'?'تم التسليم':'ملغي';
+    var items=o.items.map(function(i){return i.name+' x '+i.qty+' ('+i.price*i.qty+' ج.م)';}).join(' | ');
+    var donebtn=o.status==='pending'?'<button class="btn btn-sm" style="background:var(--green);" onclick="updOrder('+o.id+',\'done\')">تم التسليم</button>':'';
+    var cancelbtn=o.status!=='cancelled'?'<button class="btn btn-red btn-sm" onclick="updOrder('+o.id+',\'cancelled\')">الغاء</button>':'';
+    return '<div class="order-card"><div class="order-header"><div class="order-id">اوردر #'+o.id+'</div><div style="display:flex;align-items:center;gap:10px;"><span class="badge '+badge+'">'+label+'</span><span class="order-time">'+o.time+'</span></div></div><div class="order-info"><div class="order-field"><label>الاسم</label><span>'+o.name+'</span></div><div class="order-field"><label>التليفون</label><span>'+o.phone+'</span></div><div class="order-field"><label>العنوان</label><span>'+o.address+'</span></div></div><div class="order-products">'+items+'<strong style="margin-right:12px;">الاجمالي: '+o.total+' ج.م</strong></div><div class="order-actions">'+donebtn+cancelbtn+'<button class="btn btn-outline btn-sm" onclick="resendTg('+o.id+')">اعادة ارسال تليجرام</button></div></div>';
+  }).join('');
+}
+
+function updOrder(id,status){
+  var o=ST.orders.find(function(x){return x.id===id;});
+  o.status=status; sv(); renderOrders(); updateBadge(); showToast('تم تحديث الحالة');
+}
+function updateBadge(){
+  var n=ST.orders.filter(function(o){return o.status==='pending';}).length;
+  var b=document.getElementById('orders-badge');
+  b.style.display=n?'block':'none'; b.textContent=n;
+}
+
+function exportOrders(){
+  var rows=['رقم الاوردر,الاسم,التليفون,العنوان,المنتجات,الاجمالي,الحالة,الوقت'];
+  ST.orders.forEach(function(o){
+    rows.push([o.id,o.name,o.phone,'"'+o.address+'"','"'+o.items.map(function(i){return i.name;}).join('|')+'"',o.total,o.status,o.time].join(','));
+  });
+  var blob=new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='montana-orders.csv';
+  a.click();
+  showToast('تم التصدير');
+}
+
+function readTgInputs(){
+  ST.tgToken=document.getElementById('tg-token').value.trim();
+  ST.tgChat=document.getElementById('tg-chat-id').value.trim();
+  return ST;
+}
+function loadTgSettings(){
+  loadGeminiStatus();
+  document.getElementById('tg-token').value=ST.tgToken;
+  document.getElementById('tg-chat-id').value=ST.tgChat;
+  updTgStatus();
+}
+function saveTelegramSettings(){
+  readTgInputs();
+  localStorage.setItem('mn_tt',ST.tgToken);
+  localStorage.setItem('mn_tc',ST.tgChat);
+  updTgStatus(); showToast('تم الحفظ');
+}
+function updTgStatus(){
+  var ok=ST.tgToken&&ST.tgChat;
+  document.getElementById('tg-dot').style.background=ok?'var(--green)':'var(--red)';
+  document.getElementById('tg-status-text').textContent=ok?'متصل - جاهز للارسال':'غير متصل - ادخل البيانات';
+}
+async function testTelegram(){
+  readTgInputs();
+  if(!ST.tgToken){showToast('ادخل Bot Token اولا');return;}
+  if(!ST.tgChat){showToast('ادخل Chat ID اولا');return;}
+  var result=await tgSend('Montana Admin - اتصال ناجح!', { test: true });
+  showToast(result.ok ? 'تم ارسال رسالة اختبار بنجاح' : (result.error || 'فيه مشكلة - تاكد من البيانات'));
+}
+async function tgSend(text, opts){
+  opts=opts||{};
+  if(!ST.tgToken||!ST.tgChat) return { ok: false, error: 'ادخل التوكن والـ Chat ID' };
+  try{
+    var r=await fetch('/api/telegram/send',{
+      method:'POST',
+      headers:socialHeaders(),
+      body:JSON.stringify({
+        bot_token:ST.tgToken,
+        chat_id:ST.tgChat,
+        text:text,
+        test:!!opts.test
+      })
+    });
+    var data=await r.json();
+    if(!r.ok||!data.ok) return { ok:false, error:data.error||'فشل الارسال' };
+    return { ok:true };
+  }catch(e){
+    return { ok:false, error:'تعذر الاتصال بالسيرفر — شغّلي npm start' };
+  }
+}
+async function sendOrderTg(o){
+  readTgInputs();
+  var msg='اوردر جديد #'+o.id+' - Montana\n';
+  msg+='الاسم: '+o.name+'\n';
+  msg+='التليفون: '+o.phone+'\n';
+  msg+='العنوان: '+o.address+'\n';
+  msg+='المنتجات: '+o.items.map(function(i){return i.name+' x'+i.qty;}).join(', ')+'\n';
+  msg+='الاجمالي: '+o.total+' ج.م\n';
+  msg+='الوقت: '+o.time;
+  var result=await tgSend(msg);
+  return result.ok;
+}
+async function resendTg(id){
+  var o=ST.orders.find(function(x){return x.id===id;});
+  var result=await sendOrderTg(o);
+  showToast(result?'تم اعادة الارسال':'فشل الارسال');
+}
+async function sendToPostal(){
+  var pending=ST.orders.filter(function(o){return o.status==='pending';}).slice(0,5);
+  var msg='اوردرات البوسطة - Montana\n\n';
+  pending.forEach(function(o,i){
+    msg+=(i+1)+'. اوردر #'+o.id+'\n';
+    msg+='الاسم: '+o.name+' | التليفون: '+o.phone+'\n';
+    msg+='العنوان: '+o.address+'\n';
+    msg+='المنتجات: '+o.items.map(function(x){return x.name+' x'+x.qty;}).join(', ')+'\n';
+    msg+='الاجمالي: '+o.total+' ج.م\n\n';
+  });
+  msg+='اجمالي الشحنة: '+pending.length+' اوردر';
+  await tgSend(msg);
+  showToast('تم ارسال الاوردرات للبوسطة');
+}
+
+async function loadGeminiStatus(){
+  var el=document.getElementById('gemini-status');
+  if(!el) return;
+  try{
+    var r=await fetch('/api/settings/chat');
+    var d=await r.json();
+    if(d.configured) el.textContent=(d.provider||'groq')+' — '+(d.api_key||'••••')+' — AI: '+(d.ai_enabled?'مفعّل':'مقفول')+' — موديل: '+(d.primary_model||d.models&&d.models[0]||'');
+    else el.textContent='مفيش مفتاح في .env — ضيفي GROQ_API_KEY';
+  }catch(e){
+    el.textContent='السيرفر مش شغال — شغّلي npm start';
+  }
+}
+
+async function testGeminiEnv(){
+  try{
+    var r=await fetch('/api/settings/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'test'})});
+    var d=await r.json();
+    if(!r.ok||!d.ok){showToast(d.error||'المفتاح مش شغال');loadGeminiStatus();return;}
+    showToast('المفتاح شغال ('+(d.model||'Gemini')+')');
+    loadGeminiStatus();
+  }catch(e){
+    showToast('السيرفر مش شغال — شغّلي npm start');
+  }
+}
+
+function saveSettings(){
+  var u=document.getElementById('set-user').value.trim();
+  var p=document.getElementById('set-pass').value.trim();
+  if(u)ST.user=u;
+  if(p)ST.pass=p;
+  localStorage.setItem('mn_u',ST.user);
+  localStorage.setItem('mn_p',ST.pass);
+  showToast('تم حفظ الاعدادات');
+}
+
+function socialHeaders(){
+  var h={'Content-Type':'application/json','x-include-tokens':'1'};
+  var key=localStorage.getItem('mn_api_key')||'';
+  if(key) h['x-admin-key']=key;
+  return h;
+}
+
+function updateSocialStatus(platform, data){
+  var prefix=platform==='facebook'?'fb':'ig';
+  var dot=document.getElementById(prefix+'-dot');
+  var text=document.getElementById(prefix+'-status-text');
+  var expiryEl=document.getElementById(prefix+'-expiry');
+  if(!dot||!text) return;
+  var connected=data&&data.status==='connected';
+  dot.style.background=connected?'var(--green)':'var(--red)';
+  if(connected){
+    var extra=platform==='facebook'
+      ?((data.metadata&&data.metadata.page_name)||data.page_id||'')
+      :('@'+((data.metadata&&data.metadata.username)||data.instagram_account_id||''));
+    var expiryNote=formatTokenExpiry(data.token_expires_at,data.user_token_expires_at);
+    text.textContent='Connected — '+extra+(data.metadata&&data.metadata.long_lived?' (Long-Lived)':'');
+    if(expiryEl) expiryEl.textContent=expiryNote;
+  } else {
+    text.textContent='Disconnected';
+    if(expiryEl) expiryEl.textContent='';
+  }
+}
+
+function formatTokenExpiry(pageExpiry,userExpiry){
+  if(!pageExpiry&&!userExpiry) return 'Token expiry: Never (long-lived page token)';
+  var parts=[];
+  if(pageExpiry) parts.push('Page token: '+new Date(pageExpiry).toLocaleString('ar-EG'));
+  if(userExpiry) parts.push('User token refresh: '+new Date(userExpiry).toLocaleString('ar-EG'));
+  return parts.join(' · ');
+}
+
+async function loadSocialSettings(){
+  var keyEl=document.getElementById('api-admin-key');
+  if(keyEl) keyEl.value=localStorage.getItem('mn_api_key')||'';
+  var wh=document.getElementById('webhook-url-display');
+  if(wh) wh.textContent=window.location.origin+'/api/webhooks/meta';
+  try{
+    var r=await fetch('/api/settings/social',{headers:socialHeaders()});
+    if(r.status===401){ showToast('API Admin Key غلط أو ناقص'); return; }
+    var data=await r.json();
+    if(!data.ok){ showToast(data.error||'تعذر تحميل الإعدادات'); return; }
+    var fb=data.settings.facebook||{};
+    var ig=data.settings.instagram||{};
+    document.getElementById('fb-token').value=fb.page_access_token||'';
+    document.getElementById('fb-page-id').value=fb.page_id||'';
+    document.getElementById('ig-token').value=ig.page_access_token||'';
+    document.getElementById('ig-account-id').value=ig.instagram_account_id||'';
+    updateSocialStatus('facebook',fb);
+    updateSocialStatus('instagram',ig);
+  }catch(e){
+    updateSocialStatus('facebook',{status:'disconnected'});
+    updateSocialStatus('instagram',{status:'disconnected'});
+    showToast('السيرفر مش شغال — شغّل npm start مع Supabase');
+  }
+}
+
+async function saveSocialPlatform(platform){
+  var keyEl=document.getElementById('api-admin-key');
+  if(keyEl) localStorage.setItem('mn_api_key',keyEl.value.trim());
+
+  var prefix=platform==='facebook'?'fb':'ig';
+  var btn=document.getElementById(prefix+'-save-btn');
+  var token=document.getElementById(prefix+'-token').value.trim();
+  var pageId=platform==='facebook'?document.getElementById('fb-page-id').value.trim():'';
+  var igId=platform==='instagram'?document.getElementById('ig-account-id').value.trim():'';
+
+  if(!token){ showToast('ادخل Page Access Token'); return; }
+  if(platform==='facebook'&&!pageId){ showToast('ادخل Page ID'); return; }
+  if(platform==='instagram'&&!igId){ showToast('ادخل Instagram Account ID'); return; }
+
+  if(btn){ btn.disabled=true; btn.textContent='Connecting...'; }
+  try{
+    var body={platform:platform,page_access_token:token};
+    if(platform==='facebook') body.page_id=pageId;
+    if(platform==='instagram') body.instagram_account_id=igId;
+
+    var r=await fetch('/api/settings/social',{
+      method:'POST',
+      headers:socialHeaders(),
+      body:JSON.stringify(body)
+    });
+    var data=await r.json();
+    if(!r.ok||!data.ok){
+      showToast(data.error||'فشل الاتصال — تأكدي من التوكن والـ ID');
+      updateSocialStatus(platform,{status:'disconnected'});
+      return;
+    }
+    updateSocialStatus(platform,data.settings[platform]);
+    showToast(platform==='facebook'?'Facebook connected (long-lived)':'Instagram connected (long-lived)');
+  }catch(e){
+    showToast('تعذر الاتصال بالسيرفر');
+  }finally{
+    if(btn){ btn.disabled=false; btn.textContent='Save & Connect'; }
+  }
+}
+
+function saveSocialFacebook(){ saveSocialPlatform('facebook'); }
+function saveSocialInstagram(){ saveSocialPlatform('instagram'); }
+
+function updateShippingStatus(data){
+  var dot=document.getElementById('ship-dot');
+  var text=document.getElementById('ship-status-text');
+  var meta=document.getElementById('ship-meta');
+  if(!dot||!text) return;
+  var connected=data&&data.status==='connected';
+  dot.style.background=connected?'var(--green)':'var(--red)';
+  if(connected){
+    text.textContent='Connected — '+(data.company_name||'Shipping provider');
+    if(meta&&data.metadata){
+      var parts=[];
+      if(data.metadata.last_test_at) parts.push('Last test: '+new Date(data.metadata.last_test_at).toLocaleString('ar-EG'));
+      if(data.metadata.last_test_message) parts.push(data.metadata.last_test_message);
+      meta.textContent=parts.join(' · ');
+    }
+  } else {
+    text.textContent='Disconnected';
+    if(meta) meta.textContent='';
+  }
+}
+
+async function loadShippingSettings(){
+  try{
+    var r=await fetch('/api/settings/shipping',{headers:socialHeaders()});
+    if(r.status===401){ return; }
+    var data=await r.json();
+    if(!data.ok) return;
+    var s=data.settings||{};
+    document.getElementById('ship-company').value=s.company_name||'';
+    document.getElementById('ship-url').value=s.api_url||'';
+    document.getElementById('ship-key').value=s.api_key||'';
+    updateShippingStatus(s);
+  }catch(e){
+    updateShippingStatus({status:'disconnected'});
+  }
+}
+
+async function saveShippingSettings(){
+  var keyEl=document.getElementById('api-admin-key');
+  if(keyEl) localStorage.setItem('mn_api_key',keyEl.value.trim());
+
+  var btn=document.getElementById('ship-save-btn');
+  var company=document.getElementById('ship-company').value.trim();
+  var url=document.getElementById('ship-url').value.trim();
+  var apiKey=document.getElementById('ship-key').value.trim();
+
+  if(!company){ showToast('ادخل اسم شركة الشحن'); return; }
+  if(!url){ showToast('ادخل API URL'); return; }
+  if(!apiKey){ showToast('ادخل API Key'); return; }
+
+  if(btn){ btn.disabled=true; btn.textContent='Connecting...'; }
+  try{
+    var r=await fetch('/api/settings/shipping',{
+      method:'POST',
+      headers:socialHeaders(),
+      body:JSON.stringify({ company_name:company, api_url:url, api_key:apiKey })
+    });
+    var data=await r.json();
+    if(!r.ok||!data.ok){
+      showToast(data.error||'فشل الاتصال — تأكدي من البيانات');
+      updateShippingStatus({ status:'disconnected' });
+      return;
+    }
+    updateShippingStatus(data.settings);
+    showToast('Shipping connected — '+company);
+  }catch(e){
+    showToast('تعذر الاتصال بالسيرفر');
+  }finally{
+    if(btn){ btn.disabled=false; btn.textContent='Save & Connect'; }
+  }
+}
+
+function clearOrders(){ ST.orders=[]; sv(); renderOrders(); updateBadge(); showToast('تم مسح الاوردرات'); }
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},3000);
+}
+
+window.MONTANA_ADMIN = {
+  getProducts: function(){ return ST.products.filter(function(p){return p.active;}); },
+  addOrder: async function(order){
+    order.id=Date.now();
+    order.time=new Date().toLocaleString('ar-EG');
+    order.status='pending';
+    order.total=order.items.reduce(function(s,i){return s+i.price*i.qty;},0);
+    ST.orders.push(order);
+    sv(); updateBadge();
+    var notifyEl=document.getElementById('notify-order');
+    if(notifyEl&&notifyEl.checked) await sendOrderTg(order);
+    var postalEl=document.getElementById('auto-postal');
+    var pend=ST.orders.filter(function(o){return o.status==='pending';});
+    if(postalEl&&postalEl.checked&&pend.length%5===0&&pend.length>0) await sendToPostal();
+    return order.id;
+  }
+};
+</script>
+</body>
+</html>

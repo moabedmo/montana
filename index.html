@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<script>try{var _ml=localStorage.getItem('montana_lang');if(_ml==='ar'){document.documentElement.setAttribute('lang','ar');document.documentElement.setAttribute('dir','rtl');}}catch(e){}</script>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#231840">
+<title>Montana Naturals ? A Skin Story</title>
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700&family=El+Messiri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;background:#231840;overflow-x:hidden;font-family:'Jost',sans-serif;color:rgba(255,255,255,.92);scrollbar-width:none;-ms-overflow-style:none;}
+html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;width:0;height:0;}
+body{}
+
+/* ?? CURSOR ?? */
+#cur{position:fixed;width:5px;height:5px;border-radius:50%;background:#A78BFA;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:difference;transition:width .3s,height .3s;}
+#cur-r{position:fixed;width:24px;height:24px;border-radius:50%;border:.5px solid rgba(167,139,250,.45);pointer-events:none;z-index:9998;transform:translate(-50%,-50%);}
+
+/* ?? NAV ?? */
+#nav{position:fixed;top:0;left:0;right:0;z-index:800;padding:22px 48px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;backdrop-filter:blur(14px);border-bottom:.5px solid rgba(167,139,250,.15);}
+#nav::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(35,24,64,.82) 0%,rgba(35,24,64,.45) 100%);pointer-events:none;}
+#nlogo{grid-column:1;justify-self:start;margin-inline-start:20px;position:relative;z-index:1;}
+#nlinks{grid-column:2;justify-self:center;display:flex;align-items:center;gap:28px;position:relative;z-index:1;}
+#nav-controls{grid-column:3;justify-self:end;display:flex;align-items:center;gap:10px;position:relative;z-index:1;}
+.nl{font-size: 15px;letter-spacing:.34em;text-transform:uppercase;color:rgba(255,255,255,.28);text-decoration:none;transition:color .4s;}
+.nl:hover{color:rgba(167,139,250,.8);}
+.nl-shop{color:rgba(167,139,250,.55);}
+.nl-shop:hover{color:rgba(167,139,250,.95);}
+.nav-cart-btn{position:relative;display:flex;align-items:center;gap:8px;font-size: 15px;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.45);background:none;border:.5px solid rgba(124,58,237,.35);padding:10px 18px;text-decoration:none;cursor:pointer;transition:all .35s;}
+.nav-cart-btn:hover{color:#fff;border-color:rgba(167,139,250,.5);}
+.nav-cart-badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#7C3AED;color:#fff;font-size: 12px;display:flex;align-items:center;justify-content:center;font-family:'Jost',sans-serif;}
+.pp-actions{display:flex;align-items:center;gap:14px;margin-top:18px;pointer-events:all;}
+.pp-add{font-size: 14px;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.75);background:rgba(124,58,237,.22);border:.5px solid rgba(167,139,250,.35);padding:12px 22px;cursor:pointer;transition:all .35s;}
+.pp-add:hover{background:rgba(124,58,237,.38);border-color:rgba(167,139,250,.55);color:#fff;}
+.pp-view{font-size: 14px;letter-spacing:.22em;text-transform:uppercase;color:rgba(167,139,250,.55);text-decoration:none;transition:color .35s;}
+.pp-view:hover{color:rgba(167,139,250,.95);}
+#story-progress{position:fixed;right:28px;left:auto;bottom:88px;z-index:700;display:flex;flex-direction:column;align-items:flex-end;gap:4px;opacity:0;transition:opacity .45s;pointer-events:none;text-align:right;}
+#story-progress-num{font-family:'Playfair Display',serif;font-size:15px;color:rgba(167,139,250,.78);letter-spacing:.1em;}
+#story-progress-label{font-size: 14px;color:rgba(255,255,255,.48);}
+html[lang=ar] #story-progress{right:auto;left:28px;align-items:flex-start;text-align:right;}
+
+/* ?? SCROLL CONTAINER ?? */
+#scroller{height:900vh;position:relative;}
+
+/* ?? STICKY CANVAS STAGE ?? */
+#stage{position:sticky;top:0;width:100%;height:100vh;overflow:hidden;}
+#three-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;}
+
+/* ?? PROGRESS FILM STRIP ?? */
+#film{position:fixed;right:28px;top:50%;transform:translateY(-50%);z-index:700;display:flex;flex-direction:column;gap:6px;}
+.fc{width:.5px;height:14px;background:rgba(255,255,255,.08);transition:all .5s;}
+.fc.on{height:28px;background:rgba(167,139,250,.65);width:1px;}
+.fc-label{position:absolute;right:16px;font-size: 9px;letter-spacing:.28em;text-transform:uppercase;color:rgba(167,139,250,.0);white-space:nowrap;transition:color .4s;transform:translateY(-50%);}
+.fc.on .fc-label{color:rgba(167,139,250,.5);}
+
+/* ?? ALL TEXT OVERLAYS ?? */
+.overlay{position:absolute;z-index:10;pointer-events:none;opacity:0;transition:opacity .05s;}
+
+/* Opening */
+#ov-open{inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 24px;}
+#ov-open .pre{font-size: 10px;letter-spacing:.55em;text-transform:uppercase;color:rgba(196,181,253,.68);margin-bottom:28px;display:block;}
+#ov-open h1{font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(38px,6vw,78px);line-height:1.04;letter-spacing:-.018em;color:#fff;}
+#ov-open h1 em{font-style:italic;color:rgba(167,139,250,.88);}
+#ov-open h1 s{text-decoration:line-through;color:rgba(255,255,255,.18);}
+#ov-open .sub{font-size: 13px;font-weight:300;letter-spacing:.1em;color:rgba(255,255,255,.72);margin-top:22px;line-height:1.8;text-shadow:0 2px 28px rgba(35,24,64,.85);}
+#scroll-cue{position:absolute;bottom:38px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;}
+#scroll-cue span{font-size: 9px;letter-spacing:.45em;text-transform:uppercase;color:rgba(255,255,255,.42);}
+.scl{width:.5px;height:36px;background:linear-gradient(180deg,rgba(167,139,250,.55),transparent);animation:scl 2s ease infinite;}
+@keyframes scl{0%{transform:scaleY(0);transform-origin:top;}50%{transform:scaleY(1);transform-origin:top;}50.01%{transform-origin:bottom;}100%{transform:scaleY(0);transform-origin:bottom;}}
+
+/* Corner marks */
+.cm{position:absolute;z-index:11;width:14px;height:14px;pointer-events:none;}
+.cm::before,.cm::after{content:'';position:absolute;background:rgba(167,139,250,.22);}
+.cm::before{width:100%;height:.5px;top:0;left:0;}
+.cm::after{width:.5px;height:100%;top:0;left:0;}
+#cm1{top:62px;left:52px;}#cm2{top:62px;right:52px;transform:scaleX(-1);}
+#cm3{bottom:44px;left:52px;transform:scaleY(-1);}#cm4{bottom:44px;right:52px;transform:scale(-1);}
+
+/* Product panels ? layout in css/index-story.css */
+.ov-prod{inset:0;}
+.pp-text{position:relative;overflow:hidden;isolation:isolate;border-radius:14px;}
+.pp-act{font-size: 9px;letter-spacing:.52em;text-transform:uppercase;color:rgba(167,139,250,.38);margin-bottom:10px;display:block;}
+.pp-problem{font-family:'Playfair Display',serif;font-size: 15px;font-style:italic;font-weight:300;color:rgba(255,255,255,.22);margin-bottom:4px;display:block;}
+.pp-n{font-family:'Playfair Display',serif;font-weight:300;font-style:italic;font-size:80px;color:rgba(124,58,237,.06);line-height:1;margin-bottom:-10px;}
+.pp-h{font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(26px,3.5vw,48px);line-height:1.1;color:#fff;margin-bottom:18px;}
+.pp-h em{font-style:italic;color:rgba(167,139,250,.9);}
+.pp-rule{width:32px;height:.5px;background:linear-gradient(90deg,rgba(167,139,250,.5),transparent);margin:16px 0;}
+.pp-body{font-size: 14px;font-weight:200;line-height:1.95;color:rgba(255,255,255,.3);max-width:360px;margin-bottom:22px;}
+.pp-result{font-family:'Playfair Display',serif;font-style:italic;font-size: 15px;color:rgba(167,139,250,.6);margin-bottom:20px;display:block;}
+.pp-ingr{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px;}
+.pi{font-size: 9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(190,165,255,.5);padding:6px 12px;border:.5px solid rgba(124,58,237,.18);}
+.pp-vol{font-size: 9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.1);}
+.pp-vis{position:relative;}
+.pp-imgwrap{position:relative;display:flex;align-items:stretch;justify-content:center;}
+.pp-imgwrap::before{display:none;}
+.pp-ring{position:absolute;border-radius:50%;border:.5px solid rgba(167,139,250,.14);pointer-events:none;}
+.pp-img{object-fit:contain;object-position:center bottom;position:relative;z-index:1;width:100%;height:100%;}
+
+/* Chapter title overlays */
+.ov-ch{inset:0;display:flex;align-items:center;justify-content:center;text-align:center;}
+.ov-ch .ch-act{font-size: 9px;letter-spacing:.55em;text-transform:uppercase;color:rgba(167,139,250,.32);margin-bottom:18px;display:block;}
+.ov-ch .ch-t{font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(18px,2.8vw,34px);color:rgba(255,255,255,.6);line-height:1.35;}
+.ov-ch .ch-t em{font-style:italic;color:rgba(167,139,250,.75);}
+.ch-bg-n{position:absolute;font-family:'Playfair Display',serif;font-weight:300;font-style:italic;font-size:220px;color:rgba(124,58,237,.035);line-height:1;pointer-events:none;user-select:none;}
+
+/* Finale */
+#ov-finale{inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 24px;}
+#ov-finale .ftag{font-size: 9px;letter-spacing:.52em;text-transform:uppercase;color:rgba(167,139,250,.38);margin-bottom:28px;display:block;}
+#ov-finale .fq{font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(22px,3.8vw,50px);line-height:1.35;color:rgba(255,255,255,.88);margin-bottom:48px;}
+#ov-finale .fq em{font-style:italic;color:rgba(167,139,250,.88);}
+.fstats{display:grid;grid-template-columns:repeat(4,1fr);max-width:560px;margin:0 auto 44px;border:.5px solid rgba(124,58,237,.12);}
+.fst{padding:22px 14px;border-right:.5px solid rgba(124,58,237,.1);}
+.fst:last-child{border-right:none;}
+.fsn{font-family:'Playfair Display',serif;font-weight:300;font-style:italic;font-size:28px;color:rgba(167,139,250,.7);}
+.fsl{font-size: 9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.16);margin-top:6px;}
+.fcta{display:inline-flex;align-items:center;gap:12px;font-size: 10px;letter-spacing:.38em;text-transform:uppercase;color:rgba(255,255,255,.45);border:.5px solid rgba(124,58,237,.28);padding:14px 36px;background:none;transition:all .4s;pointer-events:all;}
+.fcta:hover{color:rgba(255,255,255,.8);border-color:rgba(167,139,250,.5);}
+
+/* glass behind text */
+.pp-text::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(145deg,rgba(255,255,255,.1) 0%,rgba(38,26,68,.18) 42%,rgba(124,58,237,.1) 100%);
+  backdrop-filter:blur(32px) saturate(1.65);
+  -webkit-backdrop-filter:blur(32px) saturate(1.65);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 12px 40px rgba(8,4,15,.34),inset 0 1px 0 rgba(255,255,255,.16),inset 0 -1px 0 rgba(124,58,237,.1);
+  z-index:-1;border-radius:14px;
+}
+.ov-prod .pp-text::before{border-right:.5px solid rgba(124,58,237,.1);border-left:none;}
+.ch-inner::before{
+  content:'';position:absolute;inset:0;
+  background:rgba(38,26,68,.48);
+  
+  border:.5px solid rgba(124,58,237,.08);z-index:-1;
+}
+/* boost text visibility */
+#ov-open .sub{color:rgba(255,255,255,.78)!important;}
+#ov-open .pre{color:rgba(196,181,253,.75)!important;}
+#scroll-cue span{color:rgba(255,255,255,.48)!important;}
+.pp-body{color:rgba(255,255,255,.75)!important;}
+.pp-problem{color:rgba(255,255,255,.6)!important;}
+.pp-result{color:rgba(167,139,250,.92)!important;}
+.pp-act{color:rgba(167,139,250,.8)!important;}
+.pp-vol{color:rgba(255,255,255,.45)!important;}
+.ch-t{color:rgba(255,255,255,.9)!important;}
+.ch-act{color:rgba(167,139,250,.8)!important;}
+
+
+/* ?? LANG SWITCHER ?? */
+
+/* ?? ARABIC MODE ? see css/brand-ar.css + index-story.css ?? */
+html[lang=ar] body{direction:rtl;}
+@media(max-width:768px){
+  #nav{padding:16px 20px;grid-template-columns:auto 1fr auto;gap:10px;}
+  #nlinks{gap:16px;}
+  .nl{font-size: 13px;letter-spacing:.2em;}
+  .nav-cart-btn{padding:8px 12px;font-size: 13px;}
+  #nav-controls{gap:8px;}
+  html[lang=ar] .pp-h{font-size:clamp(24px,6vw,36px);}
+  html[lang=ar] #ov-open h1{font-size:clamp(28px,8vw,48px);}
+  html[lang=ar] .pp-body{font-size:14px!important;}
+}
+</style>
+<link rel="stylesheet" href="css/shop.css">
+<link rel="stylesheet" href="css/brand.css">
+<link rel="stylesheet" href="css/product-stage.css">
+<link rel="stylesheet" href="css/quiz.css">
+<link rel="stylesheet" href="css/mobile-app.css?v=7">
+<link rel="stylesheet" href="css/brand-ar.css">
+<link rel="stylesheet" href="css/index-story.css">
+<link rel="stylesheet" href="css/index-ar.css">
+<link rel="stylesheet" href="css/index-en.css">
+<link rel="stylesheet" href="css/legal.css">
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-r"></div>
+
+<nav id="nav">
+  <span id="nlogo" class="brand-logo" role="img" aria-label="Montana Naturals"></span>
+  <div id="nlinks">
+    <a href="index.html" class="nl" id="nav-story" data-i18n="navStory">Story</a>
+    <a href="shop.html" class="nl nl-shop" id="nav-shop" data-i18n="navShop">Collection</a>
+    <a href="ingredients.html" class="nl" id="nav-ingredients" data-i18n="navIngredients">Ingredients</a>
+    <a href="cart.html" class="nav-cart-btn" id="nav-cart-btn">
+      <span id="nav-cart-label" data-i18n="navCart">Bag</span>
+      <span class="nav-cart-badge" id="nav-cart-badge" data-count="0">0</span>
+    </a>
+  </div>
+  <div id="nav-controls">
+    <button type="button" id="ambient-btn" aria-pressed="false" title="Play music" aria-label="Play music">
+      <svg class="muted" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5zm11.5 3c0-2.71-1.56-5.05-3.84-6.2L11 5.86c2.9 1.22 4.96 4.08 4.96 7.64s-2.06 6.42-4.96 7.64l1.66-1.66c2.28-1.15 3.84-3.49 3.84-6.2z"/></svg>
+      <svg class="waves" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h2.5l4.5 4.5V5.5L5.5 10H3zm14 2c0-2.21-1.79-4-4-4v1.5c1.38 0 2.5 1.12 2.5 2.5S14.38 14.5 13 14.5V16c2.21 0 4-1.79 4-4zm-4-6v1.5c3.31 0 6 2.69 6 6s-2.69 6-6 6V20c4.42 0 8-3.58 8-8s-3.58-8-8-8z"/></svg>
+    </button>
+    <div id="lsw">
+      <button id="btn-en" class="on">EN</button>
+      <button id="btn-ar" lang="ar">&#1593;&#1585;&#1576;&#1610;</button>
+    </div>
+  </div>
+</nav>
+
+<div id="film">
+  <div class="fc on"><span class="fc-label">Intro</span></div>
+  <div class="fc"><span class="fc-label">Act I</span></div>
+  <div class="fc"><span class="fc-label">Act II</span></div>
+  <div class="fc"><span class="fc-label">Act III</span></div>
+  <div class="fc"><span class="fc-label">Act IV</span></div>
+  <div class="fc"><span class="fc-label">Act V</span></div>
+  <div class="fc"><span class="fc-label">Act VI</span></div>
+  <div class="fc"><span class="fc-label">Finale</span></div>
+</div>
+
+<div id="story-progress" aria-hidden="true">
+  <span id="story-progress-num">01 / 14</span>
+  <span id="story-progress-label">Chapter</span>
+</div>
+
+<div id="scroller">
+<div id="stage">
+  <canvas id="three-canvas"></canvas>
+
+  <!-- Corner marks -->
+  <div class="cm" id="cm1"></div><div class="cm" id="cm2"></div>
+  <div class="cm" id="cm3"></div><div class="cm" id="cm4"></div>
+
+  <!-- OV 0: OPENING -->
+  <div class="overlay" id="ov-open">
+    <span class="pre">Montana Naturals ? A skin story in six acts</span>
+    <h1><s>Breakouts.</s> <s>Scars.</s> <s>Dull skin.</s><br><em>Your skin,</em> rewritten.</h1>
+    <p class="sub">Six clinically-developed formulas.<br>One complete transformation.</p>
+    <div id="scroll-cue"><div class="scl"></div><span>Begin</span></div>
+  </div>
+
+  <!-- OV 1: ACT I TITLE -->
+  <div class="overlay ov-ch" id="ov-ch1">
+    <div class="ch-bg-n">I</div>
+    <div>
+      <span class="ch-act">Act I ? The Battle</span>
+      <div class="ch-t">When your skin is<br><em>fighting itself.</em></div>
+    </div>
+  </div>
+
+  <!-- OV 2: ACNE CLEANSER -->
+  <div class="overlay ov-prod" id="ov-p1">
+    <div class="pp-text">
+      <div class="pp-n">01</div>
+      <span class="pp-act">Face ? Oily & Acne-Prone</span>
+      <span class="pp-problem">"I've tried everything. Nothing works."</span>
+      <h2 class="pp-h"><em>Acne</em> Facial<br>Cleanser</h2>
+      <div class="pp-rule"></div>
+      <p class="pp-body">Zinc PCA regulates excess sebum at the source. Salicylic Acid dissolves inside clogged pores. Argan and Jojoba oils restore the barrier ? so your skin stops fighting itself and starts healing.</p>
+      <span class="pp-result">"Clear skin in 14 days. My pores actually breathe."</span>
+      <div class="pp-ingr"><span class="pi">Zinc PCA</span><span class="pi">Salicylic Acid</span><span class="pi">Argan Oil</span><span class="pi">Jojoba Oil</span></div>
+      <span class="pp-vol">200 ml ? 6.76 fl oz</span>
+      <div class="pp-actions">
+        <button type="button" class="pp-add" data-product="acne-cleanser">Add to Bag</button>
+        <a href="product.html?id=acne-cleanser" class="pp-view" data-pid="acne-cleanser">View</a>
+      </div>
+    </div>
+    <div class="pp-vis">
+      <div class="pp-imgwrap" data-product-id="acne-cleanser">
+        <img class="pp-img" src="assets/p1.png" alt="Acne Cleanser">
+      </div>
+    </div>
+  </div>
+
+  <!-- OV 3: ACT II TITLE -->
+  <div class="overlay ov-ch" id="ov-ch2">
+    <div class="ch-bg-n">II</div>
+    <div>
+      <span class="ch-act">Act II ? The Veil</span>
+      <div class="ch-t">When your glow is<br><em>buried beneath the surface.</em></div>
+    </div>
+  </div>
+
+  <!-- OV 4: WHITENING CLEANSER -->
+  <div class="overlay ov-prod" id="ov-p2">
+    <div class="pp-text">
+      <div class="pp-n">02</div>
+      <span class="pp-act">Face ? All Skin Types ? Brightening</span>
+      <span class="pp-problem">"My skin looks tired, uneven, grey."</span>
+      <h2 class="pp-h"><em>Whitening</em><br>Cleanser</h2>
+      <div class="pp-rule"></div>
+      <p class="pp-body">Licorice Extract intercepts melanin at the melanocyte level. Vitamin C dissolves surface oxidation. Niacinamide unifies tone ? revealing the luminous skin that was always there, waiting.</p>
+      <span class="pp-result">"Finally, a cleanser that actually brightens. My skin glows."</span>
+      <div class="pp-ingr"><span class="pi">Licorice Extract</span><span class="pi">Vitamin C</span><span class="pi">Zinc PCA</span><span class="pi">Niacinamide</span></div>
+      <span class="pp-vol">200 ml ? 6.76 fl oz</span>
+      <div class="pp-actions">
+        <button type="button" class="pp-add" data-product="whitening-cleanser">Add to Bag</button>
+        <a href="product.html?id=whitening-cleanser" class="pp-view" data-pid="whitening-cleanser">View</a>
+      </div>
+    </div>
+    <div class="pp-vis">
+      <div class="pp-imgwrap" data-product-id="whitening-cleanser">
+        <img class="pp-img" src="assets/p2.png" alt="Whitening Cleanser">
+      </div>
+    </div>
+  </div>
+
+  <!-- OV 5: ACT III TITLE -->
+  <div class="overlay ov-ch" id="ov-ch3">
+    <div class="ch-bg-n">III</div>
+    <div>
+      <span class="ch-act">Act III ? The Marks</span>
+      <div class="ch-t">When your past<br><em>writes itself on your skin.</em></div>
+    </div>
+  </div>
+
+  <!-- OV 6: WHITENING CREAM -->
+  <div class="overlay ov-prod" id="ov-p3">
+    <div class="pp-text">
+      <div class="pp-n">03</div>
+      <span class="pp-act">Face & Body ? Dark Spots ? Sensitive Areas</span>
+      <span class="pp-problem">"The spots from last year. Still there."</span>
+      <h2 class="pp-h"><em>Whitening</em><br>Cream</h2>
+      <div class="pp-rule"></div>
+      <p class="pp-body">Alpha-Arbutin blocks tyrosinase ? the enzyme that creates dark spots. Vitamin C & E neutralize the oxidative damage beneath. Niacinamide rebuilds the barrier so spots fade and stay faded.</p>
+      <span class="pp-result">"My underarm tone is finally even. Instant visible difference."</span>
+      <div class="pp-ingr"><span class="pi">Alpha-Arbutin</span><span class="pi">Vitamin C & E</span><span class="pi">Niacinamide</span></div>
+      <span class="pp-vol">50 ml ? 1.69 fl oz ? Face, Neck, Underarm, Elbows & Knees</span>
+      <div class="pp-actions">
+        <button type="button" class="pp-add" data-product="whitening-cream">Add to Bag</button>
+        <a href="product.html?id=whitening-cream" class="pp-view" data-pid="whitening-cream">View</a>
+      </div>
+    </div>
+    <div class="pp-vis">
+      <div class="pp-imgwrap" data-product-id="whitening-cream">
+        <img class="pp-img" src="assets/p3.png" alt="Whitening Cream">
+      </div>
+    </div>
+  </div>
+
+  <!-- OV 7: ACT IV TITLE -->
+  <div class="overlay ov-ch" id="ov-ch4">
+    <div class="ch-bg-n">IV</div>
+    <div>
+      <span class="ch-act">Act IV ? The Thirst</span>
+      <div class="ch-t">When your skin<br><em>is asking for more.</em></div>
+    </div>
+  </div>
+
+  <!-- OV 8: BODY LOTION -->
+  <div class="overlay ov-prod" id="ov-p4">
+    <div class="pp-text">
+      <div class="pp-n">04</div>
+      <span class="pp-act">Body ? All Skin Types ? 72-Hour Hydration</span>
+      <span class="pp-problem">"By midday, my skin feels tight and dry again."</span>
+      <h2 class="pp-h">Hand & Body<br><em>Lotion</em></h2>
+      <div class="pp-rule"></div>
+      <p class="pp-body">Glycerin pulls moisture from the air into your skin. Shea Butter and Coconut Oil build a lipid seal that locks it in for 72 hours. Vitamin E defends against the oxidative stress that causes premature aging.</p>
+      <span class="pp-result">"Applied once in the morning. Skin felt hydrated all night."</span>
+      <div class="pp-ingr"><span class="pi">Glycerin</span><span class="pi">Shea Butter</span><span class="pi">Coconut Oil</span><span class="pi">Vitamin E</span></div>
+      <span class="pp-vol">50 ml ? 1.69 fl oz ? Non-Greasy</span>
+      <div class="pp-actions">
+        <button type="button" class="pp-add" data-product="body-lotion">Add to Bag</button>
+        <a href="product.html?id=body-lotion" class="pp-view" data-pid="body-lotion">View</a>
+      </div>
+    </div>
+    <div class="pp-vis">
+      <div class="pp-imgwrap" data-product-id="body-lotion">
+        <img class="pp-img" src="assets/p4.png" alt="Body Lotion">
+      </div>
+    </div>
+  </div>
+
+  <!-- OV 9: ACT V TITLE -->
+  <div class="overlay ov-ch" id="ov-ch5">
+    <div class="ch-bg-n">V</div>
+    <div>
+      <span class="ch-act">Act V ? The Recovery</span>
+      <div class="ch-t">When your skin needs<br><em>to heal, quietly.</em></div>
+    </div>
+  </div>
+
+  <!-- OV 10: POST LASER -->
+  <div class="overlay ov-prod" id="ov-p5">
+    <div class="pp-text">
+      <div class="pp-n">05</div>
+      <span class="pp-act">Clinical ? Post-Procedure Recovery</span>
+      <span class="pp-problem">"The redness after my laser session. The sensitivity."</span>
+      <h2 class="pp-h"><em>Post Laser</em><br>Cream</h2>
+      <div class="pp-rule"></div>
+      <p class="pp-body">Laser procedures trigger an inflammatory cascade. Green Tea Extract interrupts it at the source ? neutralizing free radicals instantly. Sesame Oil rebuilds the lipid barrier while Vitamins E & B3 accelerate new cell turnover.</p>
+      <span class="pp-result">"Redness gone in 2 days instead of a week."</span>
+      <div class="pp-ingr"><span class="pi">Green Tea Extract</span><span class="pi">Sesame Oil</span><span class="pi">Vitamin E & B3</span></div>
+      <span class="pp-vol">50 ml ? 1.69 fl oz ? Smoothes ? Heals ? Repairs</span>
+      <div class="pp-actions">
+        <button type="button" class="pp-add" data-product="post-laser">Add to Bag</button>
+        <a href="product.html?id=post-laser" class="pp-view" data-pid="post-laser">View</a>
+      </div>
+    </div>
+    <div class="pp-vis">
+      <div class="pp-imgwrap" data-product-id="post-laser">
+        <img class="pp-img" src="assets/p5.png" alt="Post Laser">
+      </div>
+    </div>
+  </div>
+
+  <!-- OV 11: ACT VI TITLE -->
+  <div class="overlay ov-ch" id="ov-ch6">
+    <div class="ch-bg-n">VI</div>
+    <div>
+      <span class="ch-act">Act VI ? The Final Chapter</span>
+      <div class="ch-t">When scars become<br><em>the story you rewrite.</em></div>
+    </div>
+  </div>
+
+  <!-- OV 12: ANTI-SCAR -->
+  <div class="overlay ov-prod" id="ov-p6">
+    <div class="pp-text">
+      <div class="pp-n">06</div>
+      <span class="pp-act">Clinical ? Keloid & Hypertrophic Scars</span>
+      <span class="pp-problem">"The scar from three years ago. I thought it was permanent."</span>
+      <h2 class="pp-h"><em>Anti-Scar</em><br>Silicone Gel</h2>
+      <div class="pp-rule"></div>
+      <p class="pp-body">Medical-grade silicone creates a microenvironment that regulates collagen synthesis ? flattening raised scars, fading discoloration, and restoring skin texture. The only non-invasive treatment with peer-reviewed clinical evidence.</p>
+      <span class="pp-result">"My keloid from surgery is finally flattening. Three months in."</span>
+      <div class="pp-ingr"><span class="pi">Medical-Grade Silicone</span><span class="pi">Advanced Complex</span></div>
+      <span class="pp-vol">50 ml ? 1.69 fl oz ? Old & New Scars</span>
+      <div class="pp-actions">
+        <button type="button" class="pp-add" data-product="anti-scar">Add to Bag</button>
+        <a href="product.html?id=anti-scar" class="pp-view" data-pid="anti-scar">View</a>
+      </div>
+    </div>
+    <div class="pp-vis">
+      <div class="pp-imgwrap" data-product-id="anti-scar">
+        <img class="pp-img" src="assets/p6.png" alt="Anti-Scar Gel">
+      </div>
+    </div>
+  </div>
+
+  <!-- OV 13: FINALE -->
+  <div class="overlay" id="ov-finale">
+    <span class="ftag">The Montana Promise</span>
+    <p class="fq">"Your skin has a story.<br>We wrote the <em>ending.</em>"</p>
+    <div class="fstats">
+      <div class="fst"><div class="fsn">6</div><div class="fsl">Formulas</div></div>
+      <div class="fst"><div class="fsn">72h</div><div class="fsl">Hydration</div></div>
+      <div class="fst"><div class="fsn">100%</div><div class="fsl">Tested</div></div>
+      <div class="fst"><div class="fsn">?</div><div class="fsl">Results</div></div>
+    </div>
+    <div class="finale-actions">
+      <button type="button" class="fcta fcta-quiz quiz-trigger" id="finale-quiz-btn">
+        <span data-i18n="quizCta">Find your routine</span>
+      </button>
+      <a href="shop.html" class="fcta">Begin Your Skin Story <span>?</span></a>
+    </div>
+  </div>
+
+</div><!-- /stage -->
+</div><!-- /scroller -->
+
+<footer class="site-footer" id="index-footer">
+  <a href="privacy-policy.html" data-i18n="footerPrivacy">Privacy Policy</a>
+  <span class="site-footer-copy">? Montana Naturals</span>
+</footer>
+
+<div id="quiz-fab-wrap">
+  <button type="button" id="quiz-fab" class="quiz-trigger" aria-label="Skin quiz">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/><path d="M5 19l1 3 1-3 3-1-3-1-1-3-1 3-3 1 3 1z"/></svg>
+    <span data-i18n="quizCta">Find your routine</span>
+  </button>
+</div>
+
+<div id="quiz-modal" class="quiz-modal" aria-hidden="true">
+  <div class="quiz-backdrop"></div>
+  <div class="quiz-panel">
+    <button type="button" class="quiz-close-btn" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div id="quiz-body"></div>
+  </div>
+</div>
+
+<script src="js/products.js"></script>
+<script src="js/product-stage.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* ??????????????????????????????????????????
+   CURSOR
+?????????????????????????????????????????? */
+const curEl=document.getElementById('cur'), ringEl=document.getElementById('cur-r');
+let cx=0,cy=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{cx=e.clientX;cy=e.clientY;});
+(function curTick(){
+  requestAnimationFrame(curTick);
+  rx+=(cx-rx)*.13; ry+=(cy-ry)*.13;
+  curEl.style.cssText+=`;left:${cx}px;top:${cy}px;`;
+  ringEl.style.cssText+=`;left:${rx}px;top:${ry}px;`;
+})();
+document.querySelectorAll('a,button,.pp-img').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{gsap.to(curEl,{width:16,height:16,duration:.3});gsap.to(ringEl,{width:44,height:44,duration:.3});});
+  el.addEventListener('mouseleave',()=>{gsap.to(curEl,{width:5,height:5,duration:.3});gsap.to(ringEl,{width:24,height:24,duration:.3});});
+});
+
+/* ??????????????????????????????????????????
+   THREE.JS ? SCROLL-DRIVEN CINEMATIC 3D
+?????????????????????????????????????????? */
+const canvas=document.getElementById('three-canvas');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.setClearColor(0x231840,1);
+
+const scene=new THREE.Scene();
+scene.fog=new THREE.FogExp2(0x2A204E,0.0095);
+const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,150);
+camera.position.set(0,0,16);
+
+/* LIGHTS ? match shop background */
+const ambL=new THREE.AmbientLight(0x2A1548,1.6); scene.add(ambL);
+const pl1=new THREE.PointLight(0x7C3AED,3.2,70); pl1.position.set(8,6,12); scene.add(pl1);
+const pl2=new THREE.PointLight(0x5B21B6,2.2,55); pl2.position.set(-8,-5,10); scene.add(pl2);
+const pl3=new THREE.PointLight(0x8B5CF6,1.8,45); pl3.position.set(0,12,6); scene.add(pl3);
+
+/* 1. MOLECULAR RINGS */
+const rg=new THREE.Group(); scene.add(rg);
+[
+  [2.2,.008,0x8B5CF6,.40,.30,.10,.00, .0035],
+  [4.0,.006,0x7C3AED,.32,.10,.40,.20,-.0025],
+  [6.0,.005,0x7C3AED,.26,.50,.20,.10, .0018],
+  [8.2,.004,0x6D28D9,.20,.15,.55,.30,-.0013],
+  [10.5,.004,0x6D28D9,.16,.35,.10,.45, .0009],
+  [1.5,.009,0xA78BFA,.44,.60,.30,.20,-.0042],
+  [5.0,.005,0x8B5CF6,.28,.20,.60,.15, .0016],
+].forEach(([r,tube,col,op,rx,ry,rz,spd])=>{
+  const m=new THREE.Mesh(
+    new THREE.TorusGeometry(r,tube,3,128),
+    new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op})
+  );
+  m.rotation.set(rx,ry,rz);
+  m.userData={spd};
+  rg.add(m);
+});
+
+/* 2. COLLAGEN THREADS */
+const sg=new THREE.Group(); scene.add(sg);
+for(let i=0;i<18;i++){
+  const pts=[];
+  const ox=(Math.random()-.5)*26,oy=(Math.random()-.5)*18,oz=-10-Math.random()*12;
+  const L=5+Math.random()*7, amp=.3+Math.random()*.7, fr=1.2+Math.random()*2;
+  for(let j=0;j<22;j++){
+    const t=j/21;
+    pts.push(new THREE.Vector3(
+      ox+Math.sin(t*fr*Math.PI)*amp,
+      oy+(t-.5)*L,
+      oz+Math.cos(t*fr*Math.PI*1.4)*amp*.4
+    ));
+  }
+  const h=255+Math.random()*28;
+  const m=new THREE.Mesh(
+    new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),28,.007+Math.random()*.012,4,false),
+    new THREE.MeshBasicMaterial({color:new THREE.Color(`hsl(${h},68%,62%)`),transparent:true,opacity:.14+Math.random()*.18})
+  );
+  m.userData={ph:Math.random()*Math.PI*2, spd:(Math.random()-.5)*.0007};
+  sg.add(m);
+}
+
+/* 3. HEX CELL GRID */
+const hg=new THREE.Group(); scene.add(hg);
+const HR=2.0, HW=HR*Math.sqrt(3);
+for(let row=-4;row<=4;row++){
+  for(let col=-5;col<=5;col++){
+    const pts=[];
+    for(let k=0;k<=6;k++){
+      const a=k/6*Math.PI*2-Math.PI/6;
+      pts.push(new THREE.Vector3(Math.cos(a)*HR,Math.sin(a)*HR,0));
+    }
+    const m=new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineBasicMaterial({color:0x8B5CF6,transparent:true,opacity:.09+Math.random()*.11})
+    );
+    m.position.set(col*HW+(row%2)*HW*.5, row*HR*1.5, -16-Math.random()*8);
+    m.rotation.z=Math.random()*.2;
+    hg.add(m);
+  }
+}
+
+/* 4. PARTICLES */
+const PC=500;
+const ptG=new THREE.BufferGeometry();
+const ptP=new Float32Array(PC*3), ptC=new Float32Array(PC*3), ptPH=new Float32Array(PC);
+for(let i=0;i<PC;i++){
+  ptP[i*3]=(Math.random()-.5)*44; ptP[i*3+1]=(Math.random()-.5)*28; ptP[i*3+2]=(Math.random()-.5)*20-5;
+  const t=Math.random();
+  ptC[i*3]=.35+t*.25; ptC[i*3+1]=.18+t*.12; ptC[i*3+2]=.65+t*.2;
+  ptPH[i]=Math.random()*Math.PI*2;
+}
+ptG.setAttribute('position',new THREE.BufferAttribute(ptP,3));
+ptG.setAttribute('color',   new THREE.BufferAttribute(ptC,3));
+scene.add(new THREE.Points(ptG,new THREE.PointsMaterial({size:.045,sizeAttenuation:true,transparent:true,opacity:.28,vertexColors:true})));
+
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+
+// Overlays
+const ovIds=['ov-open','ov-ch1','ov-p1','ov-ch2','ov-p2','ov-ch3','ov-p3',
+             'ov-ch4','ov-p4','ov-ch5','ov-p5','ov-ch6','ov-p6','ov-finale'];
+const ovEls=ovIds.map(id=>{
+  const el=document.getElementById(id);
+  if(el){el.style.opacity='0';el.style.display='none';}
+  return el;
+});
+const filmDots=document.querySelectorAll('.fc');
+
+// Camera targets per scene (product slides share one fixed camera)
+const PROD_CAM={z:7,x:0,y:0,fog:.011,ambI:1.6};
+const camTargets=[
+  {z:10,  x:0,   y:0,   fog:.011, ambI:1.6},  // 0 open
+  {z:8,   x:0,   y:0,   fog:.011, ambI:1.6},  // 1 ch1
+  PROD_CAM,  // 2 p1
+  {z:8,   x:0,   y:0,   fog:.011, ambI:1.6},  // 3 ch2
+  PROD_CAM,  // 4 p2
+  {z:8,   x:0,   y:0,   fog:.011, ambI:1.6},  // 5 ch3
+  PROD_CAM,  // 6 p3
+  {z:8,   x:0,   y:0,   fog:.011, ambI:1.6},  // 7 ch4
+  PROD_CAM,  // 8 p4
+  {z:8,   x:0,   y:0,   fog:.011, ambI:1.6},  // 9 ch5
+  PROD_CAM,  // 10 p5
+  {z:8,   x:0,   y:0,   fog:.011, ambI:1.6},  // 11 ch6
+  PROD_CAM,  // 12 p6
+  {z:8,   x:0,   y:0,   fog:.011, ambI:1.6},  // 13 finale
+];
+
+const TOTAL_SCENES=14;
+const SCENE_HEIGHT=100/TOTAL_SCENES; // % of scroll height per scene
+
+let currentScene=-1, targetScene=0;
+let camTargX=0, camTargY=0, camTargZ=10;
+let mouseX=0, mouseY=0;
+let t=0;
+
+document.addEventListener('mousemove',e=>{
+  mouseX=(e.clientX/innerWidth-.5)*2;
+  mouseY=(e.clientY/innerHeight-.5)*2;
+});
+
+let _activeOv=null,_swTimer=null;
+const PROD_SCENES=[2,4,6,8,10,12];
+
+function enhanceProductStages(){
+  if(window.MontanaProductStage)MontanaProductStage.enhanceAll(document);
+}
+
+function animateProductEntrance(el){
+  if(window.MontanaProductStage)MontanaProductStage.animateEntrance(el);
+}
+
+function updateStoryProgress(s){
+  var bar=document.getElementById('story-progress');
+  var num=document.getElementById('story-progress-num');
+  var lbl=document.getElementById('story-progress-label');
+  if(!bar||!num)return;
+  var ar=document.documentElement.getAttribute('lang')==='ar';
+  num.textContent=(s<9?'0':'')+(s+1)+' / '+TOTAL_SCENES;
+  if(lbl)lbl.textContent=ar?'\u0627\u0644\u0641\u0635\u0644':'Chapter';
+  bar.style.opacity=s>0?'1':'0';
+}
+function setScene(s){
+  if(s===currentScene)return;
+  currentScene=s;
+  if(_swTimer)clearTimeout(_swTimer);
+  if(_activeOv){_activeOv.style.transition='none';_activeOv.style.opacity='0';_activeOv.style.display='none';_activeOv=null;}
+  updateStoryProgress(s);
+  if(PROD_SCENES.indexOf(s)!==-1){
+    var pel=ovEls[s];
+    if(pel)animateProductEntrance(pel.querySelector('.pp-vis'));
+  }
+  _swTimer=setTimeout(()=>{
+    const el=ovEls[s];
+    if(el){el.style.display='';el.offsetHeight;el.style.transition='opacity 0.55s ease';el.style.opacity='1';_activeOv=el;}
+  },40);
+  const filmIdx=s===0?0:s===13?7:Math.ceil(s/2);
+  filmDots.forEach((d,i)=>d.classList.toggle('on',i===Math.min(filmIdx,7)));
+  const ct=camTargets[s]||camTargets[0];
+  camTargX=ct.x;camTargY=ct.y;camTargZ=ct.z;
+  gsap.to(ambL,{intensity:ct.ambI,duration:1.2});
+}
+
+/* ?? SCROLL ? SCENE MAPPING ?? */
+function initStoryScroll(){
+  ScrollTrigger.getAll().forEach(function(st){
+    var tr=st.vars&&st.vars.trigger;
+    if(tr==='#scroller'||tr===document.getElementById('scroller'))st.kill();
+  });
+  ScrollTrigger.create({
+    trigger:'#scroller',
+    start:'top top',
+    end:'bottom bottom',
+    onUpdate(self){
+      const prog=self.progress;
+      const sceneF=prog*(TOTAL_SCENES-.001);
+      const s=Math.floor(sceneF);
+      setScene(Math.min(s,TOTAL_SCENES-1));
+      camTargX=camTargets[s]?.x||0;
+      camTargY=camTargets[s]?.y||0;
+      camTargZ=camTargets[s]?.z||10;
+    }
+  });
+  setScene(0);
+  if(window.ScrollTrigger)ScrollTrigger.refresh();
+}
+function bootDesktopStory(){
+  if(window.matchMedia('(max-width:1024px)').matches)return;
+  if(window.matchMedia('(hover:none) and (pointer:coarse)').matches)return;
+  initStoryScroll();
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',bootDesktopStory);
+}else{
+  bootDesktopStory();
+}
+window.addEventListener('montana:story-restore',initStoryScroll);
+
+/* ?? RESIZE ?? */
+window.addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
+
+/* ??????????????????????????????????????????
+   RENDER LOOP
+?????????????????????????????????????????? */
+let camCurX=0,camCurY=0,camCurZ=10;
+(function tick(){
+  requestAnimationFrame(tick);
+  t+=.007;
+
+  /* smooth camera (scroll scenes + mouse) */
+  const targX=camTargX+mouseX*.45;
+  const targY=camTargY-mouseY*.3;
+  camCurX+=(targX-camCurX)*.04;
+  camCurY+=(targY-camCurY)*.04;
+  camCurZ+=(camTargZ-camCurZ)*.04;
+  camera.position.set(camCurX,camCurY+Math.sin(t*.28)*.1,camCurZ);
+  camera.lookAt(mouseX*.3,mouseY*.2,0);
+
+  rg.children.forEach(m=>{m.rotation.y+=m.userData.spd; m.rotation.z+=m.userData.spd*.3;});
+  rg.rotation.y=t*.006; rg.rotation.x=Math.sin(t*.1)*.025;
+  sg.children.forEach(m=>{m.rotation.y+=m.userData.spd; m.position.y+=Math.sin(t*.35+m.userData.ph)*.0006;});
+  sg.rotation.y=-t*.004;
+  hg.rotation.z=t*.002; hg.rotation.y=Math.sin(t*.07)*.03;
+
+  const pa=ptG.attributes.position.array;
+  for(let i=0;i<PC;i++){
+    pa[i*3+1]+=.001;
+    pa[i*3]+=Math.sin(t*.25+ptPH[i])*.0003;
+    if(pa[i*3+1]>14)pa[i*3+1]=-14;
+  }
+  ptG.attributes.position.needsUpdate=true;
+
+  pl1.position.x=Math.sin(t*.25)*10; pl1.position.z=Math.cos(t*.25)*8+10;
+  pl3.position.x=Math.cos(t*.18)*8; pl3.position.y=Math.sin(t*.18)*6;
+
+  renderer.render(scene,camera);
+})();
+
+/* ??????????????????????????????????????????
+   OPENING ENTRANCE
+?????????????????????????????????????????? */
+gsap.timeline({delay:.5})
+  .to('#ov-open .pre',  {opacity:1,duration:1,ease:'power3.out'})
+  .to('#ov-open h1',    {opacity:1,y:0,duration:1.3,ease:'power3.out'},.2)
+  .to('#ov-open .sub',  {opacity:1,duration:1},.6)
+  .to('#scroll-cue',    {opacity:1,duration:.8},1.3);
+
+/* ??????????????????????????????????????????
+   PRODUCT IMG 3D HOVER
+?????????????????????????????????????????? */
+/* PRODUCT IMG 3D HOVER ? skip when product-stage handles tilt */
+if(!window.MontanaProductStage){
+document.querySelectorAll('.pp-imgwrap').forEach(w=>{
+  w.addEventListener('mousemove',e=>{
+    const r=w.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
+    gsap.to(w.querySelector('.pp-img'),{rotationY:x*18,rotationX:-y*14,duration:.5,ease:'power2.out',transformPerspective:900});
+  });
+  w.addEventListener('mouseleave',()=>{
+    gsap.to(w.querySelector('.pp-img'),{rotationY:0,rotationX:0,duration:1,ease:'power2.out'});
+  });
+});
+}
+</script>
+
+
+<script src="js/cart.js?v=3"></script>
+<script src="js/shop-common.js?v=3"></script>
+<script src="js/story-i18n.js?v=3"></script>
+<script src="js/ambient-audio.js"></script>
+<script src="js/shop-extras.js"></script>
+<script src="js/mobile-app.js?v=4"></script>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  if(window.MontanaShop){
+    MontanaShop.initLang();
+    MontanaShop.bindLang();
+    MontanaShop.bindNav();
+    MontanaShop.bindIngredientLinks(document);
+  }
+  if(window.MontanaShopExtras&&typeof MontanaShopExtras.initQuiz==='function'){
+    MontanaShopExtras.initQuiz();
+  }
+  if(window.MontanaAmbient&&typeof MontanaAmbient.bind==='function')MontanaAmbient.bind();
+  if(typeof enhanceProductStages==='function')enhanceProductStages();
+  document.querySelectorAll('.pp-add').forEach(function(btn){
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();
+      if(!window.MontanaCart)return;
+      MontanaCart.add(btn.getAttribute('data-product'));
+      if(window.MontanaShop)MontanaShop.toast(MontanaShop.t('added'));
+      if(window.MontanaShop)MontanaShop.updateBadge();
+    });
+  });
+  document.querySelectorAll('.pp-view[data-pid]').forEach(function(link){
+    link.addEventListener('click',function(){
+      try{sessionStorage.setItem('montana_pdp',link.getAttribute('data-pid'));}catch(e){}
+    });
+  });
+});
+</script>
+<!-- MONTANA CHATBOT -->
+<link rel="stylesheet" href="css/chatbot.css?v=11">
+<div id="chat-btn-wrap">
+  <button type="button" id="chat-btn" aria-label="Chat">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+    <div id="chat-notif">1</div>
+  </button>
+</div>
+<div id="chat-window">
+  <div id="chat-header">
+    <div class="avatar"></div>
+    <div class="info">
+      <div class="name"></div>
+      <div class="status" id="chat-status"></div>
+    </div>
+    <button type="button" id="chat-close" aria-label="Close"></button>
+  </div>
+  <div id="chat-messages"></div>
+  <div id="chat-input-area">
+    <button type="button" id="chat-send"></button>
+    <input type="text" id="chat-input" autocomplete="off">
+  </div>
+</div>
+<script src="js/chat-orders.js?v=7"></script>
+<script src="js/chat-knowledge.js?v=7"></script>
+<script src="js/chat-intent.js?v=14"></script>
+<script src="js/chat-phrases.js?v=4"></script>
+<script src="js/chatbot.js?v=37"></script>
+</body>
+</html>

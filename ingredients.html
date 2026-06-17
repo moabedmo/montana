@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<script>try{var _ml=localStorage.getItem('montana_lang');if(_ml){document.documentElement.setAttribute('lang',_ml);document.documentElement.setAttribute('dir',_ml==='ar'?'rtl':'ltr');}}catch(e){}</script>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#231840">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Ingredient glossary for Montana Naturals — learn the science behind Zinc PCA, Niacinamide, Salicylic Acid and more.">
+<meta name="robots" content="index, follow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="canonical" href="ingredients.html">
+<link rel="alternate" hreflang="en" href="ingredients.html">
+<link rel="alternate" hreflang="ar" href="ingredients.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Montana Naturals">
+<meta property="og:title" content="Montana Naturals — Ingredients">
+<meta property="og:description" content="The science behind every Montana Naturals formula.">
+<meta property="og:image" content="assets/logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<title>Montana Naturals — Ingredients</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700&family=El+Messiri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/shop.css">
+<link rel="stylesheet" href="css/brand.css">
+<link rel="stylesheet" href="css/ingredients.css">
+<link rel="stylesheet" href="css/mobile-app.css?v=6">
+<link rel="stylesheet" href="css/brand-ar.css">
+<link rel="stylesheet" href="css/legal.css">
+</head>
+<body>
+
+<canvas id="shop-bg-canvas"></canvas>
+
+<nav class="shop-nav">
+  <a href="index.html" class="brand-logo-link" aria-label="Montana"><span class="brand-logo"></span></a>
+  <div id="nav-controls">
+    <button type="button" id="ambient-btn" aria-pressed="false" title="Play music" aria-label="Play music">
+      <svg class="muted" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5zm11.5 3c0-2.71-1.56-5.05-3.84-6.2L11 5.86c2.9 1.22 4.96 4.08 4.96 7.64s-2.06 6.42-4.96 7.64l1.66-1.66c2.28-1.15 3.84-3.49 3.84-6.2z"/></svg>
+      <svg class="waves" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h2.5l4.5 4.5V5.5L5.5 10H3zm14 2c0-2.21-1.79-4-4-4v1.5c1.38 0 2.5 1.12 2.5 2.5S14.38 14.5 13 14.5V16c2.21 0 4-1.79 4-4zm-4-6v1.5c3.31 0 6 2.69 6 6s-2.69 6-6 6V20c4.42 0 8-3.58 8-8s-3.58-8-8-8z"/></svg>
+    </button>
+    <div id="lsw">
+      <button id="btn-en" class="on">EN</button>
+      <button id="btn-ar">عربي</button>
+    </div>
+  </div>
+  <div class="shop-links">
+    <a href="index.html" class="shop-link" data-i18n="navStory">Story</a>
+    <a href="shop.html" class="shop-link" data-i18n="navShop">Collection</a>
+    <a href="ingredients.html" class="shop-link active" data-i18n="navIngredients">Ingredients</a>
+    <a href="cart.html" class="cart-btn">
+      <span data-i18n="navCart">Bag</span>
+      <span class="cart-badge" data-count="0">0</span>
+    </a>
+  </div>
+</nav>
+<div class="shipping-bar"><span data-i18n="shippingBar">Cairo & Giza delivery in 2–4 days · Free shipping over EGP 1,000 · Cash on delivery</span></div>
+
+<div class="shop-wrap ing-page">
+  <header class="shop-hero ing-hero">
+    <div class="ing-hero-glow" aria-hidden="true"></div>
+    <div class="ing-hero-ring ing-hero-ring-1" aria-hidden="true"></div>
+    <div class="ing-hero-ring ing-hero-ring-2" aria-hidden="true"></div>
+    <span class="eyebrow" data-i18n="navIngredients">Ingredients</span>
+    <h1 data-i18n="glossaryTitle">The <em>Science</em><br>Behind Every Formula</h1>
+    <p class="ing-hero-sub" data-i18n="glossarySub">Clinical actives, botanical extracts, and vitamins — decoded for your skin.</p>
+    <div class="ing-stats" id="ing-stats" aria-hidden="true"></div>
+  </header>
+
+  <div class="ing-layout">
+    <aside class="ing-index" id="ing-index" aria-label="Ingredient index"></aside>
+    <div class="ing-main">
+      <div class="ing-toolbar">
+        <div class="ing-search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input type="search" class="ing-search" id="ing-search" autocomplete="off" aria-label="Search ingredients">
+        </div>
+        <div class="ing-filters" id="ing-filters"></div>
+      </div>
+      <div class="glossary-grid ing-grid" id="glossary-root"></div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <a href="privacy-policy.html" data-i18n="footerPrivacy">Privacy Policy</a>
+  <span class="site-footer-copy">© Montana Naturals</span>
+</footer>
+
+<script src="js/seo.js"></script>
+<script src="js/products.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/ambient-audio.js"></script>
+<script src="js/shop-common.js"></script>
+<script src="js/shop-extras.js"></script>
+<script>
+MontanaShop.initLang();
+MontanaShop.bindLang();
+MontanaShop.bindNav();
+MontanaShopExtras.initQuiz();
+MontanaShopExtras.initGlossaryPage();
+if (window.MontanaSEO) {
+  MontanaSEO.initPage({
+    canonical: 'ingredients.html',
+    jsonLd: MontanaSEO.organizationSchema()
+  });
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="js/shop-bg.js"></script>
+<script src="js/mobile-app.js?v=4"></script>
+</body>
+</html>

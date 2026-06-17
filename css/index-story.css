@@ -1,0 +1,115 @@
+/* Homepage story — ONE unified product layout (no flip) */
+
+.ov-prod {
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 56px;
+  align-items: center;
+  padding: 0 clamp(28px, 5.5vw, 88px);
+  box-sizing: border-box;
+}
+
+/* EN: text left · product right — always */
+.ov-prod .pp-text {
+  grid-column: 1;
+  grid-row: 1;
+  position: relative;
+  justify-self: end;
+  align-self: center;
+  width: 100%;
+  max-width: 400px;
+  padding: 28px 32px !important;
+  text-align: left;
+  direction: ltr;
+}
+
+.ov-prod .pp-vis {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: start;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 360px;
+  min-height: 0;
+  position: relative;
+}
+
+.ov-prod .pp-imgwrap {
+  width: 100% !important;
+  max-width: 340px !important;
+  aspect-ratio: 3 / 4;
+  height: auto !important;
+  margin: 0 auto;
+}
+
+.ov-prod .pp-text::before {
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-left: none !important;
+}
+
+.ov-prod .pp-body {
+  max-width: 100%;
+}
+
+/* AR: text right · product left — always (same structure, mirrored) */
+html[lang="ar"] .ov-prod .pp-text {
+  grid-column: 2;
+  justify-self: start;
+  text-align: right;
+  direction: rtl;
+  padding: 28px 32px !important;
+}
+
+html[lang="ar"] .ov-prod .pp-vis {
+  grid-column: 1;
+  justify-self: end;
+}
+
+html[lang="ar"] .ov-prod .pp-text::before {
+  border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-right: none !important;
+}
+
+html[lang="ar"] .ov-prod .pp-result {
+  border-right: 1px solid rgba(124, 58, 237, 0.35) !important;
+  border-left: none !important;
+  padding-right: 12px !important;
+  padding-left: 0 !important;
+}
+
+html[lang="ar"] .ov-prod .pp-ingr {
+  justify-content: flex-end;
+}
+
+@media (max-width: 900px) {
+  .ov-prod {
+    grid-template-columns: 1fr;
+    row-gap: 28px;
+    padding: 88px 20px 48px;
+    align-content: center;
+  }
+
+  .ov-prod .pp-text,
+  html[lang="ar"] .ov-prod .pp-text {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: stretch;
+    max-width: none;
+  }
+
+  .ov-prod .pp-vis,
+  html[lang="ar"] .ov-prod .pp-vis {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: center;
+    max-width: 300px;
+  }
+
+  .ov-prod .pp-imgwrap {
+    max-width: 280px !important;
+  }
+}

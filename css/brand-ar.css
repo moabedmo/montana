@@ -1,0 +1,128 @@
+/* Montana — premium Arabic typography (Alexandria + El Messiri) */
+
+html[lang="ar"] {
+  --font-ar-body: 'Alexandria', 'Segoe UI', sans-serif;
+  --font-ar-display: 'El Messiri', 'Alexandria', sans-serif;
+}
+
+html[lang="ar"] body,
+html[lang="ar"] button,
+html[lang="ar"] input,
+html[lang="ar"] textarea,
+html[lang="ar"] select,
+html[lang="ar"] #chat-window,
+html[lang="ar"] #chat-messages,
+html[lang="ar"] .msg,
+html[lang="ar"] .qr-btn {
+  font-family: var(--font-ar-body) !important;
+  letter-spacing: 0 !important;
+  text-transform: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3,
+html[lang="ar"] .pp-h,
+html[lang="ar"] #ov-open h1,
+html[lang="ar"] .ch-t,
+html[lang="ar"] .fq,
+html[lang="ar"] .shop-hero h1,
+html[lang="ar"] .card-name,
+html[lang="ar"] .card-price,
+html[lang="ar"] .pdp-name,
+html[lang="ar"] .pdp-price,
+html[lang="ar"] .cart-item-name,
+html[lang="ar"] .cart-summary h3,
+html[lang="ar"] .checkout-title,
+html[lang="ar"] .order-success h1,
+html[lang="ar"] .section-title,
+html[lang="ar"] .bundle-name,
+html[lang="ar"] .app-hero h1,
+html[lang="ar"] .app-story-card-name,
+html[lang="ar"] .quiz-headline,
+html[lang="ar"] #story-progress-num {
+  font-family: var(--font-ar-display) !important;
+  font-weight: 600 !important;
+  font-style: normal !important;
+  letter-spacing: 0 !important;
+  line-height: 1.3;
+}
+
+html[lang="ar"] .pp-problem,
+html[lang="ar"] .pp-result,
+html[lang="ar"] .pdp-quote {
+  font-family: var(--font-ar-display) !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+
+html[lang="ar"] .pp-body,
+html[lang="ar"] .sub,
+html[lang="ar"] .card-cat,
+html[lang="ar"] .pdp-desc,
+html[lang="ar"] .app-story-card-desc,
+html[lang="ar"] .shipping-bar {
+  font-family: var(--font-ar-body) !important;
+  font-weight: 400;
+  line-height: 1.85;
+  letter-spacing: 0 !important;
+}
+
+html[lang="ar"] .nl,
+html[lang="ar"] .shop-link,
+html[lang="ar"] .nav-cart-btn,
+html[lang="ar"] .cart-btn,
+html[lang="ar"] .filter-btn,
+html[lang="ar"] .pp-add,
+html[lang="ar"] .pp-view,
+html[lang="ar"] .pp-act,
+html[lang="ar"] .ch-act,
+html[lang="ar"] .pre,
+html[lang="ar"] .ftag,
+html[lang="ar"] .fsl,
+html[lang="ar"] .card-add,
+html[lang="ar"] .btn-primary,
+html[lang="ar"] .btn-ghost,
+html[lang="ar"] .quiz-hero-cta,
+html[lang="ar"] #lsw button,
+html[lang="ar"] .app-btn,
+html[lang="ar"] .app-tab span {
+  font-family: var(--font-ar-body) !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  font-weight: 500;
+}
+
+html[lang="ar"] #lsw button {
+  font-size: 14px !important;
+}
+
+html[lang="ar"] .pi,
+html[lang="ar"] .pp-vol,
+html[lang="ar"] .card-size {
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+html[lang="ar"] #ov-open .pre,
+html[lang="ar"] #ov-open .sub {
+  letter-spacing: 0 !important;
+  font-size: 15px;
+}
+
+html[lang="ar"] #scroll-cue span {
+  letter-spacing: 0 !important;
+}
+
+html[lang="ar"] .fc-label {
+  letter-spacing: 0 !important;
+  font-size: 12px;
+}
+
+html[lang="ar"] #story-progress-label {
+  font-family: var(--font-ar-body) !important;
+  font-size: 15px;
+}

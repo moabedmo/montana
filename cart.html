@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#231840">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Your Montana Naturals shopping bag. Review items and proceed to checkout with cash on delivery.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="canonical" href="cart.html">
+<title>Montana Naturals — Your Bag</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700&family=El+Messiri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/shop.css">
+<link rel="stylesheet" href="css/brand.css">
+<link rel="stylesheet" href="css/mobile-app.css?v=6">
+<link rel="stylesheet" href="css/brand-ar.css">
+<link rel="stylesheet" href="css/legal.css">
+</head>
+<body>
+
+<canvas id="shop-bg-canvas"></canvas>
+
+<nav class="shop-nav">
+  <a href="index.html" class="brand-logo-link" aria-label="Montana"><span class="brand-logo"></span></a>
+  <div id="nav-controls">
+    <button type="button" id="ambient-btn" aria-pressed="false" title="Play music" aria-label="Play music">
+      <svg class="muted" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5zm11.5 3c0-2.71-1.56-5.05-3.84-6.2L11 5.86c2.9 1.22 4.96 4.08 4.96 7.64s-2.06 6.42-4.96 7.64l1.66-1.66c2.28-1.15 3.84-3.49 3.84-6.2z"/></svg>
+      <svg class="waves" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h2.5l4.5 4.5V5.5L5.5 10H3zm14 2c0-2.21-1.79-4-4-4v1.5c1.38 0 2.5 1.12 2.5 2.5S14.38 14.5 13 14.5V16c2.21 0 4-1.79 4-4zm-4-6v1.5c3.31 0 6 2.69 6 6s-2.69 6-6 6V20c4.42 0 8-3.58 8-8s-3.58-8-8-8z"/></svg>
+    </button>
+    <div id="lsw">
+      <button id="btn-en" class="on">EN</button>
+      <button id="btn-ar">عربي</button>
+    </div>
+  </div>
+  <div class="shop-links">
+    <a href="index.html" class="shop-link" data-i18n="navStory">Story</a>
+    <a href="shop.html" class="shop-link" data-i18n="navShop">Collection</a>
+    <a href="ingredients.html" class="shop-link" data-i18n="navIngredients">Ingredients</a>
+    <a href="cart.html" class="cart-btn active">
+      <span data-i18n="navCart">Bag</span>
+      <span class="cart-badge" data-count="0">0</span>
+    </a>
+  </div>
+</nav>
+<div class="shipping-bar"><span data-i18n="shippingBar">Cairo & Giza delivery in 2–4 days · Free shipping over EGP 1,000 · Cash on delivery</span></div>
+
+<div class="shop-wrap" id="cart-root"></div>
+
+<footer class="site-footer">
+  <a href="privacy-policy.html" data-i18n="footerPrivacy">Privacy Policy</a>
+  <span class="site-footer-copy">© Montana Naturals</span>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="js/shop-bg.js"></script>
+<script src="js/products.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/ambient-audio.js"></script>
+<script src="js/shop-common.js"></script>
+<script src="js/shop-extras.js"></script>
+<script>
+MontanaShop.initLang();
+MontanaShop.bindLang();
+MontanaShop.bindNav();
+MontanaShopExtras.initQuiz();
+
+function renderCart() {
+  var esc = MontanaShop.esc;
+  var root = document.getElementById('cart-root');
+  var lines = MontanaCart.lines();
+
+  if (!lines.length) {
+    root.innerHTML =
+      '<div class="cart-empty">' +
+        '<h2 data-i18n="cartEmpty">Your bag is empty</h2>' +
+        '<p data-i18n="cartEmptySub">Discover the collection and begin your skin story.</p>' +
+        '<a href="shop.html" class="btn-primary" data-i18n="continue">Continue Shopping</a>' +
+        '<div id="cart-extras"></div>' +
+      '</div>';
+    MontanaShop.bindNav();
+    MontanaShopExtras.renderCartExtras(document.getElementById('cart-extras'));
+    return;
+  }
+
+  var sub = MontanaCart.subtotal();
+  var ship = MontanaCart.shipping(sub);
+  var total = sub + ship;
+
+  root.innerHTML =
+    '<h1 class="checkout-title" style="padding-top:32px;" data-i18n="cartTitle">Your Bag</h1>' +
+    '<div class="cart-layout">' +
+      '<div class="cart-items">' + lines.map(function (l) {
+        var pname = MontanaShop.field(l.product.name);
+        return '<div class="cart-item" data-id="' + esc(l.product.id) + '">' +
+          '<a href="product.html#' + esc(l.product.id) + '" class="cart-item-img"><img src="' + esc(l.product.image) + '" alt="' + esc(pname) + '"></a>' +
+          '<div>' +
+            '<div class="cart-item-name">' + esc(pname) + '</div>' +
+            '<div class="cart-item-meta">' + esc(MontanaShop.field(l.product.size)) + '</div>' +
+            '<div class="qty-wrap" style="display:inline-flex;">' +
+              '<button class="qty-btn" data-qty-min="' + esc(l.product.id) + '">−</button>' +
+              '<span class="qty-val">' + l.qty + '</span>' +
+              '<button class="qty-btn" data-qty-plus="' + esc(l.product.id) + '">+</button>' +
+            '</div>' +
+            '<button class="cart-remove" data-remove="' + esc(l.product.id) + '" data-i18n="remove">Remove</button>' +
+          '</div>' +
+          '<div class="cart-item-price">' + MontanaCart.formatPrice(l.total) + '</div>' +
+        '</div>';
+      }).join('') + '</div>' +
+      '<div class="cart-summary">' +
+        '<h3 data-i18n="cartTitle">Your Bag</h3>' +
+        '<div class="summary-row"><span data-i18n="subtotal">Subtotal</span><span>' + MontanaCart.formatPrice(sub) + '</span></div>' +
+        '<div class="summary-row"><span data-i18n="shipping">Shipping</span><span>' + (ship ? MontanaCart.formatPrice(ship) : MontanaShop.t('free')) + '</span></div>' +
+        '<div class="summary-row total"><span data-i18n="total">Total</span><span>' + MontanaCart.formatPrice(total) + '</span></div>' +
+        '<p class="summary-note" data-i18n="shippingNote">Free shipping on orders over EGP 1,000.</p>' +
+        '<a href="checkout.html" class="btn-primary" style="display:block;text-align:center;width:100%;" data-i18n="checkout">Proceed to Checkout</a>' +
+        '<a href="shop.html" class="btn-ghost" style="display:block;text-align:center;margin-top:16px;" data-i18n="continue">Continue Shopping</a>' +
+      '</div>' +
+    '</div>' +
+    '<div id="cart-extras"></div>';
+
+  MontanaShop.bindNav();
+  MontanaShopExtras.renderCartExtras(document.getElementById('cart-extras'));
+
+  root.querySelectorAll('[data-qty-min]').forEach(function (b) {
+    b.onclick = function () {
+      var item = MontanaCart.find(b.getAttribute('data-qty-min'));
+      if (item && item.qty > 1) MontanaCart.setQty(item.id, item.qty - 1);
+      else MontanaCart.remove(b.getAttribute('data-qty-min'));
+      renderCart();
+    };
+  });
+  root.querySelectorAll('[data-qty-plus]').forEach(function (b) {
+    b.onclick = function () {
+      var item = MontanaCart.find(b.getAttribute('data-qty-plus'));
+      if (item) MontanaCart.setQty(item.id, item.qty + 1);
+      renderCart();
+    };
+  });
+  root.querySelectorAll('[data-remove]').forEach(function (b) {
+    b.onclick = function () { MontanaCart.remove(b.getAttribute('data-remove')); renderCart(); };
+  });
+}
+
+window.renderCart = renderCart;
+renderCart();
+document.addEventListener('lang:changed', renderCart);
+</script>
+<script src="js/mobile-app.js?v=4"></script>
+</body>
+</html>

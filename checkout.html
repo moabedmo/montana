@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#231840">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Complete your Montana Naturals order. Cash on delivery available in Cairo and Giza.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="canonical" href="checkout.html">
+<title>Montana Naturals — Checkout</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700&family=El+Messiri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/shop.css">
+<link rel="stylesheet" href="css/brand.css">
+<link rel="stylesheet" href="css/mobile-app.css?v=6">
+<link rel="stylesheet" href="css/brand-ar.css">
+<link rel="stylesheet" href="css/legal.css">
+</head>
+<body>
+
+<canvas id="shop-bg-canvas"></canvas>
+
+<nav class="shop-nav">
+  <a href="index.html" class="brand-logo-link" aria-label="Montana"><span class="brand-logo"></span></a>
+  <div id="nav-controls">
+    <button type="button" id="ambient-btn" aria-pressed="false" title="Play music" aria-label="Play music">
+      <svg class="muted" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5zm11.5 3c0-2.71-1.56-5.05-3.84-6.2L11 5.86c2.9 1.22 4.96 4.08 4.96 7.64s-2.06 6.42-4.96 7.64l1.66-1.66c2.28-1.15 3.84-3.49 3.84-6.2z"/></svg>
+      <svg class="waves" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h2.5l4.5 4.5V5.5L5.5 10H3zm14 2c0-2.21-1.79-4-4-4v1.5c1.38 0 2.5 1.12 2.5 2.5S14.38 14.5 13 14.5V16c2.21 0 4-1.79 4-4zm-4-6v1.5c3.31 0 6 2.69 6 6s-2.69 6-6 6V20c4.42 0 8-3.58 8-8s-3.58-8-8-8z"/></svg>
+    </button>
+    <div id="lsw">
+      <button id="btn-en" class="on">EN</button>
+      <button id="btn-ar">عربي</button>
+    </div>
+  </div>
+  <div class="shop-links">
+    <a href="index.html" class="shop-link" data-i18n="navStory">Story</a>
+    <a href="shop.html" class="shop-link" data-i18n="navShop">Collection</a>
+    <a href="ingredients.html" class="shop-link" data-i18n="navIngredients">Ingredients</a>
+    <a href="cart.html" class="cart-btn">
+      <span data-i18n="navCart">Bag</span>
+      <span class="cart-badge" data-count="0">0</span>
+    </a>
+  </div>
+</nav>
+<div class="shipping-bar"><span data-i18n="shippingBar">Cairo & Giza delivery in 2–4 days · Free shipping over EGP 1,000 · Cash on delivery</span></div>
+
+<div class="shop-wrap" id="checkout-root"></div>
+
+<div class="toast" id="toast"></div>
+
+<footer class="site-footer">
+  <a href="privacy-policy.html" data-i18n="footerPrivacy">Privacy Policy</a>
+  <span class="site-footer-copy">© Montana Naturals</span>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="js/shop-bg.js"></script>
+<script src="js/products.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/shipping-api.js"></script>
+<script src="js/ambient-audio.js"></script>
+<script src="js/shop-common.js"></script>
+<script>
+MontanaShop.initLang();
+MontanaShop.bindLang();
+MontanaShop.bindNav();
+
+var lines = MontanaCart.lines();
+var root = document.getElementById('checkout-root');
+
+function renderCheckout() {
+  var esc = MontanaShop.esc;
+  if (!lines.length) {
+    location.href = 'cart.html';
+    return;
+  }
+  var form = document.getElementById('checkout-form');
+  var saved = {};
+  if (form) {
+    new FormData(form).forEach(function (v, k) { saved[k] = v; });
+  }
+
+  var sub = MontanaCart.subtotal();
+  var ship = MontanaCart.shipping(sub);
+  var total = sub + ship;
+
+  root.innerHTML =
+    '<div class="checkout-layout">' +
+      '<div>' +
+        '<h1 class="checkout-title" data-i18n="checkoutTitle">Checkout</h1>' +
+        '<p class="checkout-sub" data-i18n="checkoutSub">Complete your order — we\'ll handle the rest.</p>' +
+        '<form class="checkout-form" id="checkout-form">' +
+          '<div class="form-group"><label data-i18n="name">Full Name</label><input name="name" required maxlength="100" autocomplete="name"></div>' +
+          '<div class="form-group"><label data-i18n="phone">Phone</label><input name="phone" type="tel" required maxlength="20" autocomplete="tel" inputmode="tel"></div>' +
+          '<div class="form-group"><label data-i18n="address">Address</label><input name="address" required maxlength="300" autocomplete="street-address"></div>' +
+          '<div class="form-group"><label data-i18n="notes">Notes</label><textarea name="notes" maxlength="500"></textarea></div>' +
+          '<div class="form-group">' +
+            '<label data-i18n="payment">Payment Method</label>' +
+            '<div class="payment-options">' +
+              '<label class="payment-opt"><input type="radio" name="payment" value="cod" checked><span data-i18n="cod">Cash on Delivery</span></label>' +
+              '<label class="payment-opt"><input type="radio" name="payment" value="card" disabled><span data-i18n="card">Card (coming soon)</span></label>' +
+            '</div>' +
+          '</div>' +
+          '<button type="submit" class="btn-primary" data-i18n="placeOrder">Place Order</button>' +
+        '</form>' +
+      '</div>' +
+      '<div class="cart-summary">' +
+        '<h3 data-i18n="cartTitle">Your Bag</h3>' +
+        lines.map(function (l) {
+          return '<div class="summary-row"><span>' + esc(MontanaShop.field(l.product.name)) + ' × ' + l.qty + '</span><span>' + MontanaCart.formatPrice(l.total) + '</span></div>';
+        }).join('') +
+        '<div class="summary-row" style="margin-top:20px;"><span data-i18n="subtotal">Subtotal</span><span>' + MontanaCart.formatPrice(sub) + '</span></div>' +
+        '<div class="summary-row"><span data-i18n="shipping">Shipping</span><span>' + (ship ? MontanaCart.formatPrice(ship) : MontanaShop.t('free')) + '</span></div>' +
+        '<div class="summary-row total"><span data-i18n="total">Total</span><span>' + MontanaCart.formatPrice(total) + '</span></div>' +
+      '</div>' +
+    '</div>';
+
+  MontanaShop.bindNav();
+
+  form = document.getElementById('checkout-form');
+  Object.keys(saved).forEach(function (k) {
+    var el = form.elements[k];
+    if (!el) return;
+    if (el.type === 'radio') {
+      form.querySelectorAll('input[name="' + k + '"]').forEach(function (r) { r.checked = r.value === saved[k]; });
+    } else {
+      el.value = saved[k];
+    }
+  });
+
+  form.onsubmit = function (e) {
+    e.preventDefault();
+    var fd = new FormData(e.target);
+    var name = MontanaShop.sanitizeText(fd.get('name'), 100);
+    var phone = MontanaShop.sanitizePhone(fd.get('phone'));
+    var address = MontanaShop.sanitizeText(fd.get('address'), 300);
+    if (!name || !phone || !address) {
+      MontanaShop.toast(MontanaCart.getLang() === 'ar' ? 'كمّلي كل الحقول المطلوبة' : 'Please fill in all required fields');
+      return;
+    }
+    var order = {
+      customer: {
+        name: name,
+        phone: phone,
+        address: address,
+        notes: MontanaShop.sanitizeText(fd.get('notes'), 500)
+      },
+      payment: fd.get('payment'),
+      items: lines.map(function (l) { return { id: l.product.id, name: MontanaShop.field(l.product.name), qty: l.qty, price: l.product.price }; }),
+      subtotal: sub, shipping: ship, total: total
+    };
+    var savedOrder = MontanaCart.saveOrder(order);
+    MontanaCart.clear();
+    location.href = 'order-success.html?id=' + savedOrder.id;
+  };
+}
+
+renderCheckout();
+document.addEventListener('lang:changed', renderCheckout);
+</script>
+<script src="js/mobile-app.js?v=4"></script>
+</body>
+</html>

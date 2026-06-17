@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/api/settings/social", "destination": "/api/settings/social.js" },
+    { "source": "/api/settings/shipping", "destination": "/api/settings/shipping.js" },
+    { "source": "/api/shipping/calculate", "destination": "/api/shipping/calculate.js" },
+    { "source": "/api/shipping/create", "destination": "/api/shipping/create.js" },
+    { "source": "/api/shipping/track", "destination": "/api/shipping/track.js" },
+    { "source": "/api/webhooks/meta", "destination": "/api/webhooks/meta.js" },
+    { "source": "/api/messages/social", "destination": "/api/messages/social.js" },
+    { "source": "/api/cron/refresh-tokens", "destination": "/api/cron/refresh-tokens.js" }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/refresh-tokens",
+      "schedule": "0 6 * * *"
+    }
+  ]
+}

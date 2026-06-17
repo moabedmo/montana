@@ -1,0 +1,388 @@
+﻿<!-- MONTANA CHATBOT WIDGET -->
+<!-- احط الكود ده قبل </body> في ملف montana_bilingual.html -->
+
+<style>
+#chat-btn{
+  position:fixed;bottom:36px;right:36px;z-index:99998;
+  width:58px;height:58px;border-radius:50%;
+  background:linear-gradient(135deg,#7C3AED,#A855F7);
+  border:none;cursor:pointer;
+  box-shadow:0 4px 24px rgba(124,58,237,.5);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .3s,box-shadow .3s;
+}
+#chat-btn:hover{transform:scale(1.1);box-shadow:0 6px 32px rgba(124,58,237,.7);}
+#chat-btn svg{width:26px;height:26px;fill:#fff;}
+#chat-notif{
+  position:absolute;top:-4px;right:-4px;
+  width:18px;height:18px;border-radius:50%;
+  background:#EF4444;color:#fff;font-size:10px;
+  display:none;align-items:center;justify-content:center;
+  font-family:'Noto Naskh Arabic',sans-serif;
+}
+
+#chat-window{
+  position:fixed;bottom:110px;right:36px;z-index:99997;
+  width:360px;height:520px;
+  background:#0D0618;
+  border:.5px solid rgba(124,58,237,.4);
+  display:none;flex-direction:column;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+  font-family:'Noto Naskh Arabic',sans-serif;
+  direction:rtl;
+}
+#chat-window.open{display:flex;}
+
+#chat-header{
+  background:linear-gradient(135deg,#4C1D95,#7C3AED);
+  padding:14px 18px;display:flex;align-items:center;gap:12px;
+}
+#chat-header .avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+}
+#chat-header .info{flex:1;}
+#chat-header .info .name{font-size:14px;font-weight:600;color:#fff;}
+#chat-header .info .status{font-size:11px;color:rgba(255,255,255,.6);}
+#chat-close{background:none;border:none;color:rgba(255,255,255,.6);font-size:20px;cursor:pointer;padding:4px;}
+#chat-close:hover{color:#fff;}
+
+#chat-messages{
+  flex:1;overflow-y:auto;padding:16px;
+  display:flex;flex-direction:column;gap:10px;
+}
+#chat-messages::-webkit-scrollbar{width:4px;}
+#chat-messages::-webkit-scrollbar-track{background:transparent;}
+#chat-messages::-webkit-scrollbar-thumb{background:rgba(124,58,237,.3);}
+
+.msg{max-width:82%;padding:10px 14px;font-size:13px;line-height:1.7;}
+.msg.bot{
+  background:rgba(124,58,237,.12);
+  border:.5px solid rgba(124,58,237,.2);
+  color:#E9D5FF;align-self:flex-start;border-radius:0 12px 12px 12px;
+}
+.msg.user{
+  background:rgba(124,58,237,.35);
+  color:#fff;align-self:flex-end;border-radius:12px 0 12px 12px;
+}
+.msg.typing{color:rgba(167,139,250,.6);font-style:italic;}
+
+.quick-replies{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.qr-btn{
+  padding:6px 12px;background:none;
+  border:.5px solid rgba(124,58,237,.4);
+  color:#A78BFA;font-size:11px;cursor:pointer;
+  font-family:'Noto Naskh Arabic',sans-serif;
+  transition:all .3s;
+}
+.qr-btn:hover{background:rgba(124,58,237,.2);border-color:rgba(167,139,250,.6);}
+
+#chat-input-area{
+  padding:12px;border-top:.5px solid rgba(124,58,237,.2);
+  display:flex;gap:8px;
+}
+#chat-input{
+  flex:1;padding:10px 14px;
+  background:rgba(124,58,237,.08);
+  border:.5px solid rgba(124,58,237,.25);
+  color:#fff;font-family:'Noto Naskh Arabic',sans-serif;
+  font-size:13px;outline:none;
+}
+#chat-input:focus{border-color:rgba(167,139,250,.6);}
+#chat-input::placeholder{color:rgba(255,255,255,.3);}
+#chat-send{
+  padding:10px 16px;background:var(--purple,#7C3AED);
+  border:none;color:#fff;cursor:pointer;font-size:16px;
+  transition:background .3s;
+}
+#chat-send:hover{background:#6D28D9;}
+
+.order-confirm{
+  background:rgba(16,185,129,.08);
+  border:.5px solid rgba(16,185,129,.3);
+  padding:14px;margin-top:8px;
+}
+.order-confirm .oc-title{font-size:12px;color:#10B981;margin-bottom:8px;font-weight:600;}
+.order-confirm .oc-item{font-size:12px;color:#E9D5FF;margin-bottom:4px;}
+.order-confirm button{
+  width:100%;margin-top:10px;padding:10px;
+  background:#10B981;border:none;color:#fff;
+  font-family:'Noto Naskh Arabic',sans-serif;font-size:13px;cursor:pointer;
+}
+</style>
+
+<!-- CHAT BUTTON -->
+<div id="chat-btn-wrap" style="position:fixed;bottom:36px;right:36px;z-index:99998;">
+  <button id="chat-btn" onclick="toggleChat()">
+    <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+    <div id="chat-notif">1</div>
+  </button>
+</div>
+
+<!-- CHAT WINDOW -->
+<div id="chat-window">
+  <div id="chat-header">
+    <div class="avatar">🌿</div>
+    <div class="info">
+      <div class="name">مساعد Montana</div>
+      <div class="status" id="chat-status">متصل الان</div>
+    </div>
+    <button id="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div id="chat-messages"></div>
+  <div id="chat-input-area">
+    <button id="chat-send" onclick="sendMessage()">←</button>
+    <input type="text" id="chat-input" placeholder="اكتب رسالتك..." onkeydown="if(event.key==='Enter')sendMessage()">
+  </div>
+</div>
+
+<script>
+(function(){
+  var GEMINI_KEY = 'AIzaSyAQ.Ab8RN6LNp5omQ6XlybYOV9J0pGp13UH_PtnF1p4jINME2uw8lA';
+  var chatOpen = false;
+  var history = [];
+  var orderData = {};
+  var collectingOrder = false;
+  var orderStep = '';
+  var pendingOrder = null;
+
+  // جيب الـ key من الـ Admin
+  function getKey(){
+    try{
+      if(window.MONTANA_ADMIN && window.MONTANA_ADMIN.getGeminiKey){
+        return window.MONTANA_ADMIN.getGeminiKey();
+      }
+    }catch(e){}
+    return localStorage.getItem('mn_gk') || GEMINI_KEY;
+  }
+
+  function getProducts(){
+    try{
+      if(window.MONTANA_ADMIN && window.MONTANA_ADMIN.getProducts){
+        return window.MONTANA_ADMIN.getProducts();
+      }
+    }catch(e){}
+    return [];
+  }
+
+  function buildSystem(){
+    var prods = getProducts();
+    var plist = prods.map(function(p){
+      return '- '+p.nameAr+' ('+p.nameEn+'): '+p.price+' جنيه | '+p.size+' | للـ: '+(p.pfor||p['for']||'')+' | المكونات: '+p.ingr+' | '+p.desc;
+    }).join('\n');
+
+    return 'انت مساعد مبيعات Montana للعناية بالبشرة. بتكلم العملاء بعربي مصري ودود ومقنع.\n\nالمنتجات المتاحة:\n'+plist+'\n\nقواعد مهمة:\n1. كلم العميل بود وحماس وبالمصري\n2. اسال عن مشكلة بشرته عشان تنصحه بالمنتج الصح\n3. اشرح فايدة المنتج ومكوناته بشكل مبسط\n4. لو العميل عايز يشتري، اطلب منه: الاسم الكامل، رقم التليفون، العنوان بالتفصيل\n5. بعد ما تجمع الاسم والتليفون والعنوان، لخص الاوردر واسال عن تاكيد الشراء\n6. لو اكد، قوله "ممتاز! بنا الاوردر اتسجل وهنتواصل معاك قريب"\n7. ماتنساش تذكر السعر دايما\n8. ردودك تكون قصيرة وواضحة';
+  }
+
+  function toggleChat(){
+    chatOpen = !chatOpen;
+    var win = document.getElementById('chat-window');
+    var notif = document.getElementById('chat-notif');
+    if(chatOpen){
+      win.classList.add('open');
+      notif.style.display = 'none';
+      if(!history.length) initChat();
+    } else {
+      win.classList.remove('open');
+    }
+  }
+
+  function initChat(){
+    addMsg('bot', 'اهلاً بيكي! 👋 انا مساعد Montana للعناية بالبشرة.\n\nعايزة تعرفي اكتر عن منتجاتنا ولا عندك مشكلة بشرة معينة؟');
+    showQuickReplies(['عندي حبوب في وشي','بشرتي كالحة','عندي ندوب','بشرتي جافة','اشوف المنتجات']);
+  }
+
+  function addMsg(type, text){
+    var div = document.getElementById('chat-messages');
+    var msg = document.createElement('div');
+    msg.className = 'msg '+type;
+    msg.innerHTML = text.replace(/\n/g,'<br>');
+    div.appendChild(msg);
+    div.scrollTop = div.scrollHeight;
+    return msg;
+  }
+
+  function showQuickReplies(options){
+    var div = document.getElementById('chat-messages');
+    var wrap = document.createElement('div');
+    wrap.className = 'quick-replies';
+    options.forEach(function(opt){
+      var btn = document.createElement('button');
+      btn.className = 'qr-btn';
+      btn.textContent = opt;
+      btn.onclick = function(){
+        wrap.remove();
+        addMsg('user', opt);
+        processMessage(opt);
+      };
+      wrap.appendChild(btn);
+    });
+    div.appendChild(wrap);
+    div.scrollTop = div.scrollHeight;
+  }
+
+  function showTyping(){
+    return addMsg('bot typing', '...');
+  }
+
+  async function sendMessage(){
+    var input = document.getElementById('chat-input');
+    var text = input.value.trim();
+    if(!text) return;
+    input.value = '';
+    document.querySelectorAll('.quick-replies').forEach(function(el){el.remove();});
+    addMsg('user', text);
+    await processMessage(text);
+  }
+
+  async function processMessage(text){
+    // لو بنجمع بيانات الاوردر
+    if(collectingOrder){
+      handleOrderCollection(text);
+      return;
+    }
+
+    var typing = showTyping();
+    document.getElementById('chat-status').textContent = 'بيكتب...';
+
+    history.push({role:'user',parts:[{text:text}]});
+
+    var key = getKey();
+    if(!key){
+      typing.remove();
+      addMsg('bot','معلش، في مشكلة تقنية بسيطة دلوقتي. تواصل معانا على التليفون.');
+      return;
+    }
+
+    try{
+      var body = {
+        contents: history,
+        systemInstruction: {parts:[{text:buildSystem()}]},
+        generationConfig: {maxOutputTokens:500, temperature:0.8}
+      };
+
+      var r = await fetch(
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key,
+        {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)}
+      );
+
+      var data = await r.json();
+      typing.remove();
+      document.getElementById('chat-status').textContent = 'متصل الان';
+
+      var reply = '';
+      if(data.candidates && data.candidates[0] && data.candidates[0].content){
+        reply = data.candidates[0].content.parts[0].text;
+      } else {
+        reply = 'معلش، مش فاهم كويس. ممكن تعيد الكلام؟';
+      }
+
+      history.push({role:'model',parts:[{text:reply}]});
+      addMsg('bot', reply);
+
+      // لو الرد بيطلب بيانات الشراء
+      if(reply.indexOf('اسمك') > -1 || reply.indexOf('اسم') > -1 && reply.indexOf('تليفون') > -1){
+        collectingOrder = true;
+        orderStep = 'name';
+        orderData = {items:[]};
+        // حط المنتج اللي اتكلموا عنه
+        var prods = getProducts();
+        if(prods.length > 0 && history.length > 2){
+          var lastProds = prods.filter(function(p){
+            var conv = history.map(function(h){return h.parts[0].text;}).join(' ');
+            return conv.indexOf(p.nameAr) > -1;
+          });
+          if(lastProds.length > 0){
+            orderData.items.push({name:lastProds[0].nameAr, qty:1, price:lastProds[0].price});
+          }
+        }
+      }
+
+    }catch(e){
+      typing.remove();
+      document.getElementById('chat-status').textContent = 'متصل الان';
+      addMsg('bot','معلش في مشكلة تقنية. حاول تاني.');
+    }
+  }
+
+  function handleOrderCollection(text){
+    if(orderStep === 'name'){
+      orderData.name = text;
+      orderStep = 'phone';
+      addMsg('bot','تمام يا '+text+'! 😊\nرقم تليفونك عشان نتواصل معاك؟');
+    } else if(orderStep === 'phone'){
+      orderData.phone = text;
+      orderStep = 'address';
+      addMsg('bot','ممتاز! وعنوانك بالتفصيل؟ (المحافظة، الحي، الشارع)');
+    } else if(orderStep === 'address'){
+      orderData.address = text;
+      orderStep = 'confirm';
+      collectingOrder = false;
+
+      // لو مفيش منتجات، حط منتج افتراضي
+      if(!orderData.items || !orderData.items.length){
+        var prods = getProducts();
+        if(prods.length){
+          orderData.items = [{name:prods[0].nameAr, qty:1, price:prods[0].price}];
+        }
+      }
+
+      var total = orderData.items.reduce(function(s,i){return s+i.price*i.qty;},0);
+      pendingOrder = orderData;
+
+      // اعرض الاوردر للتاكيد
+      var div = document.getElementById('chat-messages');
+      var confirm = document.createElement('div');
+      confirm.className = 'order-confirm';
+      confirm.innerHTML = '<div class="oc-title">تاكيد الاوردر</div>' +
+        '<div class="oc-item">الاسم: '+orderData.name+'</div>' +
+        '<div class="oc-item">التليفون: '+orderData.phone+'</div>' +
+        '<div class="oc-item">العنوان: '+orderData.address+'</div>' +
+        '<div class="oc-item">المنتجات: '+orderData.items.map(function(i){return i.name+' x'+i.qty;}).join(', ')+'</div>' +
+        '<div class="oc-item" style="color:#10B981;font-weight:600;">الاجمالي: '+total+' جنيه</div>' +
+        '<button onclick="confirmOrder()">تاكيد الاوردر</button>' +
+        '<div style="text-align:center;margin-top:8px;"><button onclick="cancelOrder()" style="background:none;border:none;color:rgba(167,139,250,.6);font-size:12px;cursor:pointer;font-family:Noto Naskh Arabic,sans-serif;">الغاء</button></div>';
+      div.appendChild(confirm);
+      div.scrollTop = div.scrollHeight;
+    }
+  }
+
+  window.confirmOrder = async function(){
+    if(!pendingOrder) return;
+    document.querySelectorAll('.order-confirm').forEach(function(el){el.remove();});
+    addMsg('bot','بنسجل اوردرك...');
+
+    try{
+      var orderId = await window.MONTANA_ADMIN.addOrder(pendingOrder);
+      addMsg('bot','ممتاز! اوردرك اتسجل بنجاح! 🎉\n\nرقم الاوردر: #'+orderId+'\n\nهنتواصل معاك على '+pendingOrder.phone+' قريب جداً لتاكيد الشحن.\n\nشكراً لثقتك في Montana! 💜');
+      pendingOrder = null;
+      history = [];
+      setTimeout(function(){
+        showQuickReplies(['اشتري منتج تاني','شكراً']);
+      }, 500);
+    }catch(e){
+      addMsg('bot','معلش في مشكلة في تسجيل الاوردر. تواصل معانا مباشرة.');
+    }
+  };
+
+  window.cancelOrder = function(){
+    document.querySelectorAll('.order-confirm').forEach(function(el){el.remove();});
+    pendingOrder = null;
+    collectingOrder = false;
+    addMsg('bot','تمام! لو عندك اي سؤال تاني انا هنا. 😊');
+  };
+
+  // اظهر الـ notification بعد 3 ثواني
+  setTimeout(function(){
+    if(!chatOpen){
+      var notif = document.getElementById('chat-notif');
+      notif.style.display = 'flex';
+    }
+  }, 3000);
+
+  // expose toggle
+  window.toggleChat = toggleChat;
+
+})();
+</script>

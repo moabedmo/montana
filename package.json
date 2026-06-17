@@ -1,0 +1,19 @@
+{
+  "name": "montana-naturals",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Montana Naturals — A Skin Story (bilingual landing page)",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "stop": "node scripts/stop-server.cjs",
+    "restart": "node scripts/stop-server.cjs && node server.js",
+    "refresh-tokens": "node scripts/refresh-tokens.js",
+    "start:static": "npx --yes serve . -l 3000 -c serve.json",
+    "assets": "node scripts/extract-images.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "dotenv": "^16.4.7"
+  }
+}

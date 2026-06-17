@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Montana — لوحة التحكم</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#0D0618;--card:#160C2A;--border:#2D1B69;
+  --purple:#7C3AED;--purple-l:#A78BFA;--purple-d:#4C1D95;
+  --text:#F5F3FF;--text-m:#C4B5FD;--text-s:#7C6FAD;
+  --green:#10B981;--red:#EF4444;--yellow:#F59E0B;
+}
+body{background:var(--bg);color:var(--text);font-family:'Noto Naskh Arabic',sans-serif;min-height:100vh;}
+
+/* LOGIN */
+#login-screen{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;z-index:1000;
+}
+.login-box{
+  background:var(--card);border:.5px solid var(--border);
+  padding:48px;width:380px;text-align:center;
+}
+.login-box img{height:40px;margin-bottom:24px;filter:drop-shadow(0 0 12px rgba(167,139,250,.4));}
+.login-box h2{font-size:18px;color:var(--text-m);margin-bottom:32px;font-weight:500;}
+.login-box input{
+  width:100%;padding:12px 16px;background:rgba(124,58,237,.08);
+  border:.5px solid var(--border);color:var(--text);
+  font-family:'Noto Naskh Arabic',sans-serif;font-size:14px;
+  margin-bottom:14px;outline:none;transition:border .3s;
+}
+.login-box input:focus{border-color:var(--purple);}
+.login-box button{
+  width:100%;padding:13px;background:var(--purple);
+  border:none;color:#fff;font-family:'Noto Naskh Arabic',sans-serif;
+  font-size:14px;cursor:pointer;transition:background .3s;
+}
+.login-box button:hover{background:var(--purple-d);}
+.login-err{color:var(--red);font-size:12px;margin-top:10px;display:none;}
+
+/* LAYOUT */
+#app{display:none;min-height:100vh;}
+.sidebar{
+  position:fixed;top:0;right:0;width:240px;height:100vh;
+  background:var(--card);border-left:.5px solid var(--border);
+  padding:24px 0;display:flex;flex-direction:column;
+}
+.sidebar-logo{padding:0 24px 24px;border-bottom:.5px solid var(--border);margin-bottom:16px;}
+.sidebar-logo span{font-size:18px;font-weight:700;color:var(--purple-l);}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 24px;cursor:pointer;transition:all .3s;
+  color:var(--text-s);font-size:14px;
+}
+.nav-item:hover,.nav-item.active{background:rgba(124,58,237,.12);color:var(--purple-l);}
+.nav-item .icon{font-size:18px;}
+.sidebar-bottom{margin-top:auto;padding:16px 24px;border-top:.5px solid var(--border);}
+.logout-btn{
+  width:100%;padding:10px;background:none;border:.5px solid var(--border);
+  color:var(--text-s);font-family:'Noto Naskh Arabic',sans-serif;
+  font-size:13px;cursor:pointer;transition:all .3s;
+}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+
+.main{margin-right:240px;padding:32px;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* HEADER */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;}
+.page-header h1{font-size:22px;font-weight:600;color:var(--text);}
+.btn{
+  padding:10px 20px;background:var(--purple);border:none;
+  color:#fff;font-family:'Noto Naskh Arabic',sans-serif;
+  font-size:13px;cursor:pointer;transition:all .3s;
+}
+.btn:hover{background:var(--purple-d);}
+.btn-outline{background:none;border:.5px solid var(--purple);color:var(--purple-l);}
+.btn-outline:hover{background:rgba(124,58,237,.15);}
+.btn-red{background:var(--red);}
+.btn-red:hover{background:#B91C1C;}
+.btn-sm{padding:7px 14px;font-size:12px;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;}
+.stat-card{
+  background:var(--card);border:.5px solid var(--border);
+  padding:20px;position:relative;overflow:hidden;
+}
+.stat-card::before{
+  content:'';position:absolute;top:0;right:0;
+  width:3px;height:100%;background:var(--purple);
+}
+.stat-label{font-size:11px;color:var(--text-s);letter-spacing:.05em;margin-bottom:8px;}
+.stat-val{font-size:28px;font-weight:700;color:var(--text);}
+.stat-sub{font-size:11px;color:var(--green);margin-top:4px;}
+
+/* CARDS */
+.card{background:var(--card);border:.5px solid var(--border);padding:24px;margin-bottom:20px;}
+.card-title{font-size:15px;font-weight:600;color:var(--text-m);margin-bottom:20px;
+  padding-bottom:14px;border-bottom:.5px solid var(--border);}
+
+/* TABLE */
+.table{width:100%;border-collapse:collapse;}
+.table th{padding:10px 14px;background:rgba(124,58,237,.08);
+  font-size:11px;letter-spacing:.05em;color:var(--text-s);
+  border-bottom:.5px solid var(--border);text-align:right;}
+.table td{padding:12px 14px;border-bottom:.5px solid rgba(45,27,105,.4);
+  font-size:13px;vertical-align:middle;}
+.table tr:hover td{background:rgba(124,58,237,.05);}
+.badge{display:inline-block;padding:3px 10px;font-size:11px;border-radius:0;}
+.badge-green{background:rgba(16,185,129,.15);color:var(--green);}
+.badge-red{background:rgba(239,68,68,.15);color:var(--red);}
+.badge-yellow{background:rgba(245,158,11,.15);color:var(--yellow);}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-group{display:flex;flex-direction:column;gap:7px;}
+.form-group.full{grid-column:1/-1;}
+.form-group label{font-size:12px;color:var(--text-s);letter-spacing:.04em;}
+.form-group input,.form-group textarea,.form-group select{
+  padding:10px 14px;background:rgba(124,58,237,.06);
+  border:.5px solid var(--border);color:var(--text);
+  font-family:'Noto Naskh Arabic',sans-serif;font-size:13px;
+  outline:none;transition:border .3s;
+}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--purple);}
+.form-group textarea{resize:vertical;min-height:80px;}
+.form-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;}
+
+/* MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);
+  z-index:500;display:none;align-items:center;justify-content:center;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--card);border:.5px solid var(--border);
+  width:560px;max-height:90vh;overflow-y:auto;padding:32px;
+  position:relative;
+}
+.modal-title{font-size:16px;font-weight:600;color:var(--text-m);
+  margin-bottom:24px;padding-bottom:16px;border-bottom:.5px solid var(--border);}
+.modal-close{
+  position:absolute;top:16px;left:16px;background:none;border:none;
+  color:var(--text-s);font-size:20px;cursor:pointer;
+}
+.modal-close:hover{color:var(--red);}
+
+/* ORDERS */
+.order-card{
+  background:var(--card);border:.5px solid var(--border);
+  padding:20px;margin-bottom:12px;
+  border-right:3px solid var(--purple);
+}
+.order-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.order-id{font-size:13px;font-weight:600;color:var(--purple-l);}
+.order-time{font-size:11px;color:var(--text-s);}
+.order-info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
+.order-field label{font-size:10px;color:var(--text-s);display:block;margin-bottom:3px;}
+.order-field span{font-size:13px;color:var(--text);}
+.order-products{font-size:12px;color:var(--text-m);
+  background:rgba(124,58,237,.06);padding:10px;border:.5px solid var(--border);}
+.order-actions{display:flex;gap:8px;margin-top:12px;}
+
+/* TELEGRAM SETTINGS */
+.tg-status{
+  display:flex;align-items:center;gap:10px;
+  padding:14px;background:rgba(16,185,129,.08);
+  border:.5px solid rgba(16,185,129,.3);margin-bottom:20px;
+}
+.tg-dot{width:8px;height:8px;border-radius:50%;background:var(--green);}
+.notify-card{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px;border-bottom:.5px solid var(--border);
+}
+.toggle{position:relative;width:44px;height:24px;cursor:pointer;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-track{
+  position:absolute;inset:0;background:var(--border);
+  transition:.3s;border-radius:0;
+}
+.toggle input:checked + .toggle-track{background:var(--purple);}
+.toggle-thumb{
+  position:absolute;top:3px;right:3px;
+  width:18px;height:18px;background:#fff;
+  transition:.3s;
+}
+.toggle input:checked ~ .toggle-thumb{transform:translateX(-20px);}
+
+/* TOAST */
+#toast{
+  position:fixed;bottom:24px;left:24px;z-index:9999;
+  background:var(--purple);color:#fff;padding:12px 20px;
+  font-family:'Noto Naskh Arabic',sans-serif;font-size:13px;
+  transform:translateY(80px);opacity:0;transition:all .4s;
+}
+#toast.show{transform:translateY(0);opacity:1;}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .form-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h2>🔐 لوحة تحكم Montana</h2>
+    <input type="text" id="login-user" placeholder="اسم المستخدم">
+    <input type="password" id="login-pass" placeholder="كلمة المرور">
+    <button onclick="doLogin()">دخول</button>
+    <div class="login-err" id="login-err">اسم المستخدم أو كلمة المرور غلط</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <span>🌿 Montana Admin</span>
+    </div>
+    <div class="nav-item active" onclick="showPage('dashboard')">
+      <span class="icon">📊</span> الرئيسية
+    </div>
+    <div class="nav-item" onclick="showPage('products')">
+      <span class="icon">🧴</span> المنتجات
+    </div>
+    <div class="nav-item" onclick="showPage('orders')">
+      <span class="icon">📦</span> الأوردرات
+      <span id="orders-badge" style="margin-right:auto;background:var(--purple);color:#fff;padding:2px 8px;font-size:11px;display:none;"></span>
+    </div>
+    <div class="nav-item" onclick="showPage('chatbot')">
+      <span class="icon">🤖</span> إعدادات الشات بوت
+    </div>
+    <div class="nav-item" onclick="showPage('telegram')">
+      <span class="icon">✈️</span> Telegram
+    </div>
+    <div class="nav-item" onclick="showPage('settings')">
+      <span class="icon">⚙️</span> الإعدادات
+    </div>
+    <div class="sidebar-bottom">
+      <button class="logout-btn" onclick="doLogout()">تسجيل الخروج</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <h1>الرئيسية</h1>
+        <span style="color:var(--text-s);font-size:13px;" id="dash-date"></span>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">إجمالي الأوردرات</div>
+          <div class="stat-val" id="stat-orders">0</div>
+          <div class="stat-sub">منذ بداية اليوم</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">أوردرات في الانتظار</div>
+          <div class="stat-val" id="stat-pending">0</div>
+          <div class="stat-sub" style="color:var(--yellow);">تحتاج متابعة</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">المنتجات النشطة</div>
+          <div class="stat-val" id="stat-products">0</div>
+          <div class="stat-sub">متاحة للبيع</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">للبوسطة (كل 5)</div>
+          <div class="stat-val" id="stat-postal">0/5</div>
+          <div class="stat-sub" id="stat-postal-sub">لم يحن الوقت بعد</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">آخر الأوردرات</div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>رقم الأوردر</th>
+              <th>العميل</th>
+              <th>المنتجات</th>
+              <th>الإجمالي</th>
+              <th>الحالة</th>
+              <th>الوقت</th>
+            </tr>
+          </thead>
+          <tbody id="dash-orders-table">
+            <tr><td colspan="6" style="text-align:center;color:var(--text-s);padding:24px;">لا توجد أوردرات بعد</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="page" id="page-products">
+      <div class="page-header">
+        <h1>إدارة المنتجات</h1>
+        <button class="btn" onclick="openProductModal()">+ إضافة منتج</button>
+      </div>
+      <div class="card">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>المنتج</th>
+              <th>الفئة</th>
+              <th>السعر</th>
+              <th>الكمية</th>
+              <th>الحالة</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="products-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="page" id="page-orders">
+      <div class="page-header">
+        <h1>الأوردرات</h1>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-outline btn-sm" onclick="exportOrders()">📤 تصدير Excel</button>
+          <button class="btn btn-sm" id="send-postal-btn" onclick="sendToPostal()" style="display:none;">
+            📮 إرسال للبوسطة (5 أوردرات)
+          </button>
+        </div>
+      </div>
+      <div id="orders-list"></div>
+    </div>
+
+    <!-- CHATBOT -->
+    <div class="page" id="page-chatbot">
+      <div class="page-header"><h1>إعدادات الشات بوت</h1></div>
+      <div class="card">
+        <div class="card-title">رسالة الترحيب</div>
+        <div class="form-group">
+          <label>النص الذي يظهر أول ما يفتح العميل الشات</label>
+          <textarea id="welcome-msg" rows="3">أهلاً! 👋 أنا مساعد Montana للعناية بالبشرة. كيف أقدر أساعدك النهارده؟</textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn" onclick="saveChatbotSettings()">حفظ</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Claude AI API Key</div>
+        <div class="form-group">
+          <label>المفتاح (بيستخدمه الشات بوت للرد على العملاء)</label>
+          <input type="password" id="claude-key" placeholder="sk-ant-...">
+        </div>
+        <div class="form-actions">
+          <button class="btn" onclick="saveApiKey()">حفظ المفتاح</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">اختبار الشات بوت</div>
+        <div style="border:.5px solid var(--border);padding:16px;height:200px;overflow-y:auto;margin-bottom:12px;font-size:13px;color:var(--text-m);" id="test-chat">
+          <div style="color:var(--text-s);">ابدأ المحادثة التجريبية...</div>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <input type="text" id="test-input" placeholder="اكتب رسالة..." 
+            style="flex:1;padding:10px;background:rgba(124,58,237,.06);border:.5px solid var(--border);color:var(--text);font-family:'Noto Naskh Arabic',sans-serif;"
+            onkeydown="if(event.key==='Enter')testChat()">
+          <button class="btn" onclick="testChat()">إرسال</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TELEGRAM -->
+    <div class="page" id="page-telegram">
+      <div class="page-header"><h1>إعدادات Telegram</h1></div>
+      <div class="card">
+        <div class="tg-status" id="tg-status">
+          <div class="tg-dot" id="tg-dot" style="background:var(--red);"></div>
+          <span id="tg-status-text">غير متصل — أدخل البيانات أدناه</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Bot Token</label>
+            <input type="text" id="tg-token" placeholder="123456:ABC-DEF...">
+          </div>
+          <div class="form-group">
+            <label>Chat ID (الموظف)</label>
+            <input type="text" id="tg-chat-id" placeholder="-1001234567890">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-outline" onclick="testTelegram()">اختبار الاتصال</button>
+          <button class="btn" onclick="saveTelegramSettings()">حفظ</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">إشعارات البوسطة</div>
+        <div class="notify-card">
+          <div>
+            <div style="font-size:13px;margin-bottom:4px;">إرسال تلقائي كل 5 أوردرات</div>
+            <div style="font-size:11px;color:var(--text-s);">رسالة منظمة بكل بيانات الأوردرات الـ5</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="auto-postal" checked>
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+        <div class="notify-card">
+          <div>
+            <div style="font-size:13px;margin-bottom:4px;">إشعار عند كل أوردر جديد</div>
+            <div style="font-size:11px;color:var(--text-s);">رسالة فورية بكل أوردر</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="notify-order" checked>
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="page-header"><h1>الإعدادات</h1></div>
+      <div class="card">
+        <div class="card-title">بيانات الوصول</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>اسم المستخدم</label>
+            <input type="text" id="set-user" value="admin">
+          </div>
+          <div class="form-group">
+            <label>كلمة مرور جديدة</label>
+            <input type="password" id="set-pass" placeholder="اتركها فارغة إذا لم تريد تغييرها">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn" onclick="saveSettings()">حفظ</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:var(--red);">منطقة الخطر</div>
+        <button class="btn btn-red" onclick="if(confirm('هتمسح كل الأوردرات؟'))clearOrders()">مسح كل الأوردرات</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="product-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeProductModal()">✕</button>
+    <div class="modal-title" id="modal-title">إضافة منتج جديد</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>اسم المنتج (عربي)</label>
+        <input type="text" id="p-name-ar" placeholder="غسول الوجه للحبوب">
+      </div>
+      <div class="form-group">
+        <label>اسم المنتج (إنجليزي)</label>
+        <input type="text" id="p-name-en" placeholder="Acne Facial Cleanser">
+      </div>
+      <div class="form-group">
+        <label>الفئة</label>
+        <select id="p-cat">
+          <option>وجه</option>
+          <option>جسم</option>
+          <option>علاجي</option>
+          <option>ما بعد الليزر</option>
+          <option>علاج الندوب</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>السعر (جنيه)</label>
+        <input type="number" id="p-price" placeholder="299">
+      </div>
+      <div class="form-group">
+        <label>الكمية المتاحة</label>
+        <input type="number" id="p-stock" placeholder="50">
+      </div>
+      <div class="form-group">
+        <label>الحجم</label>
+        <input type="text" id="p-size" placeholder="200ml · 6.76 fl oz">
+      </div>
+      <div class="form-group full">
+        <label>وصف المنتج (للشات بوت)</label>
+        <textarea id="p-desc" placeholder="وصف قصير للمنتج ومميزاته..."></textarea>
+      </div>
+      <div class="form-group full">
+        <label>المكونات الرئيسية</label>
+        <input type="text" id="p-ingr" placeholder="Zinc PCA, Salicylic Acid, Argan Oil">
+      </div>
+      <div class="form-group full">
+        <label>مناسب لـ</label>
+        <input type="text" id="p-for" placeholder="البشرة الدهنية والمعرضة للحبوب">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-outline" onclick="closeProductModal()">إلغاء</button>
+      <button class="btn" onclick="saveProduct()">حفظ المنتج</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════
+// STATE
+// ═══════════════════════════════════
+var STATE = {
+  user: localStorage.getItem('mn_user') || 'admin',
+  pass: localStorage.getItem('mn_pass') || 'montana2024',
+  products: JSON.parse(localStorage.getItem('mn_products') || '[]'),
+  orders: JSON.parse(localStorage.getItem('mn_orders') || '[]'),
+  tgToken: localStorage.getItem('mn_tg_token') || '',
+  tgChatId: localStorage.getItem('mn_tg_chat') || '',
+  claudeKey: localStorage.getItem('mn_claude_key') || '',
+  welcomeMsg: localStorage.getItem('mn_welcome') || 'أهلاً! 👋 أنا مساعد Montana للعناية بالبشرة. كيف أقدر أساعدك النهارده؟',
+  editingProduct: null,
+};
+
+function save(){ 
+  localStorage.setItem('mn_products', JSON.stringify(STATE.products));
+  localStorage.setItem('mn_orders',   JSON.stringify(STATE.orders));
+}
+
+// ═══════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════
+function doLogin(){
+  var u = document.getElementById('login-user').value;
+  var p = document.getElementById('login-pass').value;
+  if(u === STATE.user && p === STATE.pass){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    initApp();
+  } else {
+    document.getElementById('login-err').style.display='block';
+  }
+}
+document.getElementById('login-pass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+
+function doLogout(){
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+}
+
+// ═══════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if(id==='dashboard') renderDashboard();
+  if(id==='products')  renderProducts();
+  if(id==='orders')    renderOrders();
+  if(id==='telegram')  loadTelegramSettings();
+  if(id==='chatbot')   loadChatbotSettings();
+}
+
+// ═══════════════════════════════════
+// INIT
+// ═══════════════════════════════════
+function initApp(){
+  // seed default products if empty
+  if(STATE.products.length===0){
+    STATE.products = [
+      {id:1, nameAr:'غسول الوجه للحبوب', nameEn:'Acne Facial Cleanser', cat:'وجه', price:299, stock:50, size:'200ml', desc:'غسول بيوصل لجذر المشكلة. Zinc PCA بيوقف الزهم من أصله.', ingr:'Zinc PCA, Salicylic Acid, Argan Oil, Jojoba Oil', for:'البشرة الدهنية والمعرضة للحبوب', active:true},
+      {id:2, nameAr:'غسول التفتيح', nameEn:'Whitening Cleanser', cat:'وجه', price:279, stock:40, size:'200ml', desc:'بيفتح البشرة ويوحد اللون. عرق السوس بيوقف الميلانين.', ingr:'Licorice Extract, Vitamin C, Zinc PCA, Niacinamide', for:'كل أنواع البشرة', active:true},
+      {id:3, nameAr:'كريم التفتيح', nameEn:'Whitening Cream', cat:'وجه', price:349, stock:35, size:'50ml', desc:'بيخفف البقع الداكنة ويوحد اللون من أول يوم.', ingr:'Alpha-Arbutin, Vitamin C & E, Niacinamide', for:'الوجه والرقبة والإبط والمرفقين والركبتين', active:true},
+      {id:4, nameAr:'لوشن اليدين والجسم', nameEn:'Hand & Body Lotion', cat:'جسم', price:229, stock:60, size:'50ml', desc:'ترطيب 72 ساعة مش دهني. بيسحب الرطوبة من الجو.', ingr:'Glycerin, Shea Butter, Coconut Oil, Vitamin E', for:'كل أنواع البشرة', active:true},
+      {id:5, nameAr:'كريم ما بعد الليزر', nameEn:'Post Laser Cream', cat:'ما بعد الليزر', price:399, stock:25, size:'50ml', desc:'بيقلل الاحمرار والالتهاب بعد الجلسات.', ingr:'Green Tea Extract, Sesame Oil, Vitamin E & B3', for:'ما بعد إجراءات الليزر', active:true},
+      {id:6, nameAr:'جل السيليكون لعلاج الندوب', nameEn:'Anti-Scar Silicone Gel', cat:'علاج الندوب', price:449, stock:20, size:'50ml', desc:'بيسطح الندوب البارزة ويخفت التلون.', ingr:'Medical-Grade Silicone', for:'الندوب القديمة والجديدة', active:true},
+    ];
+    save();
+  }
+  renderDashboard();
+  updateOrdersBadge();
+  document.getElementById('dash-date').textContent = new Date().toLocaleDateString('ar-EG',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+}
+
+// ═══════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════
+function renderDashboard(){
+  var pending = STATE.orders.filter(o=>o.status==='pending').length;
+  var active  = STATE.products.filter(p=>p.active).length;
+  var count   = STATE.orders.length % 5;
+  document.getElementById('stat-orders').textContent   = STATE.orders.length;
+  document.getElementById('stat-pending').textContent  = pending;
+  document.getElementById('stat-products').textContent = active;
+  document.getElementById('stat-postal').textContent   = count + '/5';
+  document.getElementById('stat-postal-sub').textContent = count>=4 ? '🚨 جاهز للإرسال!' : 'تحتاج '+(5-count)+' أوردر';
+  
+  // last 5 orders
+  var tbody = document.getElementById('dash-orders-table');
+  var last5 = STATE.orders.slice(-5).reverse();
+  if(last5.length===0){
+    tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-s);padding:24px;">لا توجد أوردرات بعد</td></tr>';
+    return;
+  }
+  tbody.innerHTML = last5.map(o=>`
+    <tr>
+      <td style="color:var(--purple-l);font-weight:600;">#${o.id}</td>
+      <td>${o.name}</td>
+      <td style="font-size:12px;">${o.items.map(i=>i.name).join(', ')}</td>
+      <td style="color:var(--green);">${o.total} ج.م</td>
+      <td><span class="badge ${o.status==='pending'?'badge-yellow':o.status==='done'?'badge-green':'badge-red'}">${o.status==='pending'?'انتظار':o.status==='done'?'منتهي':'ملغي'}</span></td>
+      <td style="color:var(--text-s);font-size:11px;">${o.time}</td>
+    </tr>
+  `).join('');
+}
+
+// ═══════════════════════════════════
+// PRODUCTS
+// ═══════════════════════════════════
+function renderProducts(){
+  var tbody = document.getElementById('products-table');
+  tbody.innerHTML = STATE.products.map(p=>`
+    <tr>
+      <td>
+        <div style="font-weight:600;">${p.nameAr}</div>
+        <div style="font-size:11px;color:var(--text-s);">${p.nameEn}</div>
+      </td>
+      <td>${p.cat}</td>
+      <td style="color:var(--green);font-weight:600;">${p.price} ج.م</td>
+      <td>${p.stock}</td>
+      <td><span class="badge ${p.active?'badge-green':'badge-red'}">${p.active?'نشط':'متوقف'}</span></td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-outline btn-sm" onclick="editProduct(${p.id})">تعديل</button>
+          <button class="btn btn-sm" style="background:${p.active?'var(--yellow)':'var(--green)'};" onclick="toggleProduct(${p.id})">${p.active?'إيقاف':'تفعيل'}</button>
+          <button class="btn btn-red btn-sm" onclick="deleteProduct(${p.id})">حذف</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openProductModal(id){
+  STATE.editingProduct = null;
+  document.getElementById('modal-title').textContent = 'إضافة منتج جديد';
+  ['p-name-ar','p-name-en','p-price','p-stock','p-size','p-desc','p-ingr','p-for'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('product-modal').classList.add('open');
+}
+
+function closeProductModal(){
+  document.getElementById('product-modal').classList.remove('open');
+}
+
+function editProduct(id){
+  var p = STATE.products.find(x=>x.id===id);
+  STATE.editingProduct = id;
+  document.getElementById('modal-title').textContent = 'تعديل المنتج';
+  document.getElementById('p-name-ar').value = p.nameAr;
+  document.getElementById('p-name-en').value = p.nameEn;
+  document.getElementById('p-cat').value     = p.cat;
+  document.getElementById('p-price').value   = p.price;
+  document.getElementById('p-stock').value   = p.stock;
+  document.getElementById('p-size').value    = p.size;
+  document.getElementById('p-desc').value    = p.desc;
+  document.getElementById('p-ingr').value    = p.ingr;
+  document.getElementById('p-for').value     = p.for;
+  document.getElementById('product-modal').classList.add('open');
+}
+
+function saveProduct(){
+  var data = {
+    nameAr: document.getElementById('p-name-ar').value,
+    nameEn: document.getElementById('p-name-en').value,
+    cat:    document.getElementById('p-cat').value,
+    price:  parseInt(document.getElementById('p-price').value)||0,
+    stock:  parseInt(document.getElementById('p-stock').value)||0,
+    size:   document.getElementById('p-size').value,
+    desc:   document.getElementById('p-desc').value,
+    ingr:   document.getElementById('p-ingr').value,
+    for:    document.getElementById('p-for').value,
+    active: true,
+  };
+  if(!data.nameAr){showToast('أدخل اسم المنتج');return;}
+  if(STATE.editingProduct){
+    var idx = STATE.products.findIndex(p=>p.id===STATE.editingProduct);
+    STATE.products[idx] = {...STATE.products[idx], ...data};
+  } else {
+    data.id = Date.now();
+    STATE.products.push(data);
+  }
+  save();
+  closeProductModal();
+  renderProducts();
+  showToast('✓ تم حفظ المنتج');
+}
+
+function toggleProduct(id){
+  var p = STATE.products.find(x=>x.id===id);
+  p.active = !p.active;
+  save(); renderProducts();
+  showToast(p.active ? '✓ تم تفعيل المنتج' : 'تم إيقاف المنتج');
+}
+
+function deleteProduct(id){
+  if(!confirm('هتحذف المنتج؟')) return;
+  STATE.products = STATE.products.filter(p=>p.id!==id);
+  save(); renderProducts();
+  showToast('تم الحذف');
+}
+
+// ═══════════════════════════════════
+// ORDERS
+// ═══════════════════════════════════
+function renderOrders(){
+  var list = document.getElementById('orders-list');
+  var readyCount = STATE.orders.filter(o=>o.status==='pending').length;
+  var postalBtn = document.getElementById('send-postal-btn');
+  postalBtn.style.display = readyCount>=5 ? 'block' : 'none';
+  if(readyCount>=5) postalBtn.textContent = '📮 إرسال للبوسطة ('+Math.floor(readyCount/5)*5+' أوردرات)';
+
+  if(STATE.orders.length===0){
+    list.innerHTML='<div style="text-align:center;color:var(--text-s);padding:48px;">لا توجد أوردرات بعد</div>';
+    return;
+  }
+  list.innerHTML = STATE.orders.slice().reverse().map(o=>`
+    <div class="order-card">
+      <div class="order-header">
+        <div class="order-id">أوردر #${o.id}</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="badge ${o.status==='pending'?'badge-yellow':o.status==='done'?'badge-green':'badge-red'}">${o.status==='pending'?'انتظار':o.status==='done'?'تم التسليم':'ملغي'}</span>
+          <span class="order-time">${o.time}</span>
+        </div>
+      </div>
+      <div class="order-info">
+        <div class="order-field"><label>الاسم</label><span>${o.name}</span></div>
+        <div class="order-field"><label>التليفون</label><span>${o.phone}</span></div>
+        <div class="order-field"><label>العنوان</label><span>${o.address}</span></div>
+      </div>
+      <div class="order-products">
+        🧴 ${o.items.map(i=>i.name+' × '+i.qty+' ('+i.price*i.qty+' ج.م)').join(' | ')}
+        <strong style="margin-right:12px;">الإجمالي: ${o.total} ج.م</strong>
+      </div>
+      <div class="order-actions">
+        ${o.status==='pending'?`<button class="btn btn-sm" style="background:var(--green);" onclick="updateOrderStatus(${o.id},'done')">✓ تم التسليم</button>`:''}
+        ${o.status!=='cancelled'?`<button class="btn btn-red btn-sm" onclick="updateOrderStatus(${o.id},'cancelled')">إلغاء</button>`:''}
+        <button class="btn btn-outline btn-sm" onclick="resendTelegram(${o.id})">📨 إعادة إرسال تليجرام</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateOrderStatus(id, status){
+  var o = STATE.orders.find(x=>x.id===id);
+  o.status = status;
+  save(); renderOrders(); updateOrdersBadge();
+  showToast('✓ تم تحديث الحالة');
+}
+
+function updateOrdersBadge(){
+  var pending = STATE.orders.filter(o=>o.status==='pending').length;
+  var badge = document.getElementById('orders-badge');
+  badge.style.display = pending>0?'block':'none';
+  badge.textContent = pending;
+}
+
+function exportOrders(){
+  var rows = ['رقم الأوردر,الاسم,التليفون,العنوان,المنتجات,الإجمالي,الحالة,الوقت'];
+  STATE.orders.forEach(o=>{
+    rows.push([o.id,o.name,o.phone,'"'+o.address+'"','"'+o.items.map(i=>i.name).join(' | ')+'"',o.total,o.status,o.time].join(','));
+  });
+  var blob = new Blob(['﻿'+rows.join('
+')],{type:'text/csv;charset=utf-8'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'montana-orders-'+new Date().toLocaleDateString('ar-EG').replace(/\//g,'-')+'.csv';
+  a.click();
+  showToast('✓ تم تصدير الأوردرات');
+}
+
+async function sendToPostal(){
+  var pending = STATE.orders.filter(o=>o.status==='pending').slice(0,5);
+  var msg = '📮 *أوردرات البوسطة — Montana*
+';
+  msg += '━━━━━━━━━━━━━━━━━━━━
+';
+  pending.forEach((o,i)=>{
+    msg += `
+*${i+1}. أوردر #${o.id}*
+`;
+    msg += `👤 ${o.name}
+📞 ${o.phone}
+📍 ${o.address}
+`;
+    msg += `🧴 ${o.items.map(x=>x.name+' ×'+x.qty).join(', ')}
+`;
+    msg += `💰 الإجمالي: ${o.total} ج.م
+`;
+  });
+  msg += '
+━━━━━━━━━━━━━━━━━━━━
+';
+  msg += `📦 إجمالي الشحنة: ${pending.length} أوردر`;
+  await sendTelegramMsg(msg);
+  showToast('✓ تم إرسال الأوردرات للبوسطة');
+}
+
+// ═══════════════════════════════════
+// TELEGRAM
+// ═══════════════════════════════════
+function loadTelegramSettings(){
+  document.getElementById('tg-token').value   = STATE.tgToken;
+  document.getElementById('tg-chat-id').value = STATE.tgChatId;
+  updateTgStatus();
+}
+
+function saveTelegramSettings(){
+  STATE.tgToken  = document.getElementById('tg-token').value.trim();
+  STATE.tgChatId = document.getElementById('tg-chat-id').value.trim();
+  localStorage.setItem('mn_tg_token', STATE.tgToken);
+  localStorage.setItem('mn_tg_chat',  STATE.tgChatId);
+  updateTgStatus();
+  showToast('✓ تم الحفظ');
+}
+
+function updateTgStatus(){
+  var ok = STATE.tgToken && STATE.tgChatId;
+  document.getElementById('tg-dot').style.background = ok?'var(--green)':'var(--red)';
+  document.getElementById('tg-status-text').textContent = ok ? '✓ متصل — جاهز للإرسال' : 'غير متصل — أدخل البيانات';
+}
+
+async function testTelegram(){
+  if(!STATE.tgToken||!STATE.tgChatId){showToast('أدخل التوكن والـ Chat ID أولاً');return;}
+  var ok = await sendTelegramMsg('✅ Montana Admin — اتصال ناجح!');
+  showToast(ok ? '✓ تم إرسال رسالة اختبار بنجاح' : '✗ فيه مشكلة — تأكد من البيانات');
+}
+
+async function sendTelegramMsg(text){
+  if(!STATE.tgToken||!STATE.tgChatId) return false;
+  try{
+    var r = await fetch(`https://api.telegram.org/bot${STATE.tgToken}/sendMessage`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:STATE.tgChatId, text:text, parse_mode:'Markdown'})
+    });
+    return r.ok;
+  }catch(e){return false;}
+}
+
+async function sendOrderToTelegram(o){
+  var msg = `🛍️ *أوردر جديد #${o.id} — Montana*
+`;
+  msg += `━━━━━━━━━━━━━━━━━━━━
+`;
+  msg += `👤 *${o.name}*
+📞 ${o.phone}
+📍 ${o.address}
+
+`;
+  msg += `🧴 *المنتجات:*
+`;
+  o.items.forEach(i=>{ msg += `• ${i.name} × ${i.qty} = ${i.price*i.qty} ج.م
+`; });
+  msg += `
+💰 *الإجمالي: ${o.total} ج.م*
+`;
+  msg += `⏰ ${o.time}`;
+  return await sendTelegramMsg(msg);
+}
+
+async function resendTelegram(id){
+  var o = STATE.orders.find(x=>x.id===id);
+  var ok = await sendOrderToTelegram(o);
+  showToast(ok ? '✓ تم إعادة الإرسال' : '✗ فشل الإرسال');
+}
+
+// ═══════════════════════════════════
+// CHATBOT SETTINGS
+// ═══════════════════════════════════
+function loadChatbotSettings(){
+  document.getElementById('welcome-msg').value = STATE.welcomeMsg;
+  document.getElementById('claude-key').value  = STATE.claudeKey;
+}
+
+function saveChatbotSettings(){
+  STATE.welcomeMsg = document.getElementById('welcome-msg').value;
+  localStorage.setItem('mn_welcome', STATE.welcomeMsg);
+  showToast('✓ تم الحفظ');
+}
+
+function saveApiKey(){
+  STATE.claudeKey = document.getElementById('claude-key').value;
+  localStorage.setItem('mn_claude_key', STATE.claudeKey);
+  showToast('✓ تم حفظ المفتاح');
+}
+
+var chatHistory = [];
+async function testChat(){
+  var input = document.getElementById('test-input');
+  var msg = input.value.trim();
+  if(!msg) return;
+  input.value = '';
+  var chatEl = document.getElementById('test-chat');
+  chatEl.innerHTML += `<div style="text-align:left;margin-bottom:8px;"><span style="background:rgba(124,58,237,.2);padding:6px 12px;display:inline-block;">${msg}</span></div>`;
+  chatHistory.push({role:'user',content:msg});
+  
+  var systemPrompt = buildSystemPrompt();
+  try{
+    var r = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        system: systemPrompt,
+        messages: chatHistory
+      })
+    });
+    var data = await r.json();
+    var reply = data.content?.[0]?.text || 'معذرة، حصل خطأ.';
+    chatHistory.push({role:'assistant',content:reply});
+    chatEl.innerHTML += `<div style="margin-bottom:8px;color:var(--purple-l);">🤖 ${reply}</div>`;
+    chatEl.scrollTop = chatEl.scrollHeight;
+  }catch(e){
+    chatEl.innerHTML += `<div style="color:var(--red);">خطأ في الاتصال</div>`;
+  }
+}
+
+function buildSystemPrompt(){
+  var prods = STATE.products.filter(p=>p.active).map(p=>
+    `- ${p.nameAr} (${p.nameEn}): السعر ${p.price} ج.م | ${p.size} | مناسب لـ: ${p.for} | المكونات: ${p.ingr} | ${p.desc}`
+  ).join('
+');
+  return `أنت مساعد مبيعات Montana للعناية بالبشرة. بتتكلم عربي مصري ودود وبتساعد العملاء يختاروا المنتج المناسب وبتبيع.
+
+المنتجات المتاحة:
+${prods}
+
+قواعد:
+- كلم العميل بودّ وحماس
+- اسأل عن نوع بشرته ومشكلته عشان تنصحه صح
+- لو طلب يشتري، اطلب منه: الاسم والتليفون والعنوان
+- لما تجمع البيانات، ابعت JSON بالشكل ده في ردك:
+  [ORDER:{"name":"...","phone":"...","address":"...","items":[{"id":1,"name":"...","qty":1,"price":299}]}]`;
+}
+
+// ═══════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════
+function saveSettings(){
+  var newUser = document.getElementById('set-user').value.trim();
+  var newPass = document.getElementById('set-pass').value.trim();
+  if(newUser) STATE.user = newUser;
+  if(newPass) STATE.pass = newPass;
+  localStorage.setItem('mn_user', STATE.user);
+  localStorage.setItem('mn_pass', STATE.pass);
+  showToast('✓ تم حفظ الإعدادات');
+}
+
+function clearOrders(){
+  STATE.orders = [];
+  save();
+  renderOrders();
+  updateOrdersBadge();
+  showToast('تم مسح الأوردرات');
+}
+
+// ═══════════════════════════════════
+// TOAST
+// ═══════════════════════════════════
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════
+// PUBLIC API — for chatbot widget
+// ═══════════════════════════════════
+window.MONTANA_ADMIN = {
+  getProducts: ()=> STATE.products.filter(p=>p.active),
+  getWelcome:  ()=> STATE.welcomeMsg,
+  getClaudeKey:()=> STATE.claudeKey,
+  addOrder: async function(order){
+    order.id     = Date.now();
+    order.time   = new Date().toLocaleString('ar-EG');
+    order.status = 'pending';
+    order.total  = order.items.reduce((s,i)=>s+i.price*i.qty,0);
+    STATE.orders.push(order);
+    save();
+    updateOrdersBadge();
+    // send telegram
+    if(document.getElementById('notify-order').checked){
+      await sendOrderToTelegram(order);
+    }
+    // auto postal every 5
+    var pending = STATE.orders.filter(o=>o.status==='pending');
+    if(document.getElementById('auto-postal').checked && pending.length%5===0 && pending.length>0){
+      await sendToPostal();
+    }
+    return order.id;
+  }
+};
+</script>
+</body>
+</html>

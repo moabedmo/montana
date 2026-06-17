@@ -1,0 +1,133 @@
+/* Montana brand mark — sculptural 3D wordmark */
+
+.brand-logo-link {
+  display: inline-flex;
+  line-height: 0;
+  text-decoration: none;
+  perspective: 520px;
+  transform-style: preserve-3d;
+}
+
+.brand-logo,
+#nlogo.brand-logo {
+  --logo-mask: url(../assets/logo.png);
+  position: relative;
+  display: block;
+  flex-shrink: 0;
+  height: 40px;
+  width: clamp(120px, 28vw, 200px);
+  transform: perspective(520px) rotateX(10deg) translateZ(0);
+  transform-origin: center bottom;
+  transform-style: preserve-3d;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.4s ease;
+  background: linear-gradient(
+    168deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(233, 213, 255, 0.98) 18%,
+    rgba(196, 181, 253, 0.96) 42%,
+    rgba(167, 139, 250, 0.94) 68%,
+    rgba(124, 58, 237, 0.92) 100%
+  );
+  -webkit-mask-image: var(--logo-mask);
+  mask-image: var(--logo-mask);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  filter:
+    drop-shadow(0 1px 0 rgba(255, 255, 255, 0.22))
+    drop-shadow(0 3px 6px rgba(30, 12, 60, 0.45))
+    drop-shadow(0 10px 22px rgba(109, 40, 217, 0.38))
+    drop-shadow(0 0 28px rgba(167, 139, 250, 0.32));
+}
+
+.brand-logo::before,
+#nlogo.brand-logo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    168deg,
+    rgba(91, 33, 182, 0.55) 0%,
+    rgba(76, 29, 149, 0.82) 50%,
+    rgba(46, 16, 101, 0.95) 100%
+  );
+  -webkit-mask-image: var(--logo-mask);
+  mask-image: var(--logo-mask);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  transform: translate(2px, 4px) translateZ(-6px);
+  filter: blur(0.4px);
+  opacity: 0.72;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.brand-logo::after,
+#nlogo.brand-logo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.12) 28%,
+    transparent 52%
+  );
+  -webkit-mask-image: var(--logo-mask);
+  mask-image: var(--logo-mask);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  mix-blend-mode: soft-light;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.brand-logo-link:hover .brand-logo,
+.brand-logo-link:focus-visible .brand-logo {
+  transform: perspective(520px) rotateX(6deg) translateY(-2px) translateZ(4px);
+  filter:
+    drop-shadow(0 1px 0 rgba(255, 255, 255, 0.28))
+    drop-shadow(0 5px 10px rgba(30, 12, 60, 0.48))
+    drop-shadow(0 14px 28px rgba(109, 40, 217, 0.45))
+    drop-shadow(0 0 36px rgba(167, 139, 250, 0.42));
+}
+
+#nlogo.brand-logo {
+  justify-self: start;
+  z-index: 1;
+  cursor: default;
+}
+
+@media (max-width: 768px) {
+  body.app-mode .brand-logo,
+  body.app-mode #nlogo.brand-logo {
+    height: 32px;
+    width: clamp(100px, 36vw, 140px);
+    transform: perspective(480px) rotateX(8deg) translateZ(0);
+  }
+
+  body.app-mode .brand-logo::before,
+  body.app-mode #nlogo.brand-logo::before {
+    transform: translate(1px, 3px) translateZ(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-logo,
+  #nlogo.brand-logo,
+  .brand-logo-link:hover .brand-logo {
+    transform: none;
+    transition: none;
+  }
+}

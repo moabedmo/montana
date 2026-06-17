@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /shop.html
+Allow: /product.html
+Allow: /ingredients.html
+Disallow: /cart.html
+Disallow: /checkout.html
+Disallow: /order-success.html
+Disallow: /montana_v2.html
+Disallow: /montana_arabic_v2.html
+Disallow: /montana_bilingual*
+
+Sitemap: https://montananaturals.com/sitemap.xml
