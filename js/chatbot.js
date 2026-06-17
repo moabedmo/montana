@@ -29,9 +29,9 @@ window.MontanaChatbot = (function () {
     placeholder: 'اكتبي رسالتك...',
     welcome: 'أهلاً يا جميلة! \uD83D\uDC9C أنا نور من Montana — بياعة كوزمتيك ومتخصصة عناية بالبشرة.\n\nقوليلي إيه مشكلة بشرتك (حبوب، جفاف، تفتيح، ندوب) وأنا هختارلك الأنسب — أو قولي «عايز أطلب» على طول.',
     quickReplies: ['عندي حبوب في وشي', 'بشرتي كالحة وبهتة', 'عندي ندوب', 'بشرتي ناشفة', 'ازاي استخدمه؟', 'عايز أطلب'],
-    noKey: 'الشات محتاج GROQ_API_KEY في ملف .env — من console.groq.com/keys ثم npm start',
-    keyInvalid: 'مفتاح Groq في .env مش شغال — انسخيه تاني من console.groq.com',
-    apiError: 'مشكلة من Groq: ',
+    noKey: 'الشات محتاج GEMINI_API_KEY في .env — من aistudio.google.com/apikey ثم أعد التشغيل',
+    keyInvalid: 'مفتاح Gemini في .env مش شغال — انسخيه تاني من Google AI Studio',
+    apiError: 'مشكلة من Gemini: ',
     busy: 'ثانية واحدة يا حبيبتي — جرّبي تاني. أنا هنا!',
     noUnderstand: 'معلش يا جميلة، وضّحيلي أكتر — حبوب، تفتيح، ندوب، جفاف، أو «عايز أطلب»؟',
     error: 'معلش حاولي تاني. أو قوليلي: «عندي حبوب»، «بشرتي كالحة»، «بكام»، أو «عايز أطلب».',
@@ -61,8 +61,8 @@ window.MontanaChatbot = (function () {
     placeholder: 'Type your message...',
     welcome: 'Hi! \uD83D\uDC4B I\'m the Montana skincare assistant.\n\nWant to learn about our products or tell me about a skin concern?',
     quickReplies: ['I have acne', 'Dull skin', 'I have scars', 'Dry skin', 'I want to order'],
-    noKey: 'Chat needs GROQ_API_KEY in .env — from console.groq.com/keys then npm start',
-    keyInvalid: 'Groq key in .env is not working — copy a new one from console.groq.com',
+    noKey: 'Chat needs GEMINI_API_KEY in .env — from aistudio.google.com/apikey then restart',
+    keyInvalid: 'Gemini key in .env is not working — copy a new one from Google AI Studio',
     busy: 'Server is busy — try again in a few seconds.',
     noUnderstand: 'Sorry, I didn\'t catch that. Tell me your skin concern or say "I want to order".',
     error: 'Sorry, try again — or say: acne, brightening, scars, dry skin, or I want to order.',
@@ -206,6 +206,13 @@ window.MontanaChatbot = (function () {
       var resolved = resolveProducts(brain.order.product_names);
       brain.order.product_names = resolved.map(function (i) { return i.name; });
     }
+    if ((brain.action === 'start_order' || brain.action === 'update_order') &&
+        (!brain.order.product_names || !brain.order.product_names.length)) {
+      var ctxProds = productsFromChatContext();
+      if (ctxProds.length) {
+        brain.order.product_names = ctxProds.map(function (p) { return p.nameAr; });
+      }
+    }
     if (brain.order.name && looksLikePersonName(String(brain.order.name), getIntent(String(brain.order.name)))) {
       /* keep */
     } else if (brain.order.name && /كريم|غسول|حبوب|تفتيح|لوشن/i.test(String(brain.order.name))) {
@@ -214,21 +221,38 @@ window.MontanaChatbot = (function () {
     return brain;
   }
 
-  async function callAiBrain(userText, lang) {
+  var pendingChatImage = null;
+
+  async function callAiBrain(userText, lang, opts) {
+    opts = opts || {};
     var messages = history.map(function (h) {
       return {
         role: h.role === 'model' ? 'assistant' : 'user',
         content: h.parts[0].text
       };
     });
-    messages.push({ role: 'user', content: userText });
-    var system = buildBrainSystem(lang) +
-      '\n\nRespond with ONE JSON object only (no markdown): {"reply":"...","action":"chat|start_order|update_order|thanks|confirm_ready|buy_more|cancel_order","order":{"step":"idle|name|phone|address|ready","name":"","phone":"","address":"","product_names":[]}}';
+    var userLine = String(userText || '').trim();
+    if (!userLine && opts.images && opts.images.length) {
+      userLine = lang === 'en'
+        ? 'Please analyze this skin photo and recommend Montana products.'
+        : 'شوفي صورة بشرتي وقوليلي إيه المناسب من منتجات Montana.';
+    }
+    var lastMsg = { role: 'user', content: userLine };
+    if (opts.images && opts.images.length) lastMsg.images = opts.images;
+    messages.push(lastMsg);
+
+    var system = buildBrainSystem(lang);
+    if (opts.images && opts.images.length) {
+      system += lang === 'en'
+        ? '\n\nThe customer attached a skin photo. Describe what you see (acne, spots, dullness, dryness, scars) without medical diagnosis. Recommend suitable Montana products with prices.'
+        : '\n\nالعميلة بعتت صورة بشرة. صفّي اللي ظاهر (حبوب، بقع، بهتان، جفاف، ندوب) من غير تشخيص طبي. ارشّحي منتجات Montana المناسبة مع الأسعار.';
+    }
+    system += '\n\nRespond with ONE JSON object only (no markdown): {"reply":"...","action":"chat|start_order|update_order|thanks|confirm_ready|buy_more|cancel_order","order":{"step":"idle|name|phone|address|ready","name":"","phone":"","address":"","product_names":[]}}';
 
     var result = await callChatAi({
       system: system,
       messages: messages,
-      generationConfig: { temperature: 0.25, maxOutputTokens: 500 }
+      generationConfig: { temperature: 0.25, maxOutputTokens: 700 }
     });
     if (!result.ok) return null;
     var parsed = parseBrainJson(result.text);
@@ -302,6 +326,43 @@ window.MontanaChatbot = (function () {
       lastCompletedOrder.items.map(function (i) { return i.name; }).join('، ');
   }
 
+  function lastBotMessage() {
+    for (var i = history.length - 1; i >= 0; i--) {
+      if (history[i].role === 'model') {
+        return history[i].parts[0].text || '';
+      }
+    }
+    return '';
+  }
+
+  function buildSessionContextBlock(lang) {
+    var offered = lastBotOfferedOrder() || sessionBotOfferedOrder;
+    var suggested = sessionSuggestedProduct;
+    var suggestedName = suggested ? (lang === 'en' ? suggested.nameEn : suggested.nameAr) : '';
+    var lastBot = lastBotMessage();
+    var lines = [
+      'LIVE SESSION CONTEXT (interpret short/incomplete Egyptian replies using this):',
+      '- collecting_order: ' + collectingOrder,
+      '- order_step: ' + (orderStep || 'idle'),
+      '- bot_offered_order: ' + offered,
+      '- session_phase: ' + (sessionPhase || 'chatting')
+    ];
+    if (lastBot) {
+      lines.push('- last_bot_message: "' + lastBot.slice(0, 500).replace(/"/g, '\'') + '"');
+    }
+    if (suggestedName) lines.push('- suggested_product: ' + suggestedName);
+    if (sessionLastConcern) lines.push('- last_skin_concern: ' + sessionLastConcern);
+    if (offered) {
+      lines.push(lang === 'en'
+        ? '- Customer may agree briefly (yes, ok, sure, yalla, please, yarit). → action=start_order, step=name. Do NOT repeat product info.'
+        : '- لو وافقت باختصار (ايوه، تمام، يريت، ياريت، ماشي، عايز، يلا، حاضر، ok) بعد عرض الأوردر → action=start_order و step=name. متكررّيش وصف المنتج.');
+    }
+    lines.push(lang === 'en'
+      ? '- Infer intent from FULL conversation history. Incomplete or misspelled Egyptian Arabic is normal.'
+      : '- افهمي النية من المحادثة كلها. المصري الناقص أو المختصر أو بألفات مختلفة (يريت/ياريت) طبيعي — متوقّعيش جمل كاملة.');
+    return lines.join('\n');
+  }
+
   function buildBrainSystem(lang) {
     var replyLang = lang === 'en'
       ? 'Reply in English — warm, expert cosmetics consultant tone.'
@@ -325,9 +386,12 @@ window.MontanaChatbot = (function () {
       JSON.stringify(orderSnapshot(), null, 2),
       sessionNote(),
       '',
-      'Return JSON only. Understand intent from full conversation context.',
+      buildSessionContextBlock(lang),
+      '',
+      'Return JSON only. Understand intent from full conversation context — NOT from fixed phrase lists.',
       '',
       'Rules:',
+      '0. Short replies (1–3 words) usually answer the LAST bot question — use last_bot_message and bot_offered_order.',
       '1. If asking for name and customer mentions a product or skin issue → recommend product, add to product_names, ask for name again. Never use product request as a person\'s name.',
       '2. Name = person name (1–3 words), not a sentence.',
       '3. Phone = Egyptian number (10–11 digits).',
@@ -952,6 +1016,34 @@ window.MontanaChatbot = (function () {
     intent = intent || getIntent(t);
     var empty = { step: orderStep || 'idle', product_names: [] };
 
+    var offeredOrder = lastBotOfferedOrder() || sessionBotOfferedOrder;
+    if (!collectingOrder && offeredOrder && intent.isAffirm && !isBrowsingQuestion(intent, t)) {
+      collectingOrder = true;
+      sessionPhase = 'ordering';
+      orderStep = 'name';
+      if (!orderData.items) orderData.items = [];
+      var affirmPicked = matchAllProductsFromText(t);
+      if (!affirmPicked.length) affirmPicked = productsFromChatContext();
+      if (!affirmPicked.length) {
+        var affirmHint = sessionSuggestedProduct || productFromRecentChat() || findProductInContext(t);
+        if (affirmHint) affirmPicked = [affirmHint];
+      }
+      if (affirmPicked.length) {
+        orderData.items = resolveProducts(affirmPicked.map(function (p) { return p.nameAr; }));
+      }
+      clearOrderOfferSession();
+      var affirmList = productNamesList(affirmPicked, lang);
+      return {
+        reply: affirmPicked.length > 1
+          ? (lang === 'en'
+            ? 'Perfect! Added: ' + affirmList + '. What name for the order?'
+            : 'تمام حبيبتي! \uD83D\uDC9C ضفنا: ' + affirmList + '. اسمك إيه؟')
+          : (lang === 'en' ? 'Great! What name should we put on the order?' : 'تمام حبيبتي! \uD83D\uDC9C اسمك إيه عشان نسجل الأوردر؟'),
+        action: 'start_order',
+        order: { step: 'name', product_names: (orderData.items || []).map(function (i) { return i.name; }) }
+      };
+    }
+
     if (wantsToOrder(t) && !collectingOrder && !isBrowsingQuestion(intent, t)) {
       collectingOrder = true;
       sessionPhase = 'ordering';
@@ -1263,18 +1355,35 @@ window.MontanaChatbot = (function () {
     };
   }
 
-  async function think(userText) {
-    var lang = detectLang(userText);
+  async function think(userText, opts) {
+    opts = opts || {};
+    var lang = detectLang(userText || (opts.images ? 'صورة' : ''));
     var intent = getIntent(userText);
 
+    /* 1 — Structured order steps: local only (reliable) */
     if (collectingOrder) {
       var orderOnly = localOrderBrain(userText, lang, intent);
       if (orderOnly) return { ok: true, brain: orderOnly, fallback: true };
     }
 
+    /* 2 — Instant greetings/goodbyes (free, fast) */
     var quick = localGreetingBrain(userText, lang, intent) ||
       localGoodbyeBrain(userText, lang, intent);
-    if (quick) return { ok: true, brain: quick, fallback: true };
+    if (quick && !(opts.images && opts.images.length)) return { ok: true, brain: quick, fallback: true };
+
+    /* 3 — AI-FIRST: Gemini understands natural / incomplete Egyptian Arabic */
+    if (await useChatAi()) {
+      try {
+        var aiBrain = await callAiBrain(userText, lang, opts);
+        if (aiBrain && aiBrain.reply) return { ok: true, brain: aiBrain };
+      } catch (e) { /* fallback below */ }
+    }
+
+    /* 4 — Local fallback when AI unavailable or returned nothing */
+    if (!collectingOrder && intent.wantsOrder && !isBrowsingQuestion(intent, userText)) {
+      var orderFallback = localOrderBrain(userText, lang, intent);
+      if (orderFallback) return { ok: true, brain: orderFallback, fallback: true };
+    }
 
     var catalogFollow = intent.isCatalogFollowUp && recentCatalogInHistory();
     if (!collectingOrder && (intent.isCatalog || catalogFollow || intent.isShipping ||
@@ -1284,13 +1393,6 @@ window.MontanaChatbot = (function () {
         localCatalogBrain(userText, lang, intent) ||
         ((intent.isShipping || intent.isRecommend) ? localKnowledgeBrain(userText, lang, intent) : null);
       if (browseLocal) return { ok: true, brain: browseLocal, fallback: true };
-    }
-
-    if (await useChatAi()) {
-      try {
-        var aiBrain = await callAiBrain(userText, lang);
-        if (aiBrain && aiBrain.reply) return { ok: true, brain: aiBrain };
-      } catch (e) { /* fallback local */ }
     }
 
     var local = localBrain(userText, lang);
@@ -1323,6 +1425,11 @@ window.MontanaChatbot = (function () {
       if (o.product_names && o.product_names.length) {
         var resolved = resolveProducts(o.product_names);
         if (resolved.length) orderData.items = resolved;
+      } else if (!orderData.items || !orderData.items.length) {
+        var ctxItems = productsFromChatContext();
+        if (ctxItems.length) {
+          orderData.items = resolveProducts(ctxItems.map(function (p) { return p.nameAr; }));
+        }
       }
 
       if (o.step && o.step !== 'idle') orderStep = o.step;
@@ -1358,8 +1465,10 @@ window.MontanaChatbot = (function () {
     if (status) status.textContent = t(sessionLang).statusOnline;
   }
 
-  async function processWithAI(text) {
-    sessionLang = detectLang(text);
+  async function processWithAI(payload) {
+    var text = typeof payload === 'string' ? payload : (payload && payload.text) || '';
+    var images = payload && payload.images ? payload.images : null;
+    sessionLang = detectLang(text || (images ? 'صورة' : ''));
     var strings = t(sessionLang);
     var intent = getIntent(text);
     var status = document.getElementById('chat-status');
@@ -1372,8 +1481,8 @@ window.MontanaChatbot = (function () {
       if (status) status.textContent = strings.statusTyping;
 
       var result = await Promise.all([
-        think(text),
-        sleep(thinkDelay(text))
+        think(text, { images: images }),
+        sleep(thinkDelay(text || 'photo'))
       ]).then(function (r) { return r[0]; });
 
       if (typing) { typing.remove(); typing = null; }
@@ -1462,12 +1571,14 @@ window.MontanaChatbot = (function () {
     }
   }
 
-  async function enqueueMessage(text) {
-    messageQueue.push(text);
+  async function enqueueMessage(payload) {
+    if (typeof payload === 'string') payload = { text: payload };
+    messageQueue.push(payload);
     await drainMessageQueue();
   }
 
-  async function processMessage(text) {
+  async function processMessage(payload) {
+    var text = typeof payload === 'string' ? payload : (payload && payload.text) || '';
     sessionLang = detectLang(text);
     var strings = t(sessionLang);
     if (isThanks(text)) {
@@ -1487,7 +1598,58 @@ window.MontanaChatbot = (function () {
       await cancelOrder();
       return;
     }
-    await enqueueMessage(text);
+    await enqueueMessage(typeof payload === 'string' ? { text: payload } : payload);
+  }
+
+  function clearImagePreview() {
+    pendingChatImage = null;
+    var preview = document.getElementById('chat-image-preview');
+    if (preview) preview.remove();
+  }
+
+  function showImagePreview(dataUrl) {
+    clearImagePreview();
+    var area = document.getElementById('chat-input-area');
+    if (!area) return;
+    var preview = document.createElement('div');
+    preview.id = 'chat-image-preview';
+    preview.innerHTML = '<img alt=""><button type="button" aria-label="Remove">×</button>';
+    preview.querySelector('img').src = dataUrl;
+    preview.querySelector('button').addEventListener('click', clearImagePreview);
+    area.parentNode.insertBefore(preview, area);
+  }
+
+  function bindImageAttach() {
+    var attach = document.getElementById('chat-attach');
+    var file = document.getElementById('chat-image-input');
+    if (!attach || !file) return;
+    attach.addEventListener('click', function () { file.click(); });
+    file.addEventListener('change', function () {
+      var f = file.files && file.files[0];
+      file.value = '';
+      if (!f || !/^image\//.test(f.type)) return;
+      if (f.size > 4 * 1024 * 1024) {
+        showToastAttach(sessionLang === 'en' ? 'Image max 4MB' : 'الصورة لازم تكون أقل من ٤ ميجا');
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function () {
+        pendingChatImage = {
+          mimeType: f.type || 'image/jpeg',
+          data: String(reader.result || '')
+        };
+        showImagePreview(pendingChatImage.data);
+      };
+      reader.readAsDataURL(f);
+    });
+  }
+
+  function showToastAttach(msg) {
+    var input = document.getElementById('chat-input');
+    if (!input) return;
+    var old = input.getAttribute('placeholder');
+    input.setAttribute('placeholder', msg);
+    setTimeout(function () { input.setAttribute('placeholder', old || t(sessionLang).placeholder); }, 2500);
   }
 
   function bindUi() {
@@ -1514,6 +1676,7 @@ window.MontanaChatbot = (function () {
         if (e.key === 'Enter') sendMessage();
       });
     }
+    bindImageAttach();
   }
 
   function toggleChat() {
@@ -1577,8 +1740,10 @@ window.MontanaChatbot = (function () {
   function setInputEnabled(on) {
     var input = document.getElementById('chat-input');
     var send = document.getElementById('chat-send');
+    var attach = document.getElementById('chat-attach');
     if (input) input.disabled = !on;
     if (send) send.disabled = !on;
+    if (attach) attach.disabled = !on;
   }
 
   function showTyping() {
@@ -1663,12 +1828,18 @@ window.MontanaChatbot = (function () {
     return polished;
   }
 
-  function addMsg(type, text) {
+  function addMsg(type, text, opts) {
+    opts = opts || {};
     var div = document.getElementById('chat-messages');
     if (!div) return null;
     var msg = document.createElement('div');
     msg.className = 'msg ' + type;
-    msg.innerHTML = String(text).replace(/\n/g, '<br>');
+    var html = String(text || '').replace(/\n/g, '<br>');
+    if (opts.image && opts.image.data) {
+      html = '<img class="msg-photo" src="' + opts.image.data.replace(/"/g, '&quot;') + '" alt="">' +
+        (html ? '<div class="msg-photo-caption">' + html + '</div>' : '');
+    }
+    msg.innerHTML = html;
     div.appendChild(msg);
     div.scrollTop = div.scrollHeight;
     return msg;
@@ -1695,11 +1866,20 @@ window.MontanaChatbot = (function () {
     var input = document.getElementById('chat-input');
     if (!input) return;
     var text = input.value.trim();
-    if (!text) return;
+    if (!text && !pendingChatImage) return;
+    if (!text && pendingChatImage) {
+      text = sessionLang === 'en'
+        ? 'What do you see in my skin?'
+        : 'شوفي بشرتي في الصورة وقوليلي إيه المناسب';
+    }
+    var images = pendingChatImage ? [pendingChatImage] : null;
+    var imageCopy = pendingChatImage;
     input.value = '';
+    clearImagePreview();
+    pendingChatImage = null;
     document.querySelectorAll('.quick-replies').forEach(function (el) { el.remove(); });
-    addMsg('user', text);
-    await processMessage(text);
+    addMsg('user', text, { image: imageCopy });
+    await processMessage({ text: text, images: images });
   }
 
   function showOrderConfirm() {

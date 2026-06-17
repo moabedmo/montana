@@ -1,12 +1,12 @@
 'use strict';
 
-const { resolveGeminiKey, validateKeyFormat: validateGeminiKey, callGeminiApi } = require('../../lib/gemini');
+const { resolveGeminiKey, validateKeyFormat: validateGeminiKey, callGeminiApi, extractGeminiText } = require('../../lib/gemini');
 const { resolveGroqKey, validateKeyFormat: validateGroqKey, callGroqApi } = require('../../lib/groq');
 const { setCors, sendJson, readJsonBody } = require('../../lib/http');
 
 function resolveProvider() {
-  const p = String(process.env.CHAT_PROVIDER || 'groq').trim().toLowerCase();
-  return p === 'gemini' ? 'gemini' : 'groq';
+  const p = String(process.env.CHAT_PROVIDER || 'gemini').trim().toLowerCase();
+  return p === 'groq' ? 'groq' : 'gemini';
 }
 
 async function handler(req, res) {
@@ -47,7 +47,12 @@ async function handler(req, res) {
         });
         return;
       }
-      sendJson(res, 200, Object.assign({ ok: true, provider: 'gemini' }, result.data));
+      sendJson(res, 200, {
+        ok: true,
+        provider: 'gemini',
+        model: result.model,
+        text: result.text || extractGeminiText(result.data)
+      });
       return;
     }
 

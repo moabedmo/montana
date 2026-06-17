@@ -1,12 +1,12 @@
 'use strict';
 
-const { maskKey: maskGemini, resolveGeminiKey, testGeminiKey } = require('../../lib/gemini');
+const { maskKey: maskGemini, resolveGeminiKey, resolveGeminiModels, testGeminiKey } = require('../../lib/gemini');
 const { maskKey: maskGroq, resolveGroqKey, resolveGroqModels, testGroqKey } = require('../../lib/groq');
 const { setCors, sendJson, readJsonBody } = require('../../lib/http');
 
 function resolveProvider() {
-  const p = String(process.env.CHAT_PROVIDER || 'groq').trim().toLowerCase();
-  return p === 'gemini' ? 'gemini' : 'groq';
+  const p = String(process.env.CHAT_PROVIDER || 'gemini').trim().toLowerCase();
+  return p === 'groq' ? 'groq' : 'gemini';
 }
 
 async function handler(req, res) {
@@ -31,7 +31,9 @@ async function handler(req, res) {
           configured: !!key,
           ai_enabled: aiOn && !!key,
           api_key: maskGemini(key),
-          models: [],
+          models: resolveGeminiModels(),
+          primary_model: resolveGeminiModels()[0] || 'gemini-2.0-flash',
+          vision: true,
           source: 'env'
         });
         return;

@@ -196,7 +196,7 @@ server.listen(PORT, function () {
   console.log('Montana server running at http://localhost:' + PORT);
   console.log('API: /api/settings/chat, /api/chat/ai, /api/settings/social, /api/settings/shipping, /api/shipping/*, /api/webhooks/meta');
 
-  var chatProvider = String(process.env.CHAT_PROVIDER || 'groq').toLowerCase();
+  var chatProvider = String(process.env.CHAT_PROVIDER || 'gemini').toLowerCase();
   var groqKey = String(process.env.GROQ_API_KEY || '').trim();
   var geminiKey = String(process.env.GEMINI_API_KEY || '').trim();
   if (chatProvider === 'groq') {
@@ -208,7 +208,9 @@ server.listen(PORT, function () {
       console.log('[ok] Chat AI: Groq (' + (process.env.GROQ_MODEL || 'allam-2-7b') + ')');
     }
   } else if (!geminiKey) {
-    console.warn('[!] GEMINI_API_KEY missing in .env');
+    console.warn('[!] GEMINI_API_KEY missing in .env — get one at https://aistudio.google.com/apikey');
+  } else {
+    console.log('[ok] Chat AI: Gemini (' + (process.env.GEMINI_MODEL || 'gemini-2.0-flash') + ', vision, AI-first)');
   }
 
   setTimeout(function () {

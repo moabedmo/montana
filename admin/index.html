@@ -168,16 +168,17 @@ body{background:var(--bg);color:var(--text);font-family:'Alexandria',sans-serif;
       </div>
 
       <div class="card">
-        <div class="card-title">Groq API (شات بوت نور)</div>
+        <div class="card-title">Gemini API (شات بوت نور — صور + عربي)</div>
         <p style="font-size:13px;color:rgba(255,255,255,.55);line-height:1.7;margin-bottom:14px;">
-          حطّي المفتاح في ملف <strong>.env</strong> في جذر المشروع:
+          حطّي المفتاح في <strong>.env</strong> أو Vercel Environment Variables:
         </p>
-        <pre style="background:rgba(0,0,0,.25);padding:12px 14px;font-size:12px;border-radius:4px;margin-bottom:14px;overflow:auto;">GROQ_API_KEY=gsk_...
-CHAT_PROVIDER=groq
-CHAT_USE_AI=true</pre>
+        <pre style="background:rgba(0,0,0,.25);padding:12px 14px;font-size:12px;border-radius:4px;margin-bottom:14px;overflow:auto;">GEMINI_API_KEY=AIzaSy...
+CHAT_PROVIDER=gemini
+CHAT_USE_AI=true
+# GEMINI_MODEL=gemini-2.0-flash</pre>
         <p style="font-size:12px;color:rgba(255,255,255,.45);line-height:1.6;margin-bottom:12px;">
-          المفتاح المجاني من <a href="https://console.groq.com/keys" target="_blank" rel="noopener" style="color:var(--accent);">GroqCloud</a>.
-          الموديل الافتراضي: <strong>allam-2-7b</strong> (عربي — ~7000 طلب/يوم).
+          المفتاح من <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--accent);">Google AI Studio</a>.
+          الموديل الافتراضي: <strong>gemini-2.0-flash</strong> (ذكي + صور — AI-first للفهم الطبيعي).
         </p>
           <p id="gemini-status" style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:14px;">جاري التحقق...</p>
         <div class="form-actions">
