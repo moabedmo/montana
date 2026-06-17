@@ -61,4 +61,19 @@ if (fs.existsSync(path.join(root, 'admin'))) {
   copyDir(path.join(root, 'admin'), path.join(dist, 'admin'));
 }
 
-console.log('[vercel-build] dist ready at', dist);
+var distIndex = path.join(dist, 'index.html');
+if (!fs.existsSync(distIndex)) {
+  console.error('[vercel-build] dist/index.html missing after build');
+  process.exit(1);
+}
+
+var fileCount = 0;
+(function count(dir) {
+  fs.readdirSync(dir).forEach(function (name) {
+    var p = path.join(dir, name);
+    if (fs.statSync(p).isDirectory()) count(p);
+    else fileCount++;
+  });
+})(dist);
+
+console.log('[vercel-build] dist ready:', dist, '(' + fileCount + ' files)');
