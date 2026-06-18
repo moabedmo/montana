@@ -1,7 +1,7 @@
 'use strict';
 
 const { approveByProofId } = require('../../lib/deposit-proofs');
-const { setCors, sendJson, readJsonBody, checkAdmin } = require('../../lib/http');
+const { setCors, sendJson, readJsonBody, checkAdmin, checkAdminPanel } = require('../../lib/http');
 
 function checkApproveKey(req) {
   var expected = String(process.env.MONTANA_ADMIN_API_KEY || process.env.DEPOSIT_APPROVE_SECRET || '').trim();
@@ -20,12 +20,13 @@ async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    if (!checkAdmin(req)) {
-      sendJson(res, 401, { ok: false, error: 'Unauthorized' });
+    var body = await readJsonBody(req);
+    var auth = checkAdminPanel(req, body, { allowTelegramToken: true });
+    if (!auth.ok) {
+      sendJson(res, 401, { ok: false, error: auth.error });
       return;
     }
     try {
-      var body = await readJsonBody(req);
       var proofId = String(body.proofId || body.id || '').trim();
       if (!proofId) {
         sendJson(res, 400, { ok: false, error: 'proofId مطلوب' });

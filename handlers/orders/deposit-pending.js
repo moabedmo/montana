@@ -1,7 +1,7 @@
 'use strict';
 
 const { listPendingProofs } = require('../../lib/deposit-store');
-const { setCors, sendJson, checkAdmin } = require('../../lib/http');
+const { setCors, sendJson, checkAdminPanel } = require('../../lib/http');
 
 async function handler(req, res) {
   setCors(res);
@@ -12,8 +12,9 @@ async function handler(req, res) {
     return;
   }
 
-  if (!checkAdmin(req)) {
-    sendJson(res, 401, { ok: false, error: 'Unauthorized' });
+  var auth = checkAdminPanel(req, null, { allowTelegramToken: true });
+  if (!auth.ok) {
+    sendJson(res, 401, { ok: false, error: auth.error });
     return;
   }
 

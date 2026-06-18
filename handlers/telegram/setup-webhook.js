@@ -6,7 +6,7 @@ const {
   registerTelegramWebhook,
   getWebhookInfo
 } = require('../../lib/telegram');
-const { setCors, sendJson, readJsonBody, checkAdmin } = require('../../lib/http');
+const { setCors, sendJson, readJsonBody, checkAdminPanel } = require('../../lib/http');
 
 async function handler(req, res) {
   setCors(res);
@@ -33,11 +33,6 @@ async function handler(req, res) {
     return;
   }
 
-  if (!checkAdmin(req)) {
-    sendJson(res, 401, { ok: false, error: 'Unauthorized' });
-    return;
-  }
-
   if (req.method !== 'POST') {
     sendJson(res, 405, { ok: false, error: 'Method not allowed' });
     return;
@@ -45,6 +40,12 @@ async function handler(req, res) {
 
   try {
     var body = await readJsonBody(req);
+    var auth = checkAdminPanel(req, body, { allowTelegramToken: true });
+    if (!auth.ok) {
+      sendJson(res, 401, { ok: false, error: auth.error });
+      return;
+    }
+
     var token = String(body.bot_token || body.token || resolveTelegramConfig().token || '').trim();
     var webhookUrl = resolveWebhookUrl();
 
