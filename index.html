@@ -826,7 +826,7 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 <!-- MONTANA CHATBOT -->
-<link rel="stylesheet" href="css/chatbot.css?v=14">
+<link rel="stylesheet" href="css/chatbot.css?v=15">
 <div id="chat-btn-wrap">
   <button type="button" id="chat-btn" aria-label="Chat">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
@@ -838,11 +838,15 @@ document.addEventListener('DOMContentLoaded',function(){
     <div class="avatar"></div>
     <div class="info">
       <div class="name"></div>
-      <div class="status" id="chat-status"></div>
+      <div class="status-row">
+        <div class="status" id="chat-status"></div>
+        <div class="chat-clock" id="chat-clock"></div>
+      </div>
     </div>
     <button type="button" id="chat-close" aria-label="Close"></button>
   </div>
   <div id="chat-messages"></div>
+  <div id="chat-cart-bar"></div>
   <div id="chat-input-area">
     <input type="file" id="chat-image-input" accept="image/*" hidden>
     <button type="button" id="chat-attach" aria-label="Attach photo" title="صورة بشرة">📷</button>
@@ -851,10 +855,12 @@ document.addEventListener('DOMContentLoaded',function(){
   </div>
 </div>
 <script src="js/chat-orders.js?v=8"></script>
+<script src="js/chat-personas.js?v=1"></script>
+<script src="js/chat-cart.js?v=1"></script>
 <script src="js/chat-knowledge.js?v=10"></script>
 <script src="js/chat-intent.js?v=16"></script>
 <script src="js/chat-phrases.js?v=5"></script>
 <script src="js/montana-deposit.js?v=3"></script>
-<script src="js/chatbot.js?v=57"></script>
+<script src="js/chatbot.js?v=58"></script>
 </body>
 </html>

@@ -2,11 +2,18 @@
 
 const { resolveGeminiKey, validateKeyFormat: validateGeminiKey, callGeminiApi, extractGeminiText } = require('../../lib/gemini');
 const { resolveGroqKey, validateKeyFormat: validateGroqKey, callGroqApi } = require('../../lib/groq');
+const { resolveClaudeKey, validateKeyFormat: validateClaudeKey, callClaudeApi, extractClaudeText } = require('../../lib/claude');
 const { setCors, sendJson, readJsonBody } = require('../../lib/http');
 
 function resolveProvider() {
-  const p = String(process.env.CHAT_PROVIDER || 'gemini').trim().toLowerCase();
-  return p === 'groq' ? 'groq' : 'gemini';
+  const explicit = String(process.env.CHAT_PROVIDER || '').trim().toLowerCase();
+  if (explicit === 'groq') return 'groq';
+  if (explicit === 'gemini') return 'gemini';
+  if (explicit === 'claude' || explicit === 'anthropic') return 'claude';
+  if (resolveClaudeKey()) return 'claude';
+  if (resolveGeminiKey()) return 'gemini';
+  if (resolveGroqKey()) return 'groq';
+  return 'gemini';
 }
 
 async function handler(req, res) {
@@ -26,6 +33,35 @@ async function handler(req, res) {
   try {
     const body = await readJsonBody(req);
     const provider = resolveProvider();
+
+    if (provider === 'claude') {
+      const key = resolveClaudeKey();
+      const check = validateClaudeKey(key);
+      if (!check.ok) {
+        sendJson(res, 503, { ok: false, error: check.error, code: 'NO_KEY', provider: 'claude' });
+        return;
+      }
+      const result = await callClaudeApi(check.key, body);
+      if (!result.ok) {
+        const msg = result.error || 'Claude request failed';
+        const code = result.quota ? 'QUOTA_EXCEEDED' : (result.fatal ? 'KEY_INVALID' : 'API_ERROR');
+        sendJson(res, result.fatal ? 401 : 502, {
+          ok: false,
+          error: msg,
+          code: code,
+          model: result.model,
+          provider: 'claude'
+        });
+        return;
+      }
+      sendJson(res, 200, {
+        ok: true,
+        provider: 'claude',
+        model: result.model,
+        text: result.text || extractClaudeText(result.data)
+      });
+      return;
+    }
 
     if (provider === 'gemini') {
       const key = resolveGeminiKey();

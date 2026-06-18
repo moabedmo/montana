@@ -2,11 +2,18 @@
 
 const { maskKey: maskGemini, resolveGeminiKey, resolveGeminiModels, testGeminiKey } = require('../../lib/gemini');
 const { maskKey: maskGroq, resolveGroqKey, resolveGroqModels, testGroqKey } = require('../../lib/groq');
+const { maskKey: maskClaude, resolveClaudeKey, resolveClaudeModels, resolveClaudeModel, testClaudeKey } = require('../../lib/claude');
 const { setCors, sendJson, readJsonBody } = require('../../lib/http');
 
 function resolveProvider() {
-  const p = String(process.env.CHAT_PROVIDER || 'gemini').trim().toLowerCase();
-  return p === 'groq' ? 'groq' : 'gemini';
+  const explicit = String(process.env.CHAT_PROVIDER || '').trim().toLowerCase();
+  if (explicit === 'groq') return 'groq';
+  if (explicit === 'gemini') return 'gemini';
+  if (explicit === 'claude' || explicit === 'anthropic') return 'claude';
+  if (resolveClaudeKey()) return 'claude';
+  if (resolveGeminiKey()) return 'gemini';
+  if (resolveGroqKey()) return 'groq';
+  return 'gemini';
 }
 
 async function handler(req, res) {
@@ -23,6 +30,22 @@ async function handler(req, res) {
     const aiOn = process.env.CHAT_USE_AI !== 'false';
 
     if (req.method === 'GET') {
+      if (provider === 'claude') {
+        const key = resolveClaudeKey();
+        sendJson(res, 200, {
+          ok: true,
+          provider: 'claude',
+          configured: !!key,
+          ai_enabled: aiOn && !!key,
+          api_key: maskClaude(key),
+          models: resolveClaudeModels(),
+          primary_model: resolveClaudeModel(),
+          vision: false,
+          source: 'env'
+        });
+        return;
+      }
+
       if (provider === 'gemini') {
         const key = resolveGeminiKey();
         sendJson(res, 200, {
@@ -57,6 +80,16 @@ async function handler(req, res) {
       const body = await readJsonBody(req);
       if ((body.action || 'test') !== 'test') {
         sendJson(res, 405, { ok: false, error: 'المفتاح يُضبط فقط عبر .env' });
+        return;
+      }
+
+      if (provider === 'claude') {
+        const result = await testClaudeKey(resolveClaudeKey());
+        if (!result.ok) {
+          sendJson(res, 400, { ok: false, error: result.error, fatal: !!result.fatal, provider: 'claude' });
+          return;
+        }
+        sendJson(res, 200, { ok: true, message: result.message, model: result.model, provider: 'claude' });
         return;
       }
 
