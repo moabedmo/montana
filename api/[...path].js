@@ -12,6 +12,9 @@ const ROUTES = {
   'shipping/track': require('../handlers/shipping/track'),
   'webhooks/meta': require('../handlers/webhooks/meta'),
   'messages/social': require('../handlers/messages/social'),
+  'settings/deposit': require('../handlers/settings/deposit'),
+  'orders/deposit-proof': require('../handlers/orders/deposit-proof'),
+  'orders/notify': require('../handlers/orders/notify'),
   'telegram/send': require('../handlers/telegram/send'),
   'cron/refresh-tokens': require('../handlers/cron/refresh-tokens')
 };

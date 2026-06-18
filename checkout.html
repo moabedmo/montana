@@ -64,6 +64,7 @@
 <script src="js/shop-bg.js"></script>
 <script src="js/products.js"></script>
 <script src="js/cart.js"></script>
+<script src="js/montana-deposit.js"></script>
 <script src="js/shipping-api.js"></script>
 <script src="js/ambient-audio.js"></script>
 <script src="js/shop-common.js"></script>
@@ -74,9 +75,11 @@ MontanaShop.bindNav();
 
 var lines = MontanaCart.lines();
 var root = document.getElementById('checkout-root');
+var shopDepositProofSent = false;
 
 function renderCheckout() {
   var esc = MontanaShop.esc;
+  var lang = MontanaCart.getLang();
   if (!lines.length) {
     location.href = 'cart.html';
     return;
@@ -90,6 +93,8 @@ function renderCheckout() {
   var sub = MontanaCart.subtotal();
   var ship = MontanaCart.shipping(sub);
   var total = sub + ship;
+  var depAmount = window.MontanaDeposit ? MontanaDeposit.amount() : 200;
+  var depInfo = window.MontanaDeposit ? MontanaDeposit.paymentInfo(lang) : MontanaShop.t('depositRequired');
 
   root.innerHTML =
     '<div class="checkout-layout">' +
@@ -108,7 +113,14 @@ function renderCheckout() {
               '<label class="payment-opt"><input type="radio" name="payment" value="card" disabled><span data-i18n="card">Card (coming soon)</span></label>' +
             '</div>' +
           '</div>' +
-          '<button type="submit" class="btn-primary" data-i18n="placeOrder">Place Order</button>' +
+          '<div class="checkout-deposit">' +
+            '<div class="checkout-deposit-title" data-i18n="depositTitle">' + MontanaShop.t('depositTitle').replace('200', depAmount) + '</div>' +
+            '<p class="checkout-deposit-info">' + esc(depInfo) + '</p>' +
+            '<input type="file" accept="image/*" class="checkout-deposit-file" hidden>' +
+            '<button type="button" class="btn-ghost checkout-deposit-upload" data-i18n="depositUpload">' + MontanaShop.t('depositUpload') + '</button>' +
+            '<p class="checkout-deposit-status"></p>' +
+          '</div>' +
+          '<button type="submit" class="btn-primary checkout-submit" disabled data-i18n="placeOrder">Place Order</button>' +
         '</form>' +
       '</div>' +
       '<div class="cart-summary">' +
@@ -135,8 +147,65 @@ function renderCheckout() {
     }
   });
 
-  form.onsubmit = function (e) {
+  var fileInput = form.querySelector('.checkout-deposit-file');
+  var uploadBtn = form.querySelector('.checkout-deposit-upload');
+  var statusEl = form.querySelector('.checkout-deposit-status');
+  var submitBtn = form.querySelector('.checkout-submit');
+
+  if (shopDepositProofSent) {
+    submitBtn.disabled = false;
+    statusEl.textContent = MontanaShop.t('depositSent');
+    statusEl.style.color = '#10B981';
+  }
+
+  uploadBtn.addEventListener('click', function () { fileInput.click(); });
+
+  fileInput.addEventListener('change', async function () {
+    var f = fileInput.files && fileInput.files[0];
+    fileInput.value = '';
+    if (!f || !window.MontanaDeposit) return;
+    var fd = new FormData(form);
+    var name = MontanaShop.sanitizeText(fd.get('name'), 100);
+    var phone = MontanaShop.sanitizePhone(fd.get('phone'));
+    var address = MontanaShop.sanitizeText(fd.get('address'), 300);
+    if (!name || !phone || !address) {
+      MontanaShop.toast(lang === 'ar' ? 'كمّلي الاسم والموبايل والعنوان الأول' : 'Fill name, phone and address first');
+      return;
+    }
+    uploadBtn.disabled = true;
+    statusEl.textContent = MontanaShop.t('depositUploading');
+    statusEl.style.color = '#E9D5FF';
+    try {
+      var dataUrl = await MontanaDeposit.readImageFile(f);
+      await MontanaDeposit.uploadProof({
+        image: dataUrl,
+        source: 'shop',
+        name: name,
+        phone: phone,
+        address: address,
+        itemsSummary: MontanaDeposit.itemsSummary(
+          lines.map(function (l) { return { name: MontanaShop.field(l.product.name), qty: l.qty }; }),
+          lang
+        ),
+        total: total
+      });
+      shopDepositProofSent = true;
+      statusEl.textContent = MontanaShop.t('depositSent');
+      statusEl.style.color = '#10B981';
+      submitBtn.disabled = false;
+    } catch (e) {
+      statusEl.textContent = MontanaShop.t('depositFailed');
+      statusEl.style.color = '#F87171';
+      uploadBtn.disabled = false;
+    }
+  });
+
+  form.onsubmit = async function (e) {
     e.preventDefault();
+    if (!shopDepositProofSent) {
+      MontanaShop.toast(MontanaShop.t('depositRequired'));
+      return;
+    }
     var fd = new FormData(e.target);
     var name = MontanaShop.sanitizeText(fd.get('name'), 100);
     var phone = MontanaShop.sanitizePhone(fd.get('phone'));
@@ -145,6 +214,7 @@ function renderCheckout() {
       MontanaShop.toast(MontanaCart.getLang() === 'ar' ? 'كمّلي كل الحقول المطلوبة' : 'Please fill in all required fields');
       return;
     }
+    var depAmount = window.MontanaDeposit ? MontanaDeposit.amount() : 200;
     var order = {
       customer: {
         name: name,
@@ -154,14 +224,32 @@ function renderCheckout() {
       },
       payment: fd.get('payment'),
       items: lines.map(function (l) { return { id: l.product.id, name: MontanaShop.field(l.product.name), qty: l.qty, price: l.product.price }; }),
-      subtotal: sub, shipping: ship, total: total
+      subtotal: sub, shipping: ship, total: total,
+      depositAmount: depAmount,
+      depositProofSent: true,
+      source: 'shop'
     };
+    submitBtn.disabled = true;
     var savedOrder = MontanaCart.saveOrder(order);
+    var notifyPayload = {
+      id: savedOrder.id,
+      name: name,
+      phone: phone,
+      address: address,
+      items: order.items,
+      total: total,
+      depositAmount: depAmount,
+      depositProofSent: true,
+      source: 'shop',
+      time: new Date().toLocaleString('ar-EG')
+    };
+    if (window.MontanaDeposit) await MontanaDeposit.notifyOrderConfirmed(notifyPayload);
     MontanaCart.clear();
     location.href = 'order-success.html?id=' + savedOrder.id;
   };
 }
 
+if (window.MontanaDeposit) MontanaDeposit.loadSettings();
 renderCheckout();
 document.addEventListener('lang:changed', renderCheckout);
 </script>

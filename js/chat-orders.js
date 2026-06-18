@@ -44,7 +44,9 @@ window.MontanaChatOrders = (function () {
       total: items.reduce(function (s, i) { return s + i.price * i.qty; }, 0),
       time: new Date().toLocaleString('ar-EG'),
       status: 'pending',
-      source: 'chatbot'
+      source: 'chatbot',
+      depositAmount: Number(order.depositAmount) || 0,
+      depositProofSent: !!order.depositProofSent
     };
 
     if (!entry.name || !entry.phone || !entry.address) {

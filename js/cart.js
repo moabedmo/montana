@@ -139,6 +139,8 @@ window.MontanaCart = (function () {
       payment: order.payment || '',
       notes: order.customer.notes || ''
     };
+    if (order.depositAmount != null) entry.depositAmount = order.depositAmount;
+    if (order.depositProofSent != null) entry.depositProofSent = order.depositProofSent;
     if (order.shipping != null) entry.shipping = order.shipping;
     if (order.subtotal != null) entry.subtotal = order.subtotal;
 

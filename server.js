@@ -20,6 +20,9 @@ const shippingCreateHandler = require('./handlers/shipping/create');
 const shippingTrackHandler = require('./handlers/shipping/track');
 const metaWebhookHandler = require('./handlers/webhooks/meta');
 const sendMessageHandler = require('./handlers/messages/social');
+const depositSettingsHandler = require('./handlers/settings/deposit');
+const depositProofHandler = require('./handlers/orders/deposit-proof');
+const orderNotifyHandler = require('./handlers/orders/notify');
 const telegramSendHandler = require('./handlers/telegram/send');
 const refreshTokensHandler = require('./handlers/cron/refresh-tokens');
 const { refreshExpiringTokens } = require('./lib/token-refresh');
@@ -40,6 +43,9 @@ const API_ROUTES = {
   '/api/shipping/track': shippingTrackHandler,
   '/api/webhooks/meta': metaWebhookHandler,
   '/api/messages/social': sendMessageHandler,
+  '/api/settings/deposit': depositSettingsHandler,
+  '/api/orders/deposit-proof': depositProofHandler,
+  '/api/orders/notify': orderNotifyHandler,
   '/api/telegram/send': telegramSendHandler,
   '/api/cron/refresh-tokens': refreshTokensHandler
 };

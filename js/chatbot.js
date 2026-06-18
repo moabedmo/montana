@@ -6,6 +6,7 @@ window.MontanaChatbot = (function () {
   var collectingOrder = false;
   var orderStep = 'idle';
   var pendingOrder = null;
+  var pendingDepositProof = false;
   var sessionPhase = 'idle';
   var lastCompletedOrder = null;
   var sessionLang = 'ar';
@@ -45,6 +46,13 @@ window.MontanaChatbot = (function () {
     currency: 'جنيه',
     confirmBtn: 'تأكيد الأوردر',
     cancelBtn: 'إلغاء',
+    depositTitle: 'عربون 200 جنيه',
+    depositHint: 'حوّلي 200 جنيه وارفعي صورة التحويل — بعدها يتفعّل زر التأكيد.',
+    depositUpload: '📷 رفع صورة التحويل',
+    depositSent: '✓ تم إرسال الصورة للمسؤول — أكّدي الأوردر',
+    depositRequired: 'لازم ترفعي صورة التحويل (200 جنيه) قبل التأكيد.',
+    depositUploading: 'بنرسل الصورة للمسؤول...',
+    depositFailed: 'مش قدرنا نرفع الصورة — جرّبي تاني',
     saving: 'ثانية واحدة... بسجّل أوردرك \uD83D\uDC9C',
     saved: 'مبروك يا جميلة! \uD83C\uDF89 أوردرك اتسجل بنجاح.\n\nرقم الأوردر: #{id}\n\nهنتواصل معاكي على {phone} قريب جداً لتأكيد الشحن.\n\nشكراً لثقتك في Montana! \uD83D\uDC9C',
     saveFailed: 'معلش في مشكلة في تسجيل الأوردر. تواصلي معانا مباشرة.',
@@ -76,6 +84,13 @@ window.MontanaChatbot = (function () {
     currency: 'EGP',
     confirmBtn: 'Confirm order',
     cancelBtn: 'Cancel',
+    depositTitle: '200 EGP deposit',
+    depositHint: 'Transfer 200 EGP and upload proof — then confirm your order.',
+    depositUpload: '📷 Upload transfer proof',
+    depositSent: '✓ Proof sent to admin — confirm your order',
+    depositRequired: 'Upload deposit proof (200 EGP) before confirming.',
+    depositUploading: 'Sending proof to admin...',
+    depositFailed: 'Could not upload proof — try again',
     saving: 'Saving your order...',
     saved: 'Your order is confirmed! \uD83C\uDF89\n\nOrder #: #{id}\n\nWe\'ll contact you at {phone} soon to confirm shipping.\n\nThank you for choosing Montana! \uD83D\uDC9C',
     saveFailed: 'Sorry, we couldn\'t save the order. Please contact us directly.',
@@ -2328,10 +2343,14 @@ window.MontanaChatbot = (function () {
     }
     var total = orderData.items.reduce(function (s, i) { return s + i.price * i.qty; }, 0);
     pendingOrder = Object.assign({}, orderData);
+    pendingDepositProof = false;
 
     var div = document.getElementById('chat-messages');
     if (!div) return;
     document.querySelectorAll('.order-confirm').forEach(function (el) { el.remove(); });
+
+    var depAmount = window.MontanaDeposit ? MontanaDeposit.amount() : 200;
+    var depInfo = window.MontanaDeposit ? MontanaDeposit.paymentInfo(sessionLang) : strings.depositHint;
 
     var confirm = document.createElement('div');
     confirm.className = 'order-confirm';
@@ -2342,19 +2361,75 @@ window.MontanaChatbot = (function () {
       '<div class="oc-item">' + strings.labelAddress + ': ' + esc(orderData.address) + '</div>' +
       '<div class="oc-item">' + strings.labelProducts + ': ' + esc(orderData.items.map(function (i) { return i.name + ' x' + i.qty; }).join(', ')) + '</div>' +
       '<div class="oc-item" style="color:#10B981;font-weight:600;">' + strings.labelTotal + ': ' + total + ' ' + strings.currency + '</div>' +
-      '<button type="button" class="oc-confirm-btn">' + strings.confirmBtn + '</button>' +
+      '<div class="oc-deposit">' +
+      '<div class="oc-deposit-title">' + strings.depositTitle.replace('200', depAmount) + '</div>' +
+      '<p class="oc-deposit-info">' + esc(depInfo) + '</p>' +
+      '<input type="file" accept="image/*" class="oc-deposit-file" hidden>' +
+      '<button type="button" class="oc-deposit-upload">' + strings.depositUpload + '</button>' +
+      '<p class="oc-deposit-status"></p>' +
+      '</div>' +
+      '<button type="button" class="oc-confirm-btn" disabled>' + strings.confirmBtn + '</button>' +
       '<div style="text-align:center;"><button type="button" class="oc-cancel">' + strings.cancelBtn + '</button></div>';
-    confirm.querySelector('.oc-confirm-btn').addEventListener('click', confirmOrder);
+
+    var fileInput = confirm.querySelector('.oc-deposit-file');
+    var uploadBtn = confirm.querySelector('.oc-deposit-upload');
+    var statusEl = confirm.querySelector('.oc-deposit-status');
+    var confirmBtn = confirm.querySelector('.oc-confirm-btn');
+
+    uploadBtn.addEventListener('click', function () { fileInput.click(); });
+
+    fileInput.addEventListener('change', async function () {
+      var f = fileInput.files && fileInput.files[0];
+      fileInput.value = '';
+      if (!f || !window.MontanaDeposit) return;
+      uploadBtn.disabled = true;
+      statusEl.textContent = strings.depositUploading;
+      statusEl.style.color = '#E9D5FF';
+      try {
+        var dataUrl = await MontanaDeposit.readImageFile(f);
+        await MontanaDeposit.uploadProof({
+          image: dataUrl,
+          source: 'chat',
+          name: orderData.name,
+          phone: orderData.phone,
+          address: orderData.address,
+          itemsSummary: MontanaDeposit.itemsSummary(orderData.items, sessionLang),
+          total: total
+        });
+        pendingDepositProof = true;
+        if (pendingOrder) pendingOrder.depositProofSent = true;
+        statusEl.textContent = strings.depositSent;
+        statusEl.style.color = '#10B981';
+        confirmBtn.disabled = false;
+      } catch (e) {
+        statusEl.textContent = strings.depositFailed;
+        statusEl.style.color = '#F87171';
+        uploadBtn.disabled = false;
+      }
+    });
+
+    confirmBtn.addEventListener('click', confirmOrder);
     confirm.querySelector('.oc-cancel').addEventListener('click', cancelOrder);
     div.appendChild(confirm);
     div.scrollTop = div.scrollHeight;
+
+    if (window.MontanaDeposit) MontanaDeposit.loadSettings();
   }
 
   async function confirmOrder() {
     if (!pendingOrder || isBotBusy) return;
     var strings = t(sessionLang);
+    if (!pendingDepositProof && !(pendingOrder && pendingOrder.depositProofSent)) {
+      await typeBotMessage(strings.depositRequired, { skipThink: true, skipPolish: true });
+      return;
+    }
     document.querySelectorAll('.order-confirm').forEach(function (el) { el.remove(); });
     await typeBotMessage(strings.saving, { skipThink: true, thinkMs: 900, skipPolish: true });
+
+    var depAmount = window.MontanaDeposit ? MontanaDeposit.amount() : 200;
+    pendingOrder.depositAmount = depAmount;
+    pendingOrder.depositProofSent = true;
+    pendingOrder.source = 'chatbot';
 
     try {
       var orderId = '';
@@ -2364,6 +2439,11 @@ window.MontanaChatbot = (function () {
         orderId = MontanaChatOrders.save(pendingOrder);
       } else {
         throw new Error('no_store');
+      }
+      if (window.MontanaDeposit) {
+        pendingOrder.id = orderId;
+        pendingOrder.time = new Date().toLocaleString('ar-EG');
+        await MontanaDeposit.notifyOrderConfirmed(pendingOrder);
       }
       var savedMsg = strings.saved.replace('{id}', orderId).replace('{phone}', pendingOrder.phone);
       lastCompletedOrder = {
@@ -2375,6 +2455,7 @@ window.MontanaChatbot = (function () {
       };
       sessionPhase = 'post_order';
       pendingOrder = null;
+      pendingDepositProof = false;
       orderData = {};
       orderStep = 'idle';
       collectingOrder = false;
@@ -2393,6 +2474,7 @@ window.MontanaChatbot = (function () {
     var strings = t(sessionLang);
     document.querySelectorAll('.order-confirm').forEach(function (el) { el.remove(); });
     pendingOrder = null;
+    pendingDepositProof = false;
     orderData = {};
     orderStep = 'idle';
     collectingOrder = false;
