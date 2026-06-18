@@ -106,6 +106,57 @@ window.MontanaDeposit = (function () {
     return d;
   }
 
+  function waitForAdminApproval(proofId, opts) {
+    opts = opts || {};
+    var interval = opts.intervalMs || 3000;
+    var maxMs = opts.maxMs || 30 * 60 * 1000;
+    var started = Date.now();
+    var cancelled = false;
+    var timer = null;
+
+    function cancel() {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    }
+
+    var promise = new Promise(function (resolve, reject) {
+      function poll() {
+        if (cancelled) {
+          reject(new Error('cancelled'));
+          return;
+        }
+        fetch('/api/orders/deposit-status?proofId=' + encodeURIComponent(proofId))
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (cancelled) {
+              reject(new Error('cancelled'));
+              return;
+            }
+            if (d.ok && d.approved) {
+              resolve(d);
+              return;
+            }
+            if (Date.now() - started > maxMs) {
+              reject(new Error('approval_timeout'));
+              return;
+            }
+            timer = setTimeout(poll, interval);
+          })
+          .catch(function () {
+            if (cancelled) {
+              reject(new Error('cancelled'));
+              return;
+            }
+            if (Date.now() - started > maxMs) reject(new Error('approval_timeout'));
+            else timer = setTimeout(poll, interval);
+          });
+      }
+      poll();
+    });
+
+    return { promise: promise, cancel: cancel };
+  }
+
   async function notifyOrderConfirmed(order) {
     try {
       await fetch('/api/orders/notify', {
@@ -128,6 +179,7 @@ window.MontanaDeposit = (function () {
     paymentInfo: t,
     readImageFile: readImageFile,
     uploadProof: uploadProof,
+    waitForAdminApproval: waitForAdminApproval,
     notifyOrderConfirmed: notifyOrderConfirmed,
     itemsSummary: itemsSummary
   };

@@ -76,6 +76,8 @@ MontanaShop.bindNav();
 var lines = MontanaCart.lines();
 var root = document.getElementById('checkout-root');
 var shopDepositProofSent = false;
+var shopDepositApproved = false;
+var shopDepositWaiter = null;
 
 function renderCheckout() {
   var esc = MontanaShop.esc;
@@ -152,10 +154,13 @@ function renderCheckout() {
   var statusEl = form.querySelector('.checkout-deposit-status');
   var submitBtn = form.querySelector('.checkout-submit');
 
-  if (shopDepositProofSent) {
+  if (shopDepositApproved) {
     submitBtn.disabled = false;
-    statusEl.textContent = MontanaShop.t('depositSent');
+    statusEl.textContent = MontanaShop.t('depositApproved');
     statusEl.style.color = '#10B981';
+  } else if (shopDepositProofSent) {
+    statusEl.textContent = MontanaShop.t('depositWaiting');
+    statusEl.style.color = '#E9D5FF';
   }
 
   uploadBtn.addEventListener('click', function () { fileInput.click(); });
@@ -177,7 +182,7 @@ function renderCheckout() {
     statusEl.style.color = '#E9D5FF';
     try {
       var dataUrl = await MontanaDeposit.readImageFile(f);
-      await MontanaDeposit.uploadProof({
+      var uploadResult = await MontanaDeposit.uploadProof({
         image: dataUrl,
         source: 'shop',
         name: name,
@@ -190,9 +195,26 @@ function renderCheckout() {
         total: total
       });
       shopDepositProofSent = true;
-      statusEl.textContent = MontanaShop.t('depositSent');
-      statusEl.style.color = '#10B981';
-      submitBtn.disabled = false;
+      shopDepositApproved = false;
+      statusEl.textContent = MontanaShop.t('depositWaiting');
+      statusEl.style.color = '#E9D5FF';
+      if (shopDepositWaiter) shopDepositWaiter.cancel();
+      shopDepositWaiter = MontanaDeposit.waitForAdminApproval(uploadResult.proofId);
+      try {
+        await shopDepositWaiter.promise;
+        shopDepositApproved = true;
+        statusEl.textContent = MontanaShop.t('depositApproved');
+        statusEl.style.color = '#10B981';
+        submitBtn.disabled = false;
+      } catch (waitErr) {
+        if (waitErr && waitErr.message === 'cancelled') return;
+        statusEl.textContent = waitErr && waitErr.message === 'approval_timeout'
+          ? MontanaShop.t('depositTimeout')
+          : MontanaShop.t('depositNotApproved');
+        statusEl.style.color = '#F87171';
+        uploadBtn.disabled = false;
+        shopDepositProofSent = false;
+      }
     } catch (e) {
       statusEl.textContent = (e && e.message && e.message !== 'upload_failed')
         ? e.message
@@ -204,8 +226,8 @@ function renderCheckout() {
 
   form.onsubmit = async function (e) {
     e.preventDefault();
-    if (!shopDepositProofSent) {
-      MontanaShop.toast(MontanaShop.t('depositRequired'));
+    if (!shopDepositApproved) {
+      MontanaShop.toast(shopDepositProofSent ? MontanaShop.t('depositNotApproved') : MontanaShop.t('depositRequired'));
       return;
     }
     var fd = new FormData(e.target);

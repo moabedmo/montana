@@ -14,7 +14,9 @@ const ROUTES = {
   'messages/social': require('../handlers/messages/social'),
   'settings/deposit': require('../handlers/settings/deposit'),
   'orders/deposit-proof': require('../handlers/orders/deposit-proof'),
+  'orders/deposit-status': require('../handlers/orders/deposit-status'),
   'orders/notify': require('../handlers/orders/notify'),
+  'webhooks/telegram': require('../handlers/webhooks/telegram'),
   'telegram/send': require('../handlers/telegram/send'),
   'cron/refresh-tokens': require('../handlers/cron/refresh-tokens')
 };

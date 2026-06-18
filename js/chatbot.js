@@ -7,6 +7,8 @@ window.MontanaChatbot = (function () {
   var orderStep = 'idle';
   var pendingOrder = null;
   var pendingDepositProof = false;
+  var pendingDepositApproved = false;
+  var depositApprovalWaiter = null;
   var sessionPhase = 'idle';
   var lastCompletedOrder = null;
   var sessionLang = 'ar';
@@ -47,10 +49,14 @@ window.MontanaChatbot = (function () {
     confirmBtn: 'تأكيد الأوردر',
     cancelBtn: 'إلغاء',
     depositTitle: 'عربون 200 جنيه',
-    depositHint: 'حوّلي 200 جنيه وارفعي صورة التحويل — بعدها يتفعّل زر التأكيد.',
+    depositHint: 'حوّلي 200 جنيه وارفعي صورة التحويل — المسؤول يوافق على تليجرام وبعدين يتفعّل التأكيد.',
     depositUpload: '📷 رفع صورة التحويل',
+    depositWaiting: '⏳ تم إرسال الصورة — في انتظار موافقة المسؤول (رد «تم» على تليجرام)',
+    depositApproved: '✓ تمت الموافقة — أكّدي الأوردر',
     depositSent: '✓ تم إرسال الصورة للمسؤول — أكّدي الأوردر',
     depositRequired: 'لازم ترفعي صورة التحويل (200 جنيه) قبل التأكيد.',
+    depositNotApproved: 'لسه المسؤول موافقش على التحويل — استني شوية.',
+    depositTimeout: 'انتهى وقت الانتظار — جرّبي رفع الصورة تاني.',
     depositUploading: 'بنرسل الصورة للمسؤول...',
     depositFailed: 'مش قدرنا نرفع الصورة — جرّبي تاني',
     saving: 'ثانية واحدة... بسجّل أوردرك \uD83D\uDC9C',
@@ -85,10 +91,14 @@ window.MontanaChatbot = (function () {
     confirmBtn: 'Confirm order',
     cancelBtn: 'Cancel',
     depositTitle: '200 EGP deposit',
-    depositHint: 'Transfer 200 EGP and upload proof — then confirm your order.',
+    depositHint: 'Transfer 200 EGP and upload proof — admin approves on Telegram, then confirm.',
     depositUpload: '📷 Upload transfer proof',
+    depositWaiting: '⏳ Proof sent — waiting for admin approval (reply «تم» on Telegram)',
+    depositApproved: '✓ Approved — confirm your order',
     depositSent: '✓ Proof sent to admin — confirm your order',
     depositRequired: 'Upload deposit proof (200 EGP) before confirming.',
+    depositNotApproved: 'Waiting for admin to approve your transfer.',
+    depositTimeout: 'Approval timed out — upload proof again.',
     depositUploading: 'Sending proof to admin...',
     depositFailed: 'Could not upload proof — try again',
     saving: 'Saving your order...',
@@ -2344,6 +2354,11 @@ window.MontanaChatbot = (function () {
     var total = orderData.items.reduce(function (s, i) { return s + i.price * i.qty; }, 0);
     pendingOrder = Object.assign({}, orderData);
     pendingDepositProof = false;
+    pendingDepositApproved = false;
+    if (depositApprovalWaiter) {
+      depositApprovalWaiter.cancel();
+      depositApprovalWaiter = null;
+    }
 
     var div = document.getElementById('chat-messages');
     if (!div) return;
@@ -2387,7 +2402,7 @@ window.MontanaChatbot = (function () {
       statusEl.style.color = '#E9D5FF';
       try {
         var dataUrl = await MontanaDeposit.readImageFile(f);
-        await MontanaDeposit.uploadProof({
+        var uploadResult = await MontanaDeposit.uploadProof({
           image: dataUrl,
           source: 'chat',
           name: orderData.name,
@@ -2397,10 +2412,30 @@ window.MontanaChatbot = (function () {
           total: total
         });
         pendingDepositProof = true;
-        if (pendingOrder) pendingOrder.depositProofSent = true;
-        statusEl.textContent = strings.depositSent;
-        statusEl.style.color = '#10B981';
-        confirmBtn.disabled = false;
+        if (pendingOrder) {
+          pendingOrder.depositProofSent = true;
+          pendingOrder.proofId = uploadResult.proofId;
+        }
+        statusEl.textContent = strings.depositWaiting;
+        statusEl.style.color = '#E9D5FF';
+        if (depositApprovalWaiter) depositApprovalWaiter.cancel();
+        depositApprovalWaiter = MontanaDeposit.waitForAdminApproval(uploadResult.proofId);
+        try {
+          await depositApprovalWaiter.promise;
+          pendingDepositApproved = true;
+          if (pendingOrder) pendingOrder.depositApproved = true;
+          statusEl.textContent = strings.depositApproved;
+          statusEl.style.color = '#10B981';
+          confirmBtn.disabled = false;
+        } catch (waitErr) {
+          if (waitErr && waitErr.message === 'cancelled') return;
+          statusEl.textContent = waitErr && waitErr.message === 'approval_timeout'
+            ? strings.depositTimeout
+            : strings.depositNotApproved;
+          statusEl.style.color = '#F87171';
+          uploadBtn.disabled = false;
+          pendingDepositProof = false;
+        }
       } catch (e) {
         statusEl.textContent = (e && e.message && e.message !== 'upload_failed')
           ? e.message
@@ -2421,8 +2456,11 @@ window.MontanaChatbot = (function () {
   async function confirmOrder() {
     if (!pendingOrder || isBotBusy) return;
     var strings = t(sessionLang);
-    if (!pendingDepositProof && !(pendingOrder && pendingOrder.depositProofSent)) {
-      await typeBotMessage(strings.depositRequired, { skipThink: true, skipPolish: true });
+    if (!pendingDepositApproved && !(pendingOrder && pendingOrder.depositApproved)) {
+      await typeBotMessage(
+        pendingDepositProof ? strings.depositNotApproved : strings.depositRequired,
+        { skipThink: true, skipPolish: true }
+      );
       return;
     }
     document.querySelectorAll('.order-confirm').forEach(function (el) { el.remove(); });
@@ -2458,6 +2496,11 @@ window.MontanaChatbot = (function () {
       sessionPhase = 'post_order';
       pendingOrder = null;
       pendingDepositProof = false;
+      pendingDepositApproved = false;
+      if (depositApprovalWaiter) {
+        depositApprovalWaiter.cancel();
+        depositApprovalWaiter = null;
+      }
       orderData = {};
       orderStep = 'idle';
       collectingOrder = false;
@@ -2477,6 +2520,11 @@ window.MontanaChatbot = (function () {
     document.querySelectorAll('.order-confirm').forEach(function (el) { el.remove(); });
     pendingOrder = null;
     pendingDepositProof = false;
+    pendingDepositApproved = false;
+    if (depositApprovalWaiter) {
+      depositApprovalWaiter.cancel();
+      depositApprovalWaiter = null;
+    }
     orderData = {};
     orderStep = 'idle';
     collectingOrder = false;
