@@ -496,10 +496,9 @@ window.MontanaChatbot = (function () {
 
     if (action === 'cancel_order') return brain;
 
-    var orderAction = action === 'start_order' || action === 'update_order' ||
+    var inOrder = action === 'start_order' || action === 'update_order' ||
       action === 'confirm_ready' || collectingOrder;
-
-    if (!orderAction) return brain;
+    if (!inOrder) return brain;
 
     if (o.product_names && o.product_names.length) {
       var resolved = resolveProducts(o.product_names);
@@ -508,37 +507,51 @@ window.MontanaChatbot = (function () {
       }
     }
 
-    if (orderStep === 'phone' || o.phone || (collectingOrder && looksLikePhoneAttempt(t))) {
-      var phCheck = validateEgyptPhone(t || o.phone || orderData.phone, lang);
-      if (!phCheck.ok && (orderStep === 'phone' || looksLikePhoneAttempt(t) || o.phone)) {
+    var step = orderStep || o.step || 'idle';
+
+    if (step === 'name' && looksLikePersonName(t, intent)) {
+      orderData.name = t;
+      return {
+        reply: lang === 'en'
+          ? 'Thanks ' + t + '! What\'s your phone number? (11 digits)'
+          : 'تسلمي يا ' + t + '! 💜 رقم الموبايل؟ (11 رقم)',
+        action: 'update_order',
+        order: { step: 'phone', name: t, product_names: (orderData.items || []).map(function (i) { return i.name; }) }
+      };
+    }
+
+    if ((step === 'phone' || looksLikePhoneAttempt(t)) && !looksLikeAddress(t)) {
+      var phCheck = validateEgyptPhone(looksLikePhoneAttempt(t) ? t : (o.phone || orderData.phone), lang);
+      if (!phCheck.ok) {
         return {
           reply: phCheck.message,
           action: 'update_order',
-          order: {
-            step: 'phone',
-            name: orderData.name || o.name || '',
-            product_names: (orderData.items || []).map(function (i) { return i.name; })
-          }
+          order: { step: 'phone', name: orderData.name || o.name || '', product_names: (orderData.items || []).map(function (i) { return i.name; }) }
         };
       }
-      if (phCheck.ok) {
-        brain.order = brain.order || {};
-        brain.order.phone = phCheck.phone;
+      orderData.phone = phCheck.phone;
+      brain.order = brain.order || {};
+      brain.order.phone = phCheck.phone;
+      if (step === 'phone' && looksLikePhoneAttempt(t)) {
+        return {
+          reply: lang === 'en'
+            ? 'Got it. Delivery address? (city, area, street)'
+            : 'تمام. العنوان فين يا جميلة؟ (محافظة + منطقة + شارع)',
+          action: 'update_order',
+          order: { step: 'address', name: orderData.name, phone: phCheck.phone, product_names: (orderData.items || []).map(function (i) { return i.name; }) }
+        };
       }
     }
 
-    var addrCandidate = o.address || (orderStep === 'address' ? t : '');
-    if (addrCandidate && (orderStep === 'address' || o.address)) {
-      if (!looksLikeAddress(addrCandidate) || isOrderProductQuestion(addrCandidate)) {
-        if (isOrderProductQuestion(addrCandidate) || !orderHasItems()) {
-          return {
-            reply: lang === 'en'
-              ? 'Which product would you like in your order?'
-              : 'قوليلي الأول عايزة إيه من منتجاتنا؟',
-            action: 'update_order',
-            order: { step: 'product', name: orderData.name || '', phone: orderData.phone || '', product_names: [] }
-          };
-        }
+    if (step === 'address' && t && !looksLikePhoneAttempt(t)) {
+      if (isOrderProductQuestion(t) || !orderHasItems()) {
+        return {
+          reply: lang === 'en' ? 'Which product(s) would you like?' : 'قوليلي عايزة إيه من منتجاتنا؟',
+          action: 'update_order',
+          order: { step: 'product', name: orderData.name || '', phone: orderData.phone || '', product_names: [] }
+        };
+      }
+      if (!looksLikeAddress(t)) {
         return {
           reply: lang === 'en'
             ? 'Please send your full address (governorate + area + street).'
@@ -552,43 +565,49 @@ window.MontanaChatbot = (function () {
           }
         };
       }
-      brain.order = brain.order || {};
-      brain.order.address = addrCandidate;
+      orderData.address = t;
+      var phoneReady = validateEgyptPhone(orderData.phone, lang);
+      if (orderData.name && phoneReady.ok && orderHasItems()) {
+        return {
+          reply: lang === 'en' ? 'Perfect! Confirm your order below.' : 'كده تمام يا حبيبتي! 💜 أكّدي الأوردر من تحت.',
+          action: 'confirm_ready',
+          order: {
+            step: 'ready',
+            name: orderData.name,
+            phone: orderData.phone,
+            address: t,
+            product_names: orderData.items.map(function (i) { return i.name; })
+          }
+        };
+      }
     }
 
     if (action === 'confirm_ready' || o.step === 'ready') {
-      if (!orderHasItems() && !(brain.order.product_names && brain.order.product_names.length)) {
-        var pick = buildProductPickerReply(lang, 'update_order');
-        pick.reply = lang === 'en'
-          ? 'Before confirming — which product(s) would you like?'
-          : 'قبل التأكيد — عايزة إيه من منتجاتنا؟';
-        return pick;
+      var phoneReady = validateEgyptPhone(orderData.phone || o.phone || '', lang);
+      var addrText = orderData.address || o.address || '';
+      if (!orderHasItems()) {
+        return buildProductPickerReply(lang, 'update_order');
       }
-      var nameOk = orderData.name || o.name;
-      var phoneOk = validateEgyptPhone(orderData.phone || o.phone || '', lang);
-      var addrOk = orderData.address || o.address;
-      if (!nameOk || !phoneOk.ok || !addrOk || !looksLikeAddress(addrOk)) {
-        if (!phoneOk.ok) {
-          return {
-            reply: phoneOk.message,
-            action: 'update_order',
-            order: { step: 'phone', name: nameOk || '', product_names: (orderData.items || []).map(function (i) { return i.name; }) }
-          };
-        }
-        if (!addrOk || !looksLikeAddress(addrOk)) {
-          return {
-            reply: lang === 'en' ? 'Delivery address? (city, area, street)' : 'العنوان فين؟ (محافظة + منطقة + شارع)',
-            action: 'update_order',
-            order: { step: 'address', name: nameOk || '', phone: phoneOk.phone || orderData.phone || '', product_names: (orderData.items || []).map(function (i) { return i.name; }) }
-          };
-        }
-        if (!nameOk) {
-          return {
-            reply: lang === 'en' ? 'What name for the order?' : 'اسمك إيه عشان نسجل الأوردر؟',
-            action: 'update_order',
-            order: { step: 'name', product_names: (orderData.items || []).map(function (i) { return i.name; }) }
-          };
-        }
+      if (!phoneReady.ok) {
+        return {
+          reply: phoneReady.message,
+          action: 'update_order',
+          order: { step: 'phone', name: orderData.name || o.name || '', product_names: (orderData.items || []).map(function (i) { return i.name; }) }
+        };
+      }
+      if (!orderData.name && !o.name) {
+        return {
+          reply: lang === 'en' ? 'What name for the order?' : 'اسمك إيه؟',
+          action: 'update_order',
+          order: { step: 'name', product_names: (orderData.items || []).map(function (i) { return i.name; }) }
+        };
+      }
+      if (!addrText || !looksLikeAddress(addrText)) {
+        return {
+          reply: lang === 'en' ? 'Delivery address? (city, area, street)' : 'العنوان فين؟ (محافظة + منطقة + شارع)',
+          action: 'update_order',
+          order: { step: 'address', name: orderData.name, phone: phoneReady.phone, product_names: (orderData.items || []).map(function (i) { return i.name; }) }
+        };
       }
     }
 
@@ -950,7 +969,7 @@ window.MontanaChatbot = (function () {
     var norm = window.MontanaChatIntent ? MontanaChatIntent.normalizeText(t) : t.toLowerCase();
     if (/^(مش|ما|ليه|ازاي|كيف|ايه|مين|هطلب|تعرف|تعرفي|محدد|اختار|اختر|لاليه)/.test(norm)) return false;
     if (/هطلب|اطلب|منتج|تطلب|which product|what to order/.test(norm)) return false;
-    if (/شارع|street|ش\.|عمارة|عماره|دور|منطقة|منطقه|حي|مدينة|محافظ|اسوان|أسوان|القاهره|القاهرة|الجيزه|الجيزة|الاسكندر|cairo|giza|alex|october|زمالك|مدين|nasr|tagamo|شبرا|المعادي|التجمع|6\s*october/i.test(t)) return true;
+    if (/شارع|street|ش\.|عمارة|عماره|دور|منطقة|منطقه|حي|مدينة|محافظ|اسوان|أسوان|القاهره|القاهرة|القاهرا|الجيزه|الجيزة|الجيزا|الاسكندر|cairo|giza|alex|october|زمالك|مدين|nasr|tagamo|شبرا|المعادي|التجمع|6\s*october/i.test(t)) return true;
     return t.length >= 14 && !/[؟?]/.test(t) && t.split(/\s+/).filter(Boolean).length >= 2;
   }
 
@@ -984,12 +1003,31 @@ window.MontanaChatbot = (function () {
     var fromText = matchAllProductsFromText(text);
     if (fromText.length) return fromText;
     if (offeredOrder) {
-      if (sessionSuggestedProducts.length) return sessionSuggestedProducts.slice();
       var fromRecs = productsFromRecommendedInChat();
       if (fromRecs.length) return fromRecs;
+      if (sessionSuggestedProducts.length) return sessionSuggestedProducts.slice();
       if (sessionSuggestedProduct) return [sessionSuggestedProduct];
     }
     return [];
+  }
+
+  function localScarBrain(userText, lang, intent) {
+    if (collectingOrder) return null;
+    intent = intent || getIntent(userText);
+    var norm = intent.norm || '';
+    if (!/ندوب|ندبات|ندبه|بالنسبه|بالنسبة|\bscar\b/i.test(norm)) return null;
+    if (intent.concern === 'acne' && !/ندوب|ندبات|ندبه|بالنسبه/i.test(norm)) return null;
+    var prods = getProducts();
+    var scarP = prods.find(function (p) { return p.id === 'anti-scar'; });
+    if (!scarP || !window.MontanaChatKnowledge) return null;
+    markOrderOffer(scarP);
+    var reply = MontanaChatKnowledge.buildConsultationReply('scar', lang, prods, norm) ||
+      MontanaChatKnowledge.buildProductExpertReply(scarP, lang, { offerOrder: true });
+    return {
+      reply: reply,
+      action: 'chat',
+      order: { step: orderStep || 'idle', product_names: [scarP.nameAr] }
+    };
   }
 
   function buildProductPickerReply(lang, action) {
@@ -1683,10 +1721,21 @@ window.MontanaChatbot = (function () {
       };
     }
 
+    if (collectingOrder && (orderStep === 'product' || orderStep === 'name' ||
+        orderStep === 'phone' || orderStep === 'address')) {
+      var stepBrain = localOrderBrain(userText, lang, intent);
+      if (stepBrain) {
+        return { ok: true, brain: enforceOrderBrain(stepBrain, lang, userText, intent), fallback: true };
+      }
+    }
+
     if (!collectingOrder) {
       var quick = localGreetingBrain(userText, lang, intent) ||
         localGoodbyeBrain(userText, lang, intent);
       if (quick && !(opts.images && opts.images.length)) return { ok: true, brain: quick, fallback: true };
+
+      var scarHit = localScarBrain(userText, lang, intent);
+      if (scarHit) return { ok: true, brain: scarHit, fallback: true };
     }
 
     if (await useChatAi()) {
@@ -1733,7 +1782,9 @@ window.MontanaChatbot = (function () {
       collectingOrder = true;
       sessionPhase = 'ordering';
 
-      if (o.name) orderData.name = String(o.name).trim();
+      if (o.name && looksLikePersonName(String(o.name), getIntent(String(o.name)))) {
+        orderData.name = String(o.name).trim();
+      }
       if (o.phone) {
         var phResult = validateEgyptPhone(o.phone, sessionLang);
         if (phResult.ok) orderData.phone = phResult.phone;

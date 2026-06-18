@@ -221,7 +221,7 @@ window.MontanaChatIntent = (function () {
   }
 
   function scoreScar(norm) {
-    if (hasAny(norm, [/ندوب/, /ندبه/, /اثار/, /علامات/, /بقايا/, /\bscar\b/, /keloid/])) return 5;
+    if (hasAny(norm, [/ندوب/, /ندبات/, /ندبه/, /بالنسبه\s*ل/, /بالنسبة\s*ل/, /اثار/, /علامات/, /بقايا/, /\bscar\b/, /keloid/])) return 5;
     return 0;
   }
 
