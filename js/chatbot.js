@@ -112,7 +112,7 @@ window.MontanaChatbot = (function () {
       reply: { type: 'STRING' },
       action: {
         type: 'STRING',
-        enum: ['chat', 'start_order', 'update_order', 'cancel_order', 'thanks', 'confirm_ready', 'buy_more']
+        enum: ['chat', 'open_order', 'cancel_order', 'thanks', 'buy_more']
       },
       order: {
         type: 'OBJECT',
@@ -201,23 +201,17 @@ window.MontanaChatbot = (function () {
   function validateAiBrain(brain) {
     if (!brain || !brain.reply) return null;
     brain.action = brain.action || 'chat';
-    if (!brain.order) brain.order = { step: orderStep || 'idle', product_names: [] };
+    if (!brain.order) brain.order = { product_names: [] };
+    if (brain.action === 'start_order' || brain.action === 'update_order' || brain.action === 'confirm_ready') {
+      brain.action = 'open_order';
+    }
     if (brain.order.product_names && brain.order.product_names.length) {
       var resolved = resolveProducts(brain.order.product_names);
       brain.order.product_names = resolved.map(function (i) { return i.name; });
     }
-    if ((brain.action === 'start_order' || brain.action === 'update_order') &&
-        (!brain.order.product_names || !brain.order.product_names.length)) {
-      if (sessionSuggestedProducts.length) {
-        brain.order.product_names = sessionSuggestedProducts.map(function (p) { return p.nameAr; });
-      } else if (sessionSuggestedProduct && (sessionBotOfferedOrder || lastBotOfferedOrder())) {
-        brain.order.product_names = [sessionSuggestedProduct.nameAr];
-      }
-    }
-    if (brain.order.name && looksLikePersonName(String(brain.order.name), getIntent(String(brain.order.name)))) {
-      /* keep */
-    } else if (brain.order.name && /كريم|غسول|حبوب|تفتيح|لوشن/i.test(String(brain.order.name))) {
-      brain.order.name = '';
+    if (brain.action === 'open_order' && (!brain.order.product_names || !brain.order.product_names.length)) {
+      var fromCtx = resolveOrderItemsFromBrain(brain);
+      if (fromCtx.length) brain.order.product_names = fromCtx.map(function (i) { return i.name; });
     }
     return brain;
   }
@@ -248,7 +242,7 @@ window.MontanaChatbot = (function () {
         ? '\n\nThe customer attached a skin photo. Describe what you see (acne, spots, dullness, dryness, scars) without medical diagnosis. Recommend suitable Montana products with prices.'
         : '\n\nالعميلة بعتت صورة بشرة. صفّي اللي ظاهر (حبوب، بقع، بهتان، جفاف، ندوب) من غير تشخيص طبي. ارشّحي منتجات Montana المناسبة مع الأسعار.';
     }
-    system += '\n\nRespond with ONE JSON object only (no markdown): {"reply":"...","action":"chat|start_order|update_order|thanks|confirm_ready|buy_more|cancel_order","order":{"step":"idle|product|name|phone|address|ready","name":"","phone":"","address":"","product_names":[]}}';
+    system += '\n\nRespond with ONE JSON object only (no markdown): {"reply":"...","action":"chat|open_order|cancel_order|thanks|buy_more","order":{"product_names":[]}}';
 
     var result = await callChatAi({
       system: system,
@@ -343,16 +337,12 @@ window.MontanaChatbot = (function () {
     var lastBot = lastBotMessage();
     var lines = [
       'LIVE SESSION CONTEXT (interpret short/incomplete Egyptian replies using this):',
-      '- collecting_order: ' + collectingOrder,
-      '- order_step: ' + (orderStep || 'idle'),
+      '- order_form_open: ' + !!(window.MontanaChatOrderForm && MontanaChatOrderForm.isOpen()),
       '- bot_offered_order: ' + offered,
       '- session_phase: ' + (sessionPhase || 'chatting')
     ];
-    if (orderData.name) lines.push('- order_name: ' + orderData.name);
-    if (orderData.phone) lines.push('- order_phone: ' + orderData.phone);
-    if (orderData.address) lines.push('- order_address: ' + orderData.address);
     if (orderData.items && orderData.items.length) {
-      lines.push('- order_products: ' + orderData.items.map(function (i) { return i.name; }).join(', '));
+      lines.push('- pending_products: ' + orderData.items.map(function (i) { return i.name; }).join(', '));
     }
     if (lastBot) {
       lines.push('- last_bot_message: "' + lastBot.slice(0, 500).replace(/"/g, '\'') + '"');
@@ -366,8 +356,8 @@ window.MontanaChatbot = (function () {
     if (sessionLastConcern) lines.push('- last_skin_concern: ' + sessionLastConcern);
     if (offered) {
       lines.push(lang === 'en'
-        ? '- Customer may agree briefly (yes, ok, sure, yalla, please, yarit). → action=start_order, step=name. Do NOT repeat product info.'
-        : '- لو وافقت باختصار (ايوه، تمام، يريت، ياريت، ماشي، عايز، يلا، حاضر، ok) بعد عرض الأوردر → action=start_order و step=name. متكررّيش وصف المنتج.');
+        ? '- Customer may agree briefly (yes, ok, sure, yalla, please, yarit). → action=open_order with ALL suggested product_names. Do NOT ask name/phone/address in chat.'
+        : '- لو وافقت باختصار (ايوه، تمام، يريت، ياريت، ماشي، عايز، يلا، حاضر، ok) بعد عرض الأوردر → action=open_order وكل المنتجات المقترحة في product_names. متطلبيش اسم/موبايل/عنوان في الشات.');
     }
     lines.push(lang === 'en'
       ? '- Infer intent from FULL conversation history. Incomplete or misspelled Egyptian Arabic is normal.'
@@ -400,35 +390,21 @@ window.MontanaChatbot = (function () {
       '',
       buildSessionContextBlock(lang),
       '',
-      'Return JSON only. Understand intent from full conversation context — NOT from fixed phrase lists.',
+      'Return JSON only. Understand intent from full conversation context.',
       '',
-      'ORDER ACTIONS (use current order state — customer may speak naturally in any wording):',
-      '- cancel_order: wants to cancel/stop (الغي، مش عايز، بلاش، cancel) → friendly cancel reply',
-      '- update_order: change name, phone, address, or products anytime during order',
-      '- start_order: begin collecting order',
-      '- confirm_ready: ONLY when name + valid 11-digit Egyptian phone (01xxxxxxxxx) + real address + at least one product',
-      '- Phone MUST be exactly 11 digits starting 010/011/012/015. If incomplete → stay on step=phone and tell customer how many digits missing.',
-      '- Never use a question as address. Never confirm without products.',
-      '- product_names: list ALL products customer wants (merge if they say "كمان" / also add)',
+      'ORDER (IMPORTANT — never collect name/phone/address in chat text):',
+      '- When customer wants to order, agrees (ايوه/تمام/يريت), or asks to buy → action=open_order with product_names.',
+      '- Include ALL recommended products in product_names when customer agrees.',
+      '- cancel_order: الغي / مش عايز / cancel / بلاش.',
+      '- NEVER ask for name, phone, or address in reply — customer uses the order form in the UI.',
+      '- For product questions and skin advice → action=chat.',
       '',
       'Rules:',
-      '0. Short replies (1–3 words) usually answer the LAST bot question — use last_bot_message and bot_offered_order.',
-      '0b. If multiple products were recommended in chat (suggested_products), add ALL to product_names when customer agrees to order.',
-      '1. If asking for name and customer mentions a product or skin issue → recommend product, add to product_names, ask for name again. Never use product request as a person\'s name.',
-      '2. Name = person name (1–3 words), not a sentence.',
-      '3. Phone = exactly 11 Egyptian digits (01xxxxxxxxx). Reject incomplete numbers.',
-      '4. Address = governorate + area + street — not a question.',
-      '5. Thanks after order → action=thanks, short reply.',
-      '6. Order flow: product (if none) → name → phone → address → confirm_ready.',
-      '7. Customer may jump steps or ask to change details — update_order with correct step.',
-      '8. One step per reply unless customer gave multiple details at once.',
-      '9. Mention prices clearly.',
-      '10. Never echo customer text as name/address if it is a question.',
-      '11. Keep replies short: 2–4 sentences unless collecting order details.',
-      '12. When customer changes topic mid-order, follow intent (cancel vs update vs chat).',
-      '13. Act as a professional skincare consultant — explain WHY a product fits their concern using ingredients.',
-      '14. Recommend product pairs when relevant.',
-      '15. Mention usage tips and SPF for brightening products.',
+      '1. Reply in customer language. Keep replies short and warm.',
+      '2. Recommend products with prices from the catalog only.',
+      '3. Multiple concerns → recommend multiple products.',
+      '4. Thanks after order → action=thanks.',
+      '5. Never invent products or prices.',
       window.MontanaChatKnowledge ? MontanaChatKnowledge.aiKnowledgeBlock(lang, getProducts()) : ''
     ].join('\n');
   }
@@ -489,128 +465,19 @@ window.MontanaChatbot = (function () {
 
   function enforceOrderBrain(brain, lang, userText, intent) {
     if (!brain || !brain.reply) return null;
-    intent = intent || getIntent(userText || '');
     var action = brain.action || 'chat';
-    var o = brain.order || {};
-    var t = String(userText || '').trim();
-
-    if (action === 'cancel_order') return brain;
-
-    var inOrder = action === 'start_order' || action === 'update_order' ||
-      action === 'confirm_ready' || collectingOrder;
-    if (!inOrder) return brain;
-
-    if (o.product_names && o.product_names.length) {
-      var resolved = resolveProducts(o.product_names);
-      if (resolved.length) {
-        brain.order.product_names = resolved.map(function (i) { return i.name; });
+    if (action === 'cancel_order' || action === 'thanks' || action === 'buy_more') return brain;
+    if (action === 'start_order' || action === 'update_order' || action === 'confirm_ready' || action === 'open_order') {
+      brain.action = 'open_order';
+      if (!brain.order) brain.order = { product_names: [] };
+      var items = resolveOrderItemsFromBrain(brain);
+      brain.order.product_names = items.map(function (i) { return i.name; });
+      if (!/form|فورم|تحت|below/i.test(brain.reply)) {
+        brain.reply = lang === 'en'
+          ? 'Perfect! Fill in the form below to complete your order 💜'
+          : 'تمام! املئي الفورم تحت عشان نكمّل الأوردر 💜';
       }
     }
-
-    var step = orderStep || o.step || 'idle';
-
-    if (step === 'name' && looksLikePersonName(t, intent)) {
-      orderData.name = t;
-      return {
-        reply: lang === 'en'
-          ? 'Thanks ' + t + '! What\'s your phone number? (11 digits)'
-          : 'تسلمي يا ' + t + '! 💜 رقم الموبايل؟ (11 رقم)',
-        action: 'update_order',
-        order: { step: 'phone', name: t, product_names: (orderData.items || []).map(function (i) { return i.name; }) }
-      };
-    }
-
-    if ((step === 'phone' || looksLikePhoneAttempt(t)) && !looksLikeAddress(t)) {
-      var phCheck = validateEgyptPhone(looksLikePhoneAttempt(t) ? t : (o.phone || orderData.phone), lang);
-      if (!phCheck.ok) {
-        return {
-          reply: phCheck.message,
-          action: 'update_order',
-          order: { step: 'phone', name: orderData.name || o.name || '', product_names: (orderData.items || []).map(function (i) { return i.name; }) }
-        };
-      }
-      orderData.phone = phCheck.phone;
-      brain.order = brain.order || {};
-      brain.order.phone = phCheck.phone;
-      if (step === 'phone' && looksLikePhoneAttempt(t)) {
-        return {
-          reply: lang === 'en'
-            ? 'Got it. Delivery address? (city, area, street)'
-            : 'تمام. العنوان فين يا جميلة؟ (محافظة + منطقة + شارع)',
-          action: 'update_order',
-          order: { step: 'address', name: orderData.name, phone: phCheck.phone, product_names: (orderData.items || []).map(function (i) { return i.name; }) }
-        };
-      }
-    }
-
-    if (step === 'address' && t && !looksLikePhoneAttempt(t)) {
-      if (isOrderProductQuestion(t) || !orderHasItems()) {
-        return {
-          reply: lang === 'en' ? 'Which product(s) would you like?' : 'قوليلي عايزة إيه من منتجاتنا؟',
-          action: 'update_order',
-          order: { step: 'product', name: orderData.name || '', phone: orderData.phone || '', product_names: [] }
-        };
-      }
-      if (!looksLikeAddress(t)) {
-        return {
-          reply: lang === 'en'
-            ? 'Please send your full address (governorate + area + street).'
-            : 'محتاجة العنوان كامل (محافظة + منطقة + شارع).',
-          action: 'update_order',
-          order: {
-            step: 'address',
-            name: orderData.name || '',
-            phone: orderData.phone || '',
-            product_names: (orderData.items || []).map(function (i) { return i.name; })
-          }
-        };
-      }
-      orderData.address = t;
-      var phoneReady = validateEgyptPhone(orderData.phone, lang);
-      if (orderData.name && phoneReady.ok && orderHasItems()) {
-        return {
-          reply: lang === 'en' ? 'Perfect! Confirm your order below.' : 'كده تمام يا حبيبتي! 💜 أكّدي الأوردر من تحت.',
-          action: 'confirm_ready',
-          order: {
-            step: 'ready',
-            name: orderData.name,
-            phone: orderData.phone,
-            address: t,
-            product_names: orderData.items.map(function (i) { return i.name; })
-          }
-        };
-      }
-    }
-
-    if (action === 'confirm_ready' || o.step === 'ready') {
-      var phoneReady = validateEgyptPhone(orderData.phone || o.phone || '', lang);
-      var addrText = orderData.address || o.address || '';
-      if (!orderHasItems()) {
-        return buildProductPickerReply(lang, 'update_order');
-      }
-      if (!phoneReady.ok) {
-        return {
-          reply: phoneReady.message,
-          action: 'update_order',
-          order: { step: 'phone', name: orderData.name || o.name || '', product_names: (orderData.items || []).map(function (i) { return i.name; }) }
-        };
-      }
-      if (!orderData.name && !o.name) {
-        return {
-          reply: lang === 'en' ? 'What name for the order?' : 'اسمك إيه؟',
-          action: 'update_order',
-          order: { step: 'name', product_names: (orderData.items || []).map(function (i) { return i.name; }) }
-        };
-      }
-      if (!addrText || !looksLikeAddress(addrText)) {
-        return {
-          reply: lang === 'en' ? 'Delivery address? (city, area, street)' : 'العنوان فين؟ (محافظة + منطقة + شارع)',
-          action: 'update_order',
-          order: { step: 'address', name: orderData.name, phone: phoneReady.phone, product_names: (orderData.items || []).map(function (i) { return i.name; }) }
-        };
-      }
-    }
-
     return brain;
   }
 
@@ -1011,6 +878,83 @@ window.MontanaChatbot = (function () {
     return [];
   }
 
+  function resolveOrderItemsFromBrain(brain) {
+    var o = brain && brain.order ? brain.order : {};
+    var items = resolveProducts(o.product_names || []);
+    if (items.length) return items;
+    var fromRecs = productsFromRecommendedInChat();
+    if (fromRecs.length) return resolveProducts(fromRecs.map(function (p) { return p.nameAr; }));
+    if (sessionSuggestedProducts.length) {
+      return resolveProducts(sessionSuggestedProducts.map(function (p) { return p.nameAr; }));
+    }
+    if (sessionSuggestedProduct && (sessionBotOfferedOrder || lastBotOfferedOrder())) {
+      return resolveProducts([sessionSuggestedProduct.nameAr]);
+    }
+    if (orderData.items && orderData.items.length) return orderData.items.slice();
+    return [];
+  }
+
+  function itemsWithIds(items) {
+    var prods = getProducts();
+    return (items || []).map(function (item) {
+      if (item.id) return item;
+      var found = prods.find(function (p) { return p.nameAr === item.name || p.nameEn === item.name; });
+      if (found) return { id: found.id, name: found.nameAr, price: found.price, qty: item.qty || 1 };
+      return item;
+    });
+  }
+
+  function orderFormPrefill() {
+    if (!lastCompletedOrder) return {};
+    return {
+      name: lastCompletedOrder.name || '',
+      phone: lastCompletedOrder.phone || '',
+      address: lastCompletedOrder.address || ''
+    };
+  }
+
+  function openOrderForm(items, lang, prefill) {
+    if (!window.MontanaChatOrderForm) return false;
+    collectingOrder = false;
+    orderStep = 'idle';
+    clearOrderOfferSession();
+    MontanaChatOrderForm.open({
+      lang: lang || sessionLang,
+      items: itemsWithIds(items || []),
+      prefill: prefill || orderFormPrefill(),
+      onSuccess: handleOrderFormSuccess,
+      onCancel: function () {
+        collectingOrder = false;
+        orderStep = 'idle';
+        orderData = { items: [] };
+      }
+    });
+    return true;
+  }
+
+  async function handleOrderFormSuccess(orderId, payload) {
+    var strings = t(sessionLang);
+    lastCompletedOrder = {
+      id: orderId,
+      name: payload.name,
+      phone: payload.phone,
+      address: payload.address,
+      items: payload.items.slice()
+    };
+    sessionPhase = 'post_order';
+    orderData = {};
+    orderStep = 'idle';
+    collectingOrder = false;
+    clearOrderOfferSession();
+    var savedMsg = strings.saved.replace('{id}', orderId).replace('{phone}', payload.phone);
+    history = [
+      { role: 'user', parts: [{ text: sessionLang === 'en' ? 'Order #' + orderId + ' confirmed' : 'تم تأكيد الأوردر #' + orderId }] },
+      { role: 'model', parts: [{ text: savedMsg }] }
+    ];
+    await typeBotMessage(savedMsg, { skipThink: true, thinkMs: 1200, skipPolish: true });
+    setTimeout(function () { showQuickReplies(strings.afterOrder); }, 600);
+  }
+
   function localScarBrain(userText, lang, intent) {
     if (collectingOrder) return null;
     intent = intent || getIntent(userText);
@@ -1047,30 +991,24 @@ window.MontanaChatbot = (function () {
     };
   }
 
-  function beginOrderFromProducts(picked, lang, action) {
-    action = action || 'start_order';
-    collectingOrder = true;
-    sessionPhase = 'ordering';
-    if (!orderData.items) orderData.items = [];
-    clearOrderOfferSession();
-    if (picked.length) {
-      orderData.items = resolveProducts(picked.map(function (p) { return p.nameAr; }));
-      orderStep = 'name';
-      var list = productNamesList(picked, lang);
-      return {
-        reply: picked.length > 1
-          ? (lang === 'en'
-            ? 'Perfect! Added: ' + list + '. What name for the order?'
-            : 'تمام حبيبتي! 💜 ضفنا: ' + list + '. اسمك إيه؟')
-          : (lang === 'en'
-            ? 'Great! Added ' + list + '. What name should we put on the order?'
-            : 'تمام! 💜 ضفنا ' + list + '. اسمك إيه عشان نسجل الأوردر؟'),
-        action: action,
-        order: { step: 'name', product_names: (orderData.items || []).map(function (i) { return i.name; }) }
-      };
-    }
-    orderStep = 'product';
-    return buildProductPickerReply(lang, action);
+  function beginOrderFromProducts(picked, lang) {
+    var items = picked.length
+      ? resolveProducts(picked.map(function (p) { return p.nameAr; }))
+      : resolveOrderItemsFromBrain({ order: { product_names: [] } });
+    orderData.items = items;
+    var list = picked.length ? productNamesList(picked, lang) : '';
+    var reply = picked.length
+      ? (lang === 'en'
+        ? 'Perfect! Fill in the form below (' + list + ') 💜'
+        : 'تمام! املئي الفورم تحت (' + list + ') 💜')
+      : (lang === 'en'
+        ? 'Fill in the form below to complete your order 💜'
+        : 'املئي الفورم تحت عشان نكمّل الأوردر 💜');
+    return {
+      reply: reply,
+      action: 'open_order',
+      order: { product_names: items.map(function (i) { return i.name; }) }
+    };
   }
 
   function isBrowsingQuestion(intent, text) {
@@ -1344,172 +1282,20 @@ window.MontanaChatbot = (function () {
   function localOrderBrain(userText, lang, intent) {
     var t = String(userText || '').trim();
     intent = intent || getIntent(t);
-    var empty = { step: orderStep || 'idle', product_names: [] };
-
     var offeredOrder = lastBotOfferedOrder() || sessionBotOfferedOrder;
-    if (!collectingOrder && offeredOrder && intent.isAffirm && !isBrowsingQuestion(intent, t)) {
-      return beginOrderFromProducts(resolveStartOrderProducts(t, offeredOrder), lang, 'start_order');
-    }
 
-    if (wantsToOrder(t) && !collectingOrder && !isBrowsingQuestion(intent, t)) {
-      return beginOrderFromProducts(resolveStartOrderProducts(t, offeredOrder), lang, 'start_order');
-    }
-
-    if (!collectingOrder) return null;
-
-    if (isBrowsingQuestion(intent, t) && orderStep !== 'product') return null;
-
-    if (orderStep === 'product') {
-      if (isOrderProductQuestion(t) || intent.isCatalog) {
-        return buildProductPickerReply(lang, 'update_order');
-      }
-      var productPick = matchAllProductsFromText(t);
-      if (!productPick.length && intent.concern) {
-        var concernProd = matchProductFromConcern(intent.concern, intent.norm || '');
-        if (concernProd) productPick = [concernProd];
-      }
-      if (productPick.length) {
-        orderData.items = mergeOrderItems(resolveProducts(productPick.map(function (p) { return p.nameAr; })));
-        orderStep = orderData.name ? (orderData.phone ? (orderData.address ? 'ready' : 'address') : 'phone') : 'name';
-        if (orderStep === 'name') {
-          return {
-            reply: lang === 'en'
-              ? 'Added: ' + productNamesList(productPick, lang) + '. What name for the order?'
-              : 'تمام! 💜 ضفنا: ' + productNamesList(productPick, lang) + '. اسمك إيه؟',
-            action: 'update_order',
-            order: { step: 'name', product_names: orderData.items.map(function (i) { return i.name; }) }
-          };
-        }
-        if (orderStep === 'phone') {
-          return {
-            reply: lang === 'en'
-              ? 'Added: ' + productNamesList(productPick, lang) + '. What\'s your phone number?'
-              : 'تمام! 💜 ضفنا: ' + productNamesList(productPick, lang) + '. رقم التليفون؟',
-            action: 'update_order',
-            order: { step: 'phone', name: orderData.name, product_names: orderData.items.map(function (i) { return i.name; }) }
-          };
-        }
-        if (orderStep === 'address') {
-          return {
-            reply: lang === 'en'
-              ? 'Added: ' + productNamesList(productPick, lang) + '. Delivery address? (city, area, street)'
-              : 'تمام! 💜 ضفنا: ' + productNamesList(productPick, lang) + '. العنوان فين؟ (محافظة + منطقة + شارع)',
-            action: 'update_order',
-            order: { step: 'address', name: orderData.name, phone: orderData.phone, product_names: orderData.items.map(function (i) { return i.name; }) }
-          };
-        }
-      }
-      return buildProductPickerReply(lang, 'update_order');
-    }
-
-    if (orderStep === 'name') {
-      var prodHints = matchAllProductsFromText(t);
-      if (prodHints.length) {
-        orderData.items = mergeOrderItems(resolveProducts(prodHints.map(function (p) { return p.nameAr; })));
-        return {
-          reply: lang === 'en'
-            ? 'Added: ' + productNamesList(prodHints, lang) + '. What name should we put on the order?'
-            : 'تمام، ضفنا: ' + productNamesList(prodHints, lang) + '. اسمك إيه يا جميلة؟',
-          action: 'update_order',
-          order: { step: 'name', product_names: orderData.items.map(function (i) { return i.name; }) }
-        };
-      }
-      if (looksLikePersonName(t, intent)) {
-        orderData.name = t;
-        if (!orderHasItems()) {
-          orderStep = 'product';
-          return {
-            reply: lang === 'en'
-              ? 'Thanks ' + orderData.name + '! Which product would you like?'
-              : 'تسلمي يا ' + orderData.name + '! 💜 قوليلي الأول عايزة إيه من منتجاتنا؟',
-            action: 'update_order',
-            order: { step: 'product', name: orderData.name, product_names: [] }
-          };
-        }
-        orderStep = 'phone';
-        return {
-          reply: lang === 'en'
-            ? 'Thanks ' + orderData.name + '! What\'s your phone number?'
-            : 'تسلمي يا ' + orderData.name + '! \uD83D\uDC9C رقم التليفون؟',
-          action: 'update_order',
-          order: { step: 'phone', name: orderData.name, product_names: [] }
-        };
-      }
+    if (CANCEL_ORDER.test(t)) {
       return {
-        reply: lang === 'en' ? 'Please tell me your name (first and last).' : 'محتاجة اسمك يا حبيبتي — الاسم الأول واسم العيلة.',
-        action: 'update_order',
-        order: { step: 'name', product_names: [] }
+        reply: lang === 'en' ? 'No problem — order cancelled.' : 'تمام يا حبيبتي، الأوردر اتلغى.',
+        action: 'cancel_order',
+        order: { product_names: [] }
       };
     }
 
-    if (orderStep === 'phone') {
-      var phResult = validateEgyptPhone(t, lang);
-      if (phResult.ok) {
-        orderData.phone = phResult.phone;
-        if (!orderHasItems()) {
-          orderStep = 'product';
-          return {
-            reply: lang === 'en'
-              ? 'Got it. Which product would you like first?'
-              : 'تمام. 💜 قوليلي الأول عايزة إيه من منتجاتنا؟',
-            action: 'update_order',
-            order: { step: 'product', name: orderData.name, phone: orderData.phone, product_names: [] }
-          };
-        }
-        orderStep = 'address';
-        return {
-          reply: lang === 'en'
-            ? 'Got it. Delivery address? (city, area, street)'
-            : 'تمام. العنوان فين يا جميلة؟ (محافظة + منطقة + شارع)',
-          action: 'update_order',
-          order: { step: 'address', phone: orderData.phone, product_names: [] }
-        };
+    if (!isBrowsingQuestion(intent, t)) {
+      if ((offeredOrder && intent.isAffirm) || wantsToOrder(t)) {
+        return beginOrderFromProducts(resolveStartOrderProducts(t, offeredOrder), lang);
       }
-      return {
-        reply: phResult.message,
-        action: 'update_order',
-        order: { step: 'phone', name: orderData.name || '', product_names: (orderData.items || []).map(function (i) { return i.name; }) }
-      };
-    }
-
-    if (orderStep === 'address') {
-      if (isOrderProductQuestion(t) || !orderHasItems()) {
-        orderStep = 'product';
-        orderData.address = '';
-        return {
-          reply: lang === 'en'
-            ? 'You\'re right! Which product would you like first?'
-            : 'عندك حق! 😅 قوليلي الأول عايزة إيه من منتجاتنا؟',
-          action: 'update_order',
-          order: { step: 'product', product_names: [] }
-        };
-      }
-      if (looksLikeAddress(t)) {
-        orderData.address = t;
-        orderStep = 'ready';
-        if (orderData.name && orderData.phone && orderHasItems()) {
-          return {
-            reply: lang === 'en' ? 'Perfect! Confirm your order below.' : 'كده تمام يا حبيبتي! 💜 أكّدي الأوردر من تحت.',
-            action: 'confirm_ready',
-            order: {
-              step: 'ready',
-              name: orderData.name,
-              phone: orderData.phone,
-              address: orderData.address,
-              product_names: orderData.items.map(function (i) { return i.name; })
-            }
-          };
-        }
-        orderStep = 'product';
-        return buildProductPickerReply(lang, 'update_order');
-      }
-      return {
-        reply: lang === 'en'
-          ? 'Please send your full address (city, area, street).'
-          : 'محتاجة العنوان كامل (محافظة + منطقة + شارع).',
-        action: 'update_order',
-        order: { step: 'address', product_names: orderData.items.map(function (i) { return i.name; }) }
-      };
     }
 
     return null;
@@ -1708,28 +1494,21 @@ window.MontanaChatbot = (function () {
     opts = opts || {};
     var lang = detectLang(userText || (opts.images ? 'صورة' : ''));
     var intent = getIntent(userText);
+    var formOpen = window.MontanaChatOrderForm && MontanaChatOrderForm.isOpen();
 
-    if (collectingOrder && CANCEL_ORDER.test(userText)) {
+    if (CANCEL_ORDER.test(userText) && (formOpen || collectingOrder)) {
       return {
         ok: true,
         brain: {
           reply: lang === 'en' ? 'No problem — order cancelled.' : 'تمام يا حبيبتي، الأوردر اتلغى.',
           action: 'cancel_order',
-          order: { step: 'idle', product_names: [] }
+          order: { product_names: [] }
         },
         fallback: true
       };
     }
 
-    if (collectingOrder && (orderStep === 'product' || orderStep === 'name' ||
-        orderStep === 'phone' || orderStep === 'address')) {
-      var stepBrain = localOrderBrain(userText, lang, intent);
-      if (stepBrain) {
-        return { ok: true, brain: enforceOrderBrain(stepBrain, lang, userText, intent), fallback: true };
-      }
-    }
-
-    if (!collectingOrder) {
+    if (!formOpen) {
       var quick = localGreetingBrain(userText, lang, intent) ||
         localGoodbyeBrain(userText, lang, intent);
       if (quick && !(opts.images && opts.images.length)) return { ok: true, brain: quick, fallback: true };
@@ -1768,7 +1547,6 @@ window.MontanaChatbot = (function () {
   }
 
   function applyBrain(brain) {
-    var o = brain.order || {};
     var action = brain.action || 'chat';
 
     if (action === 'thanks') {
@@ -1778,53 +1556,9 @@ window.MontanaChatbot = (function () {
     if (action === 'cancel_order') return 'cancel';
     if (action === 'buy_more') return 'buy_more';
 
-    if (action === 'start_order' || action === 'update_order' || action === 'confirm_ready') {
-      collectingOrder = true;
-      sessionPhase = 'ordering';
-
-      if (o.name && looksLikePersonName(String(o.name), getIntent(String(o.name)))) {
-        orderData.name = String(o.name).trim();
-      }
-      if (o.phone) {
-        var phResult = validateEgyptPhone(o.phone, sessionLang);
-        if (phResult.ok) orderData.phone = phResult.phone;
-      }
-      if (o.address && looksLikeAddress(o.address) && !isOrderProductQuestion(o.address)) {
-        orderData.address = String(o.address).trim();
-      }
-
-      if (o.product_names && o.product_names.length) {
-        var resolved = resolveProducts(o.product_names);
-        if (resolved.length) {
-          orderData.items = (action === 'update_order' && orderHasItems())
-            ? mergeOrderItems(resolved)
-            : resolved;
-        }
-      } else if (!orderData.items || !orderData.items.length) {
-        if (sessionSuggestedProducts.length) {
-          orderData.items = resolveProducts(sessionSuggestedProducts.map(function (p) { return p.nameAr; }));
-        } else if (sessionSuggestedProduct && (sessionBotOfferedOrder || lastBotOfferedOrder())) {
-          orderData.items = resolveProducts([sessionSuggestedProduct.nameAr]);
-        }
-      }
-
-      if (o.step && o.step !== 'idle') orderStep = o.step;
-      else if (!orderHasItems()) orderStep = 'product';
-      else if (orderData.address && orderData.phone && orderData.name) orderStep = 'ready';
-      else if (orderData.phone && orderData.name) orderStep = 'address';
-      else if (orderData.name) orderStep = 'phone';
-      else orderStep = 'name';
-    }
-
-    if (action === 'confirm_ready' || o.step === 'ready') {
-      var phoneCheck = validateEgyptPhone(orderData.phone, sessionLang);
-      if (orderData.name && phoneCheck.ok && orderData.address && looksLikeAddress(orderData.address) && orderHasItems()) {
-        if (!orderData.items || !orderData.items.length) {
-          var fromBrain = resolveProducts(o.product_names || []);
-          if (fromBrain.length) orderData.items = fromBrain;
-        }
-        if (orderData.items && orderData.items.length) return 'confirm';
-      }
+    if (action === 'open_order' || action === 'start_order' || action === 'update_order' || action === 'confirm_ready') {
+      orderData.items = resolveOrderItemsFromBrain(brain);
+      return 'open_form';
     }
 
     return 'ok';
@@ -1905,21 +1639,13 @@ window.MontanaChatbot = (function () {
         return;
       }
       if (outcome === 'buy_more') {
-        orderData = lastCompletedOrder ? {
-          name: lastCompletedOrder.name,
-          phone: lastCompletedOrder.phone,
-          address: lastCompletedOrder.address,
-          items: []
-        } : { items: [] };
-        collectingOrder = true;
-        orderStep = lastCompletedOrder && lastCompletedOrder.name ? 'phone' : 'name';
-        sessionPhase = 'ordering';
+        orderData = { items: [] };
+        openOrderForm([], sessionLang, orderFormPrefill());
         return;
       }
-      if (outcome === 'confirm') {
-        orderStep = 'confirm';
-        collectingOrder = false;
-        showOrderConfirm();
+      if (outcome === 'open_form') {
+        openOrderForm(orderData.items || [], sessionLang, orderFormPrefill());
+        return;
       }
     } catch (e) {
       if (typing) typing.remove();
@@ -1972,7 +1698,7 @@ window.MontanaChatbot = (function () {
       await typeBotMessage(strings.goodbyeReply, { skipThink: true, skipPolish: true });
       return;
     }
-    if (collectingOrder && CANCEL_ORDER.test(text)) {
+    if (CANCEL_ORDER.test(text) && ((window.MontanaChatOrderForm && MontanaChatOrderForm.isOpen()) || collectingOrder)) {
       await cancelOrder();
       return;
     }
@@ -2055,6 +1781,13 @@ window.MontanaChatbot = (function () {
       });
     }
     bindImageAttach();
+    var orderBtn = document.getElementById('chat-order-btn');
+    if (orderBtn) {
+      orderBtn.addEventListener('click', function () {
+        sessionLang = siteLang();
+        openOrderForm(resolveOrderItemsFromBrain({ order: {} }), sessionLang, orderFormPrefill());
+      });
+    }
   }
 
   function toggleChat() {
@@ -2335,6 +2068,7 @@ window.MontanaChatbot = (function () {
 
   async function cancelOrder() {
     var strings = t(sessionLang);
+    if (window.MontanaChatOrderForm) MontanaChatOrderForm.close();
     document.querySelectorAll('.order-confirm').forEach(function (el) { el.remove(); });
     pendingOrder = null;
     orderData = {};

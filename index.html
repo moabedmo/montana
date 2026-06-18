@@ -826,7 +826,7 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 <!-- MONTANA CHATBOT -->
-<link rel="stylesheet" href="css/chatbot.css?v=12">
+<link rel="stylesheet" href="css/chatbot.css?v=13">
 <div id="chat-btn-wrap">
   <button type="button" id="chat-btn" aria-label="Chat">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
@@ -843,17 +843,20 @@ document.addEventListener('DOMContentLoaded',function(){
     <button type="button" id="chat-close" aria-label="Close"></button>
   </div>
   <div id="chat-messages"></div>
+  <div id="chat-order-sheet" hidden></div>
   <div id="chat-input-area">
     <input type="file" id="chat-image-input" accept="image/*" hidden>
+    <button type="button" id="chat-order-btn" title="إتمام الطلب">🛒</button>
     <button type="button" id="chat-attach" aria-label="Attach photo" title="صورة بشرة">📷</button>
     <input type="text" id="chat-input" autocomplete="off">
     <button type="button" id="chat-send"></button>
   </div>
 </div>
 <script src="js/chat-orders.js?v=7"></script>
+<script src="js/chat-order-form.js?v=1"></script>
 <script src="js/chat-knowledge.js?v=8"></script>
 <script src="js/chat-intent.js?v=16"></script>
 <script src="js/chat-phrases.js?v=4"></script>
-<script src="js/chatbot.js?v=44"></script>
+<script src="js/chatbot.js?v=51"></script>
 </body>
 </html>
