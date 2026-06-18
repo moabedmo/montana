@@ -3,6 +3,7 @@
 const {
   approveByProofId,
   approveByTelegramMessageId,
+  getProof,
   isApprovalText,
   extractProofId
 } = require('../../lib/deposit-proofs');
@@ -10,15 +11,54 @@ const {
   sendTelegramMessage,
   resolveTelegramConfig,
   answerCallbackQuery,
-  editMessageReplyMarkup
+  editMessageReplyMarkup,
+  setTelegramWebhook,
+  getWebhookInfo
 } = require('../../lib/telegram');
-const { setCors, sendJson, readJsonBody } = require('../../lib/http');
+const { setCors, sendJson, readJsonBody, checkAdmin } = require('../../lib/http');
+
+function normalizeChatIdStr(chatId) {
+  return String(chatId == null ? '' : chatId).trim();
+}
 
 function isAdminChat(chatId, cfg) {
-  var expected = String(cfg.chatId || '').trim();
-  if (!expected) return false;
-  if (expected.charAt(0) === '@') return String(chatId) === expected;
-  return String(chatId) === expected || String(chatId) === String(Number(expected));
+  var expected = normalizeChatIdStr(cfg.chatId);
+  var actual = normalizeChatIdStr(chatId);
+  if (!expected || !actual) return false;
+  if (expected.charAt(0) === '@') return actual === expected;
+  if (actual === expected) return true;
+  if (String(Number(actual)) === String(Number(expected))) return true;
+  return false;
+}
+
+function chatMatchesProof(chatId, proof) {
+  if (!proof || !proof.telegramChatId) return false;
+  var a = normalizeChatIdStr(chatId);
+  var b = normalizeChatIdStr(proof.telegramChatId);
+  if (a === b) return true;
+  if (String(Number(a)) === String(Number(b))) return true;
+  return false;
+}
+
+async function safeAnswer(token, cqId, text, showAlert) {
+  if (!cqId || !token) return;
+  try {
+    await answerCallbackQuery(token, cqId, text || ' ', showAlert);
+  } catch (e) {
+    console.error('[webhooks/telegram] answerCallbackQuery failed:', e.message);
+  }
+}
+
+async function ensureWebhook(cfg) {
+  var url = String(process.env.TELEGRAM_WEBHOOK_URL || '').trim();
+  if (!url || !cfg.token) return;
+  try {
+    await setTelegramWebhook(cfg.token, url, {
+      allowed_updates: ['message', 'callback_query']
+    });
+  } catch (e) {
+    console.warn('[webhooks/telegram] setWebhook:', e.message);
+  }
 }
 
 async function notifyApproved(cfg, proof) {
@@ -31,45 +71,75 @@ async function notifyApproved(cfg, proof) {
 
 async function markMessageApproved(cfg, chatId, messageId) {
   if (!messageId) return;
-  await editMessageReplyMarkup(cfg.token, chatId, messageId, {
-    inline_keyboard: [[{ text: '✅ تمت الموافقة', callback_data: 'approved' }]]
-  });
+  try {
+    await editMessageReplyMarkup(cfg.token, chatId, messageId, {
+      inline_keyboard: [[{ text: '✅ تمت الموافقة', callback_data: 'approved' }]]
+    });
+  } catch (e) {
+    console.warn('[webhooks/telegram] editMessageReplyMarkup:', e.message);
+  }
 }
 
 async function handleCallbackQuery(body, cfg) {
   var cq = body.callback_query;
-  if (!cq || !cq.data) {
-    return { ok: true, ignored: true };
-  }
+  var cqId = cq && cq.id;
+  var chatId = cq && cq.message && cq.message.chat && cq.message.chat.id;
+  var messageId = cq && cq.message && cq.message.message_id;
+  var answerText = '';
+  var answerAlert = false;
 
-  var chatId = cq.message && cq.message.chat && cq.message.chat.id;
-  if (!isAdminChat(chatId, cfg)) {
-    if (cq.id) await answerCallbackQuery(cfg.token, cq.id, 'غير مصرح');
-    return { ok: true, ignored: true };
-  }
+  try {
+    if (!cq || !cq.data) {
+      return { ok: true, ignored: true };
+    }
 
-  var data = String(cq.data || '');
-  if (data === 'approved') {
-    if (cq.id) await answerCallbackQuery(cfg.token, cq.id, 'تمت الموافقة مسبقًا');
-    return { ok: true, ignored: true };
-  }
+    var data = String(cq.data || '');
+    if (data === 'approved') {
+      answerText = 'تمت الموافقة مسبقًا';
+      return { ok: true, ignored: true };
+    }
 
-  if (data.indexOf('approve:') !== 0) {
-    if (cq.id) await answerCallbackQuery(cfg.token, cq.id, 'أمر غير معروف');
-    return { ok: true, ignored: true };
-  }
+    if (data.indexOf('approve:') !== 0) {
+      answerText = 'أمر غير معروف';
+      answerAlert = true;
+      return { ok: true, ignored: true };
+    }
 
-  var proofId = data.slice('approve:'.length);
-  var proof = await approveByProofId(proofId);
-  if (!proof) {
-    if (cq.id) await answerCallbackQuery(cfg.token, cq.id, 'طلب التحويل غير موجود');
-    return { ok: true, matched: false };
-  }
+    var proofId = data.slice('approve:'.length);
+    var existing = await getProof(proofId);
 
-  if (cq.id) await answerCallbackQuery(cfg.token, cq.id, '✅ تمت الموافقة');
-  await markMessageApproved(cfg, chatId, cq.message && cq.message.message_id);
-  await notifyApproved(cfg, proof);
-  return { ok: true, approved: true, proofId: proof.id };
+    if (!isAdminChat(chatId, cfg) && !chatMatchesProof(chatId, existing)) {
+      answerText = 'غير مصرح';
+      answerAlert = true;
+      return { ok: true, ignored: true };
+    }
+
+    var proof = null;
+    if (existing) {
+      proof = await approveByProofId(proofId);
+    }
+    if (!proof && messageId) {
+      proof = await approveByTelegramMessageId(messageId);
+    }
+
+    if (!proof) {
+      answerText = 'طلب التحويل غير موجود';
+      answerAlert = true;
+      return { ok: true, matched: false };
+    }
+
+    answerText = '✅ تمت الموافقة';
+    await markMessageApproved(cfg, chatId, messageId);
+    await notifyApproved(cfg, proof);
+    return { ok: true, approved: true, proofId: proof.id };
+  } catch (err) {
+    console.error('[webhooks/telegram] callback error:', err);
+    answerText = '❌ ' + (err.message || 'خطأ');
+    answerAlert = true;
+    throw err;
+  } finally {
+    if (cqId) await safeAnswer(cfg.token, cqId, answerText || ' ', answerAlert);
+  }
 }
 
 async function handleTextMessage(body, cfg) {
@@ -121,18 +191,53 @@ async function handler(req, res) {
     return;
   }
 
+  if (req.method === 'GET') {
+    var cfg = resolveTelegramConfig();
+    if (!cfg.token) {
+      sendJson(res, 503, { ok: false, error: 'TELEGRAM_BOT_TOKEN missing' });
+      return;
+    }
+
+    var setup = req.query && req.query.setup === '1';
+    if (setup) {
+      if (!checkAdmin(req)) {
+        sendJson(res, 401, { ok: false, error: 'Unauthorized' });
+        return;
+      }
+      await ensureWebhook(cfg);
+    }
+
+    var info = await getWebhookInfo(cfg.token);
+    sendJson(res, 200, {
+      ok: true,
+      webhook: info.ok ? info.data : null,
+      webhookError: info.ok ? null : info.error,
+      expectedUrl: process.env.TELEGRAM_WEBHOOK_URL || '',
+      hint: 'لو الزر بيفضل يحمّل: عطّلي Vercel Deployment Protection على Production'
+    });
+    return;
+  }
+
   if (req.method !== 'POST') {
     sendJson(res, 405, { ok: false, error: 'Method not allowed' });
     return;
   }
 
+  var body = null;
+  var cfg = null;
+  var cqId = null;
+
   try {
-    var body = await readJsonBody(req);
-    var cfg = resolveTelegramConfig();
+    body = await readJsonBody(req);
+    cfg = resolveTelegramConfig();
+    cqId = body.callback_query && body.callback_query.id;
+
     if (!cfg.token || !cfg.chatId) {
       sendJson(res, 503, { ok: false, error: 'Telegram not configured' });
       return;
     }
+
+    await ensureWebhook(cfg);
 
     var result;
     if (body.callback_query) {
@@ -144,7 +249,10 @@ async function handler(req, res) {
     sendJson(res, 200, result);
   } catch (err) {
     console.error('[api/webhooks/telegram]', err);
-    sendJson(res, 500, { ok: false, error: err.message || 'Internal server error' });
+    if (cqId && cfg && cfg.token) {
+      await safeAnswer(cfg.token, cqId, '❌ ' + (err.message || 'خطأ'), true);
+    }
+    sendJson(res, 200, { ok: false, error: err.message || 'Internal server error' });
   }
 }
 
