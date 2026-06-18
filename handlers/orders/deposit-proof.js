@@ -94,7 +94,13 @@ async function handler(req, res) {
     });
   } catch (err) {
     console.error('[api/orders/deposit-proof]', err);
-    sendJson(res, 500, { ok: false, error: err.message || 'Internal server error' });
+    var msg = err.message || 'Internal server error';
+    if (/relation.*deposit_proofs|does not exist/i.test(msg)) {
+      msg = 'جدول deposit_proofs مش موجود — شغّلي migration 003 في Supabase SQL Editor';
+    } else if (/SUPABASE|supabase/i.test(msg)) {
+      msg = 'Supabase مش مضبوط — ضيفي SUPABASE_URL و SUPABASE_SERVICE_ROLE_KEY في Vercel';
+    }
+    sendJson(res, 500, { ok: false, error: msg });
   }
 }
 

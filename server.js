@@ -21,6 +21,7 @@ const shippingTrackHandler = require('./handlers/shipping/track');
 const metaWebhookHandler = require('./handlers/webhooks/meta');
 const sendMessageHandler = require('./handlers/messages/social');
 const depositSettingsHandler = require('./handlers/settings/deposit');
+const supabaseSettingsHandler = require('./handlers/settings/supabase');
 const depositProofHandler = require('./handlers/orders/deposit-proof');
 const depositStatusHandler = require('./handlers/orders/deposit-status');
 const depositApproveHandler = require('./handlers/orders/deposit-approve');
@@ -47,6 +48,7 @@ const API_ROUTES = {
   '/api/webhooks/meta': metaWebhookHandler,
   '/api/messages/social': sendMessageHandler,
   '/api/settings/deposit': depositSettingsHandler,
+  '/api/settings/supabase': supabaseSettingsHandler,
   '/api/orders/deposit-proof': depositProofHandler,
   '/api/orders/deposit-status': depositStatusHandler,
   '/api/orders/deposit-approve': depositApproveHandler,

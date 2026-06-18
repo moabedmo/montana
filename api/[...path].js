@@ -13,6 +13,7 @@ const ROUTES = {
   'webhooks/meta': require('../handlers/webhooks/meta'),
   'messages/social': require('../handlers/messages/social'),
   'settings/deposit': require('../handlers/settings/deposit'),
+  'settings/supabase': require('../handlers/settings/supabase'),
   'orders/deposit-proof': require('../handlers/orders/deposit-proof'),
   'orders/deposit-status': require('../handlers/orders/deposit-status'),
   'orders/deposit-approve': require('../handlers/orders/deposit-approve'),
