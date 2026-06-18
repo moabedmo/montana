@@ -101,6 +101,7 @@ body{background:var(--bg);color:var(--text);font-family:'Alexandria',sans-serif;
     <div class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard',this)">الرئيسية</div>
     <div class="nav-item" id="nav-products" onclick="showPage('products',this)">المنتجات</div>
     <div class="nav-item" id="nav-orders" onclick="showPage('orders',this)">الاوردرات <span id="orders-badge" style="margin-right:auto;background:var(--purple);color:#fff;padding:2px 8px;font-size:11px;display:none;"></span></div>
+    <div class="nav-item" id="nav-homepage" onclick="showPage('homepage',this)">محتوى الرئيسية</div>
     <div class="nav-item" id="nav-telegram" onclick="showPage('telegram',this)">Telegram</div>
     <div class="nav-item" id="nav-settings" onclick="showPage('settings',this)">الاعدادات</div>
     <div class="sidebar-bottom"><button class="logout-btn" onclick="doLogout()">تسجيل الخروج</button></div>
@@ -135,6 +136,23 @@ body{background:var(--bg);color:var(--text);font-family:'Alexandria',sans-serif;
         </div>
       </div>
       <div id="orders-list"></div>
+    </div>
+
+    <div class="page" id="page-homepage">
+      <div class="page-header">
+        <h1>محتوى الصفحة الرئيسية</h1>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <a href="/" target="_blank" rel="noopener" class="btn btn-outline btn-sm">معاينة الموقع</a>
+          <button type="button" class="btn btn-outline btn-sm" onclick="resetHomepageContent()">استعادة الافتراضي</button>
+          <button type="button" class="btn btn-sm" onclick="saveHomepageContent()">حفظ التغييرات</button>
+        </div>
+      </div>
+      <p id="homepage-status" style="font-size:12px;color:var(--text-s);margin:-16px 0 20px;line-height:1.6;"></p>
+      <p style="font-size:12px;color:var(--text-s);margin-bottom:20px;line-height:1.7;">
+        عدّلي كل نصوص الصفحة الرئيسية (عربي + إنجليزي). التغييرات تُحفظ على <strong>Supabase</strong> وتظهر فوراً للزوار بعد الحفظ.
+        لو ظهر Unauthorized — حطّي <strong>API Admin Key</strong> من الإعدادات.
+      </p>
+      <div id="homepage-editor"><p style="color:var(--text-s);">جاري التحميل...</p></div>
     </div>
 
     <div class="page" id="page-telegram">
@@ -374,6 +392,7 @@ function showPage(id, el){
   if(id==='products')  renderProducts();
   if(id==='orders')    renderOrders();
   if(id==='telegram')  loadTgSettings();
+  if(id==='homepage')  loadHomepageEditor();
   if(id==='settings'){ loadSocialSettings(); loadShippingSettings(); }
 }
 
@@ -959,5 +978,7 @@ window.MONTANA_ADMIN = {
   }
 };
 </script>
+<script src="/js/homepage-defaults-client.js?v=1"></script>
+<script src="/js/admin-homepage.js?v=1"></script>
 </body>
 </html>

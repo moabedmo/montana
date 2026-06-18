@@ -22,6 +22,7 @@ const metaWebhookHandler = require('./handlers/webhooks/meta');
 const sendMessageHandler = require('./handlers/messages/social');
 const depositSettingsHandler = require('./handlers/settings/deposit');
 const supabaseSettingsHandler = require('./handlers/settings/supabase');
+const homepageSettingsHandler = require('./handlers/settings/homepage');
 const depositProofHandler = require('./handlers/orders/deposit-proof');
 const depositStatusHandler = require('./handlers/orders/deposit-status');
 const depositApproveHandler = require('./handlers/orders/deposit-approve');
@@ -51,6 +52,7 @@ const API_ROUTES = {
   '/api/messages/social': sendMessageHandler,
   '/api/settings/deposit': depositSettingsHandler,
   '/api/settings/supabase': supabaseSettingsHandler,
+  '/api/settings/homepage': homepageSettingsHandler,
   '/api/orders/deposit-proof': depositProofHandler,
   '/api/orders/deposit-status': depositStatusHandler,
   '/api/orders/deposit-approve': depositApproveHandler,
@@ -220,14 +222,14 @@ server.listen(PORT, function () {
   var geminiKey = String(process.env.GEMINI_API_KEY || '').trim();
   if (chatProvider === 'groq') {
     if (!groqKey) {
-      console.warn('[!] GROQ_API_KEY missing in .env — get one at https://console.groq.com/keys');
+      console.warn('[!] GROQ_API_KEY missing in .env � get one at https://console.groq.com/keys');
     } else if (groqKey.indexOf('gsk_') !== 0) {
       console.warn('[!] GROQ_API_KEY should start with gsk_');
     } else {
       console.log('[ok] Chat AI: Groq (' + (process.env.GROQ_MODEL || 'allam-2-7b') + ')');
     }
   } else if (!geminiKey) {
-    console.warn('[!] GEMINI_API_KEY missing in .env — get one at https://aistudio.google.com/apikey');
+    console.warn('[!] GEMINI_API_KEY missing in .env � get one at https://aistudio.google.com/apikey');
   } else {
     console.log('[ok] Chat AI: Gemini (' + (process.env.GEMINI_MODEL || 'gemini-2.0-flash') + ', vision, AI-first)');
   }

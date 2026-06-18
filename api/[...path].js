@@ -14,6 +14,7 @@ const ROUTES = {
   'messages/social': require('../handlers/messages/social'),
   'settings/deposit': require('../handlers/settings/deposit'),
   'settings/supabase': require('../handlers/settings/supabase'),
+  'settings/homepage': require('../handlers/settings/homepage'),
   'orders/deposit-proof': require('../handlers/orders/deposit-proof'),
   'orders/deposit-status': require('../handlers/orders/deposit-status'),
   'orders/deposit-approve': require('../handlers/orders/deposit-approve'),
