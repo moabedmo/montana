@@ -1,7 +1,7 @@
 'use strict';
 
 const { sendTelegramPhoto, resolveTelegramConfig, setTelegramWebhook } = require('../../lib/telegram');
-const { createProof, buildApproveUrl } = require('../../lib/deposit-proofs');
+const { createProof } = require('../../lib/deposit-proofs');
 const { setCors, sendJson, readJsonBody } = require('../../lib/http');
 
 function buildCaption(body, proofId) {
@@ -15,18 +15,25 @@ function buildCaption(body, proofId) {
   ];
   if (body.itemsSummary) lines.push('المنتجات: ' + body.itemsSummary);
   if (body.total != null) lines.push('إجمالي الأوردر: ' + body.total + ' جنيه');
-  lines.push('🆔 ' + proofId);
-  lines.push('👇 ردّي «تم» على الصورة دي لتفعيل زر تأكيد الأوردر للعميل');
-  var approveUrl = buildApproveUrl(proofId);
-  if (approveUrl) lines.push('🔗 أو افتحي الرابط للموافقة:\n' + approveUrl);
+  lines.push('👇 اضغطي «✅ موافقة» أو ردّي «تم» على الصورة');
   return lines.join('\n').slice(0, 1024);
+}
+
+function buildApproveKeyboard(proofId) {
+  return {
+    inline_keyboard: [[
+      { text: '✅ موافقة', callback_data: 'approve:' + proofId }
+    ]]
+  };
 }
 
 async function ensureWebhook(token) {
   var url = String(process.env.TELEGRAM_WEBHOOK_URL || '').trim();
   if (!url) return;
   try {
-    await setTelegramWebhook(token, url);
+    await setTelegramWebhook(token, url, {
+      allowed_updates: ['message', 'callback_query']
+    });
   } catch (e) {
     console.warn('[deposit-proof] setWebhook:', e.message);
   }
@@ -65,7 +72,8 @@ async function handler(req, res) {
 
     var proofId = 'dp_' + Date.now();
     var caption = buildCaption(body, proofId);
-    var photo = await sendTelegramPhoto(cfg.token, cfg.chatId, image, caption);
+    var keyboard = buildApproveKeyboard(proofId);
+    var photo = await sendTelegramPhoto(cfg.token, cfg.chatId, image, caption, keyboard);
     if (!photo.ok) {
       sendJson(res, 502, { ok: false, error: photo.error || 'فشل إرسال الصورة لتليجرام' });
       return;
