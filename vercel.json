@@ -3,20 +3,8 @@
   "version": 2,
   "framework": null,
   "buildCommand": "npm run build",
-  "outputDirectory": "dist",
   "installCommand": "npm install",
   "cleanUrls": true,
-  "rewrites": [
-    { "source": "/admin", "destination": "/admin/index.html" },
-    { "source": "/shop", "destination": "/shop.html" },
-    { "source": "/cart", "destination": "/cart.html" },
-    { "source": "/checkout", "destination": "/checkout.html" },
-    { "source": "/product", "destination": "/product.html" },
-    { "source": "/ingredients", "destination": "/ingredients.html" },
-    { "source": "/privacy", "destination": "/privacy.html" },
-    { "source": "/privacy-policy", "destination": "/privacy-policy.html" },
-    { "source": "/order-success", "destination": "/order-success.html" }
-  ],
   "crons": [
     {
       "path": "/api/cron/refresh-tokens",

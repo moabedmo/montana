@@ -194,7 +194,9 @@ function renderCheckout() {
       statusEl.style.color = '#10B981';
       submitBtn.disabled = false;
     } catch (e) {
-      statusEl.textContent = MontanaShop.t('depositFailed');
+      statusEl.textContent = (e && e.message && e.message !== 'upload_failed')
+        ? e.message
+        : MontanaShop.t('depositFailed');
       statusEl.style.color = '#F87171';
       uploadBtn.disabled = false;
     }

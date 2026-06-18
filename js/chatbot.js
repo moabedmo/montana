@@ -2402,7 +2402,9 @@ window.MontanaChatbot = (function () {
         statusEl.style.color = '#10B981';
         confirmBtn.disabled = false;
       } catch (e) {
-        statusEl.textContent = strings.depositFailed;
+        statusEl.textContent = (e && e.message && e.message !== 'upload_failed')
+          ? e.message
+          : strings.depositFailed;
         statusEl.style.color = '#F87171';
         uploadBtn.disabled = false;
       }

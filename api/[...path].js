@@ -20,8 +20,12 @@ const ROUTES = {
 };
 
 module.exports = async function vercelApiRouter(req, res) {
-  var parts = req.query.path;
+  var parts = req.query && req.query.path;
   var pathKey = Array.isArray(parts) ? parts.join('/') : String(parts || '');
+  if (!pathKey) {
+    var raw = (req.url || '').split('?')[0].replace(/^\/api\/?/, '');
+    pathKey = decodeURIComponent(raw);
+  }
   var routeHandler = ROUTES[pathKey];
 
   if (!routeHandler) {

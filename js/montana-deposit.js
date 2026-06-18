@@ -31,20 +31,59 @@ window.MontanaDeposit = (function () {
     } catch (e) { /* defaults */ }
   }
 
-  function readImageFile(file) {
+  function compressImageFile(file, maxDim, quality) {
+    maxDim = maxDim || 1400;
+    quality = quality || 0.82;
     return new Promise(function (resolve, reject) {
       if (!file || !/^image\//.test(file.type)) {
         reject(new Error('invalid_image'));
         return;
       }
-      if (file.size > 8 * 1024 * 1024) {
-        reject(new Error('too_large'));
-        return;
-      }
-      var reader = new FileReader();
-      reader.onload = function () { resolve(String(reader.result || '')); };
-      reader.onerror = function () { reject(new Error('read_failed')); };
-      reader.readAsDataURL(file);
+      var img = new Image();
+      var url = URL.createObjectURL(file);
+      img.onload = function () {
+        URL.revokeObjectURL(url);
+        var w = img.naturalWidth || img.width;
+        var h = img.naturalHeight || img.height;
+        if (!w || !h) {
+          reject(new Error('invalid_image'));
+          return;
+        }
+        var scale = Math.min(1, maxDim / Math.max(w, h));
+        var cw = Math.max(1, Math.round(w * scale));
+        var ch = Math.max(1, Math.round(h * scale));
+        var canvas = document.createElement('canvas');
+        canvas.width = cw;
+        canvas.height = ch;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, cw, ch);
+        var dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(dataUrl);
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error('read_failed'));
+      };
+      img.src = url;
+    });
+  }
+
+  function readImageFile(file) {
+    return compressImageFile(file).catch(function () {
+      return new Promise(function (resolve, reject) {
+        if (!file || !/^image\//.test(file.type)) {
+          reject(new Error('invalid_image'));
+          return;
+        }
+        if (file.size > 8 * 1024 * 1024) {
+          reject(new Error('too_large'));
+          return;
+        }
+        var reader = new FileReader();
+        reader.onload = function () { resolve(String(reader.result || '')); };
+        reader.onerror = function () { reject(new Error('read_failed')); };
+        reader.readAsDataURL(file);
+      });
     });
   }
 
@@ -55,7 +94,12 @@ window.MontanaDeposit = (function () {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    var d = await r.json();
+    var d = {};
+    try { d = await r.json(); } catch (e) {
+      throw new Error(r.status === 404
+        ? 'السيرفر مش شغّال — جرّبي تاني بعد دقيقة'
+        : 'فشل الاتصال بالسيرفر');
+    }
     if (!r.ok || !d.ok) {
       throw new Error(d.error || 'upload_failed');
     }
