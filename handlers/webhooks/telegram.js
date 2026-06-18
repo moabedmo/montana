@@ -10,9 +10,10 @@ const {
 const {
   sendTelegramMessage,
   resolveTelegramConfig,
+  resolveWebhookUrl,
+  registerTelegramWebhook,
   answerCallbackQuery,
   editMessageReplyMarkup,
-  setTelegramWebhook,
   getWebhookInfo
 } = require('../../lib/telegram');
 const { setCors, sendJson, readJsonBody, checkAdmin } = require('../../lib/http');
@@ -50,14 +51,11 @@ async function safeAnswer(token, cqId, text, showAlert) {
 }
 
 async function ensureWebhook(cfg) {
-  var url = String(process.env.TELEGRAM_WEBHOOK_URL || '').trim();
-  if (!url || !cfg.token) return;
   try {
-    await setTelegramWebhook(cfg.token, url, {
-      allowed_updates: ['message', 'callback_query']
-    });
+    var result = await registerTelegramWebhook(cfg.token);
+    if (!result.ok) console.warn('[webhooks/telegram] webhook:', result.error);
   } catch (e) {
-    console.warn('[webhooks/telegram] setWebhook:', e.message);
+    console.warn('[webhooks/telegram] webhook:', e.message);
   }
 }
 
@@ -212,8 +210,8 @@ async function handler(req, res) {
       ok: true,
       webhook: info.ok ? info.data : null,
       webhookError: info.ok ? null : info.error,
-      expectedUrl: process.env.TELEGRAM_WEBHOOK_URL || '',
-      hint: 'لو الزر بيفضل يحمّل: عطّلي Vercel Deployment Protection على Production'
+      expectedUrl: resolveWebhookUrl(),
+      hint: 'لو الزر بيفضل يحمّل: اضغطي «ربط Webhook» من لوحة الأدمن'
     });
     return;
   }

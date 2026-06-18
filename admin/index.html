@@ -152,7 +152,19 @@ body{background:var(--bg);color:var(--text);font-family:'Alexandria',sans-serif;
         </p>
         <div class="form-actions">
           <button class="btn btn-outline" onclick="testTelegram()">اختبار الاتصال</button>
+          <button class="btn btn-outline" onclick="setupTelegramWebhook()">ربط Webhook</button>
           <button class="btn" onclick="saveTelegramSettings()">حفظ</button>
+        </div>
+        <p id="tg-webhook-status" style="font-size:12px;color:rgba(255,255,255,.5);margin-top:12px;line-height:1.6;"></p>
+      </div>
+      <div class="card">
+        <div class="card-title">موافقة العربون (200 جنيه)</div>
+        <p style="font-size:12px;color:rgba(255,255,255,.45);margin-bottom:12px;line-height:1.7;">
+          لو زر «موافقة» على تليجرام مش شغال — وافقي من هنا. العميلة هتقدر تأكّد الأورder تلقائي.
+        </p>
+        <div id="deposit-pending-list"><p style="color:rgba(255,255,255,.4);font-size:13px;">جاري التحميل...</p></div>
+        <div class="form-actions" style="margin-top:12px;">
+          <button class="btn btn-outline btn-sm" onclick="loadPendingDeposits()">تحديث القائمة</button>
         </div>
       </div>
       <div class="card">
@@ -554,6 +566,83 @@ function loadTgSettings(){
   document.getElementById('tg-token').value=ST.tgToken;
   document.getElementById('tg-chat-id').value=ST.tgChat;
   updTgStatus();
+  loadTelegramWebhookStatus();
+  loadPendingDeposits();
+}
+async function loadTelegramWebhookStatus(){
+  var el=document.getElementById('tg-webhook-status');
+  if(!el) return;
+  try{
+    var r=await fetch('/api/telegram/setup-webhook');
+    var d=await r.json();
+    if(!d.ok&&d.error){ el.textContent='Webhook: '+d.error; return; }
+    var wh=d.webhook||{};
+    if(wh.url){
+      el.innerHTML='✅ Webhook مربوط: <code style="font-size:11px;">'+wh.url+'</code>';
+      if(wh.pending_update_count) el.innerHTML+='<br>رسائل معلّقة: '+wh.pending_update_count;
+    } else {
+      el.textContent='⚠️ Webhook غير مربوط — اضغطي «ربط Webhook»';
+    }
+  }catch(e){
+    el.textContent='تعذر التحقق من Webhook';
+  }
+}
+async function setupTelegramWebhook(){
+  readTgInputs();
+  try{
+    var r=await fetch('/api/telegram/setup-webhook',{
+      method:'POST',
+      headers:socialHeaders(),
+      body:JSON.stringify({ bot_token: ST.tgToken })
+    });
+    var d=await r.json();
+    showToast(d.ok ? (d.message||'تم ربط Webhook') : (d.error||'فشل الربط'));
+    loadTelegramWebhookStatus();
+  }catch(e){
+    showToast('تعذر الاتصال بالسيرفر');
+  }
+}
+async function loadPendingDeposits(){
+  var box=document.getElementById('deposit-pending-list');
+  if(!box) return;
+  try{
+    var r=await fetch('/api/orders/deposit-pending',{headers:socialHeaders()});
+    var d=await r.json();
+    if(!r.ok||!d.ok){
+      box.innerHTML='<p style="color:var(--red);font-size:13px;">'+(d.error||'فشل التحميل')+'</p>';
+      return;
+    }
+    if(!d.proofs||!d.proofs.length){
+      box.innerHTML='<p style="color:rgba(255,255,255,.4);font-size:13px;">مفيش طلبات عربون معلّقة</p>';
+      return;
+    }
+    box.innerHTML=d.proofs.map(function(p){
+      return '<div class="notify-card" style="margin-bottom:10px;">'+
+        '<div><div style="font-size:13px;font-weight:600;">'+esc(p.name||'—')+' · '+esc(p.phone||'')+'</div>'+
+        '<div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:4px;">'+esc(p.itemsSummary||'')+' · '+esc(String(p.total||''))+' ج.م</div>'+
+        '<div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:4px;">'+esc(p.id)+'</div></div>'+
+        '<button class="btn btn-sm" onclick="approveDeposit(\''+String(p.id).replace(/'/g,'')+'\')">✅ موافقة</button></div>';
+    }).join('');
+  }catch(e){
+    box.innerHTML='<p style="color:var(--red);font-size:13px;">تعذر التحميل</p>';
+  }
+}
+async function approveDeposit(proofId){
+  try{
+    var r=await fetch('/api/orders/deposit-approve',{
+      method:'POST',
+      headers:socialHeaders(),
+      body:JSON.stringify({ proofId: proofId })
+    });
+    var d=await r.json();
+    showToast(d.ok ? 'تمت الموافقة — العميلة تقدر تأكّد الأورder' : (d.error||'فشل'));
+    loadPendingDeposits();
+  }catch(e){
+    showToast('تعذر الاتصال');
+  }
+}
+function esc(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 function saveTelegramSettings(){
   readTgInputs();

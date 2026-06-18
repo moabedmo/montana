@@ -19,6 +19,8 @@ const ROUTES = {
   'orders/deposit-approve': require('../handlers/orders/deposit-approve'),
   'orders/notify': require('../handlers/orders/notify'),
   'webhooks/telegram': require('../handlers/webhooks/telegram'),
+  'orders/deposit-pending': require('../handlers/orders/deposit-pending'),
+  'telegram/setup-webhook': require('../handlers/telegram/setup-webhook'),
   'telegram/send': require('../handlers/telegram/send'),
   'cron/refresh-tokens': require('../handlers/cron/refresh-tokens')
 };

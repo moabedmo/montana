@@ -1,6 +1,6 @@
 'use strict';
 
-const { sendTelegramPhoto, resolveTelegramConfig, setTelegramWebhook } = require('../../lib/telegram');
+const { sendTelegramPhoto, resolveTelegramConfig, registerTelegramWebhook } = require('../../lib/telegram');
 const { createProof } = require('../../lib/deposit-proofs');
 const { setCors, sendJson, readJsonBody } = require('../../lib/http');
 
@@ -28,14 +28,11 @@ function buildApproveKeyboard(proofId) {
 }
 
 async function ensureWebhook(token) {
-  var url = String(process.env.TELEGRAM_WEBHOOK_URL || '').trim();
-  if (!url) return;
   try {
-    await setTelegramWebhook(token, url, {
-      allowed_updates: ['message', 'callback_query']
-    });
+    var result = await registerTelegramWebhook(token);
+    if (!result.ok) console.warn('[deposit-proof] webhook:', result.error);
   } catch (e) {
-    console.warn('[deposit-proof] setWebhook:', e.message);
+    console.warn('[deposit-proof] webhook:', e.message);
   }
 }
 

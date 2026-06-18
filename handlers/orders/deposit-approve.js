@@ -1,13 +1,13 @@
 'use strict';
 
-const { approveByProofId, getProof } = require('../../lib/deposit-proofs');
-const { setCors, sendJson } = require('../../lib/http');
+const { approveByProofId } = require('../../lib/deposit-proofs');
+const { setCors, sendJson, readJsonBody, checkAdmin } = require('../../lib/http');
 
 function checkApproveKey(req) {
   var expected = String(process.env.MONTANA_ADMIN_API_KEY || process.env.DEPOSIT_APPROVE_SECRET || '').trim();
-  if (!expected) return false;
+  if (!expected) return checkAdmin(req);
   var key = (req.query && req.query.key) || req.headers['x-admin-key'];
-  return String(key || '') === expected;
+  return String(key || '') === expected || checkAdmin(req);
 }
 
 async function handler(req, res) {
@@ -16,6 +16,31 @@ async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     res.statusCode = 204;
     res.end();
+    return;
+  }
+
+  if (req.method === 'POST') {
+    if (!checkAdmin(req)) {
+      sendJson(res, 401, { ok: false, error: 'Unauthorized' });
+      return;
+    }
+    try {
+      var body = await readJsonBody(req);
+      var proofId = String(body.proofId || body.id || '').trim();
+      if (!proofId) {
+        sendJson(res, 400, { ok: false, error: 'proofId مطلوب' });
+        return;
+      }
+      var proof = await approveByProofId(proofId);
+      if (!proof) {
+        sendJson(res, 404, { ok: false, error: 'طلب التحويل غير موجود' });
+        return;
+      }
+      sendJson(res, 200, { ok: true, proof: proof, message: 'تمت الموافقة' });
+    } catch (err) {
+      console.error('[api/orders/deposit-approve POST]', err);
+      sendJson(res, 500, { ok: false, error: err.message || 'Internal server error' });
+    }
     return;
   }
 
@@ -30,14 +55,14 @@ async function handler(req, res) {
   }
 
   try {
-    var proofId = String((req.query && req.query.proofId) || '').trim();
-    if (!proofId) {
+    var qProofId = String((req.query && req.query.proofId) || '').trim();
+    if (!qProofId) {
       sendJson(res, 400, { ok: false, error: 'proofId مطلوب' });
       return;
     }
 
-    var proof = await approveByProofId(proofId);
-    if (!proof) {
+    var approved = await approveByProofId(qProofId);
+    if (!approved) {
       sendJson(res, 404, { ok: false, error: 'طلب التحويل غير موجود' });
       return;
     }
@@ -49,8 +74,7 @@ async function handler(req, res) {
       '<meta name="viewport" content="width=device-width,initial-scale=1">' +
       '<title>Montana — تمت الموافقة</title></head><body style="font-family:sans-serif;text-align:center;padding:40px 20px;background:#1a1030;color:#fff">' +
       '<h1 style="color:#10B981">✅ تمت الموافقة</h1>' +
-      '<p>العميل <strong>' + (proof.name || '') + '</strong> يقدر يأكّد الأوردر دلوقتي.</p>' +
-      '<p style="opacity:.7;font-size:14px">' + proofId + '</p>' +
+      '<p>العميل <strong>' + (approved.name || '') + '</strong> يقدر يأكّد الأوردر دلوقتي.</p>' +
       '</body></html>'
     );
   } catch (err) {
