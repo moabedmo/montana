@@ -83,7 +83,7 @@ window.MontanaChatPhrases = (function () {
       var wp = products.find(function (p) { return p.id === rule.productId; });
       if (!wp) return null;
       return {
-        reply: K.buildProductExpertReply(wp, lang, { offerOrder: true }),
+        reply: K.buildProductExpertReply(wp, lang, { offerOrder: false }),
         action: 'chat',
         order: { step: empty.step, product_names: names(wp) },
         _products: [wp],
@@ -161,8 +161,8 @@ window.MontanaChatPhrases = (function () {
       var sp = ctx.suggestedProduct;
       return {
         reply: lang === 'en'
-          ? sp.nameEn + ' is ' + sp.price + ' EGP — ' + sp.sizeEn + '. Would you like to order?'
-          : sp.nameAr + ' سعره ' + sp.price + ' جنيه — ' + sp.size + '. عايزة نعمل أوردر؟',
+          ? sp.nameEn + ' is ' + sp.price + ' EGP — ' + sp.sizeEn + '.'
+          : sp.nameAr + ' سعره ' + sp.price + ' جنيه — ' + sp.size + '.',
         action: 'chat',
         order: { step: empty.step, product_names: names(sp) },
         _products: [sp]
@@ -171,7 +171,7 @@ window.MontanaChatPhrases = (function () {
 
     if (rule.h === 'usage_ctx' && ctx.suggestedProduct) {
       return {
-        reply: K.buildProductExpertReply(ctx.suggestedProduct, lang, { usage: true, offerOrder: true }),
+        reply: K.buildProductExpertReply(ctx.suggestedProduct, lang, { usage: true, offerOrder: false }),
         action: 'chat',
         order: { step: empty.step, product_names: names(ctx.suggestedProduct) },
         _products: [ctx.suggestedProduct]
@@ -180,7 +180,7 @@ window.MontanaChatPhrases = (function () {
 
     if (rule.h === 'ing_ctx' && ctx.suggestedProduct) {
       return {
-        reply: K.buildProductExpertReply(ctx.suggestedProduct, lang, { usage: false, offerOrder: true }),
+        reply: K.buildProductExpertReply(ctx.suggestedProduct, lang, { usage: false, offerOrder: false }),
         action: 'chat',
         order: { step: empty.step, product_names: names(ctx.suggestedProduct) },
         _products: [ctx.suggestedProduct]

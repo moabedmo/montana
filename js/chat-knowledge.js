@@ -221,7 +221,9 @@ window.MontanaChatKnowledge = (function () {
       if (p) parts.push('\n' + buildProductExpertReply(p, lang, { offerOrder: false }));
     });
 
-    parts.push('\n' + (lang === 'en' ? 'Would you like to order both?' : 'عايزة نعمل أوردر بالاتنين؟'));
+    parts.push('\n' + (lang === 'en'
+      ? 'When you\'re ready, say «I want to order».'
+      : 'لما تحبي تطلبي قوليلي «عايز أطلب».'));
     return parts.join('\n');
   }
 
@@ -300,7 +302,7 @@ window.MontanaChatKnowledge = (function () {
       if (consult) return consult;
     }
     if (ctx.product) {
-      return buildProductExpertReply(ctx.product, lang, { offerOrder: true });
+      return buildProductExpertReply(ctx.product, lang, { offerOrder: false });
     }
     return buildGuideMenu(lang);
   }
@@ -344,7 +346,7 @@ window.MontanaChatKnowledge = (function () {
         var steps = usageLines(product.id, lang);
         if (steps.length) lines.push('\nHow to use:\n• ' + steps.join('\n• '));
       }
-      if (opts.offerOrder !== false) lines.push('\nWould you like to place an order?');
+      if (opts.offerOrder === true) lines.push('\nWould you like to place an order?');
     } else {
       lines.push(product.nameAr + ' — ' + (product.pfor || '') + '.');
       lines.push(product.desc);
@@ -354,7 +356,7 @@ window.MontanaChatKnowledge = (function () {
         var stepsAr = usageLines(product.id, lang);
         if (stepsAr.length) lines.push('\nطريقة الاستخدام:\n• ' + stepsAr.join('\n• '));
       }
-      if (opts.offerOrder !== false) lines.push('\nعايزة نعمل أوردر؟');
+      if (opts.offerOrder === true) lines.push('\nعايزة نعمل أوردر؟');
     }
     return lines.join('\n');
   }
@@ -380,7 +382,9 @@ window.MontanaChatKnowledge = (function () {
       }
     }
     parts.push('');
-    parts.push(lang === 'en' ? 'Would you like to place an order?' : 'عايزة نعمل أوردر؟');
+    parts.push(lang === 'en'
+      ? 'When you\'re ready, say «I want to order».'
+      : 'لما تحبي تطلبي قوليلي «عايز أطلب».');
     return parts.join('\n');
   }
 
