@@ -24,7 +24,7 @@ window.MontanaChatKnowledge = (function () {
     'acne-cleanser': ['غسول الحبوب', 'غسول وش للحبوب', 'غسول حبوب', 'غسول الوجه للحبوب', 'acne cleanser', 'acne wash'],
     'whitening-cleanser': ['غسول التفتيح', 'غسول تفتيح', 'غسول الاشراق', 'whitening cleanser', 'brightening cleanser'],
     'whitening-cream': ['كريم التفتيح', 'كريم تفتيح', 'كريم البقع', 'كريم البقع الداكنه', 'whitening cream', 'brightening cream'],
-    'body-lotion': ['لوشن الجسم', 'لوشن الايدين', 'لوشن ايدين وجسم', 'لوشن', 'body lotion', 'hand lotion'],
+    'body-lotion': ['لوشن الجسم', 'لوشن الايدين', 'لوشن ايدين وجسم', 'لوشن إيدين وجسم', 'body lotion', 'hand lotion'],
     'post-laser': ['كريم الليزر', 'كريم بعد الليزر', 'بعد الليزر', 'post laser', 'laser cream'],
     'anti-scar': ['جل الندوب', 'سيليكون الندوب', 'كريم الندوب', 'علاج الندوب', 'anti scar', 'scar gel', 'silicone gel']
   };
@@ -99,7 +99,7 @@ window.MontanaChatKnowledge = (function () {
     { id: 'whitening-cream', patterns: [/كريم\s*الت?فتيح/, /كريم تفتيح/, /whitening cream/, /brightening cream/] },
     { id: 'whitening-cleanser', patterns: [/غسول\s*الت?فتيح/, /غسول تفتيح/, /whitening cleanser/] },
     { id: 'acne-cleanser', patterns: [/غسول\s*ال?حبوب/, /غسول حبوب/, /غسول وش/, /للحبوب/, /والحبوب/, /وحبوب/, /\bحبوب\b/, /acne cleanser/] },
-    { id: 'body-lotion', patterns: [/لوشن/, /body lotion/, /ناشف/, /جاف/, /جفاف/, /ترطيب/, /dry skin/, /\bdry\b/] },
+    { id: 'body-lotion', patterns: [/لوشن\s*ال?جسم/, /لوشن\s*ال?ا?يد/, /لوشن\s*إيد/, /body lotion/, /hand lotion/, /ناشف/, /جاف/, /جفاف/, /ترطيب/, /dry skin/, /\bdry\b/] },
     { id: 'post-laser', patterns: [/كريم الليزر/, /بعد الليزر/, /post laser/] },
     { id: 'anti-scar', patterns: [/جل الندوب/, /سيليكون/, /anti scar/, /scar gel/] }
   ];

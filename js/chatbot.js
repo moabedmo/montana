@@ -1,4 +1,4 @@
-/* Montana chatbot — AI-driven (Gemini structured JSON, no regex patching) */
+/* Montana chatbot — Gemini consult + code-only orders */
 window.MontanaChatbot = (function () {
   var chatOpen = false;
   var history = [];
@@ -225,7 +225,7 @@ window.MontanaChatbot = (function () {
 
   var pendingChatImage = null;
 
-  async function callAiBrain(userText, lang, opts) {
+  async function callConsultAi(userText, lang, opts) {
     opts = opts || {};
     var messages = history.map(function (h) {
       return {
@@ -243,22 +243,61 @@ window.MontanaChatbot = (function () {
     if (opts.images && opts.images.length) lastMsg.images = opts.images;
     messages.push(lastMsg);
 
-    var system = buildBrainSystem(lang);
+    var system = buildConsultSystem(lang);
     if (opts.images && opts.images.length) {
       system += lang === 'en'
-        ? '\n\nThe customer attached a skin photo. Describe what you see (acne, spots, dullness, dryness, scars) without medical diagnosis. Recommend suitable Montana products with prices.'
-        : '\n\nالعميلة بعتت صورة بشرة. صفّي اللي ظاهر (حبوب، بقع، بهتان، جفاف، ندوب) من غير تشخيص طبي. ارشّحي منتجات Montana المناسبة مع الأسعار.';
+        ? '\n\nThe customer attached a skin photo. Describe what you see briefly (no medical diagnosis). Recommend suitable Montana products using exact catalog names and prices.'
+        : '\n\nالعميلة بعتت صورة بشرة. صفّي اللي ظاهر باختصار من غير تشخيص طبي. ارشّحي منتجات Montana بالاسم العربي الكامل والسعر من القائمة.';
     }
-    system += '\n\nRespond with ONE JSON object only (no markdown): {"reply":"...","action":"chat|start_order|update_order|cancel_order|thanks|confirm_ready|buy_more","order":{"step":"idle|product|name|phone|address|ready","name":"","phone":"","address":"","product_names":[]}}';
 
     var result = await callChatAi({
       system: system,
       messages: messages,
-      generationConfig: { temperature: 0.25, maxOutputTokens: 700 }
+      generationConfig: { temperature: 0.65, maxOutputTokens: 900 }
     });
     if (!result.ok) return null;
-    var parsed = parseBrainJson(result.text);
-    return validateAiBrain(parsed);
+    var reply = String(result.text || '').trim();
+    if (!reply) return null;
+    reply = reply.replace(/^```[\s\S]*?```\s*/m, '').trim();
+    return {
+      reply: reply,
+      action: 'chat',
+      order: { step: orderStep || 'idle', product_names: [] }
+    };
+  }
+
+  function buildConsultSystem(lang) {
+    var replyLang = lang === 'en'
+      ? 'Reply in English — warm, natural, expert cosmetics consultant (Nour).'
+      : 'ردّي بالعربي المصري الطبيعي — زي بياعة كوزمتيك محترفة اسمها نور (ودودة، فاهمة، مش روبوت).';
+    var suggested = sessionSuggestedProducts.length
+      ? sessionSuggestedProducts.map(function (p) { return lang === 'en' ? p.nameEn : p.nameAr; }).join(', ')
+      : '';
+
+    return [
+      'You are Nour, Montana\'s skincare & cosmetics consultant.',
+      'CRITICAL: Reply in the SAME language as the customer\'s latest message.',
+      replyLang,
+      '',
+      'PRODUCT CATALOG (use EXACT names and prices — never invent):',
+      productCatalogText(lang),
+      '',
+      suggested ? ('Products already suggested this session: ' + suggested) : '',
+      '',
+      'RULES:',
+      '1. Understand Egyptian Arabic naturally (عاوزا، كمان، والحبوب، يريت، etc.).',
+      '2. Recommend from catalog only. Mention full Arabic product name + price in جنيه when recommending.',
+      '3. Multiple concerns → recommend ALL relevant products in one clear reply.',
+      '4. NEVER ask «عايزة نعمل أوردر» or «would you like to order» — customer orders when ready.',
+      '5. Do NOT collect name, phone, or address — the app handles orders separately.',
+      '6. Keep replies helpful but concise (3–8 sentences unless listing products).',
+      '7. Never diagnose medically — cosmetic guidance only.',
+      window.MontanaChatKnowledge ? MontanaChatKnowledge.aiKnowledgeBlock(lang, getProducts()) : ''
+    ].filter(Boolean).join('\n');
+  }
+
+  async function callAiBrain(userText, lang, opts) {
+    return callConsultAi(userText, lang, opts);
   }
 
   function getProducts() {
@@ -884,29 +923,53 @@ window.MontanaChatbot = (function () {
     sessionSuggestedProducts = [];
   }
 
-  function noteSuggestedFromBrain(brain) {
-    if (!brain || !brain.reply) return;
-    var names = (brain.order && brain.order.product_names) || [];
-    if (names.length) {
-      var resolved = resolveProducts(names);
-      var prods = getProducts();
-      resolved.forEach(function (item) {
-        var p = prods.find(function (x) { return x.nameAr === item.name; });
-        if (p) rememberSuggestedProduct(p);
-      });
-      return;
-    }
-    var inReply = matchAllProductsFromText(brain.reply);
-    if (inReply.length) {
-      rememberSuggestedProducts(inReply);
-      return;
-    }
-    var prods = getProducts();
+  function extractProductsFromReply(text) {
+    var prods = getProducts().slice().sort(function (a, b) {
+      return (b.nameAr || '').length - (a.nameAr || '').length;
+    });
+    var found = [];
+    var seen = {};
+    var t = String(text || '');
     prods.forEach(function (p) {
-      if (brain.reply.indexOf(p.nameAr) > -1 || brain.reply.indexOf(p.nameEn) > -1) {
-        rememberSuggestedProduct(p);
+      if (seen[p.id]) return;
+      if (t.indexOf(p.nameAr) > -1 || t.indexOf(p.nameEn) > -1) {
+        seen[p.id] = true;
+        found.push(p);
       }
     });
+    return found;
+  }
+
+  function getSessionOrderProducts() {
+    return sessionSuggestedProducts.slice();
+  }
+
+  function noteProductsFromReply(text) {
+    extractProductsFromReply(text).forEach(function (p) { rememberSuggestedProduct(p); });
+  }
+
+  function tryStartOrderBrain(userText, lang, intent) {
+    if (collectingOrder) return null;
+    intent = intent || getIntent(userText);
+    if (isBrowsingQuestion(intent, userText)) return null;
+    var wants = wantsToOrder(userText) || (intent.isAffirm && sessionSuggestedProducts.length);
+    if (!wants) return null;
+    var picked = getSessionOrderProducts();
+    if (!picked.length) {
+      return {
+        reply: lang === 'en'
+          ? 'Tell me your skin concern or which Montana products you want — then say «I want to order».'
+          : 'قوليلي مشكلة بشرتك أو إيه المنتجات اللي عايزاها — وبعدين قولي «عايز أطلب».',
+        action: 'chat',
+        order: { step: 'idle', product_names: [] }
+      };
+    }
+    return beginOrderFromProducts(picked, lang, 'start_order');
+  }
+
+  function noteSuggestedFromBrain(brain) {
+    if (!brain || !brain.reply) return;
+    noteProductsFromReply(brain.reply);
   }
 
   function lastBotOfferedOrder() {
@@ -1335,7 +1398,7 @@ window.MontanaChatbot = (function () {
 
     if (!collectingOrder && !isBrowsingQuestion(intent, t)) {
       if (wantsToOrder(t) || (intent.isAffirm && sessionSuggestedProducts.length)) {
-        return beginOrderFromProducts(resolveStartOrderProducts(t, true), lang, 'start_order');
+        return beginOrderFromProducts(getSessionOrderProducts(), lang, 'start_order');
       }
     }
 
@@ -1718,30 +1781,32 @@ window.MontanaChatbot = (function () {
         localGoodbyeBrain(userText, lang, intent);
       if (quick && !(opts.images && opts.images.length)) return { ok: true, brain: quick, fallback: true };
 
-      var scarHit = localScarBrain(userText, lang, intent);
-      if (scarHit) return { ok: true, brain: scarHit, fallback: true };
+      if (isThanks(userText)) {
+        return { ok: true, brain: { reply: t(lang).thanksReply, action: 'thanks', order: { step: 'idle', product_names: [] } }, fallback: true };
+      }
+
+      var orderStart = tryStartOrderBrain(userText, lang, intent);
+      if (orderStart) {
+        return { ok: true, brain: enforceOrderBrain(orderStart, lang, userText, intent), fallback: true };
+      }
     }
 
     if (await useChatAi()) {
       try {
-        var aiBrain = await callAiBrain(userText, lang, opts);
-        if (aiBrain && aiBrain.reply) {
-          var enforced = enforceOrderBrain(aiBrain, lang, userText, intent);
-          if (enforced) return { ok: true, brain: enforced };
-        }
+        var aiBrain = await callConsultAi(userText, lang, opts);
+        if (aiBrain && aiBrain.reply) return { ok: true, brain: aiBrain };
       } catch (e) { /* fallback */ }
     }
+
+    var localConsult = localPhraseBrain(userText, lang, intent) ||
+      localKnowledgeBrain(userText, lang, intent) ||
+      localCatalogBrain(userText, lang, intent);
+    if (localConsult) return { ok: true, brain: localConsult, fallback: true };
 
     var orderFallback = localOrderBrain(userText, lang, intent);
     if (orderFallback) {
       var enforcedFb = enforceOrderBrain(orderFallback, lang, userText, intent);
       if (enforcedFb) return { ok: true, brain: enforcedFb, fallback: true };
-    }
-
-    if (!collectingOrder && (intent.isCatalog || intent.isShipping)) {
-      var browseLocal = localCatalogBrain(userText, lang, intent) ||
-        (intent.isShipping ? localKnowledgeBrain(userText, lang, intent) : null);
-      if (browseLocal) return { ok: true, brain: browseLocal, fallback: true };
     }
 
     if (window.MontanaChatKnowledge) {
@@ -1779,7 +1844,11 @@ window.MontanaChatbot = (function () {
         orderData.address = String(o.address).trim();
       }
 
-      if (o.product_names && o.product_names.length) {
+      if (action === 'start_order' && orderData.items && orderData.items.length) {
+        /* beginOrderFromProducts already set items from session */
+      } else if (action === 'start_order' && sessionSuggestedProducts.length) {
+        orderData.items = resolveProducts(sessionSuggestedProducts.map(function (p) { return p.nameAr; }));
+      } else if (o.product_names && o.product_names.length) {
         var resolved = resolveProducts(o.product_names);
         if (resolved.length) {
           orderData.items = (action === 'update_order' && orderHasItems())
@@ -1876,6 +1945,7 @@ window.MontanaChatbot = (function () {
         skipPolish: brain.skipPolish || !!(intent.wantsOrder && matchProductFromText(text))
       });
       delete brain.skipPolish;
+      noteProductsFromReply(reply);
       pushHistory('model', reply);
       await typeBotMessage(reply, { skipThink: true, userText: text, intent: intent });
 
