@@ -19,6 +19,10 @@ window.MontanaChatPhrases = (function () {
     { id: 'dry', p: [/بشرتي\s*ناشف/, /جسمي\s*ناشف/, /ايدي\s*ناشف/, /تقشر/, /جفاف/, /ترطيب/, /خشنه/], concerns: ['dry'], h: 'consult' },
     { id: 'scar', p: [/ندوب/, /ندبه/, /اثار\s*حبوب/, /علامات\s*حبوب/, /بقايا\s*حبوب/, /جرح/], concerns: ['scar'], h: 'consult' },
     { id: 'laser', p: [/بعد\s*الليزر/, /عملت\s*ليزر/, /فراكشنال/, /تقشير\s*كيميائي/], concerns: ['laser'], h: 'consult' },
+    { id: 'results', p: [/امتى\s*النتيج/, /كام\s*يوم/, /كام\s*اسبوع/, /بتفرق/, /هتفرق/, /بتبان\s*امتى/, /امتى\s*هتبان/], h: 'results' },
+    { id: 'return', p: [/مرتجع/, /استرجاع/, /ارجع/, /ترجيع/, /ارجاع/, /رجع\s*المنتج/, /سياسه\s*الاسترجاع/], h: 'return_policy' },
+    { id: 'payment', p: [/طرق\s*الدفع/, /فودافون\s*كاش/, /انستاباي/, /ادفع\s*ازاي/, /طريقه\s*الدفع/], h: 'payment' },
+    { id: 'help', p: [/مساعد/, /مش\s*فاهم/, /ازاي\s*اطلب/, /مش\s*عارف/, /ايه\s*ده/], h: 'help' },
     { id: 'catalog', p: [
       /منتجات?\s*تانيه/, /في\s*ايه\s*(منتجات?\s*)?تاني/, /عندكم\s*ايه\s*تاني/, /حاجات?\s*تانيه/,
       /ايه\s*المنتجات/, /ايه\s*عندكم/, /عندكم\s*ايه/, /وريني\s*المنتجات/, /كل\s*المنتجات/, /قائمه\s*المنتجات/
@@ -185,6 +189,30 @@ window.MontanaChatPhrases = (function () {
         order: { step: empty.step, product_names: names(ctx.suggestedProduct) },
         _products: [ctx.suggestedProduct]
       };
+    }
+
+    if (rule.h === 'results') {
+      var resultsProd = ctx.suggestedProduct || null;
+      if (resultsProd && K.buildResultsReply) {
+        return { reply: K.buildResultsReply(resultsProd.id, lang, products), action: 'chat', order: empty };
+      }
+      if (lang === 'en') return { reply: 'Results depend on the product — tell me which one you\'re asking about!', action: 'chat', order: empty };
+      return { reply: 'النتيجة بتختلف حسب المنتج — قوليلي بتسألي على أنهي منتج وأنا أقولك! 💜', action: 'chat', order: empty };
+    }
+
+    if (rule.h === 'return_policy') {
+      if (K.buildReturnReply) return { reply: K.buildReturnReply(lang), action: 'chat', order: empty };
+      return null;
+    }
+
+    if (rule.h === 'payment') {
+      if (K.buildPaymentReply) return { reply: K.buildPaymentReply(lang), action: 'chat', order: empty };
+      return null;
+    }
+
+    if (rule.h === 'help') {
+      if (lang === 'en') return { reply: 'I\'m Nour and I\'m here to help! Tell me your skin concern (acne, dryness, brightening, scars) and I\'ll recommend the perfect product. Or say "I want to order" to place an order!', action: 'chat', order: empty };
+      return { reply: 'أنا نور ومعاكي خطوة بخطوة! 💜\n\nممكن أرشّحلك منتج يناسب بشرتك، أقولك السعر والمكونات، أو نعمل أوردر.\n\nقوليلي إيه مشكلة بشرتك — حبوب، جفاف، تفتيح، ندوب — وأنا أساعدك!', action: 'chat', order: empty };
     }
 
     return null;

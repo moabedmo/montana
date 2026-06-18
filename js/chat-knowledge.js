@@ -73,6 +73,25 @@ window.MontanaChatKnowledge = (function () {
     'anti-scar': 'post-laser'
   };
 
+  var RESULTS_TIMELINE = {
+    'acne-cleanser': { ar: 'أسبوعين', en: '2 weeks' },
+    'whitening-cleanser': { ar: '٢-٣ أسابيع', en: '2-3 weeks' },
+    'whitening-cream': { ar: '٢-٤ أسابيع', en: '2-4 weeks' },
+    'body-lotion': { ar: 'من أول استخدام', en: 'From first use' },
+    'post-laser': { ar: '٣-٥ أيام', en: '3-5 days' },
+    'anti-scar': { ar: '٨-١٢ أسبوع', en: '8-12 weeks' }
+  };
+
+  var PAYMENT_METHODS = {
+    ar: 'طرق الدفع:\n• الدفع عند الاستلام (COD)\n• فودافون كاش\n• إنستاباي\n\nالشحن مجاني للأوردرات فوق ١٠٠٠ جنيه 💜',
+    en: 'Payment methods:\n• Cash on Delivery (COD)\n• Vodafone Cash\n• InstaPay\n\nFree shipping on orders over 1,000 EGP 💜'
+  };
+
+  var RETURN_POLICY = {
+    ar: 'سياسة الاسترجاع:\nلو المنتج لسه مقفول ومتغلفش — ينفع ترجعيه خلال ١٤ يوم من الاستلام. بس لازم يكون sealed ومتفتحش 💜',
+    en: 'Return policy:\nYou can return any sealed, unopened product within 14 days of delivery.'
+  };
+
   function fld(obj, lang) {
     if (!obj) return '';
     if (typeof obj === 'string') return obj;
@@ -222,8 +241,8 @@ window.MontanaChatKnowledge = (function () {
     });
 
     parts.push('\n' + (lang === 'en'
-      ? 'When you\'re ready, say «I want to order».'
-      : 'لما تحبي تطلبي قوليلي «عايز أطلب».'));
+      ? ''
+      : ''));
     return parts.join('\n');
   }
 
@@ -304,7 +323,8 @@ window.MontanaChatKnowledge = (function () {
     if (ctx.product) {
       return buildProductExpertReply(ctx.product, lang, { offerOrder: false });
     }
-    return buildGuideMenu(lang);
+    if (lang === 'en') return 'Tell me about your skin — what bothers you the most? Acne, dryness, dark spots, dullness? I\'ll find the perfect product for you!';
+    return 'قوليلي بشرتك نوعها ايه — دهنية ولا جافة ولا عادية؟ وايه أكتر حاجة مضايقاكي فيها؟ وأنا هختارلك المنتج المناسب 💜';
   }
 
   function professionalPitch(concern, lang) {
@@ -342,21 +362,23 @@ window.MontanaChatKnowledge = (function () {
       lines.push(product.descEn || product.desc);
       if (ing) lines.push('Key actives: ' + ing + '.');
       lines.push('Price: ' + product.price + ' EGP · ' + product.sizeEn);
+      var tlEn = RESULTS_TIMELINE[product.id];
+      if (tlEn) lines.push('Results in: ' + fld(tlEn, lang));
       if (opts.usage) {
         var steps = usageLines(product.id, lang);
         if (steps.length) lines.push('\nHow to use:\n• ' + steps.join('\n• '));
       }
       if (opts.offerOrder === true) lines.push('\nWould you like to place an order?');
     } else {
-      lines.push(product.nameAr + ' — ' + (product.pfor || '') + '.');
+      lines.push(product.nameAr + ' — ' + (product.pfor || ''));
       lines.push(product.desc);
-      if (ing) lines.push('المكونات الفعّالة: ' + ing + '.');
-      lines.push('السعر: ' + product.price + ' جنيه · ' + product.size);
+      var tl = RESULTS_TIMELINE[product.id];
+      if (ing) lines.push('فيه ' + ing + ' — سعره ' + product.price + ' جنيه (' + product.size + ')' + (tl ? ' والنتيجة من ' + fld(tl, lang) : '') + ' 💜');
+      else lines.push('سعره ' + product.price + ' جنيه (' + product.size + ')' + (tl ? ' — النتيجة من ' + fld(tl, lang) : '') + ' 💜');
       if (opts.usage) {
         var stepsAr = usageLines(product.id, lang);
         if (stepsAr.length) lines.push('\nطريقة الاستخدام:\n• ' + stepsAr.join('\n• '));
       }
-      if (opts.offerOrder === true) lines.push('\nعايزة نعمل أوردر؟');
     }
     return lines.join('\n');
   }
@@ -365,27 +387,79 @@ window.MontanaChatKnowledge = (function () {
     products = products || [];
     var ids = recommendProducts(concern);
     if (!ids.length) return null;
-    var pitch = concernPitch(concern, norm, lang);
     var main = resolveConcernProduct(concern, norm, products) ||
       products.find(function (p) { return p.id === ids[0]; });
     if (!main) return null;
 
-    var parts = [pitch, '', buildProductExpertReply(main, lang, { offerOrder: false })];
-    var explicitProduct = /كريم|غسول|لوشن/.test(norm || '');
-    if (ids.length > 1 && !explicitProduct) {
-      var second = products.find(function (p) { return p.id === ids[1]; });
-      if (second) {
-        parts.push('');
-        parts.push(lang === 'en'
-          ? 'I also recommend ' + second.nameEn + ' (' + second.price + ' EGP) to complete your routine.'
-          : 'كمان أنصحك بـ ' + second.nameAr + ' (' + second.price + ' جنيه) عشان تكملي الروتين.');
+    var ing = ingredientList(main.id, lang).slice(0, 2).join(' و ');
+    var timeline = RESULTS_TIMELINE[main.id] ? fld(RESULTS_TIMELINE[main.id], lang) : '';
+
+    var openers = {
+      acne: [
+        'يا حبيبتي الغسول ده هيحلك مشكلة الحبوب من الجذور',
+        'فاهماكي — الحبوب دي مزعجة بس الحل بسيط',
+        'أنا عارفة الحبوب بتضايق — بس عندنا الحل'
+      ],
+      whiten: [
+        'يا قمر ده هيرجعلك الإشراق اللي بتحلمي بيه',
+        'التفتيح محتاج صبر بس النتيجة تستاهل',
+        'هنوّرك يا حبيبتي — المنتجات دي شغالة بجد'
+      ],
+      spots: [
+        'البقع دي هتختفي إن شاء الله — بس لازم المنتج الصح',
+        'يا جميلة البقع الغامقة ليها حل فعال'
+      ],
+      dry: [
+        'البشرة الناشفة محتاجة حب وترطيب — وده بالظبط اللي هنعمله',
+        'يا حبيبتي الجفاف ده هينتهي مع المنتج ده'
+      ],
+      scar: [
+        'الندوب محتاجة صبر بس النتيجة بتفرق جداً',
+        'يا قمر الندوب ليها حل — بس لازم استمرارية'
+      ],
+      laser: [
+        'بعد الليزر لازم منتج لطيف — وده بالظبط اللي عندنا',
+        'صح إنك سألتي — البشرة بعد الليزر محتاجة عناية خاصة'
+      ],
+      sensitive: [
+        'البشرة الحساسة محتاجة منتج لطيف — وده مخصوص ليكي',
+        'فاهماكي — البشرة الحساسة مش أي حاجة تنفع معاها'
+      ]
+    };
+
+    if (lang === 'en') {
+      var parts = [];
+      parts.push(main.nameEn + ' — ' + (main.pfor || ''));
+      parts.push((main.descEn || main.desc));
+      if (ing) parts.push('Key actives: ' + ing);
+      parts.push('Price: ' + main.price + ' EGP · ' + main.sizeEn);
+      if (timeline) parts.push('Results in: ' + timeline);
+      var explicitProduct = /كريم|غسول|لوشن/.test(norm || '');
+      if (ids.length > 1 && !explicitProduct) {
+        var second = products.find(function (p) { return p.id === ids[1]; });
+        if (second) parts.push('\nI also recommend ' + second.nameEn + ' (' + second.price + ' EGP) to complete your routine.');
+      }
+      return parts.join('\n');
+    }
+
+    var concernKey = concern === 'oily' || concern === 'pores' ? 'acne' : (concern === 'dull' ? 'whiten' : concern);
+    var openerList = openers[concernKey] || openers['acne'];
+    var opener = openerList[Math.floor(Math.random() * openerList.length)];
+
+    var reply = opener + ' — ' + main.nameAr;
+    if (ing) reply += ' فيه ' + ing;
+    reply += '. سعره ' + main.price + ' جنيه';
+    if (timeline) reply += ' والنتيجة من ' + timeline;
+    reply += ' 💜';
+
+    var explicitProduct2 = /كريم|غسول|لوشن/.test(norm || '');
+    if (ids.length > 1 && !explicitProduct2) {
+      var second2 = products.find(function (p) { return p.id === ids[1]; });
+      if (second2) {
+        reply += '\n\nوكمان أنصحك بـ ' + second2.nameAr + ' (' + second2.price + ' جنيه) عشان تكملي الروتين.';
       }
     }
-    parts.push('');
-    parts.push(lang === 'en'
-      ? 'When you\'re ready, say «I want to order».'
-      : 'لما تحبي تطلبي قوليلي «عايز أطلب».');
-    return parts.join('\n');
+    return reply;
   }
 
   function buildCompareReply(productA, productB, lang) {
@@ -466,6 +540,19 @@ window.MontanaChatKnowledge = (function () {
     return lines.join('\n');
   }
 
+  function buildResultsReply(productId, lang, products) {
+    products = products || [];
+    var t = RESULTS_TIMELINE[productId];
+    var p = products.find(function (x) { return x.id === productId; });
+    if (!t || !p) return null;
+    if (lang === 'en') return p.nameEn + ' shows results in about ' + fld(t, lang) + '. Consistency is key!';
+    return 'يا حبيبتي ' + p.nameAr + ' نتيجته بتبان في حوالي ' + fld(t, lang) + ' مع الاستمرار. الصبر مفتاح النتيجة! 💜';
+  }
+
+  function buildPaymentReply(lang) { return fld(PAYMENT_METHODS, lang); }
+
+  function buildReturnReply(lang) { return fld(RETURN_POLICY, lang); }
+
   return {
     GLOSSARY: GLOSSARY,
     CONCERN_MAP: CONCERN_MAP,
@@ -490,7 +577,14 @@ window.MontanaChatKnowledge = (function () {
     buildFullCatalogReply: buildFullCatalogReply,
     catalogExpert: catalogExpert,
     aiKnowledgeBlock: aiKnowledgeBlock,
-    shippingReply: function (lang) { return fld(SHIPPING, lang); },
+    shippingReply: function (lang) {
+      if (lang === 'en') return 'Shipping info:\n• Cairo & Giza: 2-4 days\n• Other governorates: 4-7 days\n• Free shipping on orders over 1,000 EGP\n\nPayment: Cash on Delivery (COD), Vodafone Cash, or InstaPay 💜';
+      return 'معلومات الشحن:\n• القاهرة والجيزة: ٢-٤ أيام\n• باقي المحافظات: ٤-٧ أيام\n• شحن مجاني للأوردرات فوق ١٠٠٠ جنيه\n\nطرق الدفع: الدفع عند الاستلام · فودافون كاش · إنستاباي 💜';
+    },
+    buildResultsReply: buildResultsReply,
+    buildPaymentReply: buildPaymentReply,
+    buildReturnReply: buildReturnReply,
+    RESULTS_TIMELINE: RESULTS_TIMELINE,
     usageLines: usageLines,
     ingredientList: ingredientList,
     getPair: function (productId) { return PAIRS[productId] || null; },
@@ -500,28 +594,52 @@ window.MontanaChatKnowledge = (function () {
       reply = String(reply || '').trim();
       if (!reply || lang === 'en') return reply;
       if (ctx.isOrderStep || ctx.skipPolish) return reply;
-      if (/^(أهلا|اهلا|مرحب|تمام حبيبتي|حبيبتي|يا جميلة|سؤال حلو|من تجربتي)/.test(reply)) return reply;
+      if (/^(أهلا|اهلا|مرحب|تمام حبيبتي|حبيبتي|يا جميلة|يا حبيبتي|يا قمر|سؤال حلو|من تجربتي|فاهم|البقع|البشرة|الندوب|بعد الليزر|ذكية|هنوّر|مفيش|التفتيح|متقلق|أنا عارف|الترطيب|صح إنك)/.test(reply)) return reply;
+
+      function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
       if (ctx.concern === 'acne' || ctx.concern === 'oily' || ctx.concern === 'pores') {
-        return 'فاهمةك — الحبوب والبشرة الدهنية محتاجة صبر ومنتج صح.\n\n' + reply;
+        return pickRandom([
+          'فاهمةك — الحبوب والبشرة الدهنية محتاجة صبر ومنتج صح.\n\n',
+          'يا حبيبتي الحبوب دي ليها حل — خليني أقولك.\n\n',
+          'أنا عارفة قد ايه الحبوب بتضايق — بس متقلقيش.\n\n',
+          'مفيش حاجة اسمها بشرة دهنية مالهاش حل!\n\n'
+        ]) + reply;
       }
       if (ctx.concern === 'whiten' || ctx.concern === 'dull' || ctx.concern === 'spots') {
-        return 'سؤال مهم! التفتيح محتاج استمرارية ومنتجات تكمّل بعض.\n\n' + reply;
+        return pickRandom([
+          'سؤال مهم! التفتيح محتاج استمرارية ومنتجات تكمّل بعض.\n\n',
+          'يا قمر التفتيح رحلة — بس النتيجة تستاهل.\n\n',
+          'هنوّر بشرتك مع بعض إن شاء الله!\n\n',
+          'البشرة المشرقة حلم — وأنا هساعدك توصليله.\n\n'
+        ]) + reply;
       }
       if (ctx.concern === 'scar') {
-        return 'الندوب محتاجة وقت واهتمام — وأنا هوجّهك للي يناسبك.\n\n' + reply;
+        return pickRandom([
+          'الندوب محتاجة وقت واهتمام — وأنا هوجّهك للي يناسبك.\n\n',
+          'يا حبيبتي الندوب بتخف مع المنتج الصح والصبر.\n\n',
+          'متقلقيش — الندوب ليها حل بس لازم استمرارية.\n\n'
+        ]) + reply;
       }
       if (ctx.concern === 'laser' || ctx.concern === 'sensitive') {
-        return 'بعد الليزر أو العلاج لازم منتج لطيف — صح إنك سألت.\n\n' + reply;
+        return pickRandom([
+          'بعد الليزر أو العلاج لازم منتج لطيف — صح إنك سألتي.\n\n',
+          'يا حبيبتي البشرة بعد الليزر محتاجة رعاية خاصة.\n\n',
+          'ذكية إنك بتسألي — البشرة بعد الإجراءات محتاجة اهتمام.\n\n'
+        ]) + reply;
       }
       if (ctx.concern === 'dry') {
-        return 'البشرة الناشفة محتاجة ترطيب يفضل — خليني أساعدك.\n\n' + reply;
+        return pickRandom([
+          'البشرة الناشفة محتاجة ترطيب يفضل — خليني أساعدك.\n\n',
+          'يا حبيبتي الجفاف ده هينتهي — عندنا الحل.\n\n',
+          'الترطيب أهم خطوة — وأنا هختارلك الأنسب.\n\n'
+        ]) + reply;
       }
       if (ctx.isIngredients || ctx.isUsage) {
-        return 'سؤال ذكي! 💜\n\n' + reply;
+        return pickRandom(['سؤال ذكي! 💜\n\n', 'سؤال حلو! خليني أقولك.\n\n', 'أكيد — ده سؤال مهم.\n\n']) + reply;
       }
       if (ctx.isPrice) {
-        return 'أكيد — السعر مهم.\n\n' + reply;
+        return pickRandom(['أكيد — السعر مهم.\n\n', 'تمام يا حبيبتي — خليني أقولك.\n\n']) + reply;
       }
       if (ctx.isGreeting || ctx.isGoodbye) return reply;
       return reply;

@@ -3,3 +3,4 @@ dist/
 data/gemini.json
 .env
 js/montana-config.js
+.claude/

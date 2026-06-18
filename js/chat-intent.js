@@ -30,7 +30,7 @@ window.MontanaChatIntent = (function () {
     var score = 0;
     if (hasAny(norm, [/طلب/, /اوردر/, /\border\b/, /اشتري/, /شراء/, /احجز/, /\bbuy\b/, /checkout/, /purchase/])) score += 3;
     if (hasAny(norm, [
-      /اعمل\s*(طلب|اوردر)/, /ممكن\s*(اعمل|اطلب|اشتري|اعملي|اوردر|طلب)/, /^(طلب|اوردر)$/,
+      /اعمل\s*(طلب|اوردر)/, /ممكن\s*(اعمل|اطلب|اشتري|اعملي|اوردر|طلب)/, /^(طلب|اطلب|اوردر)$/, /^اطلب/,
       /عايز\s*(اعمل\s*)?(طلب|اوردر|اشتري|اجيب)/, /عاوز\s*(اعمل\s*)?(طلب|اوردر|اشتري|اجيب)/,
       /عايزه\s*(اعمل\s*)?(طلب|اوردر|اشتري|اجيب)/, /عاوزه\s*(اعمل\s*)?(طلب|اوردر|اشتري|اجيب)/,
       /حابب\s*(اعمل\s*)?(طلب|اوردر|اشتري)/, /حابه\s*(اعمل\s*)?(طلب|اوردر|اشتري)/,
@@ -39,10 +39,10 @@ window.MontanaChatIntent = (function () {
       /عا(و|ي)ز(ه|a|ة|ا)?\s*(كريم|غسول|ال)/,
       /عوز\s*(كريم|غسول|ال)/,
       /محتاج(ه|ة|a)?\s*(كريم|غسول|ال)/,
-      /ابدأ\s*اوردر/, /ابدا\s*اوردر/, /نبدأ\s*اوردر/, /نفذ\s*اوردر/, /سجل\s*اوردر/,
+      /ابدأ\s*اوردر/, /ابدا\s*اوردر/, /نبدأ\s*اوردر/, /نفذ\s*اوردر/, /ننفذ\s*الاوردر/, /سجل\s*اوردر/,
       /ابعت(لي|يلي|ه)?\s*(اوردر|طلب|الاوردر)?/, /وصل(ي|ني|ه)?\s*(اوردر|طلب|المنتج)?/,
       /هات(ي|يلي|ه)?\s*(اوردر|طلب|المنتج)?/, /ممكن\s*اوردر/,
-      /can\s+i\s+(make\s+)?(an\s+)?order/, /want\s+to\s+order/, /place\s+an?\s*order/, /i\s*want\s+to\s+buy/
+      /can\s+i\s+(make\s+)?(an\s+)?order/, /want\s+to\s+order/, /place\s+(an?|my)\s*order/, /i\s*want\s+to\s+buy/
     ])) score += 5;
     if (/ممكن/.test(norm) && /اعمل|اطلب|اشتري|اجيب|اوردر|طلب/.test(norm)) score += 4;
     if (/عايز|عاوز|عايزه|عاوزه|حابب|حابه/.test(norm) && /طلب|اوردر|اشتري|اجيب|هاخد|اطلب/.test(norm)) score += 4;
@@ -235,6 +235,26 @@ window.MontanaChatIntent = (function () {
     return 0;
   }
 
+  function scoreResults(norm) {
+    if (hasAny(norm, [/امتى\s*النتيج/, /كام\s*يوم/, /كام\s*اسبوع/, /بتفرق/, /النتيجه\s*امتى/, /هتفرق/, /how\s*long/, /when\s*will/, /results/, /بتبان\s*امتى/, /امتى\s*هتبان/, /امتى\s*بتبان/])) return 6;
+    return 0;
+  }
+
+  function scoreReturn(norm) {
+    if (hasAny(norm, [/مرتجع/, /استرجاع/, /ارجع/, /ترجيع/, /ارجاع/, /\breturn\b/, /\brefund\b/, /رجع\s*المنتج/, /سياسه\s*الاسترجاع/])) return 6;
+    return 0;
+  }
+
+  function scorePayment(norm) {
+    if (hasAny(norm, [/طرق\s*الدفع/, /فودافون\s*كاش/, /انستاباي/, /فيزا/, /\bpayment\b/, /ادفع\s*ازاي/, /طريقه\s*الدفع/, /vodafone\s*cash/, /instapay/])) return 6;
+    return 0;
+  }
+
+  function scoreHelp(norm) {
+    if (hasAny(norm, [/مساعد/, /\bhelp\b/, /مش\s*فاهم/, /ازاي\s*اطلب/, /مش\s*عارف/, /ايه\s*ده/, /فين\s*المنتجات/, /ازاي\s*استخدم\s*الموقع/])) return 5;
+    return 0;
+  }
+
   function pickConcern(scores, norm) {
     var all = pickAllConcerns(scores, norm);
     return all.length ? all[0] : null;
@@ -281,7 +301,11 @@ window.MontanaChatIntent = (function () {
       laser: scoreLaser(norm),
       sensitive: scoreSensitive(norm),
       recommend: scoreRecommend(norm),
-      suitability: scoreSuitability(norm)
+      suitability: scoreSuitability(norm),
+      results: scoreResults(norm),
+      returnPolicy: scoreReturn(norm),
+      payment: scorePayment(norm),
+      help: scoreHelp(norm)
     };
 
     if (ctx.collectingOrder && scores.recommend < 5 && scores.productInquiry < 5) {
@@ -331,6 +355,10 @@ window.MontanaChatIntent = (function () {
       isRecommend: scores.recommend >= 5 || scores.suitability >= 5,
       isFace: /وش|وجه|face|فيس/.test(norm),
       isBody: /جسم|ايد|ايدين|ركبه|مرفق|ابط|body|hand/.test(norm),
+      isResults: scores.results >= 5,
+      isReturn: scores.returnPolicy >= 5,
+      isPayment: scores.payment >= 5,
+      isHelp: scores.help >= 4,
       concern: concern,
       concerns: concerns
     };
