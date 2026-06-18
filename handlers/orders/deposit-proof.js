@@ -1,7 +1,7 @@
 'use strict';
 
 const { sendTelegramPhoto, resolveTelegramConfig, setTelegramWebhook } = require('../../lib/telegram');
-const { createProof } = require('../../lib/deposit-proofs');
+const { createProof, buildApproveUrl } = require('../../lib/deposit-proofs');
 const { setCors, sendJson, readJsonBody } = require('../../lib/http');
 
 function buildCaption(body, proofId) {
@@ -17,6 +17,8 @@ function buildCaption(body, proofId) {
   if (body.total != null) lines.push('إجمالي الأوردر: ' + body.total + ' جنيه');
   lines.push('🆔 ' + proofId);
   lines.push('👇 ردّي «تم» على الصورة دي لتفعيل زر تأكيد الأوردر للعميل');
+  var approveUrl = buildApproveUrl(proofId);
+  if (approveUrl) lines.push('🔗 أو افتحي الرابط للموافقة:\n' + approveUrl);
   return lines.join('\n').slice(0, 1024);
 }
 
@@ -92,11 +94,7 @@ async function handler(req, res) {
     });
   } catch (err) {
     console.error('[api/orders/deposit-proof]', err);
-    var msg = err.message || 'Internal server error';
-    if (/SUPABASE|supabase/i.test(msg)) {
-      msg = 'لازم Supabase يكون مضبوط — شغّلي migration 003_deposit_proofs.sql';
-    }
-    sendJson(res, 500, { ok: false, error: msg });
+    sendJson(res, 500, { ok: false, error: err.message || 'Internal server error' });
   }
 }
 

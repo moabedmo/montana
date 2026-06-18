@@ -23,6 +23,7 @@ const sendMessageHandler = require('./handlers/messages/social');
 const depositSettingsHandler = require('./handlers/settings/deposit');
 const depositProofHandler = require('./handlers/orders/deposit-proof');
 const depositStatusHandler = require('./handlers/orders/deposit-status');
+const depositApproveHandler = require('./handlers/orders/deposit-approve');
 const orderNotifyHandler = require('./handlers/orders/notify');
 const telegramWebhookHandler = require('./handlers/webhooks/telegram');
 const telegramSendHandler = require('./handlers/telegram/send');
@@ -48,6 +49,7 @@ const API_ROUTES = {
   '/api/settings/deposit': depositSettingsHandler,
   '/api/orders/deposit-proof': depositProofHandler,
   '/api/orders/deposit-status': depositStatusHandler,
+  '/api/orders/deposit-approve': depositApproveHandler,
   '/api/orders/notify': orderNotifyHandler,
   '/api/webhooks/telegram': telegramWebhookHandler,
   '/api/telegram/send': telegramSendHandler,
