@@ -4,5 +4,4 @@ dist
 .env.*
 montana_*.html
 index_backup.html
-*.png
 data/
