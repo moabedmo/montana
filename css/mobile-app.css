@@ -86,7 +86,11 @@
   }
 
   body.app-mode #chat-window {
-    bottom: calc(var(--app-tab-h) + var(--app-safe-bottom) + 72px) !important;
+    bottom: 0 !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    z-index: 100000 !important;
   }
 
   /* ── App header ── */

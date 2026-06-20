@@ -758,11 +758,14 @@
   #chat-window {
     bottom: 0;
     right: 0;
+    left: 0;
     width: 100vw;
     max-width: 100vw;
     height: 100dvh;
     max-height: 100dvh;
     border-radius: 0;
+    padding-top: env(safe-area-inset-top, 0);
+    padding-bottom: env(safe-area-inset-bottom, 0);
   }
 
   #chat-window::before {
@@ -771,6 +774,8 @@
 
   #chat-header {
     border-radius: 0;
+    padding: 12px 14px;
+    padding-top: calc(12px + env(safe-area-inset-top, 0));
   }
 
   #chat-btn-wrap {
@@ -780,5 +785,100 @@
 
   .msg {
     max-width: 88%;
+    font-size: 14px;
+    padding: 9px 12px;
+    line-height: 1.6;
+  }
+
+  .qr-btn {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .chat-add-cart-btn {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+
+  #chat-input-area {
+    padding: 10px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0));
+    gap: 6px;
+  }
+
+  #chat-input {
+    font-size: 14px;
+    padding: 9px 12px;
+  }
+
+  #chat-send {
+    padding: 9px 12px;
+    font-size: 15px;
+  }
+
+  #chat-attach {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  #chat-messages {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .order-confirm {
+    padding: 12px;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  .order-confirm .oc-deposit-info {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  .order-confirm .oc-deposit-upload {
+    padding: 9px;
+    font-size: 13px;
+  }
+
+  .order-confirm button {
+    padding: 9px;
+    font-size: 14px;
+  }
+
+  #chat-order-sheet {
+    max-height: 60%;
+    padding: 10px;
+  }
+
+  #chat-order-sheet .cos-field input {
+    font-size: 14px;
+    padding: 9px 10px;
+  }
+
+  .quick-replies {
+    gap: 5px;
+  }
+}
+
+@media (max-width: 380px) {
+  .msg {
+    max-width: 92%;
+    font-size: 13px;
+  }
+
+  #chat-header .info .name {
+    font-size: 13px;
+  }
+
+  #chat-header .info .status {
+    font-size: 12px;
+  }
+
+  .qr-btn {
+    font-size: 11px;
+    padding: 4px 8px;
   }
 }
