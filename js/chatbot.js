@@ -642,11 +642,11 @@ window.MontanaChatbot = (function () {
       return buildProductPicker(lang);
     }
     orderData.items = resolveProducts(picked.map(function (p) { return p.nameAr; }));
-    orderStep = 'confirm_or_add';
+    orderStep = 'name';
     var list = productNamesList(picked, lang);
     return lang === 'en'
-      ? 'Perfect! Added: ' + list + '.\n\nWould you like to add another product or proceed with the order?'
-      : 'تمام! 💜 ضفنا: ' + list + '.\n\nتحبي تضيفي منتج تاني ولا نجهّز الأوردر؟';
+      ? 'Perfect! Added: ' + list + '.\n\nWhat\'s your full name?'
+      : 'تمام! 💜 ضفنا: ' + list + '.\n\nاسمك بالكامل إيه؟';
   }
 
   function handleOrderStep(text, lang, intent) {
