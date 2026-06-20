@@ -493,24 +493,7 @@ window.MontanaProductStage = (function () {
   }
 
   function animateEntrance(el) {
-    if (!el || !window.gsap) return;
-    var isStory = el.classList.contains('pp-vis') || el.classList.contains('ps-host--story') || !!el.querySelector('.pp-imgwrap');
-    var stage = el.querySelector('.ps-stage, .pp-stage');
-    var floatEl = el.querySelector('.ps-float, .pp-float');
-    var ped = el.querySelector('.ps-pedestal, .pp-pedestal');
-    var spot = el.querySelector('.ps-spotlight, .pp-spotlight');
-    var glass = el.querySelector('.ps-glass-slab');
-    if (spot) gsap.fromTo(spot, { opacity: 0 }, { opacity: 1, duration: 1.1, ease: 'power2.out' });
-    if (stage) gsap.fromTo(stage, { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 0.95, ease: 'power3.out' });
-    if (floatEl && !isStory) {
-      floatEl.style.animationPlayState = 'paused';
-      gsap.fromTo(floatEl, { y: 48, rotationX: 14, scale: 0.86 }, {
-        y: 0, rotationX: 0, scale: 1, duration: 1.15, ease: 'power3.out', delay: 0.06,
-        onComplete: function () { floatEl.style.animationPlayState = ''; }
-      });
-    }
-    if (ped) gsap.fromTo(ped, { opacity: 0, scaleX: 0.55 }, { opacity: 1, scaleX: 1, duration: 0.9, ease: 'power2.out', delay: 0.18 });
-    if (glass) gsap.fromTo(glass, { opacity: 0 }, { opacity: 1, duration: 0.7, ease: 'power2.out', delay: 0.25 });
+    if (!el) return;
   }
 
   return {

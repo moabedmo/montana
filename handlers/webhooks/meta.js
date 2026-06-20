@@ -1,12 +1,13 @@
 'use strict';
 
 const { getSupabase } = require('../../lib/supabase');
-const { extractInboundMessages, sendFacebookMessage, sendInstagramMessage } = require('../../lib/meta');
+const { extractInboundMessages, sendFacebookMessage, sendInstagramMessage, replyToComment } = require('../../lib/meta');
+const { generateReply, saveOrder } = require('../../lib/social-bot');
 const { setCors, sendJson, readJsonBody } = require('../../lib/http');
 
 async function getPlatformSettings(platform) {
-  const supabase = getSupabase();
-  const { data, error } = await supabase
+  var supabase = getSupabase();
+  var { data, error } = await supabase
     .from('montana_settings')
     .select('*')
     .eq('platform', platform)
@@ -18,37 +19,47 @@ async function getPlatformSettings(platform) {
 }
 
 async function storeMessage(msg) {
-  const supabase = getSupabase();
+  var supabase = getSupabase();
   await supabase.from('social_messages').insert({
     platform: msg.platform,
     direction: msg.direction,
     sender_id: msg.sender_id,
     recipient_id: msg.recipient_id,
     message_text: msg.message_text,
+    message_type: msg.message_type || 'message',
+    comment_id: msg.comment_id || null,
+    post_id: msg.post_id || null,
     raw_payload: msg.raw || {}
   });
 }
 
-async function autoReply(inbound) {
-  const settings = await getPlatformSettings(inbound.platform);
+async function handleInbound(inbound) {
+  var settings = await getPlatformSettings(inbound.platform);
   if (!settings || !settings.page_access_token) return;
 
-  const replyText = 'أهلاً! شكراً لتواصلك مع Montana 💜 فريقنا هيرد عليك قريباً.';
-  var result;
+  var isComment = inbound.type === 'comment';
+  var reply = await generateReply(inbound.sender_id, inbound.platform, inbound.message_text, isComment);
 
-  if (inbound.platform === 'facebook' && settings.page_id) {
+  if (reply.order) {
+    await saveOrder(reply.order, inbound.platform, inbound.sender_id);
+  }
+
+  var result;
+  if (isComment && inbound.comment_id) {
+    result = await replyToComment(inbound.comment_id, settings.page_access_token, reply.text);
+  } else if (inbound.platform === 'facebook' && settings.page_id) {
     result = await sendFacebookMessage(
       settings.page_id,
       settings.page_access_token,
       inbound.sender_id,
-      replyText
+      reply.text
     );
   } else if (inbound.platform === 'instagram' && settings.instagram_account_id) {
     result = await sendInstagramMessage(
       settings.instagram_account_id,
       settings.page_access_token,
       inbound.sender_id,
-      replyText
+      reply.text
     );
   }
 
@@ -56,9 +67,12 @@ async function autoReply(inbound) {
     await storeMessage({
       platform: inbound.platform,
       direction: 'outbound',
-      sender_id: inbound.recipient_id,
+      sender_id: inbound.recipient_id || inbound.page_id,
       recipient_id: inbound.sender_id,
-      message_text: replyText,
+      message_text: reply.text,
+      message_type: isComment ? 'comment_reply' : 'message',
+      comment_id: isComment ? inbound.comment_id : null,
+      post_id: isComment ? inbound.post_id : null,
       raw: result.data
     });
   }
@@ -68,10 +82,10 @@ async function handler(req, res) {
   setCors(res);
 
   if (req.method === 'GET') {
-    const mode = req.query && req.query['hub.mode'];
-    const token = req.query && req.query['hub.verify_token'];
-    const challenge = req.query && req.query['hub.challenge'];
-    const verifyToken = process.env.META_WEBHOOK_VERIFY_TOKEN || 'montana_meta_verify';
+    var mode = req.query && req.query['hub.mode'];
+    var token = req.query && req.query['hub.verify_token'];
+    var challenge = req.query && req.query['hub.challenge'];
+    var verifyToken = process.env.META_WEBHOOK_VERIFY_TOKEN || 'montana_meta_verify';
 
     if (mode === 'subscribe' && token === verifyToken && challenge) {
       res.statusCode = 200;
@@ -86,8 +100,8 @@ async function handler(req, res) {
 
   if (req.method === 'POST') {
     try {
-      const body = await readJsonBody(req);
-      const inboundList = extractInboundMessages(body);
+      var body = await readJsonBody(req);
+      var inboundList = extractInboundMessages(body);
 
       for (var i = 0; i < inboundList.length; i++) {
         var msg = inboundList[i];
@@ -95,11 +109,17 @@ async function handler(req, res) {
           platform: msg.platform,
           direction: 'inbound',
           sender_id: msg.sender_id,
-          recipient_id: msg.recipient_id,
+          recipient_id: msg.recipient_id || msg.page_id,
           message_text: msg.message_text,
+          message_type: msg.type || 'message',
+          comment_id: msg.comment_id || null,
+          post_id: msg.post_id || null,
           raw: msg.raw
         });
-        await autoReply(msg);
+
+        handleInbound(msg).catch(function (err) {
+          console.error('[webhook/meta] reply error:', err.message);
+        });
       }
 
       sendJson(res, 200, { ok: true, received: inboundList.length });

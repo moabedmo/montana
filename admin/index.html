@@ -102,6 +102,7 @@ body{background:var(--bg);color:var(--text);font-family:'Alexandria',sans-serif;
     <div class="nav-item" id="nav-products" onclick="showPage('products',this)">المنتجات</div>
     <div class="nav-item" id="nav-orders" onclick="showPage('orders',this)">الاوردرات <span id="orders-badge" style="margin-right:auto;background:var(--purple);color:#fff;padding:2px 8px;font-size:11px;display:none;"></span></div>
     <div class="nav-item" id="nav-homepage" onclick="showPage('homepage',this)">محتوى الرئيسية</div>
+    <div class="nav-item" id="nav-inbox" onclick="showPage('inbox',this)">صندوق الوارد <span id="inbox-badge" style="margin-right:auto;background:var(--purple);color:#fff;padding:2px 8px;font-size:11px;display:none;"></span></div>
     <div class="nav-item" id="nav-telegram" onclick="showPage('telegram',this)">Telegram</div>
     <div class="nav-item" id="nav-settings" onclick="showPage('settings',this)">الاعدادات</div>
     <div class="sidebar-bottom"><button class="logout-btn" onclick="doLogout()">تسجيل الخروج</button></div>
@@ -153,6 +154,40 @@ body{background:var(--bg);color:var(--text);font-family:'Alexandria',sans-serif;
         لو ظهر Unauthorized — حطّي <strong>API Admin Key</strong> من الإعدادات.
       </p>
       <div id="homepage-editor"><p style="color:var(--text-s);">جاري التحميل...</p></div>
+    </div>
+
+    <div class="page" id="page-inbox">
+      <div class="page-header">
+        <h1>صندوق الوارد — Facebook &amp; Instagram</h1>
+        <div style="display:flex;gap:10px;">
+          <select id="inbox-platform-filter" onchange="loadConversations()" style="padding:8px 14px;background:rgba(124,58,237,.08);border:.5px solid var(--border);color:var(--text);font-family:'Alexandria',sans-serif;font-size:13px;">
+            <option value="">الكل</option>
+            <option value="facebook">Facebook</option>
+            <option value="instagram">Instagram</option>
+          </select>
+          <button class="btn btn-outline btn-sm" onclick="loadConversations()">تحديث</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:320px 1fr;gap:16px;min-height:500px;">
+        <div class="card" style="margin:0;overflow-y:auto;max-height:70vh;">
+          <div class="card-title" style="margin-bottom:12px;">المحادثات</div>
+          <div id="conv-list"><p style="color:var(--text-s);font-size:13px;text-align:center;padding:24px;">جاري التحميل...</p></div>
+        </div>
+        <div class="card" style="margin:0;display:flex;flex-direction:column;">
+          <div class="card-title" id="chat-header-title" style="margin-bottom:12px;">اختاري محادثة</div>
+          <div id="chat-messages" style="flex:1;overflow-y:auto;max-height:55vh;padding:8px 0;"></div>
+          <div id="chat-reply-area" style="display:none;margin-top:12px;border-top:.5px solid var(--border);padding-top:12px;">
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="chat-reply-input" placeholder="اكتب رد..." style="flex:1;padding:10px 14px;background:rgba(124,58,237,.06);border:.5px solid var(--border);color:var(--text);font-family:'Alexandria',sans-serif;font-size:13px;" onkeydown="if(event.key==='Enter')sendManualReply()">
+              <button class="btn" onclick="sendManualReply()">ارسال</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <div class="card-title">اوردرات السوشيال ميديا</div>
+        <div id="social-orders-list"><p style="color:var(--text-s);font-size:13px;text-align:center;padding:24px;">جاري التحميل...</p></div>
+      </div>
     </div>
 
     <div class="page" id="page-telegram">
@@ -976,6 +1011,130 @@ window.MONTANA_ADMIN = {
     if(postalEl&&postalEl.checked&&pend.length%5===0&&pend.length>0) await sendToPostal();
     return order.id;
   }
+};
+
+var _inboxSenderId=null;
+var _inboxPlatform=null;
+
+async function loadConversations(){
+  var el=document.getElementById('conv-list');
+  var filter=document.getElementById('inbox-platform-filter').value;
+  try{
+    var url='/api/messages/conversations'+(filter?'?platform='+filter:'');
+    var r=await fetch(url,{headers:socialHeaders()});
+    var data=await r.json();
+    if(!data.ok||!data.conversations||!data.conversations.length){
+      el.innerHTML='<p style="color:var(--text-s);font-size:13px;text-align:center;padding:24px;">لا توجد محادثات</p>';
+      return;
+    }
+    el.innerHTML=data.conversations.map(function(c){
+      var icon=c.platform==='instagram'?'📷':'💬';
+      var time=c.last_time?new Date(c.last_time).toLocaleString('ar-EG'):'';
+      return '<div onclick="openConversation(\''+c.sender_id+'\',\''+c.platform+'\')" style="padding:12px;border-bottom:.5px solid var(--border);cursor:pointer;transition:background .2s;" onmouseover="this.style.background=\'rgba(124,58,237,.12)\'" onmouseout="this.style.background=\'none\'">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">'
+        +'<span style="font-size:13px;font-weight:600;color:var(--purple-l);">'+icon+' '+c.sender_id.slice(0,12)+'...</span>'
+        +'<span style="font-size:10px;color:var(--text-s);">'+c.message_count+' رسالة</span></div>'
+        +'<div style="font-size:12px;color:var(--text-s);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+escHtml(c.last_message||'')+'</div>'
+        +'<div style="font-size:10px;color:var(--text-s);margin-top:4px;">'+time+'</div></div>';
+    }).join('');
+  }catch(e){
+    el.innerHTML='<p style="color:var(--red);font-size:13px;padding:12px;">خطأ في التحميل</p>';
+  }
+  loadSocialOrders();
+}
+
+function escHtml(s){ var d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+async function openConversation(senderId, platform){
+  _inboxSenderId=senderId;
+  _inboxPlatform=platform;
+  var header=document.getElementById('chat-header-title');
+  header.textContent=(platform==='instagram'?'📷 Instagram':'💬 Facebook')+' — '+senderId.slice(0,16)+'...';
+  document.getElementById('chat-reply-area').style.display='block';
+  var msgEl=document.getElementById('chat-messages');
+  msgEl.innerHTML='<p style="color:var(--text-s);text-align:center;">جاري التحميل...</p>';
+  try{
+    var r=await fetch('/api/messages/conversations?sender_id='+senderId+'&platform='+platform,{headers:socialHeaders()});
+    var data=await r.json();
+    if(!data.ok||!data.messages||!data.messages.length){
+      msgEl.innerHTML='<p style="color:var(--text-s);text-align:center;">لا توجد رسائل</p>';
+      return;
+    }
+    msgEl.innerHTML=data.messages.map(function(m){
+      var isOut=m.direction==='outbound';
+      var bg=isOut?'rgba(124,58,237,.2)':'rgba(255,255,255,.06)';
+      var align=isOut?'left':'right';
+      var label=isOut?'🤖 نور':'👤 العميل';
+      var type=m.message_type==='comment'?' (كومنت)':m.message_type==='comment_reply'?' (رد كومنت)':'';
+      var time=m.created_at?new Date(m.created_at).toLocaleString('ar-EG'):'';
+      return '<div style="text-align:'+align+';margin-bottom:8px;">'
+        +'<div style="display:inline-block;max-width:80%;background:'+bg+';padding:10px 14px;border-radius:8px;text-align:right;">'
+        +'<div style="font-size:10px;color:var(--text-s);margin-bottom:4px;">'+label+type+' · '+time+'</div>'
+        +'<div style="font-size:13px;color:var(--text);line-height:1.6;">'+escHtml(m.message_text||'')+'</div>'
+        +'</div></div>';
+    }).join('');
+    msgEl.scrollTop=msgEl.scrollHeight;
+  }catch(e){
+    msgEl.innerHTML='<p style="color:var(--red);text-align:center;">خطأ في التحميل</p>';
+  }
+}
+
+async function sendManualReply(){
+  if(!_inboxSenderId||!_inboxPlatform) return;
+  var input=document.getElementById('chat-reply-input');
+  var text=input.value.trim();
+  if(!text) return;
+  input.value='';
+  try{
+    var r=await fetch('/api/messages/social',{
+      method:'POST',
+      headers:socialHeaders(),
+      body:JSON.stringify({ platform:_inboxPlatform, recipient_id:_inboxSenderId, message:text })
+    });
+    var data=await r.json();
+    if(!data.ok){ showToast(data.error||'فشل الارسال'); return; }
+    showToast('تم الارسال');
+    openConversation(_inboxSenderId,_inboxPlatform);
+  }catch(e){
+    showToast('خطأ في الارسال');
+  }
+}
+
+async function loadSocialOrders(){
+  var el=document.getElementById('social-orders-list');
+  try{
+    var r=await fetch('/api/orders/social',{headers:socialHeaders()});
+    var data=await r.json();
+    if(!data.ok||!data.orders||!data.orders.length){
+      el.innerHTML='<p style="color:var(--text-s);font-size:13px;text-align:center;padding:24px;">لا توجد اوردرات من السوشيال</p>';
+      return;
+    }
+    el.innerHTML=data.orders.map(function(o){
+      var items=(o.items||[]).map(function(i){ return i.name+' x'+i.qty; }).join('، ');
+      var time=o.created_at?new Date(o.created_at).toLocaleString('ar-EG'):'';
+      var badge=o.status==='pending'?'badge-yellow':o.status==='done'?'badge-green':'badge-red';
+      return '<div class="order-card">'
+        +'<div class="order-header"><span class="order-id">'+escHtml(o.id||'')+'</span><span class="order-time">'+time+'</span></div>'
+        +'<div class="order-info">'
+        +'<div class="order-field"><label>الاسم</label><div>'+escHtml(o.name||'')+'</div></div>'
+        +'<div class="order-field"><label>الموبايل</label><div>'+escHtml(o.phone||'')+'</div></div>'
+        +'<div class="order-field"><label>العنوان</label><div>'+escHtml(o.address||'')+'</div></div>'
+        +'</div>'
+        +'<div class="order-products">'+escHtml(items)+' — '+o.total+' جنيه</div>'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">'
+        +'<span class="badge '+badge+'">'+escHtml(o.status||'pending')+'</span>'
+        +'<span style="font-size:11px;color:var(--text-s);">من '+escHtml(o.source||'')+'</span>'
+        +'</div></div>';
+    }).join('');
+  }catch(e){
+    el.innerHTML='<p style="color:var(--red);font-size:13px;padding:12px;">خطأ في التحميل</p>';
+  }
+}
+
+var _origShowPage=showPage;
+showPage=function(page,el){
+  _origShowPage(page,el);
+  if(page==='inbox'){ loadConversations(); }
 };
 </script>
 <script src="/js/homepage-defaults-client.js?v=1"></script>

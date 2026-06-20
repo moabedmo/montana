@@ -674,7 +674,7 @@ function setScene(s){
   }
   _swTimer=setTimeout(()=>{
     const el=ovEls[s];
-    if(el){el.style.display='';el.offsetHeight;el.style.transition='opacity 0.55s ease';el.style.opacity='1';_activeOv=el;}
+    if(el){el.style.display='';el.style.opacity='1';_activeOv=el;}
   },40);
   const filmIdx=s===0?0:s===13?7:Math.ceil(s/2);
   filmDots.forEach((d,i)=>d.classList.toggle('on',i===Math.min(filmIdx,7)));
