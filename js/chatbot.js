@@ -300,8 +300,10 @@ window.MontanaChatbot = (function () {
   function validatePhone(raw, lang) {
     lang = lang || sessionLang;
     var digits = String(raw || '').replace(/\D/g, '');
+    if (digits.indexOf('002') === 0) digits = digits.slice(2);
     if (digits.indexOf('20') === 0 && digits.length >= 12) digits = '0' + digits.slice(2);
     if (digits.length === 10 && digits.charAt(0) === '1') digits = '0' + digits;
+    if (digits.length > 11) digits = digits.slice(0, 11);
     if (!digits.length) return { ok: false, message: lang === 'en' ? 'Please send your mobile number (11 digits).' : 'محتاجة رقم الموبايل — 11 رقم (زي 01012345678).' };
     if (digits.length < 11) return { ok: false, message: lang === 'en' ? 'Number is incomplete — must be 11 digits (' + digits.length + ' sent).' : 'الرقم ناقص — لازم 11 رقم (انتي بعتتي ' + digits.length + '). مثال: 01012345678.' };
     if (digits.length > 11) return { ok: false, message: lang === 'en' ? 'Number too long — must be exactly 11 digits.' : 'الرقم أطول من اللازم — لازم 11 رقم بالظبط.' };
@@ -327,8 +329,8 @@ window.MontanaChatbot = (function () {
     if (t.length < 10 || /[؟?]/.test(t)) return false;
     var norm = window.MontanaChatIntent ? MontanaChatIntent.normalizeText(t) : t.toLowerCase();
     if (/^(مش|ما|ليه|ازاي|كيف|ايه|مين|هطلب)/.test(norm)) return false;
-    if (/شارع|street|ش\.|عمارة|عماره|دور|منطقة|منطقه|حي|مدينة|محافظ|القاهره|القاهرة|الجيزه|الجيزة|الاسكندر|cairo|giza|alex|october|زمالك|nasr|tagamo|شبرا|المعادي|التجمع|6\s*october/i.test(t)) return true;
-    return t.length >= 14 && t.split(/\s+/).filter(Boolean).length >= 2;
+    if (/شارع|street|ش\.|عمارة|عماره|دور|منطقة|منطقه|حي|مدينة|محافظ|القاهره|القاهرة|الجيزه|الجيزة|الاسكندر|cairo|giza|alex|october|زمالك|nasr|tagamo|شبرا|المعادي|التجمع|6\s*october|مصر الجديد|المقطم|حلوان|المنصور|طنطا|دمياط|بورسعيد|الاسماعيلي|اسوان|الاقصر|سوهاج|اسيوط|المنيا|بني سويف|الفيوم/i.test(t)) return true;
+    return t.length >= 18 && t.split(/\s+/).filter(Boolean).length >= 3;
   }
 
   var CANCEL_RE = /(?:الغاء|إلغاء|الغي|لغي|cancel|مش عايز|مش عاوز|بلاش|سيبك|كفايه|كفاية)/i;
@@ -385,6 +387,7 @@ window.MontanaChatbot = (function () {
       '6. Keep replies concise (3–8 sentences unless listing products).',
       '7. Never diagnose medically — cosmetic guidance only.',
       '8. When mentioning a product, always include its price.',
+      '9. DEPOSIT: All orders require 200 EGP booking confirmation (تأكيد حجز) via Vodafone Cash or InstaPay. This amount is DEDUCTED from the total — not extra. If asked about deposit, explain it secures their products and is subtracted from final price.',
       window.MontanaChatKnowledge ? MontanaChatKnowledge.aiKnowledgeBlock(lang, getProducts()) : ''
     ].filter(Boolean);
 
@@ -636,17 +639,34 @@ window.MontanaChatbot = (function () {
   function startOrder(lang) {
     collectingOrder = true;
     sessionPhase = 'ordering';
-    var picked = sessionSuggestedProducts.slice();
-    if (!picked.length) {
-      orderStep = 'product';
-      return buildProductPicker(lang);
+
+    var cartItems = [];
+    if (window.MontanaCart && MontanaCart.getItems) {
+      var ci = MontanaCart.getItems();
+      if (ci && ci.length) {
+        cartItems = ci.map(function (c) {
+          var p = getProducts().find(function (pr) { return pr.id === c.id; });
+          return { name: p ? p.nameAr : c.id, id: c.id, qty: c.qty || 1, price: p ? p.price : 0 };
+        });
+      }
     }
-    orderData.items = resolveProducts(picked.map(function (p) { return p.nameAr; }));
+
+    if (cartItems.length) {
+      orderData.items = cartItems;
+    } else {
+      var picked = sessionSuggestedProducts.slice();
+      if (!picked.length) {
+        orderStep = 'product';
+        return buildProductPicker(lang);
+      }
+      orderData.items = resolveProducts(picked.map(function (p) { return p.nameAr; }));
+    }
+
     orderStep = 'name';
-    var list = productNamesList(picked, lang);
+    var list = orderData.items.map(function (i) { return i.name + ' x' + i.qty; }).join('، ');
     return lang === 'en'
-      ? 'Perfect! Added: ' + list + '.\n\nWhat\'s your full name?'
-      : 'تمام! 💜 ضفنا: ' + list + '.\n\nاسمك بالكامل إيه؟';
+      ? 'Your order: ' + list + '.\n\nWhat\'s your full name?'
+      : 'أوردرك: ' + list + '.\n\nاسمك بالكامل إيه؟';
   }
 
   function handleOrderStep(text, lang, intent) {
@@ -1179,7 +1199,7 @@ window.MontanaChatbot = (function () {
   async function confirmOrder() {
     if (!pendingOrder || isBotBusy) return;
     var strings = str(sessionLang);
-    if (!pendingDepositApproved && !(pendingOrder && pendingOrder.depositApproved)) {
+    if (!pendingDepositApproved) {
       await typeBotMessage(pendingDepositProof ? strings.depositNotApproved : strings.depositRequired, { skipThink: true });
       return;
     }
@@ -1227,7 +1247,7 @@ window.MontanaChatbot = (function () {
     var strings = str(sessionLang);
     document.querySelectorAll('.order-confirm').forEach(function (el) { el.remove(); });
     resetOrderState();
-    sessionPhase = lastCompletedOrder ? 'post_order' : 'chatting';
+    sessionPhase = 'chatting';
     sessionSuggestedProduct = null;
     sessionSuggestedProducts = [];
     pushHistory('model', strings.cancelled);
@@ -1336,7 +1356,11 @@ window.MontanaChatbot = (function () {
     processingQueue = true;
     try {
       while (messageQueue.length) {
-        await processWithAI(messageQueue.shift());
+        try {
+          await processWithAI(messageQueue.shift());
+        } catch (e) {
+          console.error('[chatbot] processWithAI error:', e);
+        }
       }
     } finally {
       processingQueue = false;
@@ -1465,6 +1489,7 @@ window.MontanaChatbot = (function () {
     if (close) close.addEventListener('click', toggleChat);
     if (send) send.addEventListener('click', sendMessage);
     if (input) input.addEventListener('keydown', function (e) { if (e.key === 'Enter') sendMessage(); });
+    if (input) input.addEventListener('input', function () { if (input.value.trim()) document.querySelectorAll('.quick-replies').forEach(function (el) { el.remove(); }); });
     bindImageAttach();
   }
 
