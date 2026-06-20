@@ -71,7 +71,11 @@ window.MontanaShop = (function () {
       depositFailed: 'Could not upload proof — try again',
       orderThanks: 'Thank you', orderSub: 'Your order has been received. We\'ll contact you shortly to confirm delivery.',
       orderBack: 'Back to Collection', orderStory: 'Return to Story',
-      footerPrivacy: 'Privacy Policy'
+      footerPrivacy: 'Privacy Policy',
+      trustBar: 'EDA Licensed · Tax Reg. 754-091-953 · C.R. 31096',
+      credEda: 'EDA License: COSMTOL25117170',
+      credTax: 'Tax ID: 754-091-953',
+      credCr: 'C.R.: 31096'
     },
     ar: {
       navStory: 'القصة', navShop: 'المتجر', navIngredients: 'المكونات', navCart: 'الشنطة',
@@ -120,7 +124,11 @@ window.MontanaShop = (function () {
       depositFailed: 'مش قدرنا نرفع الصورة — جرّبي تاني',
       orderThanks: 'شكرًا ليكي', orderSub: 'استلمنا طلبك. هنتواصل معاكي قريبًا لتأكيد التوصيل.',
       orderBack: 'رجوع للمتجر', orderStory: 'ارجعي للقصة',
-      footerPrivacy: 'سياسة الخصوصية'
+      footerPrivacy: 'سياسة الخصوصية',
+      trustBar: 'مرخّص من هيئة الدواء المصرية · بطاقة ضريبية 754-091-953 · سجل تجاري 31096',
+      credEda: 'ترخيص هيئة الدواء: COSMTOL25117170',
+      credTax: 'البطاقة الضريبية: 754-091-953',
+      credCr: 'السجل التجاري: 31096'
     }
   };
 
