@@ -25,6 +25,34 @@ window.MontanaChatbot = (function () {
   var processingQueue = false;
   var pendingChatImage = null;
   var chatAiEnabled = null;
+  var CUSTOMER_KEY = 'mn_customer';
+
+  function saveCustomer(order) {
+    try {
+      var existing = JSON.parse(localStorage.getItem(CUSTOMER_KEY) || '{}');
+      existing.name = order.name || existing.name;
+      existing.phone = order.phone || existing.phone;
+      existing.address = order.address || existing.address;
+      var orders = existing.orders || [];
+      orders.push({ id: order.id, items: order.items, total: order.total, time: new Date().toISOString(), status: 'pending' });
+      if (orders.length > 10) orders = orders.slice(-10);
+      existing.orders = orders;
+      localStorage.setItem(CUSTOMER_KEY, JSON.stringify(existing));
+    } catch (e) {}
+  }
+
+  function loadCustomer() {
+    try { return JSON.parse(localStorage.getItem(CUSTOMER_KEY) || 'null'); } catch (e) { return null; }
+  }
+
+  function updateOrderStatus(orderId, status) {
+    try {
+      var c = loadCustomer();
+      if (!c || !c.orders) return;
+      c.orders.forEach(function (o) { if (String(o.id) === String(orderId)) o.status = status; });
+      localStorage.setItem(CUSTOMER_KEY, JSON.stringify(c));
+    } catch (e) {}
+  }
 
   // ─── Strings ─────────────────────────────────────────────────────────
   var L = {
@@ -70,7 +98,13 @@ window.MontanaChatbot = (function () {
     addedToCart: 'تم إضافة {product} للسلة! 🛒',
     addToCartBtn: '🛒 أضف للسلة',
     cartContinue: 'عايزة حاجة تانية',
-    cartOrder: 'ننفذ الأوردر'
+    cartOrder: 'ننفذ الأوردر',
+    welcomeBack: 'أهلاً تاني يا {name}! 💜 أنا نور — منورّاني.\n\nآخر أوردر ليكي: #{id} ({items}).\n\nمحتاجة حاجة تانية ولا عاوزة تعدّلي في أوردرك؟',
+    welcomeBackReplies: ['عاوزة أطلب تاني', 'تعديل الأوردر', 'إلغاء أوردر', 'عندي سؤال'],
+    orderCancelled: 'تم إلغاء الأوردر #{id} بنجاح. لو عاوزة تطلبي تاني أنا هنا 💜',
+    orderNotFound: 'مش لاقية أوردر بالرقم ده. قوليلي رقم الأوردر وأنا أبحثلك.',
+    orderModifyAsk: 'أوردرك #{id}:\n{items}\n\nعاوزة تعدّلي إيه؟ (شيلي منتج، ضيفي منتج، أو غيّري العنوان)',
+    orderStatusPending: 'أوردرك #{id} لسه في الانتظار — محدش لمسه. تقدري تعدّلي أو تلغي.'
   };
 
   var LE = {
@@ -113,7 +147,13 @@ window.MontanaChatbot = (function () {
     addedToCart: '{product} added to cart! 🛒',
     addToCartBtn: '🛒 Add to Cart',
     cartContinue: 'I want something else',
-    cartOrder: 'Place my order'
+    cartOrder: 'Place my order',
+    welcomeBack: 'Welcome back {name}! 💜 I\'m Nour.\n\nYour last order: #{id} ({items}).\n\nNeed anything else or want to modify your order?',
+    welcomeBackReplies: ['Order again', 'Modify order', 'Cancel order', 'I have a question'],
+    orderCancelled: 'Order #{id} has been cancelled. Feel free to order again anytime 💜',
+    orderNotFound: 'I couldn\'t find that order. Tell me the order number and I\'ll look it up.',
+    orderModifyAsk: 'Your order #{id}:\n{items}\n\nWhat would you like to change? (remove product, add product, or change address)',
+    orderStatusPending: 'Your order #{id} is still pending — you can modify or cancel it.'
   };
 
   // ─── Helpers ─────────────────────────────────────────────────────────
@@ -862,6 +902,60 @@ window.MontanaChatbot = (function () {
       }
     }
 
+    // 2c. Order management (cancel/modify)
+    if (!collectingOrder) {
+      var cancelMatch = userText.match(/إلغاء أوردر|الغاء اوردر|cancel order|إلغاء الأوردر|الغي الاوردر|الغاء الاوردر/i);
+      var modifyMatch = userText.match(/تعديل.*أوردر|تعديل.*اوردر|modify order|عدّل.*أوردر|غيّر.*أوردر|تعديل الأوردر/i);
+      var statusMatch = userText.match(/حالة.*أوردر|حالة.*اوردر|order status|فين.*أوردر|فين.*اوردر/i);
+      var customer = loadCustomer();
+
+      if ((cancelMatch || modifyMatch || statusMatch) && customer && customer.orders && customer.orders.length) {
+        var lastOrder = customer.orders[customer.orders.length - 1];
+
+        if (cancelMatch) {
+          if (lastOrder.status === 'pending') {
+            updateOrderStatus(lastOrder.id, 'cancelled');
+            var orders = JSON.parse(localStorage.getItem('mn_or') || '[]');
+            orders.forEach(function (o) { if (String(o.id) === String(lastOrder.id)) o.status = 'cancelled'; });
+            localStorage.setItem('mn_or', JSON.stringify(orders));
+            return {
+              reply: strings.orderCancelled.replace('{id}', lastOrder.id),
+              action: 'chat', lang: lang
+            };
+          }
+          return {
+            reply: lang === 'en'
+              ? 'Order #' + lastOrder.id + ' status is "' + lastOrder.status + '" — it can\'t be cancelled now. Contact us for help.'
+              : 'أوردر #' + lastOrder.id + ' حالته "' + lastOrder.status + '" — مش ممكن نلغيه دلوقتي. تواصلي معانا.',
+            action: 'chat', lang: lang
+          };
+        }
+
+        if (modifyMatch) {
+          if (lastOrder.status === 'pending') {
+            var items = (lastOrder.items || []).map(function (i) { return i.name + ' x' + (i.qty || 1); }).join('\n');
+            return {
+              reply: strings.orderModifyAsk.replace('{id}', lastOrder.id).replace('{items}', items),
+              action: 'chat', lang: lang
+            };
+          }
+          return {
+            reply: lang === 'en'
+              ? 'Order #' + lastOrder.id + ' can\'t be modified — status: "' + lastOrder.status + '". Contact us for help.'
+              : 'أوردر #' + lastOrder.id + ' مش ممكن نعدّله — حالته: "' + lastOrder.status + '". تواصلي معانا.',
+            action: 'chat', lang: lang
+          };
+        }
+
+        if (statusMatch) {
+          return {
+            reply: strings.orderStatusPending.replace('{id}', lastOrder.id),
+            action: 'chat', lang: lang
+          };
+        }
+      }
+    }
+
     // 3. Quick local intents
     if (!opts.images || !opts.images.length) {
       if (THANKS_RE.test(String(userText).trim())) {
@@ -1228,8 +1322,10 @@ window.MontanaChatbot = (function () {
       var savedMsg = strings.saved.replace('{id}', orderId).replace('{phone}', pendingOrder.phone);
       lastCompletedOrder = {
         id: orderId, name: pendingOrder.name, phone: pendingOrder.phone,
-        address: pendingOrder.address, items: pendingOrder.items.slice()
+        address: pendingOrder.address, items: pendingOrder.items.slice(),
+        total: pendingOrder.items.reduce(function (s, i) { return s + (i.price || 0) * (i.qty || 1); }, 0)
       };
+      saveCustomer(lastCompletedOrder);
       sessionPhase = 'post_order';
       resetOrderState();
       history = [
@@ -1462,10 +1558,24 @@ window.MontanaChatbot = (function () {
     orderStep = 'idle';
     sessionLang = siteLang();
     var strings = str(sessionLang);
-    pushHistory('model', strings.welcome);
-    typeBotMessage(strings.welcome, { userText: '', skipThink: false }).then(function () {
-      showQuickReplies(strings.quickReplies);
-    });
+    var customer = loadCustomer();
+    if (customer && customer.name && customer.orders && customer.orders.length) {
+      var last = customer.orders[customer.orders.length - 1];
+      var itemsList = (last.items || []).map(function (i) { return i.name + ' x' + (i.qty || 1); }).join('، ');
+      var msg = strings.welcomeBack
+        .replace('{name}', customer.name)
+        .replace('{id}', last.id || '?')
+        .replace('{items}', itemsList);
+      pushHistory('model', msg);
+      typeBotMessage(msg, { userText: '', skipThink: false }).then(function () {
+        showQuickReplies(strings.welcomeBackReplies);
+      });
+    } else {
+      pushHistory('model', strings.welcome);
+      typeBotMessage(strings.welcome, { userText: '', skipThink: false }).then(function () {
+        showQuickReplies(strings.quickReplies);
+      });
+    }
   }
 
   // ─── Bind UI ─────────────────────────────────────────────────────────
