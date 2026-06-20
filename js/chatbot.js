@@ -861,6 +861,11 @@ window.MontanaChatbot = (function () {
       }
     }
 
+    // 3b. "عايزة حاجة تانية" — show product catalog
+    if (!collectingOrder && /حاجة تان|حاجه تان|منتج تان|something else|another product/i.test(userText)) {
+      return { reply: buildProductPicker(lang), action: 'chat', lang: lang };
+    }
+
     // 4. Start order
     if (!collectingOrder && (wantsToOrder(userText, intent) || (intent.isAffirm && sessionSuggestedProducts.length)) && !isBrowsingQuestion(intent)) {
       return { reply: startOrder(lang), action: 'chat', lang: lang };
