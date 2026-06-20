@@ -664,13 +664,21 @@ window.MontanaChatbot = (function () {
         if (cp) productPick = [cp];
       }
       if (productPick.length) {
-        orderData.items = resolveProducts(productPick.map(function (p) { return p.nameAr; }));
+        var existing = orderData.items || [];
+        var newItems = resolveProducts(productPick.map(function (p) { return p.nameAr; }));
+        newItems.forEach(function (ni) {
+          var found = existing.find(function (e) { return e.id === ni.id; });
+          if (found) { found.qty = (found.qty || 1) + 1; }
+          else { existing.push(ni); }
+        });
+        orderData.items = existing;
         rememberProducts(productPick);
         orderStep = 'confirm_or_add';
+        var allNames = existing.map(function (i) { return i.name + ' x' + i.qty; }).join('، ');
         return {
           reply: lang === 'en'
-            ? 'Added: ' + productNamesList(productPick, lang) + '.\n\nWould you like to add another product or proceed with the order?'
-            : 'تمام! 💜 ضفنا: ' + productNamesList(productPick, lang) + '.\n\nتحبي تضيفي منتج تاني ولا نجهّز الأوردر؟',
+            ? 'Added: ' + productNamesList(productPick, lang) + '.\nYour cart: ' + allNames + '.\n\nWould you like to add another product or proceed with the order?'
+            : 'تمام! 💜 ضفنا: ' + productNamesList(productPick, lang) + '.\nسلتك: ' + allNames + '.\n\nتحبي تضيفي منتج تاني ولا نجهّز الأوردر؟',
           quickReplies: lang === 'en'
             ? ['Add another product', 'Proceed with order']
             : ['أضيفي منتج تاني', 'جهّزي الأوردر']
