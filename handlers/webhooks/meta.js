@@ -3,6 +3,8 @@
 const { getSupabase } = require('../../lib/supabase');
 const { extractInboundMessages, sendFacebookMessage, sendInstagramMessage, replyToComment } = require('../../lib/meta');
 const { generateReply, saveOrder } = require('../../lib/social-bot');
+const { sendTelegramPhotoUrl, resolveTelegramConfig } = require('../../lib/telegram');
+const { createProof } = require('../../lib/deposit-proofs');
 const { setCors, sendJson, readJsonBody } = require('../../lib/http');
 
 async function getPlatformSettings(platform) {
@@ -33,9 +35,75 @@ async function storeMessage(msg) {
   });
 }
 
+async function handleDepositImage(inbound, settings) {
+  var cfg = resolveTelegramConfig();
+  if (!cfg.token || !cfg.chatId) return false;
+
+  var supabase = getSupabase();
+  var { data: lastOrder } = await supabase
+    .from('social_orders')
+    .select('*')
+    .eq('social_sender_id', inbound.sender_id)
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  var proofId = 'dp_' + Date.now();
+  var caption = '💰 تأكيد حجز — Montana\n' +
+    'المصدر: ' + inbound.platform + '\n' +
+    (lastOrder ? 'الاسم: ' + (lastOrder.name || '—') + '\nالموبايل: ' + (lastOrder.phone || '—') + '\nالعنوان: ' + (lastOrder.address || '—') + '\n' : '') +
+    (lastOrder && lastOrder.total ? 'الإجمالي: ' + lastOrder.total + ' جنيه\n' : '') +
+    '👇 اضغطي «✅ موافقة» أو ردّي «تم»';
+
+  var keyboard = { inline_keyboard: [[ { text: '✅ موافقة', callback_data: 'approve:' + proofId } ]] };
+
+  var photo = await sendTelegramPhotoUrl(cfg.token, cfg.chatId, inbound.image_url, caption, keyboard);
+  if (!photo.ok) return false;
+
+  await createProof({
+    id: proofId,
+    source: inbound.platform,
+    name: lastOrder ? lastOrder.name : '',
+    phone: lastOrder ? lastOrder.phone : '',
+    address: lastOrder ? lastOrder.address : '',
+    itemsSummary: lastOrder && lastOrder.items ? lastOrder.items.map(function (i) { return i.name + ' x' + i.qty; }).join(', ') : '',
+    total: lastOrder ? lastOrder.total : null,
+    telegramMessageId: photo.data && photo.data.message_id,
+    telegramChatId: cfg.chatId
+  });
+
+  var replyText = 'تم استلام صورة التحويل 💜 جاري المراجعة — هنأكدلك في أقرب وقت!';
+  if (inbound.platform === 'facebook' && settings.page_id) {
+    await sendFacebookMessage(settings.page_id, settings.page_access_token, inbound.sender_id, replyText);
+  } else if (inbound.platform === 'instagram' && settings.instagram_account_id) {
+    await sendInstagramMessage(settings.instagram_account_id, settings.page_access_token, inbound.sender_id, replyText);
+  }
+
+  await storeMessage({
+    platform: inbound.platform,
+    direction: 'outbound',
+    sender_id: inbound.page_id,
+    recipient_id: inbound.sender_id,
+    message_text: replyText,
+    raw: {}
+  });
+
+  return true;
+}
+
 async function handleInbound(inbound) {
   var settings = await getPlatformSettings(inbound.platform);
   if (!settings || !settings.page_access_token) return;
+
+  if (inbound.image_url) {
+    var textHint = (inbound.message_text || '').toLowerCase();
+    var isDeposit = !textHint || /تحويل|إيصال|ايصال|صورة|proof|transfer|deposit|payment|فودافون|instapay|كاش|حجز/.test(textHint);
+    if (isDeposit) {
+      await handleDepositImage(inbound, settings);
+      return;
+    }
+  }
 
   var isComment = inbound.type === 'comment';
   var reply = await generateReply(inbound.sender_id, inbound.platform, inbound.message_text, isComment);
