@@ -180,3 +180,45 @@ html[lang="ar"] .site-footer-copy {
 #index-footer.site-footer {
   margin-top: 0;
 }
+
+.footer-credentials {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 20px;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 0.5px solid rgba(124, 58, 237, 0.12);
+}
+
+.footer-cred-item {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(167, 139, 250, 0.35);
+  white-space: nowrap;
+}
+
+html[lang="ar"] .footer-cred-item {
+  font-family: var(--font-ar-body, 'Alexandria', sans-serif);
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 11px;
+}
+
+.nav-trust {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(167, 139, 250, 0.32);
+  white-space: nowrap;
+}
+
+html[lang="ar"] .nav-trust {
+  font-family: var(--font-ar-body, 'Alexandria', sans-serif);
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 10px;
+}
