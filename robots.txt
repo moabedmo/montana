@@ -11,4 +11,7 @@ Disallow: /montana_v2.html
 Disallow: /montana_arabic_v2.html
 Disallow: /montana_bilingual*
 
-Sitemap: https://montananaturals.com/sitemap.xml
+Disallow: /admin/
+Disallow: /api/
+
+Sitemap: https://montana-eta.vercel.app/sitemap.xml

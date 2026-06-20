@@ -173,8 +173,14 @@ const server = http.createServer(async function (req, res) {
   const pathname = url.pathname;
 
   if (API_ROUTES[pathname]) {
+    const MAX_BODY = 12 * 1024 * 1024;
     const chunks = [];
-    req.on('data', function (chunk) { chunks.push(chunk); });
+    var bodySize = 0;
+    req.on('data', function (chunk) {
+      bodySize += chunk.length;
+      if (bodySize > MAX_BODY) { req.destroy(); return; }
+      chunks.push(chunk);
+    });
     req.on('end', async function () {
       const bodyBuffer = Buffer.concat(chunks);
       const expressReq = toExpressLikeReq(req, bodyBuffer);
@@ -195,7 +201,7 @@ const server = http.createServer(async function (req, res) {
     return;
   }
 
-  var filePath = path.join(ROOT, pathname === '/' ? 'index.html' : pathname);
+  var filePath = path.resolve(path.normalize(path.join(ROOT, pathname === '/' ? 'index.html' : pathname)));
   if (!filePath.startsWith(ROOT)) {
     res.statusCode = 403;
     res.end('Forbidden');

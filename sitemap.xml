@@ -1,54 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- غيّري montananaturals.com لدومينك الفعلي -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://montananaturals.com/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://montananaturals.com/index.html"/>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://montananaturals.com/index.html"/>
+    <loc>https://montana-eta.vercel.app/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://montana-eta.vercel.app/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://montana-eta.vercel.app/"/>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://montananaturals.com/shop.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://montananaturals.com/shop.html"/>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://montananaturals.com/shop.html"/>
+    <loc>https://montana-eta.vercel.app/shop.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://montana-eta.vercel.app/shop.html"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://montana-eta.vercel.app/shop.html"/>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://montananaturals.com/ingredients.html</loc>
+    <loc>https://montana-eta.vercel.app/ingredients.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://montananaturals.com/product.html#acne-cleanser</loc>
+    <loc>https://montana-eta.vercel.app/product.html?id=acne-cleanser</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://montananaturals.com/product.html#whitening-cleanser</loc>
+    <loc>https://montana-eta.vercel.app/product.html?id=whitening-cleanser</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://montananaturals.com/product.html#whitening-cream</loc>
+    <loc>https://montana-eta.vercel.app/product.html?id=whitening-cream</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://montananaturals.com/product.html#body-lotion</loc>
+    <loc>https://montana-eta.vercel.app/product.html?id=body-lotion</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://montananaturals.com/product.html#post-laser</loc>
+    <loc>https://montana-eta.vercel.app/product.html?id=post-laser</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://montananaturals.com/product.html#anti-scar</loc>
+    <loc>https://montana-eta.vercel.app/product.html?id=anti-scar</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://montana-eta.vercel.app/privacy-policy.html</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>

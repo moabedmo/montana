@@ -75,7 +75,7 @@ async function handler(req, res) {
       '<meta name="viewport" content="width=device-width,initial-scale=1">' +
       '<title>Montana — تمت الموافقة</title></head><body style="font-family:sans-serif;text-align:center;padding:40px 20px;background:#1a1030;color:#fff">' +
       '<h1 style="color:#10B981">✅ تمت الموافقة</h1>' +
-      '<p>العميل <strong>' + (approved.name || '') + '</strong> يقدر يأكّد الأوردر دلوقتي.</p>' +
+      '<p>العميل <strong>' + String(approved.name || '').replace(/[<>&"]/g, function (c) { return '&#' + c.charCodeAt(0) + ';'; }) + '</strong> يقدر يأكّد الأوردر دلوقتي.</p>' +
       '</body></html>'
     );
   } catch (err) {

@@ -169,6 +169,16 @@ async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       var body = await readJsonBody(req);
+      var appSecret = process.env.META_APP_SECRET;
+      if (appSecret && req.headers['x-hub-signature-256']) {
+        var crypto = require('crypto');
+        var rawBody = JSON.stringify(body);
+        var expected = 'sha256=' + crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex');
+        if (req.headers['x-hub-signature-256'] !== expected) {
+          sendJson(res, 403, { error: 'Invalid signature' });
+          return;
+        }
+      }
       var inboundList = extractInboundMessages(body);
 
       for (var i = 0; i < inboundList.length; i++) {
