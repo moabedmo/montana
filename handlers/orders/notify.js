@@ -21,7 +21,7 @@ function buildOrderMessage(body) {
     }).join(', '));
   }
   if (o.total != null) lines.push('الإجمالي: ' + o.total + ' جنيه');
-  if (o.depositAmount) lines.push('العربون: ' + o.depositAmount + ' جنيه ✓');
+  if (o.depositAmount) lines.push('تأكيد الحجز: ' + o.depositAmount + ' جنيه ✓');
   if (o.time) lines.push('الوقت: ' + o.time);
   return lines.join('\n');
 }

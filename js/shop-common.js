@@ -108,7 +108,7 @@ window.MontanaShop = (function () {
       address: 'العنوان', notes: 'ملاحظات',
       payment: 'طريقة الدفع', cod: 'الدفع عند الاستلام', card: 'بطاقة (قريبًا)',
       placeOrder: 'أكّدي الطلب',
-      depositTitle: 'عربون 200 جنيه',
+      depositTitle: 'تأكيد حجز 200 جنيه',
       depositUpload: 'رفع صورة التحويل',
       depositWaiting: 'تم إرسال الصورة — في انتظار موافقة المسؤول',
       depositApproved: 'تمت الموافقة — أكّدي الطلب',

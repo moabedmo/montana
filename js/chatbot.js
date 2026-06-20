@@ -50,7 +50,7 @@ window.MontanaChatbot = (function () {
     currency: 'جنيه',
     confirmBtn: 'تأكيد الأوردر',
     cancelBtn: 'إلغاء',
-    depositTitle: 'عربون 200 جنيه',
+    depositTitle: 'تأكيد حجز 200 جنيه',
     depositHint: 'حوّلي 200 جنيه وارفعي صورة التحويل — المسؤول يوافق على تليجرام وبعدين يتفعّل التأكيد.',
     depositUpload: '📷 رفع صورة التحويل',
     depositWaiting: '⏳ تم إرسال الصورة — في انتظار موافقة المسؤول',

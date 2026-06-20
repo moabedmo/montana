@@ -7,7 +7,7 @@ const { setCors, sendJson, readJsonBody } = require('../../lib/http');
 function buildCaption(body, proofId) {
   var amount = Number(process.env.ORDER_DEPOSIT_AMOUNT) || 200;
   var lines = [
-    '💰 عربون ' + amount + ' جنيه — Montana',
+    '💰 تأكيد حجز ' + amount + ' جنيه — Montana',
     'المصدر: ' + (body.source === 'shop' ? 'المتجر' : 'الشات'),
     'الاسم: ' + (body.name || '—'),
     'الموبايل: ' + (body.phone || '—'),

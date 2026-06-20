@@ -2,7 +2,7 @@
 window.MontanaDeposit = (function () {
   var DEPOSIT_AMOUNT = 200;
   var paymentInfo = {
-    ar: 'حوّلي 200 جنيه عربون (فودافون كاش أو InstaPay) وارفعي صورة التحويل قبل تأكيد الأوردر.',
+    ar: 'حوّلي 200 جنيه رسوم تأكيد حجز (فودافون كاش أو InstaPay) وارفعي صورة التحويل قبل تأكيد الأوردر. المبلغ بيتخصم من الإجمالي.',
     en: 'Transfer 200 EGP deposit (Vodafone Cash or InstaPay) and upload proof before confirming your order.'
   };
   var settingsLoaded = false;

@@ -18,7 +18,7 @@ function handler(req, res) {
 
   var amount = Number(process.env.ORDER_DEPOSIT_AMOUNT) || 200;
   var infoAr = process.env.DEPOSIT_PAYMENT_INFO_AR ||
-    'حوّلي 200 جنيه عربون (فودافون كاش أو InstaPay) — وارفعي صورة التحويل قبل تأكيد الأوردر.';
+    'حوّلي 200 جنيه رسوم تأكيد حجز (فودافون كاش أو InstaPay) وارفعي صورة التحويل قبل تأكيد الأوردر. المبلغ بيتخصم من الإجمالي.';
   var infoEn = process.env.DEPOSIT_PAYMENT_INFO_EN ||
     'Transfer 200 EGP deposit (Vodafone Cash or InstaPay) — upload proof before confirming your order.';
 
