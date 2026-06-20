@@ -641,8 +641,8 @@ window.MontanaChatbot = (function () {
     sessionPhase = 'ordering';
 
     var cartItems = [];
-    if (window.MontanaCart && MontanaCart.getItems) {
-      var ci = MontanaCart.getItems();
+    if (window.MontanaCart && MontanaCart.get) {
+      var ci = MontanaCart.get();
       if (ci && ci.length) {
         cartItems = ci.map(function (c) {
           var p = getProducts().find(function (pr) { return pr.id === c.id; });

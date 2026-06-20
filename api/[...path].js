@@ -23,6 +23,8 @@ const ROUTES = {
   'orders/deposit-pending': require('../handlers/orders/deposit-pending'),
   'telegram/setup-webhook': require('../handlers/telegram/setup-webhook'),
   'telegram/send': require('../handlers/telegram/send'),
+  'orders/social': require('../handlers/orders/social'),
+  'messages/conversations': require('../handlers/messages/conversations'),
   'cron/refresh-tokens': require('../handlers/cron/refresh-tokens')
 };
 
