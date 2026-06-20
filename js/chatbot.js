@@ -1544,12 +1544,15 @@ window.MontanaChatbot = (function () {
     var win = document.getElementById('chat-window');
     var notif = document.getElementById('chat-notif');
     if (!win) return;
+    var tabbar = document.getElementById('app-tabbar');
     if (chatOpen) {
       win.classList.add('open');
       if (notif) notif.style.display = 'none';
+      if (tabbar) tabbar.style.display = 'none';
       if (!history.length) initChat();
     } else {
       win.classList.remove('open');
+      if (tabbar) tabbar.style.display = '';
     }
   }
 

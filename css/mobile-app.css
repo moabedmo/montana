@@ -97,10 +97,6 @@
     z-index: 100000 !important;
   }
 
-  body.app-mode #chat-window.open ~ .app-tab-bar,
-  body.app-mode #chat-window.open ~ #app-tab-bar {
-    display: none !important;
-  }
 
   /* ── App header ── */
   .app-header {
