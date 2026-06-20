@@ -642,11 +642,11 @@ window.MontanaChatbot = (function () {
       return buildProductPicker(lang);
     }
     orderData.items = resolveProducts(picked.map(function (p) { return p.nameAr; }));
-    orderStep = 'name';
+    orderStep = 'confirm_or_add';
     var list = productNamesList(picked, lang);
     return lang === 'en'
-      ? 'Perfect! Added: ' + list + '. What name for the order?'
-      : 'تمام حبيبتي! 💜 ضفنا: ' + list + '. اسمك إيه؟';
+      ? 'Perfect! Added: ' + list + '.\n\nWould you like to add another product or proceed with the order?'
+      : 'تمام! 💜 ضفنا: ' + list + '.\n\nتحبي تضيفي منتج تاني ولا نجهّز الأوردر؟';
   }
 
   function handleOrderStep(text, lang, intent) {
@@ -666,26 +666,93 @@ window.MontanaChatbot = (function () {
       if (productPick.length) {
         orderData.items = resolveProducts(productPick.map(function (p) { return p.nameAr; }));
         rememberProducts(productPick);
-        orderStep = 'name';
+        orderStep = 'confirm_or_add';
         return {
           reply: lang === 'en'
-            ? 'Added: ' + productNamesList(productPick, lang) + '. What name for the order?'
-            : 'تمام! 💜 ضفنا: ' + productNamesList(productPick, lang) + '. اسمك إيه؟'
+            ? 'Added: ' + productNamesList(productPick, lang) + '.\n\nWould you like to add another product or proceed with the order?'
+            : 'تمام! 💜 ضفنا: ' + productNamesList(productPick, lang) + '.\n\nتحبي تضيفي منتج تاني ولا نجهّز الأوردر؟',
+          quickReplies: lang === 'en'
+            ? ['Add another product', 'Proceed with order']
+            : ['أضيفي منتج تاني', 'جهّزي الأوردر']
         };
       }
       return { reply: buildProductPicker(lang) };
+    }
+
+    // Confirm or add more step
+    if (orderStep === 'confirm_or_add') {
+      var addMore = /تاني|كمان|أضيف|اضيف|ضيف|add|more|another/i.test(t);
+      var proceed = /جهز|اكمل|أكمل|تمام|كمل|خلاص|بس كده|كفاية|proceed|confirm|done|checkout|order|yes/i.test(t);
+
+      var moreProd = matchAllProductsFromText(t);
+      if (moreProd.length) {
+        var existing = orderData.items || [];
+        var newItems = resolveProducts(moreProd.map(function (p) { return p.nameAr; }));
+        newItems.forEach(function (ni) {
+          var found = existing.find(function (e) { return e.id === ni.id; });
+          if (found) { found.qty = (found.qty || 1) + 1; }
+          else { existing.push(ni); }
+        });
+        orderData.items = existing;
+        rememberProducts(moreProd);
+        var allNames = existing.map(function (i) { return i.name + ' x' + i.qty; }).join('، ');
+        return {
+          reply: lang === 'en'
+            ? 'Added! Your cart now: ' + allNames + '.\n\nAnything else or proceed?'
+            : 'تمام! 💜 سلتك دلوقتي: ' + allNames + '.\n\nتحبي تضيفي حاجة تانية ولا نجهّز الأوردر؟',
+          quickReplies: lang === 'en'
+            ? ['Add another product', 'Proceed with order']
+            : ['أضيفي منتج تاني', 'جهّزي الأوردر']
+        };
+      }
+
+      if (addMore) {
+        orderStep = 'product';
+        return { reply: buildProductPicker(lang) };
+      }
+
+      if (proceed) {
+        orderStep = 'name';
+        var cartSummary = (orderData.items || []).map(function (i) { return i.name + ' x' + i.qty; }).join('، ');
+        return {
+          reply: lang === 'en'
+            ? 'Great! Your order: ' + cartSummary + '.\n\nWhat\'s your full name?'
+            : 'تمام! 💜 أوردرك: ' + cartSummary + '.\n\nاسمك بالكامل إيه؟'
+        };
+      }
+
+      return {
+        reply: lang === 'en'
+          ? 'Would you like to add another product or proceed with the order?'
+          : 'تحبي تضيفي منتج تاني ولا نجهّز الأوردر؟',
+        quickReplies: lang === 'en'
+          ? ['Add another product', 'Proceed with order']
+          : ['أضيفي منتج تاني', 'جهّزي الأوردر']
+      };
     }
 
     // Name step
     if (orderStep === 'name') {
       var prodHints = matchAllProductsFromText(t);
       if (prodHints.length) {
-        orderData.items = resolveProducts(prodHints.map(function (p) { return p.nameAr; }));
+        var existing = orderData.items || [];
+        var newItems = resolveProducts(prodHints.map(function (p) { return p.nameAr; }));
+        newItems.forEach(function (ni) {
+          var found = existing.find(function (e) { return e.id === ni.id; });
+          if (found) { found.qty = (found.qty || 1) + 1; }
+          else { existing.push(ni); }
+        });
+        orderData.items = existing;
         rememberProducts(prodHints);
+        orderStep = 'confirm_or_add';
+        var allNames = existing.map(function (i) { return i.name + ' x' + i.qty; }).join('، ');
         return {
           reply: lang === 'en'
-            ? 'Added: ' + productNamesList(prodHints, lang) + '. What name for the order?'
-            : 'تمام، ضفنا: ' + productNamesList(prodHints, lang) + '. اسمك إيه يا جميلة؟'
+            ? 'Added! Your cart: ' + allNames + '.\n\nAnything else or proceed?'
+            : 'تمام! ضفنا: ' + allNames + '.\n\nتحبي تضيفي حاجة تانية ولا نجهّز الأوردر؟',
+          quickReplies: lang === 'en'
+            ? ['Add another product', 'Proceed with order']
+            : ['أضيفي منتج تاني', 'جهّزي الأوردر']
         };
       }
       if (looksLikePersonName(t, intent)) {
@@ -762,7 +829,7 @@ window.MontanaChatbot = (function () {
       } else {
         var stepResult = handleOrderStep(userText, lang, intent);
         if (stepResult) {
-          return { reply: stepResult.reply, action: stepResult.action || 'chat', lang: lang };
+          return { reply: stepResult.reply, action: stepResult.action || 'chat', lang: lang, quickReplies: stepResult.quickReplies };
         }
       }
     }
@@ -1213,6 +1280,10 @@ window.MontanaChatbot = (function () {
       pushHistory('model', reply);
 
       await typeBotMessage(reply, { skipThink: true, userText: text, intent: intent });
+
+      if (result.quickReplies && result.quickReplies.length) {
+        showQuickReplies(result.quickReplies);
+      }
 
       if (result.action === 'thanks') {
         sessionPhase = 'post_order';
