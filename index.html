@@ -110,7 +110,7 @@ html[lang=ar] #story-progress{right:auto;left:28px;align-items:flex-start;text-a
 .pp-body{font-size: 14px;font-weight:200;line-height:1.95;color:rgba(255,255,255,.3);max-width:360px;margin-bottom:22px;}
 .pp-result{font-family:'Playfair Display',serif;font-style:italic;font-size: 15px;color:rgba(167,139,250,.6);margin-bottom:20px;display:block;}
 .pp-ingr{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px;}
-.pi{font-size: 9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(201,168,76,.55);padding:6px 12px;border:.5px solid rgba(201,168,76,.18);transition:border-color .3s,color .3s;}
+.pi{font-size: 9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(201,168,76,.55);padding:6px 12px;border:.5px solid rgba(201,168,76,.18);transition:border-color .3s,color .3s;cursor:pointer;pointer-events:all;}
 .pi:hover{border-color:rgba(201,168,76,.4);color:rgba(201,168,76,.8);}
 .pp-vol{font-size: 9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.1);}
 .pp-vis{position:relative;}
@@ -887,5 +887,12 @@ document.addEventListener('DOMContentLoaded',function(){
 <script src="js/chat-phrases.js?v=1718680000"></script>
 <script src="js/montana-deposit.js?v=1718680000"></script>
 <script src="js/chatbot.js?v=1718680000"></script>
+<script>
+document.querySelectorAll('.pi').forEach(function(el){
+  el.addEventListener('click',function(){
+    window.location.href='ingredients.html?q='+encodeURIComponent(el.textContent.trim());
+  });
+});
+</script>
 </body>
 </html>

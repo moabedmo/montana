@@ -111,6 +111,16 @@ MontanaShop.bindLang();
 MontanaShop.bindNav();
 MontanaShopExtras.initQuiz();
 MontanaShopExtras.initGlossaryPage();
+(function(){
+  var q = new URLSearchParams(location.search).get('q');
+  if (!q) return;
+  var input = document.getElementById('ing-search');
+  if (!input) return;
+  setTimeout(function(){
+    input.value = q;
+    input.dispatchEvent(new Event('input', {bubbles:true}));
+  }, 500);
+})();
 if (window.MontanaSEO) {
   MontanaSEO.initPage({
     canonical: 'ingredients.html',
