@@ -1429,7 +1429,9 @@ window.MontanaChatbot = (function () {
       }
 
       var isProductList = /عايزة إيه من منتجات|Which Montana product|قوليلي اسم المنتج/.test(reply);
-      if (!collectingOrder && result.action === 'chat' && sessionSuggestedProduct && !isProductList) {
+      if (isProductList) {
+        showAddToCartButtons(getProducts(), sessionLang);
+      } else if (!collectingOrder && result.action === 'chat' && sessionSuggestedProduct) {
         var cartProducts = sessionSuggestedProducts.length > 1
           ? sessionSuggestedProducts.slice(-2)
           : [sessionSuggestedProduct];
