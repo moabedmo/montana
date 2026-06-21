@@ -890,14 +890,34 @@ document.addEventListener('DOMContentLoaded',function(){
 <script src="js/montana-deposit.js?v=1718680000"></script>
 <script src="js/chatbot.js?v=1718680000"></script>
 <script>
-document.addEventListener('click',function(e){
-  var pi=e.target.closest('.pi');
-  if(pi){
-    e.preventDefault();
-    e.stopPropagation();
-    window.location.href='ingredients.html?q='+encodeURIComponent(pi.textContent.trim());
-  }
-});
+(function(){
+  var MAP={
+    'salicylic acid':'salicylic','zinc pca':'zinc-pca','niacinamide':'niacinamide','niacinamide (vitamin b3)':'niacinamide',
+    'argan oil':'argan-oil','olive oil':'jojoba-oil','jojoba oil':'jojoba-oil','licorice extract':'licorice',
+    'tea tree oil':'green-tea','vitamin c':'vitamin-c','wheat germ oil':'argan-oil','almond oil':'shea-butter',
+    'alpha-arbutin':'alpha-arbutin','lactic acid':'alpha-arbutin','zinc oxide':'zinc-pca','vitamin e':'vitamin-e','rose oil':'vitamin-e',
+    'glycerin':'glycerin','coconut oil':'coconut-oil','cocoa butter':'shea-butter','shea butter':'shea-butter','beeswax':'shea-butter',
+    'sesame oil':'sesame-oil','panthenol (pro-vitamin b5)':'vitamin-e-b3','allantoin':'vitamin-e-b3','aloe vera':'green-tea',
+    'green tea extract':'green-tea','lanolin':'sesame-oil','medical-grade silicone':'silicone','medical silicone':'silicone',
+    'حمض الساليسيليك':'salicylic','زنك pca':'zinc-pca','النياسيناميد (فيتامين b3)':'niacinamide','النياسيناميد':'niacinamide',
+    'زيت الأرجان':'argan-oil','زيت الزيتون':'jojoba-oil','زيت الجوجوبا':'jojoba-oil','مستخلص العرقسوس':'licorice',
+    'زيت شجرة الشاي':'green-tea','فيتامين c':'vitamin-c','زيت جنين القمح':'argan-oil','زيت اللوز':'shea-butter',
+    'ألفا أربوتين':'alpha-arbutin','نياسيناميد':'niacinamide','حمض اللاكتيك':'alpha-arbutin','أكسيد الزنك':'zinc-pca',
+    'فيتامين e':'vitamin-e','زيت الورد':'vitamin-e','الجليسرين':'glycerin','زيت جوز الهند':'coconut-oil',
+    'زبدة الكاكاو':'shea-butter','زبدة الشيا':'shea-butter','شمع العسل':'shea-butter',
+    'زيت السمسم':'sesame-oil','بانثينول (فيتامين b5)':'vitamin-e-b3','الألانتوين':'vitamin-e-b3',
+    'الألوفيرا':'green-tea','مستخلص الشاي الأخضر':'green-tea','اللانولين':'sesame-oil',
+    'سيليكون طبي':'silicone','medical silicone':'silicone'
+  };
+  document.addEventListener('click',function(e){
+    var pi=e.target.closest('.pi');
+    if(!pi)return;
+    e.preventDefault();e.stopPropagation();
+    var t=pi.textContent.trim().toLowerCase();
+    var id=MAP[t]||t.replace(/\s+/g,'-').replace(/[()]/g,'');
+    window.location.href='ingredients.html#'+id;
+  });
+})();
 </script>
 </body>
 </html>
