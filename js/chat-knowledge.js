@@ -437,7 +437,14 @@ window.MontanaChatKnowledge = (function () {
       var explicitProduct = /كريم|غسول|لوشن/.test(norm || '');
       if (ids.length > 1 && !explicitProduct) {
         var second = products.find(function (p) { return p.id === ids[1]; });
-        if (second) parts.push('\nI also recommend ' + second.nameEn + ' (' + second.price + ' EGP) to complete your routine.');
+        if (second) {
+          var secIng = ingredientList(second.id, 'en').slice(0, 2).join(' & ');
+          var secTime = RESULTS_TIMELINE[second.id] ? fld(RESULTS_TIMELINE[second.id], 'en') : '';
+          parts.push('\n✨ Also: ' + second.nameEn + ' — ' + second.price + ' EGP');
+          if (secIng) parts.push('Key actives: ' + secIng);
+          if (secTime) parts.push('Results in: ' + secTime);
+          parts.push('\nBoth together give stronger results — add one or both 💜');
+        }
       }
       return parts.join('\n');
     }
@@ -456,7 +463,12 @@ window.MontanaChatKnowledge = (function () {
     if (ids.length > 1 && !explicitProduct2) {
       var second2 = products.find(function (p) { return p.id === ids[1]; });
       if (second2) {
-        reply += '\n\nوكمان أنصحك بـ ' + second2.nameAr + ' (' + second2.price + ' جنيه) عشان تكملي الروتين.';
+        var ing2 = ingredientList(second2.id, 'ar').slice(0, 2).join(' و ');
+        var timeline2 = RESULTS_TIMELINE[second2.id] ? fld(RESULTS_TIMELINE[second2.id], 'ar') : '';
+        reply += '\n\n✨ وكمان ' + second2.nameAr + ' — ' + second2.price + ' جنيه';
+        if (ing2) reply += ' · فيه ' + ing2;
+        if (timeline2) reply += ' · النتيجة من ' + timeline2;
+        reply += '\n\nالاتنين مع بعض بيدوا نتيجة أقوى — تقدري تضيفي واحد أو الاتنين 💜';
       }
     }
     return reply;

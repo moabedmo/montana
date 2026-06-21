@@ -558,8 +558,11 @@ window.MontanaChatbot = (function () {
     if (intent.isRecommend && !intent.wantsOrder && intent.concern) {
       var recReply = K.buildConsultationReply(intent.concern, lang, prods, norm);
       if (recReply) {
-        var recP = K.resolveConcernProduct(intent.concern, norm, prods);
-        if (recP) rememberProduct(recP);
+        var recIds = K.recommendProducts(intent.concern);
+        recIds.forEach(function (rid) {
+          var rp = prods.find(function (p) { return p.id === rid; });
+          if (rp) rememberProduct(rp);
+        });
         return recReply;
       }
     }
