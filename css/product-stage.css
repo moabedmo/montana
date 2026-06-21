@@ -487,9 +487,9 @@ html[lang="ar"] .ps-clinical-badge {
 .ps-host--story .ps-imgwrap,
 .pp-imgwrap.ps-host--story {
   width: 100%;
-  max-width: 340px;
-  aspect-ratio: var(--ps-aspect);
-  height: auto;
+  max-width: 520px;
+  aspect-ratio: auto;
+  height: 100%;
   padding-bottom: 0;
 }
 
@@ -497,10 +497,27 @@ html[lang="ar"] .ps-clinical-badge {
 .ps-host--story .pp-float {
   animation: none !important;
   will-change: auto;
+  inset: 0% 8% 2% 8% !important;
 }
 
 .ps-host--story .ps-aura {
-  display: none;
+  display: block;
+  opacity: 0.6;
+  inset: 20% 5% 10% 5%;
+}
+
+.ps-host--story .ps-pedestal {
+  width: 65%;
+  height: 28px;
+}
+
+.ps-host--story .ps-pedestal-top {
+  height: 16px;
+  box-shadow:
+    0 -4px 28px rgba(201, 168, 76, 0.12),
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    inset 0 2px 10px rgba(255, 255, 255, 0.2),
+    inset 0 -4px 14px rgba(0, 0, 0, 0.3);
 }
 
 .ps-host--story .ps-ring-1 { width: calc(var(--ps-ring-1-scale) * 100%); aspect-ratio: 1; max-width: 240px; }
@@ -517,21 +534,25 @@ html[lang="ar"] .ps-clinical-badge {
 
 .ps-host--story .ps-img-shadow,
 .ps-host--story .pp-img-shadow {
-  bottom: 2px;
+  bottom: 0;
   animation: none !important;
+  width: 60% !important;
+  height: 24px !important;
+  opacity: 0.9;
+  filter: blur(12px);
 }
 
 @media (min-width: 769px) {
   .ps-host--story .ps-imgwrap,
   .pp-imgwrap.ps-host--story {
-    max-width: 340px;
+    max-width: 560px;
   }
 
-  .ps-host--story .ps-ring-1 { max-width: 280px; }
-  .ps-host--story .ps-ring-2 { max-width: 360px; }
-  .ps-host--story .ps-pedestal { height: 28px; }
-  .ps-host--story .ps-pedestal-top { height: 16px; }
-  .ps-host--story .ps-img-shadow { width: 48%; height: 28px; }
+  .ps-host--story .ps-ring-1 { max-width: 320px; }
+  .ps-host--story .ps-ring-2 { max-width: 400px; }
+  .ps-host--story .ps-pedestal { height: 32px; }
+  .ps-host--story .ps-pedestal-top { height: 18px; }
+  .ps-host--story .ps-img-shadow { width: 52%; height: 32px; }
 }
 
 /* ── Mobile card variant ── */

@@ -27,23 +27,51 @@
 .ov-prod .pp-vis {
   grid-column: 2;
   grid-row: 1;
-  justify-self: start;
+  justify-self: center;
   align-self: center;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 360px;
+  max-width: 560px;
   min-height: 0;
   position: relative;
 }
 
+.ov-prod .pp-vis::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 5%;
+  right: 5%;
+  height: 70%;
+  background: radial-gradient(ellipse at 50% 85%, rgba(124, 58, 237, 0.22) 0%, rgba(201, 168, 76, 0.06) 35%, transparent 65%);
+  filter: blur(35px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ov-prod .pp-vis::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 20%;
+  right: 20%;
+  height: 18px;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.5) 0%, rgba(124, 58, 237, 0.15) 50%, transparent 80%);
+  filter: blur(10px);
+  pointer-events: none;
+  z-index: 0;
+}
+
 .ov-prod .pp-imgwrap {
   width: 100% !important;
-  max-width: 340px !important;
+  max-width: 560px !important;
   aspect-ratio: 3 / 4;
   height: auto !important;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 .ov-prod .pp-text::before {
