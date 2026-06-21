@@ -121,16 +121,18 @@ html[lang=ar] #story-progress{right:auto;left:28px;align-items:flex-start;text-a
 
 /* Chapter title overlays */
 .ov-ch{inset:0;display:flex;align-items:center;justify-content:center;text-align:center;}
-.ov-ch .ch-act{font-size: 9px;letter-spacing:.55em;text-transform:uppercase;color:rgba(167,139,250,.32);margin-bottom:18px;display:block;}
-.ov-ch .ch-t{font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(18px,2.8vw,34px);color:rgba(255,255,255,.6);line-height:1.35;}
-.ov-ch .ch-t em{font-style:italic;color:rgba(167,139,250,.75);}
-.ch-bg-n{position:absolute;font-family:'Playfair Display',serif;font-weight:300;font-style:italic;font-size:220px;color:rgba(124,58,237,.035);line-height:1;pointer-events:none;user-select:none;}
+.ov-ch .ch-act{font-size: 9px;letter-spacing:.55em;text-transform:uppercase;color:rgba(201,168,76,.5);margin-bottom:22px;display:block;position:relative;}
+.ov-ch .ch-act::after{content:'';display:block;width:32px;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.35),transparent);margin:14px auto 0;}
+.ov-ch .ch-t{font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(22px,3.2vw,40px);color:rgba(255,255,255,.88);line-height:1.35;text-shadow:0 4px 40px rgba(124,58,237,.25);}
+.ov-ch .ch-t em{font-style:italic;color:rgba(201,168,76,.8);text-shadow:0 0 50px rgba(201,168,76,.12);}
+.ch-bg-n{position:absolute;font-family:'Playfair Display',serif;font-weight:300;font-style:italic;font-size:220px;color:rgba(201,168,76,.02);line-height:1;pointer-events:none;user-select:none;}
 
 /* Finale */
 #ov-finale{inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 24px;}
-#ov-finale .ftag{font-size: 9px;letter-spacing:.52em;text-transform:uppercase;color:rgba(167,139,250,.38);margin-bottom:28px;display:block;}
-#ov-finale .fq{font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(22px,3.8vw,50px);line-height:1.35;color:rgba(255,255,255,.88);margin-bottom:48px;}
-#ov-finale .fq em{font-style:italic;color:rgba(167,139,250,.88);}
+#ov-finale .ftag{font-size: 9px;letter-spacing:.52em;text-transform:uppercase;color:rgba(201,168,76,.5);margin-bottom:28px;display:block;position:relative;}
+#ov-finale .ftag::after{content:'';display:block;width:40px;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.35),transparent);margin:16px auto 0;}
+#ov-finale .fq{font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(22px,3.8vw,50px);line-height:1.35;color:rgba(255,255,255,.88);margin-bottom:48px;text-shadow:0 4px 40px rgba(124,58,237,.2);}
+#ov-finale .fq em{font-style:italic;color:rgba(201,168,76,.85);text-shadow:0 0 50px rgba(201,168,76,.12);}
 .fstats{display:grid;grid-template-columns:repeat(4,1fr);max-width:560px;margin:0 auto 44px;border:.5px solid rgba(201,168,76,.12);}
 .fst{padding:24px 16px;border-right:.5px solid rgba(201,168,76,.1);}
 .fst:last-child{border-right:none;}
@@ -168,8 +170,8 @@ html[lang=ar] #story-progress{right:auto;left:28px;align-items:flex-start;text-a
 .pp-result{color:rgba(167,139,250,.92)!important;}
 .pp-act{color:rgba(167,139,250,.8)!important;}
 .pp-vol{color:rgba(255,255,255,.45)!important;}
-.ch-t{color:rgba(255,255,255,.9)!important;}
-.ch-act{color:rgba(167,139,250,.8)!important;}
+.ch-t{color:rgba(255,255,255,.92)!important;}
+.ch-act{color:rgba(201,168,76,.55)!important;}
 
 
 /* ?? LANG SWITCHER ?? */
