@@ -255,6 +255,22 @@ CHAT_USE_AI=true
 
     <div class="page" id="page-settings">
       <div class="page-header"><h1>الاعدادات</h1></div>
+
+      <div class="card">
+        <div class="card-title">بيانات التواصل (صفحة تواصل معنا)</div>
+        <p style="font-size:12px;color:var(--text-s);margin-bottom:16px;">عدّل البيانات دي وهتظهر في صفحة "تواصل معنا" تلقائي.</p>
+        <div class="form-grid">
+          <div class="form-group"><label>رقم الموبايل</label><input type="text" id="contact-phone" placeholder="01094456787"></div>
+          <div class="form-group"><label>واتساب</label><input type="text" id="contact-whatsapp" placeholder="01094456787"></div>
+          <div class="form-group"><label>الإيميل</label><input type="email" id="contact-email" placeholder="info@montana.com"></div>
+          <div class="form-group"><label>العنوان</label><input type="text" id="contact-address" placeholder="القاهرة، مصر"></div>
+          <div class="form-group"><label>Facebook</label><input type="text" id="contact-facebook" placeholder="Montana Naturals"></div>
+          <div class="form-group"><label>Instagram</label><input type="text" id="contact-instagram" placeholder="@montana_naturals"></div>
+          <div class="form-group full"><label>مواعيد العمل</label><textarea id="contact-hours" rows="3" placeholder="السبت – الخميس: 10 ص – 8 م&#10;الجمعة: مغلق"></textarea></div>
+        </div>
+        <div class="form-actions"><button class="btn" onclick="saveContactSettings()">حفظ</button></div>
+      </div>
+
       <div class="card">
         <div class="card-title">بيانات الوصول</div>
         <div class="form-grid">
@@ -1130,6 +1146,46 @@ async function loadSocialOrders(){
     el.innerHTML='<p style="color:var(--red);font-size:13px;padding:12px;">خطأ في التحميل</p>';
   }
 }
+
+async function loadContactSettings(){
+  try{
+    var r=await fetch('/api/settings/contact');
+    var d=await r.json();
+    if(d.ok&&d.contact){
+      var c=d.contact;
+      document.getElementById('contact-phone').value=c.phone||'';
+      document.getElementById('contact-email').value=c.email||'';
+      document.getElementById('contact-whatsapp').value=c.whatsapp||'';
+      document.getElementById('contact-address').value=c.address||'';
+      document.getElementById('contact-facebook').value=c.facebook||'';
+      document.getElementById('contact-instagram').value=c.instagram||'';
+      document.getElementById('contact-hours').value=c.hours||'';
+    }
+  }catch(e){}
+}
+
+async function saveContactSettings(){
+  try{
+    var r=await fetch('/api/settings/contact',{
+      method:'POST',
+      headers:socialHeaders(),
+      body:JSON.stringify({
+        phone:document.getElementById('contact-phone').value.trim(),
+        email:document.getElementById('contact-email').value.trim(),
+        whatsapp:document.getElementById('contact-whatsapp').value.trim(),
+        address:document.getElementById('contact-address').value.trim(),
+        facebook:document.getElementById('contact-facebook').value.trim(),
+        instagram:document.getElementById('contact-instagram').value.trim(),
+        hours:document.getElementById('contact-hours').value.trim()
+      })
+    });
+    var d=await r.json();
+    if(d.ok) showToast('تم حفظ بيانات التواصل');
+    else showToast(d.error||'فشل الحفظ');
+  }catch(e){ showToast('خطأ في الحفظ'); }
+}
+
+loadContactSettings();
 
 var _origShowPage=showPage;
 showPage=function(page,el){

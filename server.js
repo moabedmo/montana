@@ -33,6 +33,7 @@ const telegramSendHandler = require('./handlers/telegram/send');
 const depositPendingHandler = require('./handlers/orders/deposit-pending');
 const conversationsHandler = require('./handlers/messages/conversations');
 const socialOrdersHandler = require('./handlers/orders/social');
+const contactSettingsHandler = require('./handlers/settings/contact');
 const autoShipHandler = require('./handlers/shipping/auto-ship');
 const refreshTokensHandler = require('./handlers/cron/refresh-tokens');
 const { refreshExpiringTokens } = require('./lib/token-refresh');
@@ -66,6 +67,7 @@ const API_ROUTES = {
   '/api/messages/conversations': conversationsHandler,
   '/api/telegram/setup-webhook': telegramSetupWebhookHandler,
   '/api/telegram/send': telegramSendHandler,
+  '/api/settings/contact': contactSettingsHandler,
   '/api/shipping/auto-ship': autoShipHandler,
   '/api/cron/refresh-tokens': refreshTokensHandler
 };

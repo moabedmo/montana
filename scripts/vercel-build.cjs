@@ -37,6 +37,7 @@ var htmlFiles = [
   'privacy.html',
   'privacy-policy.html',
   'order-success.html',
+  'contact.html',
   'robots.txt',
   'sitemap.xml'
 ];
@@ -101,6 +102,7 @@ var routes = [
   { src: '/privacy', dest: '/privacy.html' },
   { src: '/privacy-policy', dest: '/privacy-policy.html' },
   { src: '/order-success', dest: '/order-success.html' },
+  { src: '/contact', dest: '/contact.html' },
   { handle: 'filesystem' }
 ];
 
