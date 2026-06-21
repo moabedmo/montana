@@ -25,6 +25,7 @@ const ROUTES = {
   'telegram/send': require('../handlers/telegram/send'),
   'orders/social': require('../handlers/orders/social'),
   'messages/conversations': require('../handlers/messages/conversations'),
+  'shipping/auto-ship': require('../handlers/shipping/auto-ship'),
   'cron/refresh-tokens': require('../handlers/cron/refresh-tokens')
 };
 

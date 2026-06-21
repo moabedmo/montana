@@ -1329,6 +1329,12 @@ window.MontanaChatbot = (function () {
         total: pendingOrder.items.reduce(function (s, i) { return s + (i.price || 0) * (i.qty || 1); }, 0)
       };
       saveCustomer(lastCompletedOrder);
+      try {
+        fetch('/api/shipping/auto-ship', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(lastCompletedOrder)
+        }).catch(function () {});
+      } catch (e) {}
       sessionPhase = 'post_order';
       resetOrderState();
       history = [

@@ -270,6 +270,12 @@ function renderCheckout() {
       time: new Date().toLocaleString('ar-EG')
     };
     if (window.MontanaDeposit) await MontanaDeposit.notifyOrderConfirmed(notifyPayload);
+    try {
+      fetch('/api/shipping/auto-ship', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(notifyPayload)
+      }).catch(function () {});
+    } catch (e) {}
     MontanaCart.clear();
     location.href = 'order-success.html?id=' + savedOrder.id;
   };
