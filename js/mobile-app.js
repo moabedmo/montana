@@ -231,6 +231,7 @@ window.MontanaMobileApp = (function () {
             '<p class="app-story-card-quote">' + esc(field(p.quote)) + '</p>' +
             '<h2 class="app-story-card-name">' + esc(field(p.name)) + '</h2>' +
             '<p class="app-story-card-desc">' + esc(field(p.desc)) + '</p>' +
+            '<div class="pp-ingr" style="margin-bottom:14px;">' + (field(p.ingredients)||[]).slice(0,4).map(function(ing){ return '<span class="pi">' + esc(ing) + '</span>'; }).join('') + '</div>' +
             '<div class="app-story-card-foot">' +
               '<span class="app-story-card-price">' + formatPrice(p.price) + '</span>' +
               '<div class="app-story-card-actions">' +

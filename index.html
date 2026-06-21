@@ -890,10 +890,13 @@ document.addEventListener('DOMContentLoaded',function(){
 <script src="js/montana-deposit.js?v=1718680000"></script>
 <script src="js/chatbot.js?v=1718680000"></script>
 <script>
-document.querySelectorAll('.pi').forEach(function(el){
-  el.addEventListener('click',function(){
-    window.location.href='ingredients.html?q='+encodeURIComponent(el.textContent.trim());
-  });
+document.addEventListener('click',function(e){
+  var pi=e.target.closest('.pi');
+  if(pi){
+    e.preventDefault();
+    e.stopPropagation();
+    window.location.href='ingredients.html?q='+encodeURIComponent(pi.textContent.trim());
+  }
 });
 </script>
 </body>
