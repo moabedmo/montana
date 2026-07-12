@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "business-card-generation": {
+      "source": "eachlabs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/business-card-generation/SKILL.md",
+      "computedHash": "348eea1a588281aaa5c209b84179a824d518a9cd189172cda4d5664fe00f5141"
+    }
+  }
+}

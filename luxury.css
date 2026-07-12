@@ -1,0 +1,407 @@
+/* ==================== MONTANA LUXURY ENHANCEMENTS ==================== */
+/* Applied on top of existing styles - no structure changes */
+
+/* ===== LUXURY TYPOGRAPHY ===== */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&display=swap');
+
+:root {
+    --font-luxury: 'Cormorant Garamond', 'Playfair Display', serif;
+    --gold: #C5A55A;
+    --gold-light: #D4BC78;
+}
+
+/* Luxury headings */
+.section-header h2 {
+    font-family: var(--font-luxury) !important;
+    font-weight: 600 !important;
+    letter-spacing: 1px !important;
+    font-size: 38px !important;
+}
+
+/* ===== LUXURY HERO ===== */
+.hero {
+    height: 560px;
+}
+
+.hero-slide {
+    transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(to top, #fff, transparent);
+    z-index: 3;
+    pointer-events: none;
+}
+
+.hero-content h2 {
+    font-family: var(--font-luxury) !important;
+    font-size: 40px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px;
+}
+
+/* ===== LUXURY PRODUCT CARDS ===== */
+.product-card {
+    border: none !important;
+    border-radius: 16px !important;
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 0 2px 12px rgba(45,27,61,0.04) !important;
+}
+
+.product-card:hover {
+    box-shadow: 0 16px 48px rgba(45,27,61,0.12) !important;
+}
+
+.product-card .product-img {
+    position: relative;
+    overflow: hidden;
+}
+
+.product-card .product-img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(45,27,61,0.05), transparent 40%);
+    pointer-events: none;
+}
+
+.product-card .product-img img {
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.product-card:hover .product-img img {
+    transform: scale(1.06) !important;
+}
+
+.product-brand {
+    font-family: var(--font-luxury) !important;
+    font-size: 13px !important;
+    letter-spacing: 2px !important;
+    color: var(--gold) !important;
+}
+
+.product-name {
+    font-weight: 700 !important;
+    line-height: 1.5 !important;
+}
+
+.current-price {
+    font-family: var(--font-luxury) !important;
+    font-size: 22px !important;
+    letter-spacing: 0.5px;
+}
+
+/* ===== LUXURY CATEGORY CARDS ===== */
+.category-card {
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.category-card:hover {
+    transform: translateY(-10px) !important;
+}
+
+.category-img {
+    border-radius: 20px !important;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(45,27,61,0.08);
+    transition: box-shadow 0.5s ease !important;
+}
+
+.category-card:hover .category-img {
+    box-shadow: 0 12px 36px rgba(155,108,184,0.18) !important;
+}
+
+.category-card h3 {
+    font-family: var(--font-luxury) !important;
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px;
+}
+
+.category-link {
+    font-size: 13px !important;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease !important;
+}
+
+.category-link:hover {
+    letter-spacing: 2px !important;
+}
+
+/* ===== LUXURY BUTTONS ===== */
+.btn-primary {
+    border-radius: 50px !important;
+    letter-spacing: 0.5px !important;
+    font-weight: 700 !important;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(155,108,184,0.3) !important;
+}
+
+/* ===== LUXURY FEATURES BAR ===== */
+.features-bar {
+    border-bottom: none !important;
+    position: relative;
+}
+
+.features-bar::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(155,108,184,0.2), transparent);
+}
+
+.feature-item h4 {
+    font-family: var(--font-luxury) !important;
+    font-size: 15px !important;
+    letter-spacing: 0.5px;
+}
+
+/* ===== LUXURY SECTION SPACING ===== */
+.categories-section,
+.products-section,
+.before-after-section,
+.reviews-section,
+.newsletter-section {
+    padding: 80px 0 !important;
+}
+
+/* Elegant section dividers */
+.categories-section::before,
+.products-section::before,
+.before-after-section::before,
+.reviews-section::before {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+    margin: 0 auto 40px;
+}
+
+.section-header {
+    margin-bottom: 48px !important;
+}
+
+.section-header p {
+    font-size: 15px !important;
+    letter-spacing: 0.3px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* ===== LUXURY REVIEWS ===== */
+.review-card {
+    border: none !important;
+    border-radius: 16px !important;
+    box-shadow: 0 2px 12px rgba(45,27,61,0.04) !important;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.review-card:hover {
+    box-shadow: 0 12px 40px rgba(45,27,61,0.1) !important;
+    transform: translateY(-6px) !important;
+}
+
+.review-score {
+    font-family: var(--font-luxury) !important;
+    font-size: 56px !important;
+    color: var(--gold) !important;
+}
+
+.reviewer-avatar {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light)) !important;
+}
+
+/* ===== LUXURY REWARDS SECTION ===== */
+.rewards-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.rewards-section::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 300px;
+    height: 300px;
+    border: 1px solid rgba(212,175,55,0.1);
+    border-radius: 50%;
+}
+
+.rewards-section::after {
+    content: '';
+    position: absolute;
+    bottom: -80px;
+    left: -80px;
+    width: 200px;
+    height: 200px;
+    border: 1px solid rgba(212,175,55,0.08);
+    border-radius: 50%;
+}
+
+.rewards-text h2 {
+    font-family: var(--font-luxury) !important;
+}
+
+/* ===== LUXURY BEFORE/AFTER ===== */
+.ba-card {
+    border: none !important;
+    border-radius: 20px !important;
+    box-shadow: 0 4px 20px rgba(45,27,61,0.06) !important;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.ba-card:hover {
+    box-shadow: 0 16px 48px rgba(45,27,61,0.12) !important;
+    transform: translateY(-6px) !important;
+}
+
+.ba-info h3 {
+    font-family: var(--font-luxury) !important;
+    font-size: 20px !important;
+}
+
+/* ===== LUXURY NEWSLETTER ===== */
+.newsletter-content h2 {
+    font-family: var(--font-luxury) !important;
+    font-size: 34px !important;
+}
+
+.newsletter-form {
+    border: 1px solid rgba(155,108,184,0.15) !important;
+    box-shadow: 0 4px 20px rgba(45,27,61,0.04);
+    transition: box-shadow 0.3s ease;
+}
+
+.newsletter-form:focus-within {
+    box-shadow: 0 8px 32px rgba(155,108,184,0.1);
+    border-color: rgba(155,108,184,0.3) !important;
+}
+
+/* ===== LUXURY FOOTER ===== */
+.footer {
+    position: relative;
+}
+
+.footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(155,108,184,0.3), transparent);
+}
+
+.footer-col h3 {
+    font-family: var(--font-luxury) !important;
+    letter-spacing: 1px;
+}
+
+/* ===== LUXURY OFFERS ===== */
+.offer-card {
+    border-radius: 20px !important;
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.offer-card:hover {
+    transform: scale(1.02) !important;
+    box-shadow: 0 16px 48px rgba(45,27,61,0.15) !important;
+}
+
+.offer-content h3 {
+    font-family: var(--font-luxury) !important;
+    font-size: 28px !important;
+}
+
+/* ===== LUXURY SCROLLBAR ===== */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--accent), var(--gold));
+    border-radius: 5px;
+}
+
+/* ===== LUXURY NAV ===== */
+.main-nav {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.nav-item > a {
+    letter-spacing: 0.5px !important;
+    font-size: 13px !important;
+}
+
+/* ===== GOLD ACCENT ELEMENTS ===== */
+.badge-best {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light)) !important;
+}
+
+.tab-btn.active {
+    box-shadow: 0 4px 12px rgba(155,108,184,0.25);
+}
+
+/* ===== SMOOTH PAGE TRANSITIONS ===== */
+.container {
+    animation: luxuryFadeIn 0.8s ease forwards;
+}
+
+@keyframes luxuryFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== LUXURY PROMO BANNER ===== */
+.promo-banner {
+    letter-spacing: 1px !important;
+    font-size: 12px !important;
+}
+
+/* ===== HEADER LUXURY ===== */
+.header-main {
+    border-bottom: none !important;
+    box-shadow: 0 1px 0 rgba(155,108,184,0.08);
+}
+
+.logo-img {
+    transition: transform 0.4s ease;
+}
+
+.logo-img:hover {
+    transform: scale(1.05);
+}
+
+/* ===== PRINT-SAFE ===== */
+@media print {
+    .luxury-cursor, .luxury-particles { display: none !important; }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .section-header h2 { font-size: 26px !important; }
+    .hero { height: auto !important; }
+    .categories-section::before,
+    .products-section::before,
+    .before-after-section::before,
+    .reviews-section::before { display: none; }
+}

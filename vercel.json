@@ -1,0 +1,89 @@
+{
+  "buildCommand": "",
+  "outputDirectory": ".",
+  "framework": null,
+  "headers": [
+    {
+      "source": "/css/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/images/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/js/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
+    },
+    {
+      "source": "/chat-widget.js",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://ikryeyqrithikabwidov.supabase.co https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com; frame-src https://accept.paymob.com; base-uri 'self'; form-action 'self'"
+        }
+      ]
+    },
+    {
+      "source": "/crm/(.*)",
+      "headers": [
+        { "key": "Permissions-Policy", "value": "camera=(self), microphone=(), geolocation=(self)" }
+      ]
+    }
+  ],
+  "redirects": [
+    { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/index.php", "destination": "/", "permanent": true },
+    { "source": "/en/index.html", "destination": "/en", "permanent": true },
+    { "source": "/en", "destination": "/en/", "permanent": true },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "montana.com.eg" }],
+      "destination": "https://www.montana.com.eg/:path*",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    { "source": "/api/crm-visit-notify", "destination": "/api/crm-visit-notify" },
+    { "source": "/api/agent", "destination": "/api/agent" },
+    { "source": "/api/send-telegram", "destination": "/api/send-telegram" },
+    { "source": "/api/telegram-webhook", "destination": "/api/telegram-webhook" },
+    { "source": "/api/chat-notify", "destination": "/api/chat-notify" },
+    { "source": "/api/paymob-create", "destination": "/api/paymob-create" },
+    { "source": "/api/paymob-webhook", "destination": "/api/paymob-webhook" },
+    { "source": "/api/integrations-status", "destination": "/api/integrations-status" },
+    { "source": "/api/whatsapp-webhook", "destination": "/api/whatsapp-webhook" },
+    { "source": "/api/messenger-webhook", "destination": "/api/messenger-webhook" },
+    { "source": "/api/instagram-webhook", "destination": "/api/instagram-webhook" },
+    { "source": "/product/:slug", "destination": "/product.html?slug=:slug" },
+    { "source": "/en/product/:slug", "destination": "/en/product.html?slug=:slug" }
+  ],
+  "crons": [
+    { "path": "/api/crm-visit-notify", "schedule": "0 7 * * *" }
+  ],
+  "functions": {
+    "api/chat.js": { "maxDuration": 30 },
+    "api/messenger-webhook.js": { "maxDuration": 30 },
+    "api/instagram-webhook.js": { "maxDuration": 30 },
+    "api/whatsapp-webhook.js": { "maxDuration": 30 }
+  },
+  "routes": [
+    { "src": "/setup_admin\\.js", "status": 404 },
+    { "src": "/setup_owner\\.js", "status": 404 },
+    { "src": "/scripts/(.*)", "status": 404 },
+    { "src": "/supabase/(.*)", "status": 404 },
+    { "src": "/node_modules/(.*)", "status": 404 },
+    { "src": "/\\.env(.*)", "status": 404 },
+    { "src": "/\\.git(.*)", "status": 404 },
+    { "src": "/lib/(.*)", "status": 404 }
+  ]
+}

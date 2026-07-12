@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MONTAÑA | Business Card</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet"></noscript>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Tajawal',sans-serif;background:#0a0510;display:flex;flex-direction:column;align-items:center;gap:30px;padding:30px}
+
+        .card{
+            width:90mm;height:55mm;
+            position:relative;overflow:hidden;
+            border-radius:10px;
+            box-shadow:0 10px 40px rgba(0,0,0,0.5);
+        }
+        .silk{position:absolute;inset:0;background:url('images/silk-bg.jpg') center/cover no-repeat}
+        .dim{position:absolute;inset:0;background:rgba(12,5,22,0.82)}
+        .geo{position:absolute;inset:0;z-index:1;opacity:0.03;background-image:repeating-linear-gradient(45deg,transparent,transparent 20px,rgba(197,165,90,1) 20px,rgba(197,165,90,1) 21px),repeating-linear-gradient(-45deg,transparent,transparent 20px,rgba(197,165,90,1) 20px,rgba(197,165,90,1) 21px)}
+        .watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Cormorant Garamond',serif;font-size:180px;font-weight:700;color:rgba(197,165,90,0.03);z-index:1;pointer-events:none}
+        .border-o{position:absolute;inset:4px;border:1px solid rgba(197,165,90,0.25);border-radius:8px;z-index:2;pointer-events:none}
+        .border-i{position:absolute;inset:7px;border:1px solid rgba(197,165,90,0.1);border-radius:7px;z-index:2;pointer-events:none}
+        .gt{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 5%,#C5A55A 50%,transparent 95%);z-index:10}
+        .gb{position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 5%,#C5A55A 50%,transparent 95%);z-index:10}
+
+        /* ===== FRONT ===== */
+        .front .content{
+            position:absolute;inset:0;z-index:5;
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            text-align:center;padding:14px 20px;
+        }
+        .front .logo{height:36px;filter:brightness(0) invert(1);margin-bottom:3px}
+        .front .pharma{font-family:'Cormorant Garamond',serif;font-size:10px;color:#C5A55A;letter-spacing:4px;margin-bottom:12px}
+        .front .gold-line{width:50px;height:1px;background:linear-gradient(90deg,transparent,#C5A55A,transparent);margin-bottom:0;display:none}
+        .front .name-field{
+            font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#fff;
+            letter-spacing:1px;margin-bottom:3px;
+            min-width:150px;border-bottom:1px solid rgba(255,255,255,0.15);padding-bottom:3px;
+            display:none;
+        }
+        .front .title-field{
+            font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:2px;
+            display:none;
+        }
+
+        /* ===== BACK ===== */
+        .back .content{
+            position:absolute;inset:0;z-index:5;
+            display:flex;flex-direction:column;
+            padding:14px 20px;
+        }
+        .back .back-header{
+            display:flex;align-items:center;gap:8px;margin-bottom:12px;
+            padding-bottom:8px;border-bottom:1px solid rgba(197,165,90,0.2);
+        }
+        .back .back-logo{height:24px;filter:brightness(0) invert(1)}
+        .back .back-brand{font-family:'Cormorant Garamond',serif;font-size:14px;color:#fff;letter-spacing:3px;font-weight:900}
+        .back .back-pharma{font-size:8px;color:#C5A55A;letter-spacing:2px}
+
+        .back .fields{flex:1;display:flex;flex-direction:column;justify-content:center;gap:6px}
+        .back .field{display:flex;align-items:center;gap:8px}
+        .back .field-icon{font-size:10px;color:#C5A55A;width:14px;text-align:center}
+        .back .field-label{font-size:7.5px;color:rgba(255,255,255,0.4);letter-spacing:1px;width:40px;font-weight:700}
+        .back .field-line{flex:1;border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:2px;font-size:14px;color:#fff;min-height:14px}
+
+        .back .back-footer{
+            display:flex;justify-content:space-between;align-items:center;
+            border-top:1px solid rgba(197,165,90,0.2);padding-top:6px;
+        }
+        .back .back-footer span{font-size:7.5px;color:rgba(255,255,255,0.5);letter-spacing:0.5px;font-weight:700}
+
+        /* Labels */
+        .label{text-align:center;font-size:14px;color:#C5A55A;font-weight:700;letter-spacing:2px;margin-top:10px}
+
+        /* Print */
+        .no-print{text-align:center;padding:20px}
+        .btn{background:#9B6CB8;color:#fff;border:none;padding:12px 32px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Tajawal';margin:0 8px}
+        @media print{
+            body{background:#fff;padding:10mm;display:flex;flex-wrap:wrap;gap:10mm;justify-content:center}
+            .card{box-shadow:none;page-break-inside:avoid}
+            .no-print,.label{display:none!important}
+            @page{size:A4;margin:10mm}
+            *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;color-adjust:exact !important}
+        }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <button class="btn" onclick="window.print()">🖨️ طباعة</button>
+    <button class="btn" onclick="window.history.back()" style="background:transparent;border:1px solid #9B6CB8;color:#9B6CB8">← رجوع</button>
+</div>
+
+<!-- ===== FRONT ===== -->
+<div class="label">الوجه</div>
+<div class="card front">
+    <div class="silk"></div>
+    <div class="dim"></div>
+    <div class="geo"></div>
+    <div class="watermark">M</div>
+    <div class="border-o"></div>
+    <div class="border-i"></div>
+    <div class="gt"></div><div class="gb"></div>
+    <div class="content">
+        <img src="images/logo-full.png" class="logo">
+        <div class="pharma">COSMETICS</div>
+        <div style="font-size:9px;color:rgba(255,255,255,0.5);letter-spacing:2px;margin-bottom:4px">www.montana.com.eg</div>
+        <img src="images/qr-montana.png" style="height:50px;margin-bottom:4px">
+        <div class="gold-line"></div>
+        <div class="name-field">&nbsp;</div>
+        <div class="title-field">&nbsp;</div>
+        <div style="margin-top:auto;width:100%;border-top:1px solid rgba(197,165,90,0.2);padding-top:4px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+            <span style="font-size:7.5px;color:rgba(255,255,255,0.5);letter-spacing:0.5px">✦ Unit 204, 2nd Floor, Plot 3, Central Axis, 6th of October City, Giza</span>
+            <span style="font-size:7.5px;color:rgba(255,255,255,0.5);letter-spacing:0.5px">✦ 0238352392</span>
+            <span style="font-size:7.5px;color:rgba(255,255,255,0.5);letter-spacing:0.5px">✦ info@montana.com</span>
+        </div>
+    </div>
+</div>
+
+<!-- ===== BACK ===== -->
+<div class="label">الظهر</div>
+<div class="card back">
+    <div class="silk"></div>
+    <div class="dim"></div>
+    <div class="geo"></div>
+    <div class="watermark">M</div>
+    <div class="border-o"></div>
+    <div class="border-i"></div>
+    <div class="gt"></div><div class="gb"></div>
+    <div class="content">
+        <div class="back-header">
+            <img src="images/logo-icon.png" class="back-logo">
+            <div>
+                <div class="back-brand">MONTAÑA</div>
+                <div class="back-pharma">COSMETICS</div>
+            </div>
+        </div>
+
+        <div class="fields">
+            <div class="field">
+                <span class="field-icon">✦</span>
+                <span class="field-label">Name</span>
+                <div class="field-line">Dr. Ahmed Mansor</div>
+            </div>
+            <div class="field">
+                <span class="field-icon">✦</span>
+                <span class="field-label">Title</span>
+                <div class="field-line">Product Specialist</div>
+            </div>
+            <div class="field">
+                <span class="field-icon">✦</span>
+                <span class="field-label">Phone</span>
+                <div class="field-line">01111368386</div>
+            </div>
+        </div>
+
+        <div class="back-footer">
+            <span style="text-align:left">Manufactured by Montana<br>Pharmaceutical Co.</span>
+            <span style="text-align:right">Premium Skincare ·<br>Cosmeceutical</span>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

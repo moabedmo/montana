@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MONTAÑA | Products Display</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet"></noscript>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Tajawal',sans-serif;background:#0a0510}
+
+        .page{
+            width:297mm;height:210mm;
+            margin:20px auto;
+            position:relative;overflow:hidden;
+            background:#0f0818;
+            box-shadow:0 20px 60px rgba(0,0,0,0.6);
+        }
+        .silk{position:absolute;inset:0;background-size:cover;background-position:center}
+        .dim{position:absolute;inset:0;background:rgba(12,5,22,0.35)}
+        .frame{display:none}
+        .logo{position:absolute;top:18px;left:32px;height:38px;filter:brightness(0) invert(1);z-index:10}
+        .brand{position:absolute;top:20px;right:32px;font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:rgba(255,255,255,0.5);letter-spacing:8px;z-index:10}
+        .foot{position:absolute;bottom:0;left:0;right:0;background:rgba(15,8,24,0.95);padding:8px 0;text-align:center;font-size:10px;color:rgba(197,165,90,0.6);letter-spacing:6px;text-transform:uppercase;z-index:10;border-top:1px solid rgba(197,165,90,0.2)}
+
+        /* ===== PAGE 1: Two Cleansers ===== */
+        .two-cols{
+            position:absolute;top:60px;bottom:36px;left:24px;right:24px;
+            display:flex;gap:20px;z-index:5;
+        }
+        .two-cols .col{
+            flex:1;display:flex;flex-direction:column;align-items:center;gap:0;
+            background:rgba(20,10,35,0.7);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+            border:1px solid rgba(197,165,90,0.15);
+            border-radius:14px;padding:20px;position:relative;overflow:hidden;
+        }
+        .two-cols .col::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(197,165,90,0.4),transparent)}
+        .two-cols .col .img-wrap{display:flex;align-items:center;justify-content:center}
+        .two-cols .col .img-wrap img{height:250px;object-fit:contain;filter:drop-shadow(0 15px 35px rgba(0,0,0,0.5))}
+        .two-cols .col .info{flex:1;color:#fff}
+
+        /* ===== PAGE 2: Three Creams ===== */
+        .three-cols{
+            position:absolute;top:60px;bottom:36px;left:24px;right:24px;
+            display:flex;gap:16px;z-index:5;
+        }
+        .three-cols .col{
+            flex:1;display:flex;flex-direction:column;align-items:center;
+            background:rgba(20,10,35,0.7);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+            border:1px solid rgba(197,165,90,0.15);
+            border-radius:14px;padding:16px 16px 14px;position:relative;overflow:hidden;color:#fff;
+        }
+        .three-cols .col::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(197,165,90,0.4),transparent)}
+        .three-cols .col img{height:200px;object-fit:contain;filter:drop-shadow(0 12px 30px rgba(0,0,0,0.5));margin-bottom:12px}
+
+        /* ===== TYPOGRAPHY ===== */
+        .t-name{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;color:#C5A55A;line-height:1.1;margin-bottom:4px}
+        .t-name-c{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;line-height:1.1;margin-bottom:4px;text-align:center;color:#C5A55A}
+        .t-tag{font-size:15px;color:rgba(255,255,255,0.4);font-style:italic;margin-bottom:8px}
+        .t-tag-c{font-size:15px;color:rgba(255,255,255,0.4);font-style:italic;margin-bottom:6px;text-align:center}
+        .t-badge{display:inline-block;background:linear-gradient(135deg,rgba(197,165,90,0.15),rgba(197,165,90,0.05));border:1px solid rgba(197,165,90,0.3);border-radius:20px;padding:4px 20px;font-size:13px;color:#C5A55A;letter-spacing:2px;font-weight:700;margin-bottom:10px}
+        .t-badge-c{display:block;width:fit-content;margin:0 auto 8px}
+        .t-bar{width:35px;height:1.5px;background:linear-gradient(90deg,#C5A55A,transparent);margin:8px 0}
+        .t-bar-c{width:35px;height:1.5px;background:linear-gradient(90deg,transparent,#C5A55A,transparent);margin:8px auto}
+        .t-section{font-size:15px;font-weight:700;color:#C5A55A;margin-bottom:5px;letter-spacing:0.5px}
+        .t-section-c{font-size:15px;font-weight:700;color:#C5A55A;margin-bottom:4px;letter-spacing:0.5px;text-align:center}
+        .t-list{list-style:none;margin-bottom:8px}
+        .t-list li{font-size:15px;color:rgba(255,255,255,0.85);line-height:1.6;padding-left:16px;position:relative}
+        .t-list li::before{content:'◆';position:absolute;left:0;color:#C5A55A;font-size:5px;top:6px}
+        .hl{color:#C5A55A;font-weight:600}
+        .t-foot{font-size:14px;color:rgba(255,255,255,0.35);border-top:1px solid rgba(197,165,90,0.1);padding-top:8px;margin-top:auto}
+        .t-foot strong{color:#C5A55A}
+        .t-foot-c{text-align:center}
+
+        .three-cols .t-list li{font-size:15px;line-height:1.6}
+        .three-cols .t-foot{font-size:14px}
+
+        /* Print */
+        .no-print{text-align:center;padding:20px}
+        .btn{background:#9B6CB8;color:#fff;border:none;padding:12px 32px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Tajawal';margin:0 8px}
+        @media print{
+            body{background:#000;margin:0;padding:0}
+            .page{margin:0;box-shadow:none;page-break-after:always}
+            .no-print{display:none!important}
+            @page{size:A4 landscape;margin:0}
+            *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;color-adjust:exact !important}
+        }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <button class="btn" onclick="window.print()">🖨️ طباعة</button>
+    <button class="btn" onclick="window.history.back()" style="background:transparent;border:1px solid #9B6CB8;color:#9B6CB8">← رجوع</button>
+</div>
+
+<!-- ========== PAGE 1: Two Cleansers ========== -->
+<div class="page">
+    <div class="silk" style="background-image:url('images/silk-bg.jpg')"></div>
+    <div class="dim"></div>
+    <div class="frame"></div>
+    <img src="images/logo-full.png" class="logo">
+    <span class="brand">MONTAÑA</span>
+
+    <div class="two-cols">
+        <div class="col">
+            <div class="img-wrap"><img src="images/p1.png"></div>
+            <div class="info">
+                <div class="t-name">Acne Facial Cleanser</div>
+                <div class="t-tag">First Creamy Cleanser Formula in Egypt</div>
+                <span class="t-badge">200ml</span>
+                <div class="t-bar"></div>
+                <div class="t-section">Active Ingredients:</div>
+                <ul class="t-list">
+                    <li><span class="hl">Salicylic Acid</span> — unclogs pores</li>
+                    <li><span class="hl">Zinc PCA</span> — regulates sebum</li>
+                    <li><span class="hl">Niacinamide</span> — removes scars & spots</li>
+                    <li><span class="hl">Argan & Jojoba oils</span> — hydration</li>
+                </ul>
+                <div class="t-foot"><strong>How to use:</strong> Apply to wet skin, rub, rinse. Twice daily.</div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="img-wrap"><img src="images/p2.png"></div>
+            <div class="info">
+                <div class="t-name">Whitening Cleanser</div>
+                <div class="t-tag">Cleanses · Unifies · Illuminates</div>
+                <span class="t-badge">200ml</span>
+                <div class="t-bar"></div>
+                <div class="t-section">Active Ingredients:</div>
+                <ul class="t-list">
+                    <li><span class="hl">Liquorice extract</span> — brightening</li>
+                    <li><span class="hl">Niacinamide</span> — even skin tone</li>
+                    <li><span class="hl">Vitamin C</span> — radiance</li>
+                    <li><span class="hl">Salicylic Acid</span> — exfoliation</li>
+                    <li><span class="hl">Tea tree oil</span> — antibacterial</li>
+                </ul>
+                <div class="t-foot"><strong>For:</strong> Dark spots · Uneven tone · Dull skin</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="foot">Premium Skincare · Cosmetics</div>
+</div>
+
+<!-- ========== PAGE 2: Three Creams ========== -->
+<div class="page">
+    <div class="silk" style="background-image:url('images/silk-bg.jpg')"></div>
+    <div class="dim"></div>
+    <div class="frame"></div>
+    <img src="images/logo-full.png" class="logo">
+    <span class="brand">MONTAÑA</span>
+
+    <div class="three-cols">
+        <div class="col">
+            <img src="images/p3.png">
+            <div class="t-name-c">Whitening Cream</div>
+            <div class="t-tag-c">Instant Bright</div>
+            <span class="t-badge t-badge-c">50ml</span>
+            <div class="t-bar-c"></div>
+            <div class="t-section-c">Indications:</div>
+            <ul class="t-list">
+                <li>Melasma</li>
+                <li>Acne marks</li>
+                <li>Dark underarms</li>
+                <li>Sun spots</li>
+            </ul>
+            <div class="t-section-c">Ingredients:</div>
+            <ul class="t-list">
+                <li><span class="hl">Alpha-arbutin</span></li>
+                <li><span class="hl">Liquorice extract</span></li>
+                <li><span class="hl">Niacinamide</span></li>
+                <li><span class="hl">Vitamin C & E</span></li>
+            </ul>
+        </div>
+        <div class="col">
+            <img src="images/p4.png">
+            <div class="t-name-c">Hand & Body Lotion</div>
+            <div class="t-tag-c">72-Hour · Non-Greasy</div>
+            <span class="t-badge t-badge-c">50ml</span>
+            <div class="t-bar-c"></div>
+            <div class="t-section-c">Ingredients:</div>
+            <ul class="t-list">
+                <li><span class="hl">Glycerin</span> — humectant</li>
+                <li><span class="hl">Shea & Cocoa Butter</span></li>
+                <li><span class="hl">Olive & Jojoba oil</span></li>
+                <li><span class="hl">Vitamin E</span> — protects</li>
+            </ul>
+            <div class="t-foot t-foot-c"><strong>Use:</strong> Apply over dry skin whenever needed.</div>
+        </div>
+        <div class="col">
+            <img src="images/p5.png">
+            <div class="t-name-c">Post-Laser Cream</div>
+            <div class="t-tag-c">Green Tea & Sesame Oil</div>
+            <span class="t-badge t-badge-c">50ml</span>
+            <div class="t-bar-c"></div>
+            <div class="t-section-c">Indications:</div>
+            <ul class="t-list">
+                <li>Redness after laser</li>
+                <li>Post-procedure sensitivity</li>
+                <li>Burning & tightness</li>
+                <li>Faster recovery</li>
+            </ul>
+            <div class="t-section-c">Ingredients:</div>
+            <ul class="t-list">
+                <li><span class="hl">Sesame Oil</span></li>
+                <li><span class="hl">Allantoin & Panthenol</span></li>
+                <li><span class="hl">Aloe vera & Tea tree</span></li>
+                <li><span class="hl">Niacinamide</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="foot">Premium Skincare · Cosmetics</div>
+</div>
+
+</body>
+</html>

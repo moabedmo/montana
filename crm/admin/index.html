@@ -1,0 +1,2297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#231840">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Montana CRM — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400&family=Jost:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/crm/css/crm.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+/* ── Admin-specific styles ── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* Samples summary mini-cards */
+.mini-cards { display: flex; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+.mini-card {
+  flex: 1; min-width: 140px; border-radius: 14px; padding: 16px;
+  border: 1px solid;
+}
+.mini-card .mc-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--dim); }
+.mini-card .mc-val { font-family: 'Playfair Display', serif; font-size: 26px; margin-top: 8px; }
+.mc-gold  { background: rgba(201,168,76,.08);  border-color: rgba(201,168,76,.2);  }
+.mc-gold  .mc-val { color: var(--gold-l); }
+.mc-violet{ background: rgba(167,139,250,.07); border-color: rgba(167,139,250,.15); }
+.mc-gray  { background: var(--panel);          border-color: var(--panel-b); }
+
+/* Rep row */
+.rep-row { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+.rep-row:last-child { border-bottom: none; }
+.rep-info { flex: 1; }
+.rep-name  { font-size: 14px; font-weight: 500; }
+.rep-meta  { font-size: 12px; color: var(--dim); margin-top: 2px; }
+.rep-actions { display: flex; gap: 8px; }
+
+/* GPS audit */
+.flag-row {
+  display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
+  gap: 12px; align-items: center; padding: 13px 0;
+  border-bottom: 1px solid rgba(255,255,255,.05); font-size: 13px;
+}
+.flag-row:last-child { border-bottom: none; }
+.flag-row-head {
+  padding: 0 0 12px; font-size: 11px; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--dim); border-bottom-color: var(--panel-b);
+}
+
+/* eDetailing uploader */
+.upload-area {
+  border: 1px dashed rgba(167,139,250,.4); border-radius: 14px;
+  padding: 28px; text-align: center; color: var(--dim); cursor: pointer;
+  transition: all .2s; margin-bottom: 16px;
+}
+.upload-area:hover { border-color: var(--violet); color: #fff; background: rgba(167,139,250,.05); }
+.upload-area input { display: none; }
+
+/* Doctor form */
+.import-zone {
+  border: 1px dashed rgba(201,168,76,.4); border-radius: 14px;
+  padding: 24px; text-align: center; color: var(--dim); cursor: pointer;
+  margin-bottom: 20px; transition: all .2s;
+}
+.import-zone:hover { border-color: var(--gold); background: rgba(201,168,76,.05); }
+
+/* Competitor chart bar */
+.comp-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.comp-name { width: 140px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.comp-track { flex: 1; height: 8px; border-radius: 4px; background: rgba(255,255,255,.08); overflow: hidden; }
+.comp-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--danger), #f5a623); }
+.comp-count { width: 30px; text-align: right; font-size: 12px; color: var(--dim); }
+
+.nav-badge {
+  display: inline-block; min-width: 18px; padding: 1px 6px; margin-left: 6px;
+  border-radius: 999px; background: var(--danger); color: #fff; font-size: 10px; text-align: center;
+}
+
+/* Brick assignment (rep modals) */
+.brick-picker { margin-top: 4px; }
+.brick-picker-search {
+  width: 100%; padding: 10px 12px; border-radius: 10px; margin-bottom: 10px;
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+  color: #fff; font-family: inherit; font-size: 13px;
+}
+.brick-picker-search:focus { outline: none; border-color: var(--violet); }
+.brick-picker-actions { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.brick-picker-actions button {
+  padding: 5px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,.12);
+  background: transparent; color: var(--dim); font-size: 11px; cursor: pointer; font-family: inherit;
+}
+.brick-picker-actions button:hover { color: #fff; border-color: rgba(167,139,250,.4); }
+.brick-picker-list {
+  max-height: 220px; overflow-y: auto; border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px; padding: 8px 10px; background: rgba(0,0,0,.15);
+}
+.brick-group-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--gold-l); margin: 10px 0 6px; padding-top: 6px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.brick-group-label:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+.brick-check {
+  display: flex; align-items: flex-start; gap: 8px; padding: 5px 4px;
+  font-size: 12px; cursor: pointer; border-radius: 6px;
+}
+.brick-check:hover { background: rgba(167,139,250,.08); }
+.brick-check input { margin-top: 2px; accent-color: var(--gold); }
+.brick-picker-count { font-size: 11px; color: var(--dim); margin-top: 8px; }
+</style>
+</head>
+<body>
+<!-- Mobile app shell: top bar -->
+<div class="mobile-topbar">
+  <button class="hamburger" onclick="toggleDrawer()" aria-label="Menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+  <div class="mt-logo">MONTANA<span>.</span></div>
+  <div class="av" id="admin-av-mobile">AD</div>
+</div>
+<div class="mobile-overlay" id="mobile-overlay" onclick="closeDrawer()"></div>
+
+<div class="crm-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="crm-sidebar">
+    <button class="drawer-close" onclick="closeDrawer()" aria-label="Close menu">✕</button>
+    <div class="logo">MONTANA<span>.</span><small>Admin CRM</small></div>
+    <nav class="nav">
+      <div class="nav-section">Overview</div>
+      <a class="nav-item active" onclick="showPage('dashboard',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item" onclick="showPage('gps-audit',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+        GPS Audit
+      </a>
+      <a class="nav-item" onclick="showPage('map',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 20l-6-3V4l6 3 6-3 6 3v13l-6-3-6 3z"/><path d="M9 7v13M15 4v13"/></svg>
+        Territory Map
+      </a>
+
+      <div class="nav-section">Field</div>
+      <a class="nav-item" onclick="showPage('doctors',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Doctors &amp; HCOs
+      </a>
+      <a class="nav-item" onclick="showPage('reps',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        Sales Reps
+      </a>
+      <a class="nav-item" onclick="showPage('visits',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M9 22V9"/></svg>
+        Visit Reports
+      </a>
+      <a class="nav-item" onclick="showPage('b2b-invoices',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+        B2B Invoices <span class="nav-badge" id="nav-b2b-count"></span>
+      </a>
+
+      <div class="nav-section">Reports</div>
+      <a class="nav-item" onclick="showPage('samples',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3h6l1 9H8zM8 12c0 5 8 5 8 0"/></svg>
+        Samples Report
+      </a>
+      <a class="nav-item" onclick="showPage('competitors',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M12 3l9 9-9 9-9-9z"/></svg>
+        Competitor Intel
+      </a>
+      <a class="nav-item" onclick="showPage('leaderboard',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 17V9m4 8V5m4 12v-5"/></svg>
+        Leaderboard
+      </a>
+      <a class="nav-item" onclick="showPage('sales-report',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
+        Sales &amp; Invoices
+      </a>
+      <a class="nav-item" onclick="showPage('ar-schedule',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Accounts / AR <span class="nav-badge" id="nav-ar-count"></span>
+      </a>
+
+      <div class="nav-section">Settings</div>
+      <a class="nav-item" onclick="showPage('edetailing',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16v16H4z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>
+        eDetailing Materials
+      </a>
+      <a class="nav-item" onclick="showPage('products',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Products
+      </a>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="sidebar-user">
+        <div class="av" id="admin-av">AD</div>
+        <div class="info"><b id="admin-name">Admin</b><span>HQ Cairo</span></div>
+      </div>
+      <button onclick="location.href='/crm/guide.html'" style="width:100%;margin-top:10px;padding:9px;border-radius:9px;border:1px solid rgba(201,168,76,.3);background:none;color:#E8D48A;font-family:'Jost',sans-serif;font-size:12px;cursor:pointer;letter-spacing:.04em">📖 دليل الاستخدام</button>
+      <button id="admin-push-btn" onclick="toggleAdminPush()" style="width:100%;margin-top:8px;padding:9px;border-radius:9px;border:1px solid rgba(167,139,250,.35);background:none;color:#A78BFA;font-family:'Jost',sans-serif;font-size:12px;cursor:pointer;letter-spacing:.04em">🔔 CRM alerts</button>
+      <button onclick="doLogout()" style="width:100%;margin-top:8px;padding:9px;border-radius:9px;border:1px solid rgba(240,153,123,.3);background:none;color:#F0997B;font-family:'Jost',sans-serif;font-size:12px;cursor:pointer;letter-spacing:.04em">Sign out</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="crm-main">
+
+    <!-- Dashboard -->
+    <div class="page active" id="p-dashboard">
+      <div class="topbar">
+        <div><h1>Field overview</h1><p id="dash-subtitle">Live data across all offices</p></div>
+        <div class="topbar-right">
+          <button class="btn btn-sm" onclick="exportReport()">↓ Export</button>
+          <button class="btn btn-gold btn-sm" onclick="showPage('doctors'); openAddDoctor()">+ Add doctor</button>
+        </div>
+      </div>
+      <div class="kpi-grid" id="dash-kpis">
+        <div class="kpi"><div class="lbl">زيارات اليوم</div><div class="val" id="k-today">—</div><div class="delta delta-up" id="k-today-d"></div></div>
+        <div class="kpi"><div class="lbl">زيارات الشهر</div><div class="val" id="k-month-visits">—</div><div class="delta" id="k-month-visits-d"></div></div>
+        <div class="kpi"><div class="lbl">صيدليات / دكاترة</div><div class="val" id="k-type-split">—</div><div class="delta" id="k-type-split-d"></div></div>
+        <div class="kpi"><div class="lbl">GPS مشبوه</div><div class="val" id="k-gps">—</div><div class="delta delta-warn" id="k-gps-d"></div></div>
+      </div>
+      <div class="card" style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+          <div>
+            <h2 style="margin:0">الزيارات حسب العميل</h2>
+            <div class="sub">صيدليات ودكاترة — عدد الزيارات في الشهر</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input type="month" id="dash-visit-month" onchange="loadVisitStatsDashboard()" style="padding:8px 10px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:#fff">
+            <select id="dash-visit-type-filter" onchange="renderVisitStatsClients()" style="padding:8px 10px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:#fff">
+              <option value="">كل العملاء</option>
+              <option value="pharmacy">صيدليات فقط</option>
+              <option value="doctor">دكاترة فقط</option>
+            </select>
+          </div>
+        </div>
+        <div class="mini-cards" id="dash-visit-kpis" style="margin-bottom:14px"></div>
+        <div class="table-wrap"><table>
+          <thead><tr>
+            <th>العميل</th><th>النوع</th><th>التصنيف</th><th>البرك</th><th>عدد الزيارات</th><th>فعلية</th><th>آخر زيارة</th><th>المندوب</th>
+          </tr></thead>
+          <tbody id="dash-visit-clients"></tbody>
+        </table></div>
+      </div>
+      <div class="stack-mobile" style="display:grid;grid-template-columns:1.6fr 1fr;gap:18px">
+        <div class="card">
+          <h2>Rep coverage by territory</h2>
+          <div class="sub">Planned vs completed — this cycle</div>
+          <div id="coverage-rows" class="coverage-rows-scroll"></div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:18px">
+            <h2>Alerts</h2>
+            <div class="sub">Needs attention</div>
+            <div id="alerts-list"></div>
+          </div>
+          <div class="card">
+            <h2>Samples snapshot</h2>
+            <div class="sub">Total units distributed today</div>
+            <div id="dash-samples"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GPS Audit -->
+    <div class="page" id="p-gps-audit">
+      <div class="topbar"><div><h1>GPS audit</h1><p>Visits flagged outside allowed range (150m)</p></div></div>
+      <div class="card">
+        <div class="gps-table">
+          <div class="flag-row flag-row-head">
+            <div>Representative</div><div>Doctor</div><div>Distance</div><div>Time</div><div></div>
+          </div>
+          <div id="gps-list"><div class="text-dim text-sm mt-16">Loading…</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Territory Map -->
+    <div class="page" id="p-map">
+      <div class="topbar">
+        <div><h1>Territory map</h1><p>Doctor locations by class + flagged visit positions</p></div>
+        <div class="topbar-right">
+          <select id="map-class" onchange="renderMapMarkers()">
+            <option value="">All classes</option><option>AB1</option><option>AB2</option><option>BB1</option><option>BB2</option>
+          </select>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;text-transform:none;letter-spacing:0;cursor:pointer">
+            <input type="checkbox" id="map-flagged" onchange="renderMapMarkers()"> Show flagged visits
+          </label>
+        </div>
+      </div>
+      <div class="card" style="padding:10px">
+        <div id="map-empty-hint" class="text-dim text-sm" style="display:none;padding:8px 4px 12px;line-height:1.5"></div>
+        <div id="map" style="height:calc(100vh - 210px);min-height:420px;border-radius:12px"></div>
+        <div style="display:flex;gap:16px;margin-top:10px;font-size:12px;color:var(--dim);flex-wrap:wrap">
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#E8D48A"></span> AB1</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#A78BFA"></span> AB2</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#7dd3fc"></span> BB1</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#94a3b8"></span> BB2</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#F0997B"></span> Flagged visit (rep position)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Doctors -->
+    <div class="page" id="p-doctors">
+      <div class="topbar">
+        <div><h1>Doctors &amp; HCOs</h1><p id="dr-count">Loading…</p></div>
+        <div class="topbar-right">
+          <button class="btn btn-sm" onclick="openImport()">↑ Import Excel</button>
+          <button class="btn btn-gold btn-sm" onclick="openAddDoctor()">+ Add doctor</button>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <input type="text" id="dr-search" placeholder="Search by name or address…" style="flex:1;min-width:200px" oninput="filterDoctors()">
+          <select id="dr-class" onchange="filterDoctors()"><option value="">All classes</option><option>AB1</option><option>AB2</option><option>BB1</option><option>BB2</option></select>
+          <select id="dr-pending" onchange="filterDoctors()"><option value="">All status</option><option value="false">Pending approval</option><option value="true">Approved</option></select>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap"><table>
+          <thead><tr><th>Name</th><th>Brick</th><th>Class</th><th>Visits/mo</th><th>Specialty</th><th>GPS</th><th>Status</th><th></th></tr></thead>
+          <tbody id="doctors-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- Reps -->
+    <div class="page" id="p-reps">
+      <div class="topbar"><div><h1>Sales reps</h1><p>Manage rep accounts and territory assignments</p></div>
+        <div class="topbar-right"><button class="btn btn-gold btn-sm" onclick="openAddRep()">+ Add rep</button></div>
+      </div>
+      <div class="card">
+        <div id="reps-list"><div class="text-dim text-sm">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- Visit Reports -->
+    <div class="page" id="p-visits">
+      <div class="topbar"><div><h1>تقارير الزيارات</h1><p>كل زيارات المندوبين — صيدليات ودكاترة</p></div>
+        <div class="topbar-right">
+          <input type="month" id="vr-month" onchange="loadVisitReports()" style="padding:8px 10px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:#fff">
+          <select id="vr-type" onchange="loadVisitReports()">
+            <option value="">كل الأنواع</option>
+            <option value="pharmacy">صيدليات</option>
+            <option value="doctor">دكاترة</option>
+          </select>
+          <select id="vr-rep" onchange="loadVisitReports()"><option value="">كل المندوبين</option></select>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;text-transform:none;letter-spacing:0;cursor:pointer">
+            <input type="checkbox" id="vr-flagged" onchange="loadVisitReports()"> GPS مشبوه فقط
+          </label>
+        </div>
+      </div>
+      <div class="mini-cards" id="vr-summary" style="margin-bottom:14px"></div>
+      <div class="card">
+        <div class="table-wrap"><table>
+          <thead><tr><th>المندوب</th><th>العميل</th><th>النوع</th><th>البرك</th><th>التاريخ</th><th>الفترة</th><th>نوع الزيارة</th><th>عينات</th><th>B2B</th><th>GPS</th><th>صورة</th><th></th></tr></thead>
+          <tbody id="visits-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- B2B Invoice Queue -->
+    <div class="page" id="p-b2b-invoices">
+      <div class="topbar">
+        <div><h1>B2B invoice queue</h1><p>Visits flagged for pharmacy / HCO billing</p></div>
+        <div class="topbar-right"><button class="btn btn-sm" onclick="loadB2bQueue()">↻ Refresh</button></div>
+      </div>
+      <div class="card">
+        <div class="table-wrap"><table>
+          <thead><tr><th>Rep</th><th>Client</th><th>Brick</th><th>Date</th><th>Samples</th><th>Type</th><th></th></tr></thead>
+          <tbody id="b2b-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- Sales Report -->
+    <div class="page" id="p-sales-report">
+      <div class="topbar">
+        <div><h1>Sales &amp; invoices</h1><p>Monthly revenue linked to CRM territory</p></div>
+        <div class="topbar-right" style="display:flex;gap:8px;align-items:center">
+          <input type="month" id="sr-month" onchange="loadSalesReport()" style="padding:8px 10px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:#fff">
+          <button class="btn btn-sm" onclick="loadSalesReport()">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="mini-cards" id="sr-kpis"></div>
+      <div class="stack-mobile" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px">
+        <div class="card"><h2>By brick</h2><div id="sr-brick"></div></div>
+        <div class="card"><h2>By doctor class</h2><div id="sr-class"></div></div>
+        <div class="card"><h2>By rep (from visits)</h2><div id="sr-rep"></div></div>
+      </div>
+
+      <div class="card" style="margin-bottom:18px">
+        <h2>All invoices</h2>
+        <div class="sub">Every invoice this month, individually — orders, admin-issued, and rep-issued</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Invoice #</th><th>Client</th><th>Rep</th><th>Source</th><th>Date</th><th>Total</th><th>Paid</th><th>Remaining</th><th>Status</th><th></th></tr></thead>
+          <tbody id="sr-invoices-tbody"></tbody>
+        </table></div>
+      </div>
+
+      <div class="card">
+        <h2>Reconciliation files</h2>
+        <div class="sub">Upload distributor/pharmacy sales sheets (Excel/CSV) for reference — kept here for download, not auto-imported</div>
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px">
+          <input type="file" id="sales-file-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="uploadSalesFile(this)">
+          <button class="btn btn-gold btn-sm" onclick="document.getElementById('sales-file-input').click()">↑ Upload file</button>
+          <span id="sales-file-status" class="text-dim text-sm"></span>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>File</th><th>Uploaded</th><th>Size</th><th></th></tr></thead>
+          <tbody id="sales-files-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- AR / Collection Schedule -->
+    <div class="page" id="p-ar-schedule">
+      <div class="topbar">
+        <div><h1>Accounts receivable</h1><p>Credit invoices — collection due within 30 days</p></div>
+        <div class="topbar-right"><button class="btn btn-sm" onclick="loadArSchedule()">↻ Refresh</button></div>
+      </div>
+      <div class="mini-cards" id="ar-kpis"></div>
+      <div class="card">
+        <div class="table-wrap"><table>
+          <thead><tr><th>Invoice</th><th>Client</th><th>Rep</th><th>Due</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th><th></th></tr></thead>
+          <tbody id="ar-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- Samples Report -->
+    <div class="page" id="p-samples">
+      <div class="topbar"><div><h1>Samples report</h1><p>All distributed samples — this month</p></div>
+        <div class="topbar-right"><button class="btn btn-sm" onclick="exportSamples()">↓ Export CSV</button></div>
+      </div>
+      <div class="mini-cards" id="samples-kpis"></div>
+
+      <div class="card" style="margin-bottom:18px">
+        <h2>Sample custody</h2>
+        <div class="sub">Give reps a running allotment from the warehouse — they draw from it as they log visits</div>
+        <div class="form-grid" style="margin-bottom:16px">
+          <div class="form-group"><label>Rep</label><select id="cust-rep"></select></div>
+          <div class="form-group"><label>Product</label><select id="cust-product"></select></div>
+          <div class="form-group"><label>Quantity (negative to reclaim)</label><input id="cust-qty" type="number" placeholder="e.g. 20 or -5"></div>
+          <div class="form-group"><label>Note (optional)</label><input id="cust-note" placeholder="e.g. Q3 restock"></div>
+        </div>
+        <button class="btn btn-gold btn-sm" id="cust-allocate-btn" onclick="allocateSample()">Give / reclaim samples</button>
+
+        <div class="mini-cards" id="cust-stock-summary" style="margin-top:22px"></div>
+
+        <div class="table-wrap" style="margin-top:14px"><table>
+          <thead><tr><th>Rep</th><th>Product</th><th>Currently holding</th><th>Last updated</th></tr></thead>
+          <tbody id="cust-tbody"></tbody>
+        </table></div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap"><table>
+          <thead><tr><th>Rep</th><th>Product</th><th>Units</th><th>Doctor</th><th>Brick</th><th>Date</th></tr></thead>
+          <tbody id="samples-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- Competitor Intel -->
+    <div class="page" id="p-competitors">
+      <div class="topbar"><div><h1>Competitor intel</h1><p>Products mentioned by doctors in field visits</p></div></div>
+      <div class="stack-mobile" style="display:grid;grid-template-columns:1fr 1.5fr;gap:18px">
+        <div class="card">
+          <h2>Mentions by product</h2><div class="sub">All time</div>
+          <div id="comp-chart"></div>
+        </div>
+        <div class="card">
+          <h2>Recent mentions</h2><div class="sub">From visit reports</div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Competitor</th><th>Doctor</th><th>Rep</th><th>Date</th></tr></thead>
+            <tbody id="comp-tbody"></tbody>
+          </table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="page" id="p-leaderboard">
+      <div class="topbar"><div><h1>Leaderboard</h1><p id="lb-month">This month's performance ranking</p></div></div>
+      <div class="stack-mobile" style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+        <div class="card">
+          <h2>Coverage ranking</h2><div class="sub">% planned visits completed</div>
+          <div id="lb-list"></div>
+        </div>
+        <div class="card">
+          <h2>Samples distributed</h2><div class="sub">Total units by rep</div>
+          <div id="lb-samples"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- eDetailing -->
+    <div class="page" id="p-edetailing">
+      <div class="topbar"><div><h1>eDetailing materials</h1><p>Upload PDFs and images reps show during visits</p></div></div>
+      <div class="stack-mobile" style="display:grid;grid-template-columns:1fr 1.5fr;gap:18px">
+        <div class="card">
+          <h2>Upload material</h2><div class="sub">PDF or image per product</div>
+          <div class="form-group" style="margin-bottom:14px">
+            <label>Product</label>
+            <select id="mat-product"></select>
+          </div>
+          <div class="upload-area" onclick="document.getElementById('mat-file').click()">
+            <input type="file" id="mat-file" accept=".pdf,image/*" onchange="uploadMaterial()">
+            <div style="font-size:28px;margin-bottom:8px">📎</div>
+            <div style="font-size:13px">Click to upload PDF or image</div>
+            <div style="font-size:11px;color:var(--dim);margin-top:4px">Max 20MB</div>
+          </div>
+          <div id="upload-status" style="font-size:12px;color:var(--dim)"></div>
+        </div>
+        <div class="card">
+          <h2>Uploaded materials</h2><div class="sub" id="mat-count"></div>
+          <div id="mat-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products -->
+    <div class="page" id="p-products">
+      <div class="topbar"><div><h1>Products</h1><p>Montana product catalog</p></div>
+        <div class="topbar-right">
+          <button class="btn btn-sm" onclick="syncStoreProductLinks()" title="ربط منتجات CRM بمنتجات الموقع بالاسم">🔗 ربط بالمتجر</button>
+          <button class="btn btn-gold btn-sm" onclick="openAddProduct()">+ Add product</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap"><table>
+          <thead><tr><th>Product name</th><th>Store link</th><th>Materials</th><th>Status</th><th></th></tr></thead>
+          <tbody id="products-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Mobile app shell: bottom tab bar -->
+<nav class="mobile-botnav">
+  <button class="mobile-botnav-item active" data-page="dashboard" onclick="showPage('dashboard', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    <span>Home</span>
+  </button>
+  <button class="mobile-botnav-item" data-page="visits" onclick="showPage('visits', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M9 22V9"/></svg>
+    <span>Visits</span>
+  </button>
+  <button class="mobile-botnav-item" data-page="doctors" onclick="showPage('doctors', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <span>Doctors</span>
+  </button>
+  <button class="mobile-botnav-item" data-page="reps" onclick="showPage('reps', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    <span>Reps</span>
+  </button>
+  <button class="mobile-botnav-item" onclick="toggleDrawer()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+    <span>More</span>
+  </button>
+</nav>
+
+<!-- Add / Edit Doctor Modal -->
+<div class="modal-overlay hidden" id="m-doctor">
+  <div class="modal">
+    <h2 id="fd-title">Add doctor / HCO</h2>
+    <div class="sub" id="fd-sub">New contact for the field team</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Full name</label><input id="fd-name" placeholder="Dr. Mohamed Ali"></div>
+      <div class="form-group"><label>Class</label>
+        <select id="fd-class" onchange="updateTargetVisitsHint()"><option>AB1</option><option>AB2</option><option>BB1</option><option>BB2</option></select>
+      </div>
+      <div class="form-group"><label>Visits / month</label>
+        <input id="fd-target-visits" type="number" min="0" max="31" placeholder="Auto by class" oninput="updateTargetVisitsHint()">
+        <div class="td-muted text-sm" id="fd-target-visits-hint" style="margin-top:4px">Auto by class</div>
+      </div>
+      <div class="form-group"><label>Specialty</label>
+        <select id="fd-spec"><option>Derma</option><option>Pedia</option><option>General</option><option>Internal</option><option>Pharmacy</option></select>
+      </div>
+      <div class="form-group"><label>Type</label>
+        <select id="fd-type" onchange="toggleCreditFields(this.value)"><option value="doctor">Doctor</option><option value="pharmacy">Pharmacy</option><option value="polyclinic">Polyclinic</option><option value="hospital">Hospital</option></select>
+      </div>
+      <div class="form-group"><label>Org type</label>
+        <select id="fd-org"><option>PRIVATE CLINIC</option><option>PHARMACY</option><option>HOSPITAL</option></select>
+      </div>
+      <div class="form-group"><label>Brick</label><select id="fd-brick"></select></div>
+      <div class="form-group"><label>Status</label>
+        <select id="fd-approved"><option value="true">Approved</option><option value="false">Pending</option></select>
+      </div>
+      <div class="form-group full"><label>Address</label><input id="fd-addr" placeholder="Street, area, city"></div>
+      <div class="form-group"><label>Phone</label><input id="fd-phone" placeholder="+20 10x xxxx xxxx"></div>
+      <div class="form-group" id="fd-credit-wrap"><label>Credit limit (EGP)</label><input id="fd-credit-limit" type="number" min="0" placeholder="0 = unlimited"></div>
+      <div class="form-group" id="fd-terms-wrap"><label>Credit terms (max 30 days)</label><input id="fd-credit-terms" type="number" min="1" max="30" value="30"></div>
+      <div class="form-group full hidden" id="fd-credit-status"><label>Credit status</label><div id="fd-credit-info" class="text-dim text-sm">—</div></div>
+      <div class="form-group"><label>Notes</label><input id="fd-notes" placeholder="Optional notes"></div>
+      <div class="form-group full hidden" id="fd-invoices-wrap">
+        <label>Invoices</label>
+        <div id="fd-invoices-list" class="text-dim text-sm" style="max-height:120px;overflow:auto">—</div>
+        <button type="button" class="btn btn-gold btn-sm" style="margin-top:10px" onclick="issueDoctorInvoice()">📄 Issue invoice</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('m-doctor')">Cancel</button>
+      <button class="btn btn-gold" id="fd-save-btn" onclick="saveDoctor()">Save doctor</button>
+    </div>
+  </div>
+</div>
+
+<!-- Link Invoice to Doctor/Pharmacy Modal -->
+<div class="modal-overlay hidden" id="m-link-doctor">
+  <div class="modal">
+    <h2>Link invoice</h2>
+    <div class="sub">Attach this invoice to a registered doctor or pharmacy</div>
+    <input id="link-doctor-search" placeholder="Search by name…" oninput="renderLinkDoctorList()" style="margin-bottom:12px">
+    <div id="link-doctor-list" style="max-height:320px;overflow-y:auto;border:1px solid var(--panel-b);border-radius:10px"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('m-link-doctor')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add / Edit Product Modal -->
+<div class="modal-overlay hidden" id="m-product">
+  <div class="modal">
+    <h2 id="fp-title">Add product</h2>
+    <div class="sub">Montana product catalog</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Product name</label><input id="fp-name" placeholder="Montana Therm Serum"></div>
+      <div class="form-group full"><label>Description</label><input id="fp-desc" placeholder="Optional description"></div>
+      <div class="form-group full"><label>Linked store product (warehouse / invoices)</label>
+        <select id="fp-store-product"><option value="">— Not linked —</option></select>
+      </div>
+      <div class="form-group full"><label>Status</label>
+        <select id="fp-active"><option value="true">Active</option><option value="false">Inactive</option></select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('m-product')">Cancel</button>
+      <button class="btn btn-gold" id="fp-save-btn" onclick="saveProduct()">Save product</button>
+    </div>
+  </div>
+</div>
+
+<!-- Excel Import Modal -->
+<div class="modal-overlay hidden" id="m-import">
+  <div class="modal">
+    <h2>Import doctors from Excel</h2>
+    <div class="sub">Upload .xlsx / .csv — one row per doctor</div>
+    <div style="font-size:12px;color:var(--dim);line-height:1.7;margin:12px 0">
+      Expected columns (English or Arabic headers):<br>
+      <b>name*</b> (الاسم), class (التصنيف: AB1/AB2/BB1/BB2), specialty (التخصص),
+      type (النوع: doctor/pharmacy/polyclinic/hospital), brick (البريك — matched by name),
+      address (العنوان), phone (الهاتف), notes (ملاحظات)<br>
+      <a onclick="downloadImportTemplate()" style="color:var(--gold-l);cursor:pointer;text-decoration:underline">↓ Download template</a>
+    </div>
+    <div class="upload-area" onclick="document.getElementById('imp-file').click()">
+      <input type="file" id="imp-file" accept=".xlsx,.xls,.csv" onchange="parseImportFile()">
+      <div style="font-size:26px;margin-bottom:6px">📥</div>
+      <div style="font-size:13px" id="imp-file-label">Click to choose Excel / CSV file</div>
+    </div>
+    <div id="imp-preview" style="font-size:12px;color:var(--dim);margin-bottom:10px"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('m-import')">Cancel</button>
+      <button class="btn btn-gold" id="imp-save-btn" onclick="runImport()" disabled>Import</button>
+    </div>
+  </div>
+</div>
+
+<!-- Manage Rep Modal -->
+<div class="modal-overlay hidden" id="m-manage-rep" onclick="if(event.target===this)closeModal('m-manage-rep')">
+  <div class="modal modal-scroll" style="width:min(560px,94vw)">
+    <div class="modal-head">
+      <div>
+        <h2>Manage rep</h2>
+        <div class="sub" id="mr-email-sub">—</div>
+      </div>
+      <button type="button" class="modal-close" onclick="closeModal('m-manage-rep')" aria-label="إغلاق">✕</button>
+    </div>
+    <div id="mr-kpis" class="rep-kpi-strip"></div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Full name</label><input id="mr-name" placeholder="Ahmed Saber"></div>
+      <div class="form-group"><label>Territory label</label><input id="mr-territory" placeholder="Fayoum &amp; Bani Suif"></div>
+      <div class="form-group"><label>Phone</label><input id="mr-phone" placeholder="+20 1xx"></div>
+      <div class="form-group full">
+        <label>Status</label>
+        <select id="mr-active">
+          <option value="true">Active</option>
+          <option value="false">Inactive</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Assigned bricks <span style="color:var(--dim);font-weight:400">(required for plan &amp; visits)</span></label>
+        <div class="brick-picker" id="mr-bricks"></div>
+      </div>
+    </div>
+    <div class="modal-actions" style="justify-content:space-between">
+      <button class="btn" id="mr-delete-btn" onclick="deleteRep()" style="border-color:rgba(240,153,123,.4);color:#F0997B">Delete rep</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" onclick="closeModal('m-manage-rep')">Cancel</button>
+        <button class="btn" onclick="resetRepPassword()">Set new password</button>
+        <button class="btn btn-gold" id="mr-save-btn" onclick="saveManageRep()">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Rep Modal -->
+<div class="modal-overlay hidden" id="m-rep" onclick="if(event.target===this)closeModal('m-rep')">
+  <div class="modal modal-scroll" style="width:560px">
+    <div class="modal-head">
+      <div><h2>Add sales rep</h2></div>
+      <button type="button" class="modal-close" onclick="closeModal('m-rep')" aria-label="إغلاق">✕</button>
+    </div>
+    <div class="sub">Create account, then assign the bricks this rep covers</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Full name</label><input id="fr-name" placeholder="Ahmed Saber"></div>
+      <div class="form-group full"><label>Email</label><input id="fr-email" type="email" placeholder="rep@montana.com"></div>
+      <div class="form-group full"><label>Password</label><input id="fr-password" type="password" placeholder="Minimum 6 characters"></div>
+      <div class="form-group"><label>Territory label</label><input id="fr-territory" placeholder="Fayoum &amp; Bani Suif"></div>
+      <div class="form-group"><label>Phone</label><input id="fr-phone" placeholder="+20 1xx"></div>
+      <div class="form-group full">
+        <label>Assigned bricks <span style="color:var(--dim);font-weight:400">(doctors &amp; auto-plan use these)</span></label>
+        <div class="brick-picker" id="fr-bricks"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('m-rep')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveRep()">Create rep</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import {
+  auth, doctors, geo, plans, visits, products, materials,
+  leaderboard, samplesReport, sampleCustody, reps, invoiceIntegration, invoicesAdmin, salesFileUploads, SUPABASE_URL, SUPABASE_KEY, isCrmAdminAccess,
+  adminPush, getPharmacyCreditStatus, getRepMonthKpis
+} from '/crm/js/crm-api.js';
+
+window.invoiceIntegration = invoiceIntegration;
+
+// ── State ─────────────────────────────────────────────────
+let ALL_DOCTORS = [], ALL_REPS = [], ALL_PRODUCTS = [], ALL_VISITS = [], BRICKS = [], STORE_PRODUCTS = [];
+let REP_BRICK_COUNTS = {}, VISIT_STATS = null;
+
+function clientTypeLabel(t) {
+  if (t === 'pharmacy') return 'صيدلية';
+  if (t === 'polyclinic') return 'عيادة';
+  if (t === 'hospital') return 'مستشفى';
+  return 'دكتور';
+}
+function visitTypeLabel(t) {
+  if (t === 'actual') return 'فعلية';
+  if (t === 'no_show') return 'لم يحضر';
+  if (t === 'follow_up') return 'متابعة';
+  return t || 'عادية';
+}
+function initMonthInput(el) {
+  if (!el) return;
+  const n = new Date();
+  el.value = `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}`;
+}
+function parseMonthInput(val) {
+  if (!val) return { year: null, month: null };
+  const [y, m] = val.split('-').map(Number);
+  return { year: y, month: m };
+}
+
+// ── Page routing ──────────────────────────────────────────
+window.showPage = (name, el) => {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('p-' + name)?.classList.add('active');
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.mobile-botnav-item').forEach(n => n.classList.toggle('active', n.dataset.page === name));
+  closeDrawer();
+  const loader = PAGE_LOADERS[name];
+  if (loader) loader().catch(e => toast(e.message || 'Failed to load page', 'err'));
+};
+
+window.toggleDrawer = () => {
+  document.getElementById('crm-sidebar')?.classList.toggle('open');
+  document.getElementById('mobile-overlay')?.classList.toggle('show');
+};
+window.closeDrawer = () => {
+  document.getElementById('crm-sidebar')?.classList.remove('open');
+  document.getElementById('mobile-overlay')?.classList.remove('show');
+};
+
+const PAGE_LOADERS = {
+  dashboard:   loadDashboard,
+  'gps-audit': loadGPSAudit,
+  map:         loadMap,
+  doctors:     loadDoctors,
+  reps:        loadReps,
+  visits:      loadVisitReports,
+  'b2b-invoices': loadB2bQueue,
+  'sales-report': () => Promise.all([loadSalesReport(), loadSalesFiles()]),
+  'ar-schedule': loadArSchedule,
+  samples:     () => Promise.all([loadSamples(), loadSampleCustody()]),
+  competitors: loadCompetitors,
+  leaderboard: loadLeaderboard,
+  edetailing:  loadEDetailing,
+  products:    loadProducts,
+};
+
+// ── Init ──────────────────────────────────────────────────
+async function init() {
+  try {
+    const me = await auth.me();
+    if (!me?.user) { location.href = '/crm/'; return; }
+    const canAdmin = await isCrmAdminAccess();
+    if (!canAdmin) {
+      if (me.rep) location.href = '/crm/rep/';
+      else location.href = '/crm/';
+      return;
+    }
+    const initials = (me.user.email || 'AD').slice(0, 2).toUpperCase();
+    document.getElementById('admin-av').textContent = initials;
+    document.getElementById('admin-av-mobile').textContent = initials;
+    document.getElementById('admin-name').textContent = me.user.email?.split('@')[0] || 'Admin';
+
+    BRICKS = await geo.bricks();
+    ALL_PRODUCTS = await products.list();
+    populateBrickSelect();
+    populateProductSelect();
+    try { STORE_PRODUCTS = await invoiceIntegration.listStoreProducts(); } catch { STORE_PRODUCTS = []; }
+
+    initMonthInput(document.getElementById('dash-visit-month'));
+    initMonthInput(document.getElementById('vr-month'));
+    loadDashboard();
+    refreshAdminPushButton();
+    loadArSchedule().catch(() => {});
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+// ── Dashboard ─────────────────────────────────────────────
+async function loadDashboard() {
+  const now = new Date();
+  document.getElementById('dash-subtitle').textContent =
+    now.toLocaleDateString('ar-EG', { weekday:'long', month:'long', day:'numeric' }) + ' — بيانات مباشرة';
+
+  ALL_VISITS = await visits.adminAll();
+  const todayStr = now.toISOString().slice(0, 10);
+  const todayV = ALL_VISITS.filter(v => v.visited_at?.slice(0, 10) === todayStr);
+  const flagged = ALL_VISITS.filter(v => !v.gps_verified);
+
+  document.getElementById('k-today').textContent = todayV.length;
+  document.getElementById('k-today-d').textContent = `${todayV.length} زيارة اليوم`;
+  document.getElementById('k-gps').textContent = flagged.length;
+  document.getElementById('k-gps-d').textContent = flagged.length ? 'يحتاج مراجعة' : 'كلها موثقة ✓';
+
+  await loadVisitStatsDashboard();
+
+  const lb = await leaderboard.get();
+  document.getElementById('coverage-rows').innerHTML = lb.slice(0, 6).map(r => {
+    const pct = r.coverage_pct || 0;
+    return `<div class="coverage-row" style="display:grid;grid-template-columns:1.4fr .8fr 1fr .6fr;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="av av-sm">${r.name.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+        ${r.name}
+      </div>
+      <div class="text-dim text-sm">${r.territory || '—'}</div>
+      <div class="bar-track"><div class="bar-fill ${pct >= 90 ? 'gold' : ''}" style="width:${pct}%"></div></div>
+      <div style="text-align:right;font-weight:500">${pct}%</div>
+    </div>`;
+  }).join('');
+
+  // Alerts
+  const alerts = [];
+  try {
+    const pendingB2b = await invoiceIntegration.getPendingB2b();
+    refreshB2bBadge(pendingB2b.length);
+    pendingB2b.slice(0, 3).forEach(v => {
+      const fin = summarizeFinRequests(v.financial_requests);
+      alerts.push({
+      icon: '📄', type: 'warn',
+      text: `<b>Invoice queue</b> — ${v.doctor_name} (${v.rep_name})${fin ? ` · ${fin}` : ''}`,
+      time: new Date(v.visited_at).toLocaleString('en', { hour:'2-digit', minute:'2-digit', month:'short', day:'numeric' }),
+      action: `showPage('b2b-invoices'); loadB2bQueue()`
+    });
+    });
+  } catch { refreshB2bBadge(0); }
+  try {
+    const overdue = await invoiceIntegration.getOverdueInvoices();
+    overdue.filter(o => o.urgency === 'overdue').slice(0, 3).forEach(o => alerts.push({
+      icon: '⏰', type: 'bad',
+      text: `<b>Overdue invoice</b> ${o.invoice_number} — ${o.doctor_name || 'Client'} · ${Number(o.total || 0).toFixed(0)} EGP`,
+      time: o.due_date ? `Due ${o.due_date}` : '',
+      action: `showPage('ar-schedule', document.querySelector('[onclick*="ar-schedule"]')); loadArSchedule()`
+    }));
+  } catch { /* migration may not be applied yet */ }
+  flagged.slice(0, 3).forEach(v => alerts.push({
+    icon: '⚠️', type: 'bad',
+    text: `<b>${v.crm_reps?.name}</b> — visit flagged ${v.distance_from_doctor}m from ${v.crm_doctors?.name}`,
+    time: new Date(v.visited_at).toLocaleString('en', { hour:'2-digit', minute:'2-digit', month:'short', day:'numeric' })
+  }));
+  document.getElementById('alerts-list').innerHTML = alerts.length
+    ? alerts.map(a => `<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);cursor:${a.action?'pointer':'default'}" ${a.action ? `onclick="${a.action}"` : ''}>
+        <div style="font-size:18px">${a.icon}</div>
+        <div><div style="font-size:13px">${a.text}</div><div class="text-dim text-sm mt-8">${a.time}</div></div>
+      </div>`).join('')
+    : '<div class="text-dim text-sm mt-8">No alerts — all visits verified ✓</div>';
+
+  // Samples snapshot
+  const sData = await samplesReport.get();
+  const byProd = {};
+  sData.forEach(s => {
+    const pname = s.crm_products?.name || 'Unknown';
+    byProd[pname] = (byProd[pname] || 0) + s.quantity;
+  });
+  document.getElementById('dash-samples').innerHTML = Object.entries(byProd).map(([p, q]) =>
+    `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px">
+      <span>${p}</span><span style="color:var(--gold-l);font-weight:500">${q} units</span>
+    </div>`
+  ).join('') || '<div class="text-dim text-sm mt-8">No samples recorded today.</div>';
+}
+
+window.loadVisitStatsDashboard = async function loadVisitStatsDashboard() {
+  const { year, month } = parseMonthInput(document.getElementById('dash-visit-month')?.value);
+  try {
+    VISIT_STATS = await visits.getAdminStats(year, month);
+  } catch (e) {
+    VISIT_STATS = null;
+    document.getElementById('k-month-visits').textContent = '—';
+    document.getElementById('k-month-visits-d').textContent = 'شغّل migration 063';
+    document.getElementById('k-type-split').textContent = '—';
+    document.getElementById('dash-visit-kpis').innerHTML = '';
+    document.getElementById('dash-visit-clients').innerHTML =
+      `<tr><td colspan="8" class="text-dim text-sm" style="padding:16px 0">تعذّر تحميل الإحصائيات — نفّذ migration 063 في Supabase</td></tr>`;
+    return;
+  }
+  const t = VISIT_STATS.totals || {};
+  document.getElementById('k-month-visits').textContent = t.total ?? 0;
+  document.getElementById('k-month-visits-d').textContent =
+    `${t.actual ?? 0} فعلية · ${t.unique_clients ?? 0} عميل`;
+  document.getElementById('k-type-split').textContent = `${t.pharmacy ?? 0} / ${t.doctor ?? 0}`;
+  document.getElementById('k-type-split-d').textContent = 'صيدليات / دكاترة';
+
+  document.getElementById('dash-visit-kpis').innerHTML = [
+    { lbl: 'إجمالي الشهر', val: t.total ?? 0 },
+    { lbl: 'زيارات فعلية', val: t.actual ?? 0 },
+    { lbl: 'صيدليات', val: t.pharmacy ?? 0 },
+    { lbl: 'دكاترة', val: t.doctor ?? 0 },
+    { lbl: 'عملاء مختلفين', val: t.unique_clients ?? 0 },
+    { lbl: 'GPS مشبوه', val: t.gps_flagged ?? 0 }
+  ].map(k => `<div class="mini-card"><div class="mc-lbl">${k.lbl}</div><div class="mc-val">${k.val}</div></div>`).join('');
+
+  renderVisitStatsClients();
+};
+
+window.renderVisitStatsClients = function renderVisitStatsClients() {
+  const filter = document.getElementById('dash-visit-type-filter')?.value || '';
+  let rows = VISIT_STATS?.by_client || [];
+  if (filter === 'pharmacy') rows = rows.filter(r => r.client_type === 'pharmacy');
+  else if (filter === 'doctor') rows = rows.filter(r => r.client_type !== 'pharmacy');
+
+  document.getElementById('dash-visit-clients').innerHTML = rows.length
+    ? rows.map(r => {
+        const last = r.last_visit ? new Date(r.last_visit).toLocaleString('ar-EG', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+        return `<tr class="tr-hover">
+          <td><b>${r.client_name || '—'}</b></td>
+          <td><span class="badge ${r.client_type === 'pharmacy' ? 'badge-ab2' : 'badge-ok'}">${clientTypeLabel(r.client_type)}</span></td>
+          <td class="td-muted">${r.class || '—'}</td>
+          <td class="td-muted">${r.brick_name || '—'}</td>
+          <td><b style="color:var(--gold-l)">${r.visit_count ?? 0}</b></td>
+          <td>${r.actual_count ?? 0}</td>
+          <td class="td-muted">${last}</td>
+          <td class="td-muted text-sm">${r.rep_names || '—'}</td>
+        </tr>`;
+      }).join('')
+    : '<tr><td colspan="8" class="text-dim text-sm" style="padding:16px 0">لا توجد زيارات في هذا الشهر.</td></tr>';
+};
+
+// ── GPS Audit ─────────────────────────────────────────────
+async function loadGPSAudit() {
+  const flagged = (await visits.adminAll({ flagged: true }));
+  const el = document.getElementById('gps-list');
+  if (!flagged.length) { el.innerHTML = '<div class="text-dim text-sm mt-16">No flagged visits — all verified ✓</div>'; return; }
+  el.innerHTML = flagged.map(v =>
+    `<div class="flag-row">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="av av-sm">${(v.crm_reps?.name||'?').split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+        ${v.crm_reps?.name || '—'}
+      </div>
+      <div>${v.crm_doctors?.name || '—'}</div>
+      <div><span class="badge badge-bad">${v.distance_from_doctor || '?'}m away</span></div>
+      <div class="text-dim text-sm">${new Date(v.visited_at).toLocaleString('en',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+      <button class="btn btn-sm" onclick="approveVisit('${v.id}')">Approve</button>
+    </div>`
+  ).join('');
+}
+
+window.approveVisit = async (id) => {
+  try {
+    await visits.approve(id);
+    await loadGPSAudit();
+    toast('Visit approved ✓', 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+};
+
+// ── Territory Map ─────────────────────────────────────────
+let MAP = null, MAP_LAYER = null, MAP_FLAGGED = [];
+const CLASS_COLORS = { AB1:'#E8D48A', AB2:'#A78BFA', BB1:'#7dd3fc', BB2:'#94a3b8' };
+// Default visits/month per class (crm_class_rules) — used as a fallback
+// whenever a doctor has no custom target_visits_per_month set.
+const CLASS_VISIT_DEFAULTS = { AB1: 4, AB2: 3, BB1: 2, BB2: 1 };
+
+async function loadMap() {
+  const hint = document.getElementById('map-empty-hint');
+  try {
+    if (!ALL_DOCTORS.length) ALL_DOCTORS = await doctors.list();
+    MAP_FLAGGED = await visits.adminAll({ flagged: true });
+    const withGps = ALL_DOCTORS.filter(d => d.lat && d.lng);
+    if (hint) {
+      hint.style.display = withGps.length ? 'none' : 'block';
+      hint.textContent = withGps.length
+        ? ''
+        : `لا توجد إحداثيات للعملاء (${ALL_DOCTORS.length} عميل). الإحداثيات تُسجّل تلقائياً عند أول زيارة فعلية بموقع صحيح.`;
+    }
+    if (!MAP) {
+      MAP = L.map('map', { zoomControl: true });
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19
+      }).addTo(MAP);
+      MAP.setView([30.05, 31.25], 11);
+    }
+    renderMapMarkers();
+    setTimeout(() => MAP?.invalidateSize(), 100);
+    setTimeout(() => MAP?.invalidateSize(), 400);
+  } catch (e) {
+    if (hint) { hint.style.display = 'block'; hint.textContent = 'خطأ تحميل الخريطة: ' + (e.message || e); }
+  }
+}
+
+window.renderMapMarkers = () => {
+  if (!MAP) return;
+  const cls = document.getElementById('map-class').value;
+  const showFlagged = document.getElementById('map-flagged').checked;
+  if (MAP_LAYER) MAP_LAYER.remove();
+  MAP_LAYER = L.layerGroup().addTo(MAP);
+  const bounds = [];
+
+  ALL_DOCTORS
+    .filter(d => d.lat && d.lng && (!cls || d.class === cls))
+    .forEach(d => {
+      bounds.push([d.lat, d.lng]);
+      L.circleMarker([d.lat, d.lng], {
+        radius: 7, weight: 1.5, color: '#1a1030',
+        fillColor: CLASS_COLORS[d.class] || '#94a3b8', fillOpacity: .9
+      }).bindPopup(
+        `<b>${d.name}</b><br>${d.class || ''} · ${d.specialty || ''}<br>${d.crm_bricks?.name || ''}<br>${d.address || ''}`
+      ).addTo(MAP_LAYER);
+    });
+
+  if (showFlagged) {
+    MAP_FLAGGED.filter(v => v.lat && v.lng).forEach(v => {
+      bounds.push([v.lat, v.lng]);
+      L.circleMarker([v.lat, v.lng], {
+        radius: 8, weight: 2, color: '#F0997B', fillColor: '#F0997B', fillOpacity: .5
+      }).bindPopup(
+        `<b>⚠ Flagged visit</b><br>${v.crm_reps?.name || ''} → ${v.crm_doctors?.name || ''}<br>` +
+        `${v.distance_from_doctor || '?'}m from doctor<br>` +
+        new Date(v.visited_at).toLocaleString('en', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' })
+      ).addTo(MAP_LAYER);
+    });
+  }
+
+  if (bounds.length) MAP.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
+};
+
+// ── Doctors ───────────────────────────────────────────────
+async function loadDoctors() {
+  ALL_DOCTORS = await doctors.list();
+  document.getElementById('dr-count').textContent = `${ALL_DOCTORS.length} doctors and pharmacies on file`;
+  renderDoctors(ALL_DOCTORS);
+}
+
+function renderDoctors(data) {
+  document.getElementById('doctors-tbody').innerHTML = data.map(d => `
+    <tr class="tr-hover">
+      <td><b>${d.name}</b></td>
+      <td class="td-muted">${d.crm_bricks?.name || '—'}</td>
+      <td><span class="badge badge-${d.class?.toLowerCase()}">${d.class || '—'}</span></td>
+      <td>${d.target_visits_per_month
+          ? `<span class="text-gold fw-5">${d.target_visits_per_month}/mo</span> <span class="td-muted text-sm">custom</span>`
+          : `<span class="td-muted">${CLASS_VISIT_DEFAULTS[d.class] || 1}/mo (auto)</span>`}</td>
+      <td class="td-muted">${d.specialty || '—'}</td>
+      <td>${d.lat ? '<span class="badge badge-ok">✓ Set</span>' : '<span class="badge badge-warn">Not set</span>'}</td>
+      <td>${d.approved ? '<span class="badge badge-ok">Approved</span>' : '<span class="badge badge-warn">Pending</span>'}</td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        ${!d.approved ? `<button class="btn btn-sm btn-gold" onclick="approveDoctor('${d.id}')">Approve</button>` : ''}
+        <button class="btn btn-sm" onclick="editDoctor('${d.id}')">Edit</button>
+        ${d.approved ? `<button class="btn btn-sm btn-gold" onclick="quickDoctorInvoice('${d.id}')" title="Issue invoice">📄</button>` : ''}
+      </td>
+    </tr>`).join('');
+}
+
+window.filterDoctors = () => {
+  const q = document.getElementById('dr-search').value.toLowerCase();
+  const cl = document.getElementById('dr-class').value;
+  const ap = document.getElementById('dr-pending').value;
+  renderDoctors(ALL_DOCTORS.filter(d =>
+    (!q || d.name.toLowerCase().includes(q) || (d.address||'').toLowerCase().includes(q)) &&
+    (!cl || d.class === cl) &&
+    (ap === '' || String(d.approved) === ap)
+  ));
+};
+
+let EDITING_DOCTOR_ID = null;
+
+window.openAddDoctor = () => {
+  EDITING_DOCTOR_ID = null;
+  document.getElementById('fd-title').textContent = 'Add doctor / HCO';
+  document.getElementById('fd-sub').textContent = 'New contact for the field team';
+  document.getElementById('fd-save-btn').textContent = 'Save doctor';
+  document.getElementById('fd-invoices-wrap').classList.add('hidden');
+  ['fd-name','fd-addr','fd-phone','fd-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fd-credit-limit').value = '';
+  document.getElementById('fd-credit-terms').value = '30';
+  document.getElementById('fd-credit-status').classList.add('hidden');
+  toggleCreditFields('doctor');
+  document.getElementById('fd-class').value = 'AB1';
+  document.getElementById('fd-spec').value = 'Derma';
+  document.getElementById('fd-type').value = 'doctor';
+  document.getElementById('fd-org').value = 'PRIVATE CLINIC';
+  document.getElementById('fd-brick').value = '';
+  document.getElementById('fd-approved').value = 'true';
+  document.getElementById('fd-target-visits').value = '';
+  updateTargetVisitsHint();
+  document.getElementById('m-doctor').classList.remove('hidden');
+};
+
+// Shows what the "Visits / month" field will actually apply as — either the
+// admin's custom number, or the class default (crm_class_rules) if left blank.
+window.updateTargetVisitsHint = () => {
+  const cls = document.getElementById('fd-class').value;
+  const custom = parseInt(document.getElementById('fd-target-visits').value, 10);
+  const hint = document.getElementById('fd-target-visits-hint');
+  hint.textContent = custom > 0
+    ? `Custom — overrides the ${cls} class default (${CLASS_VISIT_DEFAULTS[cls] || 1}/mo)`
+    : `Auto by class — ${cls} = ${CLASS_VISIT_DEFAULTS[cls] || 1}/mo`;
+};
+window.closeModal = id => document.getElementById(id).classList.add('hidden');
+
+window.editDoctor = (id) => {
+  const d = ALL_DOCTORS.find(x => x.id === id);
+  if (!d) return;
+  EDITING_DOCTOR_ID = id;
+  document.getElementById('fd-title').textContent = 'Edit doctor / HCO';
+  document.getElementById('fd-sub').textContent = d.name;
+  document.getElementById('fd-save-btn').textContent = 'Save changes';
+  document.getElementById('fd-name').value  = d.name || '';
+  document.getElementById('fd-class').value = d.class || 'AB1';
+  document.getElementById('fd-spec').value  = d.specialty || 'General';
+  document.getElementById('fd-type').value  = (d.doctor_type || 'doctor').toLowerCase();
+  document.getElementById('fd-org').value   = d.org_type || 'PRIVATE CLINIC';
+  document.getElementById('fd-brick').value = d.brick_id || '';
+  document.getElementById('fd-approved').value = String(d.approved !== false);
+  document.getElementById('fd-addr').value  = d.address || '';
+  document.getElementById('fd-phone').value = d.phone || '';
+  document.getElementById('fd-notes').value = d.notes || '';
+  document.getElementById('fd-credit-limit').value = d.credit_limit ?? '';
+  document.getElementById('fd-credit-terms').value = d.credit_terms_days ?? 30;
+  document.getElementById('fd-target-visits').value = d.target_visits_per_month || '';
+  updateTargetVisitsHint();
+  toggleCreditFields((d.doctor_type || 'doctor').toLowerCase());
+  if ((d.doctor_type || '').toLowerCase() === 'pharmacy') loadDoctorCreditStatus(d.id);
+  document.getElementById('fd-invoices-wrap').classList.remove('hidden');
+  document.getElementById('fd-invoices-list').textContent = 'Loading…';
+  loadDoctorInvoiceList(d.id);
+  document.getElementById('m-doctor').classList.remove('hidden');
+};
+
+window.saveDoctor = async () => {
+  const payload = {
+    name: document.getElementById('fd-name').value.trim(),
+    class: document.getElementById('fd-class').value,
+    specialty: document.getElementById('fd-spec').value,
+    doctor_type: document.getElementById('fd-type').value,
+    org_type: document.getElementById('fd-org').value,
+    brick_id: document.getElementById('fd-brick').value || null,
+    address: document.getElementById('fd-addr').value.trim(),
+    phone: document.getElementById('fd-phone').value.trim(),
+    notes: document.getElementById('fd-notes').value.trim(),
+    credit_limit: parseFloat(document.getElementById('fd-credit-limit').value) || null,
+    credit_terms_days: Math.min(30, parseInt(document.getElementById('fd-credit-terms').value, 10) || 30),
+    approved: document.getElementById('fd-approved').value === 'true',
+    target_visits_per_month: parseInt(document.getElementById('fd-target-visits').value, 10) || null,
+  };
+  if (!payload.name) { toast('Name is required', 'err'); return; }
+  const btn = document.getElementById('fd-save-btn');
+  btn.disabled = true;
+  try {
+    if (EDITING_DOCTOR_ID) await doctors.update(EDITING_DOCTOR_ID, payload);
+    else await doctors.create(payload);
+    closeModal('m-doctor');
+    await loadDoctors();
+    toast(EDITING_DOCTOR_ID ? 'Doctor updated ✓' : 'Doctor added ✓', 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+  finally { btn.disabled = false; }
+};
+
+window.approveDoctor = async (id) => {
+  await doctors.update(id, { approved: true });
+  await loadDoctors();
+  toast('Doctor approved ✓', 'ok');
+};
+
+// ── Excel import ──────────────────────────────────────────
+let IMPORT_ROWS = [];
+
+window.openImport = () => {
+  IMPORT_ROWS = [];
+  document.getElementById('imp-file').value = '';
+  document.getElementById('imp-file-label').textContent = 'Click to choose Excel / CSV file';
+  document.getElementById('imp-preview').innerHTML = '';
+  document.getElementById('imp-save-btn').disabled = true;
+  document.getElementById('m-import').classList.remove('hidden');
+};
+
+window.downloadImportTemplate = () => {
+  const csv = '﻿name,class,specialty,type,brick,address,phone,notes\r\n'
+    + 'Dr. Mohamed Ali,AB1,Derma,doctor,B1,"Nasr City, Cairo",+201001234567,VIP\r\n'
+    + 'El Ezaby Pharmacy,BB1,Pharmacy,pharmacy,B2,"Heliopolis, Cairo",+201009876543,';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'doctors-import-template.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+// Arabic and English headers both accepted
+const IMP_ALIASES = {
+  name: ['name', 'hco name', 'الاسم', 'اسم', 'doctor', 'دكتور'],
+  class: ['class', 'التصنيف', 'تصنيف'],
+  specialty: ['specialty', 'speciality', 'التخصص', 'تخصص'],
+  type: ['type', 'doctor_type', 'organization type name', 'org type', 'النوع', 'نوع'],
+  brick: ['brick', 'brick name', 'البريك', 'بريك', 'المنطقة', 'منطقة'],
+  address: ['address', 'العنوان', 'عنوان'],
+  phone: ['phone', 'الهاتف', 'هاتف', 'تليفون', 'الموبايل', 'موبايل'],
+  notes: ['notes', 'ملاحظات', 'ملاحظة'],
+};
+
+function impField(row, field) {
+  for (const key of Object.keys(row)) {
+    if (IMP_ALIASES[field].includes(String(key).trim().toLowerCase())) {
+      const v = row[key];
+      return v == null ? '' : String(v).trim();
+    }
+  }
+  return '';
+}
+
+window.parseImportFile = () => {
+  const file = document.getElementById('imp-file').files[0];
+  if (!file) return;
+  document.getElementById('imp-file-label').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'array' });
+      const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
+      const brickByName = Object.fromEntries(BRICKS.map(b => [b.name.trim().toLowerCase(), b.id]));
+      const validClasses = ['AB1', 'AB2', 'BB1', 'BB2'];
+      const validTypes = ['doctor', 'pharmacy', 'polyclinic', 'hospital'];
+      const skipped = [];
+
+      IMPORT_ROWS = raw.map((r, i) => {
+        const name = impField(r, 'name');
+        if (!name) { skipped.push(i + 2); return null; }
+        const cls = impField(r, 'class').toUpperCase();
+        const typeRaw = impField(r, 'type').toLowerCase();
+        const brickName = impField(r, 'brick').toLowerCase();
+        const normClass = (c) => {
+          if (validClasses.includes(c)) return c;
+          if (c === 'A') return 'AB2';
+          if (c === 'B') return 'BB2';
+          if (/^AA/.test(c)) return c.includes('1') ? 'AB1' : 'AB2';
+          if (/^BA/.test(c)) return c.includes('1') ? 'BB1' : 'BB2';
+          if (/^AB|^AC/.test(c)) return 'AB2';
+          if (/^BB|^BC/.test(c)) return 'BB2';
+          return null;
+        };
+        const normType = (t) => {
+          if (validTypes.includes(t)) return t;
+          if (t.includes('pharm')) return 'pharmacy';
+          if (t.includes('hospital')) return 'hospital';
+          if (t.includes('poly')) return 'polyclinic';
+          return 'doctor';
+        };
+        const brickLookup = (bn) => {
+          if (!bn) return null;
+          if (brickByName[bn]) return brickByName[bn];
+          const hit = BRICKS.find(b => b.name.toLowerCase().includes(bn));
+          return hit?.id || null;
+        };
+        return {
+          name,
+          class: normClass(cls),
+          specialty: impField(r, 'specialty') || null,
+          doctor_type: normType(typeRaw),
+          brick_id: brickLookup(brickName),
+          address: impField(r, 'address') || null,
+          phone: impField(r, 'phone') || null,
+          notes: impField(r, 'notes') || null,
+          approved: true,
+        };
+      }).filter(Boolean);
+
+      const noBrick = IMPORT_ROWS.filter(r => !r.brick_id).length;
+      document.getElementById('imp-preview').innerHTML =
+        `<b style="color:var(--gold-l)">${IMPORT_ROWS.length}</b> doctors ready to import` +
+        (noBrick ? ` · <span style="color:#F5A623">${noBrick} without a matching brick</span>` : '') +
+        (skipped.length ? ` · <span style="color:#F0997B">${skipped.length} rows skipped (no name)</span>` : '');
+      document.getElementById('imp-save-btn').disabled = !IMPORT_ROWS.length;
+    } catch (err) {
+      document.getElementById('imp-preview').innerHTML = `<span style="color:#F0997B">Could not read file: ${err.message}</span>`;
+    }
+  };
+  reader.readAsArrayBuffer(file);
+};
+
+window.runImport = async () => {
+  const btn = document.getElementById('imp-save-btn');
+  btn.disabled = true; btn.textContent = 'Importing…';
+  try {
+    const n = await doctors.createMany(IMPORT_ROWS);
+    closeModal('m-import');
+    await loadDoctors();
+    toast(`Imported ${n} doctors ✓`, 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+  finally { btn.disabled = false; btn.textContent = 'Import'; }
+};
+
+// ── Reps ─────────────────────────────────────────────────
+function renderRepKpiStrip(k, monthLabel) {
+  if (!k) return '<div class="text-dim text-sm" style="grid-column:1/-1">KPIs غير متاحة — شغّل migration 059</div>';
+  return `
+    <div class="rep-kpi-card"><div class="rk-lbl">مبيعات ${monthLabel || ''}</div><div class="rk-val">${Math.round(k.revenue_egp || 0).toLocaleString()}</div></div>
+    <div class="rep-kpi-card"><div class="rk-lbl">وحدات</div><div class="rk-val">${k.total_units ?? 0}</div></div>
+    <div class="rep-kpi-card"><div class="rk-lbl">زيارات فعلية</div><div class="rk-val">${k.actual_visits ?? 0}</div></div>
+    <div class="rep-kpi-card"><div class="rk-lbl">إجمالي زيارات</div><div class="rk-val">${k.total_visits ?? 0}</div></div>`;
+}
+
+async function loadRepKpis(repId) {
+  const el = document.getElementById('mr-kpis');
+  if (!el) return;
+  el.innerHTML = '<div class="text-dim text-sm" style="grid-column:1/-1">جاري تحميل KPIs…</div>';
+  try {
+    const k = await getRepMonthKpis(repId);
+    el.innerHTML = renderRepKpiStrip(k, k.month);
+  } catch {
+    el.innerHTML = renderRepKpiStrip(null);
+  }
+}
+
+async function loadReps() {
+  ALL_REPS = await reps.list();
+  const lb = await leaderboard.get();
+  const lbMap = Object.fromEntries(lb.map(r => [r.rep_id, r]));
+  REP_BRICK_COUNTS = await reps.brickCounts();
+  const kpiMap = {};
+  await Promise.all(ALL_REPS.map(async (r) => {
+    try { kpiMap[r.id] = await getRepMonthKpis(r.id); } catch { /* migration 059 */ }
+  }));
+
+  // Populate rep filter in visits page
+  const sel = document.getElementById('vr-rep');
+  sel.innerHTML = '<option value="">All reps</option>' +
+    ALL_REPS.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+
+  document.getElementById('reps-list').innerHTML = ALL_REPS.map(r => {
+    const stats = lbMap[r.id];
+    const kpi = kpiMap[r.id];
+    return `<div class="rep-row">
+      <div class="av">${r.name.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+      <div class="rep-info">
+        <div class="rep-name">${r.name}</div>
+        <div class="rep-meta">${r.territory || 'No territory label'} · ${r.email}</div>
+        <div class="rep-meta">${REP_BRICK_COUNTS[r.id] || 0} brick(s) assigned${!(REP_BRICK_COUNTS[r.id]) ? ' — assign via Manage' : ''}</div>
+        ${kpi ? `<div class="rep-kpi-inline">
+          <span>💰 ${Math.round(kpi.revenue_egp || 0).toLocaleString()} ج.م</span>
+          <span>📦 ${kpi.total_units ?? 0} وحدة</span>
+          <span>✓ ${kpi.actual_visits ?? 0} فعلية</span>
+          <span>${kpi.total_visits ?? 0} زيارة</span>
+        </div>` : ''}
+        ${stats ? `<div style="display:flex;gap:12px;margin-top:6px">
+          <span class="text-sm text-dim">${stats.total_visits} visits (leaderboard)</span>
+          <span class="text-sm text-dim">${stats.coverage_pct || 0}% coverage</span>
+          <span class="text-sm text-dim">${stats.total_samples || 0} samples</span>
+        </div>` : ''}
+      </div>
+      <div class="rep-actions">
+        <span class="badge ${r.active ? 'badge-ok' : 'badge-warn'}">${r.active ? 'Active' : 'Inactive'}</span>
+        <button class="btn btn-sm" onclick="editRep('${r.id}')">Manage</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.openAddRep = () => {
+  ['fr-name','fr-email','fr-password','fr-territory','fr-phone'].forEach(id => { document.getElementById(id).value = ''; });
+  renderBrickPicker('fr-bricks', []);
+  document.getElementById('m-rep').classList.remove('hidden');
+};
+
+window.saveRep = async () => {
+  const name      = document.getElementById('fr-name').value.trim();
+  const email     = document.getElementById('fr-email').value.trim();
+  const password  = document.getElementById('fr-password').value;
+  const territory = document.getElementById('fr-territory').value.trim();
+  const phone     = document.getElementById('fr-phone').value.trim();
+  const brickIds  = getSelectedBrickIds('fr-bricks');
+
+  if (!name || !email || !password) { toast('Name, email and password are required', 'err'); return; }
+  if (password.length < 6) { toast('Password must be at least 6 characters', 'err'); return; }
+  if (!brickIds.length) { toast('Select at least one brick for this rep', 'err'); return; }
+
+  const btn = document.querySelector('#m-rep .btn-gold');
+  btn.disabled = true; btn.textContent = 'Creating…';
+  try {
+    await reps.create({ email, password, name, phone, territory, brickIds });
+    closeModal('m-rep');
+    await loadReps();
+    toast('Rep created successfully ✓', 'ok');
+  } catch (e) {
+    toast(e.message || 'Failed to create rep', 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create rep';
+  }
+};
+
+let EDITING_REP_ID = null;
+window.editRep = async (id) => {
+  const rep = ALL_REPS.find(r => r.id === id);
+  if (!rep) return;
+  EDITING_REP_ID = id;
+  document.getElementById('mr-email-sub').textContent = rep.email;
+  document.getElementById('mr-name').value = rep.name || '';
+  document.getElementById('mr-territory').value = rep.territory || '';
+  document.getElementById('mr-phone').value = rep.phone || '';
+  document.getElementById('mr-active').value = String(rep.active !== false);
+  const assigned = (await geo.repBricks(id)).map(b => b.id);
+  renderBrickPicker('mr-bricks', assigned);
+  document.getElementById('m-manage-rep').classList.remove('hidden');
+  loadRepKpis(id);
+};
+
+window.deleteRep = async () => {
+  const rep = ALL_REPS.find(r => r.id === EDITING_REP_ID);
+  if (!confirm(`Delete "${rep?.name}"? This removes their login too and cannot be undone.`)) return;
+  const btn = document.getElementById('mr-delete-btn');
+  btn.disabled = true; btn.textContent = 'Deleting…';
+  try {
+    await reps.remove(EDITING_REP_ID);
+    closeModal('m-manage-rep');
+    await loadReps();
+    toast('Rep deleted ✓', 'ok');
+  } catch (e) {
+    toast(e.message || 'Failed to delete', 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Delete rep';
+  }
+};
+
+window.resetRepPassword = async () => {
+  const rep = ALL_REPS.find(r => r.id === EDITING_REP_ID);
+  if (!rep?.email) return;
+  const password = prompt(`Set a new password for ${rep.name} (${rep.email}):\nMinimum 6 characters — no email needed.`);
+  if (!password) return;
+  if (password.length < 6) { toast('Password must be at least 6 characters', 'err'); return; }
+  try {
+    await reps.resetPassword(EDITING_REP_ID, password);
+    toast(`Password updated for ${rep.name} ✓`, 'ok');
+  } catch (e) {
+    toast(e.message || 'Failed to set password', 'err');
+  }
+};
+
+window.saveManageRep = async () => {
+  const btn = document.getElementById('mr-save-btn');
+  const brickIds = getSelectedBrickIds('mr-bricks');
+  if (!brickIds.length) { toast('Select at least one brick for this rep', 'err'); return; }
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    await reps.update(EDITING_REP_ID, {
+      name:      document.getElementById('mr-name').value.trim(),
+      territory: document.getElementById('mr-territory').value.trim(),
+      phone:     document.getElementById('mr-phone').value.trim(),
+      active:    document.getElementById('mr-active').value === 'true',
+    });
+    await reps.setBricks(EDITING_REP_ID, brickIds);
+    closeModal('m-manage-rep');
+    await loadReps();
+    toast('Rep updated ✓', 'ok');
+  } catch (e) {
+    toast(e.message || 'Failed to save', 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save changes';
+  }
+};
+
+// ── Visit Reports ─────────────────────────────────────────
+async function loadVisitReports() {
+  const repId  = document.getElementById('vr-rep')?.value;
+  const flagged = document.getElementById('vr-flagged')?.checked;
+  const typeFilter = document.getElementById('vr-type')?.value || '';
+  const { year, month } = parseMonthInput(document.getElementById('vr-month')?.value);
+
+  let data = await visits.adminAll({ repId: repId || null, flagged });
+  if (year && month) {
+    const prefix = `${year}-${String(month).padStart(2, '0')}`;
+    data = data.filter(v => v.visited_at?.slice(0, 7) === prefix);
+  }
+  if (typeFilter === 'pharmacy') {
+    data = data.filter(v => v.crm_doctors?.doctor_type === 'pharmacy');
+  } else if (typeFilter === 'doctor') {
+    data = data.filter(v => (v.crm_doctors?.doctor_type || 'doctor') !== 'pharmacy');
+  }
+
+  const pharm = data.filter(v => v.crm_doctors?.doctor_type === 'pharmacy').length;
+  const docs = data.length - pharm;
+  const actual = data.filter(v => (v.visit_type || 'regular') === 'actual').length;
+  document.getElementById('vr-summary').innerHTML = [
+    { lbl: 'إجمالي الزيارات', val: data.length },
+    { lbl: 'صيدليات', val: pharm },
+    { lbl: 'دكاترة', val: docs },
+    { lbl: 'فعلية', val: actual },
+    { lbl: 'GPS مشبوه', val: data.filter(v => !v.gps_verified).length }
+  ].map(k => `<div class="mini-card"><div class="mc-lbl">${k.lbl}</div><div class="mc-val">${k.val}</div></div>`).join('');
+
+  document.getElementById('visits-tbody').innerHTML = data.map(v => {
+    const samples = (v.crm_visit_samples || []).reduce((s, sv) => s + sv.quantity, 0);
+    const date = new Date(v.visited_at).toLocaleString('ar-EG', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+    const dtype = v.crm_doctors?.doctor_type || 'doctor';
+    const b2bBadge = v.b2b_invoice_status === 'pending'
+      ? '<span class="badge badge-warn">معلّقة</span>'
+      : v.b2b_invoice_status === 'invoiced'
+        ? '<span class="badge badge-ok">مفوترة</span>'
+        : v.needs_b2b_invoice ? '<span class="badge badge-ab2">مطلوبة</span>' : '<span class="text-dim">—</span>';
+    const invBtn = `<button class="btn btn-sm btn-gold" onclick="invoiceIntegration.openDoctorInvoice('${v.doctor_id}','${v.id}')">فاتورة</button>`;
+    const gpsNote = !v.gps_verified
+      ? `<span class="badge badge-bad" title="زيارة من مكان بعيد">⚠ ${v.distance_from_doctor || '?'}m</span>`
+      : '<span class="badge badge-ok">✓ GPS</span>';
+    return `<tr class="tr-hover">
+      <td>${v.crm_reps?.name || '—'}</td>
+      <td><b>${v.crm_doctors?.name || '—'}</b></td>
+      <td><span class="badge ${dtype === 'pharmacy' ? 'badge-ab2' : 'badge-ok'}">${clientTypeLabel(dtype)}</span></td>
+      <td class="td-muted">${v.crm_doctors?.crm_bricks?.name || '—'}</td>
+      <td class="td-muted">${date}</td>
+      <td>${v.time_of_day || 'AM'}</td>
+      <td>${visitTypeLabel(v.visit_type)}</td>
+      <td>${samples ? `<span class="badge badge-ab2">${samples}</span>` : '<span class="text-dim">—</span>'}</td>
+      <td>${b2bBadge}</td>
+      <td>${gpsNote}</td>
+      <td>${v.photo_url ? `<a href="${v.photo_url}" target="_blank" title="صورة الزيارة">📷</a>` : '<span class="text-dim">—</span>'}</td>
+      <td>${invBtn}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="12" class="text-dim text-sm" style="padding:16px 0">لا توجد زيارات.</td></tr>';
+}
+
+function refreshB2bBadge(count) {
+  const el = document.getElementById('nav-b2b-count');
+  if (!el) return;
+  if (count > 0) { el.textContent = count; el.style.display = 'inline-block'; }
+  else { el.textContent = ''; el.style.display = 'none'; }
+}
+
+async function loadDoctorInvoiceList(doctorId) {
+  const el = document.getElementById('fd-invoices-list');
+  try {
+    const rows = await invoiceIntegration.getDoctorInvoices(doctorId);
+    el.innerHTML = rows.length ? rows.map(inv => `
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px">
+        <span><b>${inv.invoice_number}</b> · ${inv.invoice_date || ''} · ${inv.total} EGP</span>
+        <button type="button" class="btn btn-sm" onclick="invoiceIntegration.openSavedInvoice(${inv.id})">Open</button>
+      </div>`).join('') : '<span class="text-dim">No invoices yet.</span>';
+  } catch (e) {
+    el.textContent = e.message || 'Could not load invoices';
+  }
+}
+
+window.issueDoctorInvoice = () => {
+  if (!EDITING_DOCTOR_ID) return;
+  invoiceIntegration.openDoctorInvoice(EDITING_DOCTOR_ID).catch(e => toast(e.message, 'err'));
+};
+
+window.quickDoctorInvoice = (doctorId) => {
+  invoiceIntegration.openDoctorInvoice(doctorId).catch(e => toast(e.message, 'err'));
+};
+
+function summarizeFinRequests(fr) {
+  if (!Array.isArray(fr) || !fr.length) return '';
+  return fr.filter(r => r && r.enabled !== false).map(r => {
+    if (r.type === 'sample_invoice') return 'Samples invoice';
+    if (r.type === 'leaflet_deal') return `Leaflets ${r.leaflet_count || 0} · ${r.amount || 0} EGP`;
+    if (r.type === 'pharmacy_delivery') return `Delivery (${r.payment_mode || 'credit'})`;
+    return r.type;
+  }).join(' · ');
+}
+
+async function loadB2bQueue() {
+  const tbody = document.getElementById('b2b-tbody');
+  try {
+    const rows = await invoiceIntegration.getPendingB2b();
+    refreshB2bBadge(rows.length);
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-dim text-sm" style="padding:16px 0">No pending B2B invoices ✓</td></tr>';
+      return;
+    }
+  const html = await Promise.all(rows.map(async (v) => {
+    const date = new Date(v.visited_at).toLocaleString('en', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+    const fin = summarizeFinRequests(v.financial_requests);
+    let creditHint = '';
+    if ((v.doctor_type || '').toLowerCase() === 'pharmacy') {
+      try {
+        const cs = await getPharmacyCreditStatus(v.doctor_id, 0);
+        if (cs?.found) creditHint = `<div class="text-dim text-sm">Credit: ${cs.outstanding}/${cs.credit_limit || '∞'} EGP</div>`;
+      } catch { /* migration pending */ }
+    }
+    return `<tr class="tr-hover">
+      <td>${v.rep_name || '—'}</td>
+      <td><b>${v.doctor_name}</b><div class="text-dim text-sm">${v.doctor_phone || ''}</div>${creditHint}</td>
+      <td class="td-muted">${v.brick_name || '—'}</td>
+      <td class="td-muted">${date}</td>
+      <td>${v.sample_units ? `<span class="badge badge-ab2">${v.sample_units}</span>` : '—'}</td>
+      <td><span class="badge badge-warn">${v.doctor_type || 'doctor'}</span>${fin ? `<div class="text-dim text-sm" style="margin-top:4px">${fin}</div>` : ''}</td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-sm btn-gold" onclick="invoiceIntegration.openDoctorInvoice('${v.doctor_id}','${v.id}')">Issue invoice</button>
+        <button class="btn btn-sm" onclick="dismissB2b('${v.id}')">Dismiss</button>
+      </td>
+    </tr>`;
+  }));
+  document.getElementById('b2b-tbody').innerHTML = html.join('');
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-dim text-sm" style="padding:16px;line-height:1.6">
+      ⚠️ طابور الفواتير غير متاح: ${e.message || e}<br>
+      <span style="color:var(--dim)">شغّل migrations <b>057</b> و <b>058</b> على Supabase.</span>
+    </td></tr>`;
+    refreshB2bBadge(0);
+  }
+}
+
+window.dismissB2b = async (visitId) => {
+  if (!confirm('Dismiss this B2B invoice request?')) return;
+  try {
+    await invoiceIntegration.dismissB2b(visitId);
+    toast('Dismissed', 'ok');
+    await loadB2bQueue();
+  } catch (e) { toast(e.message, 'err'); }
+};
+
+window.loadB2bQueue = loadB2bQueue;
+
+function renderReportRows(rows, labelKey) {
+  if (!rows?.length) return '<div class="text-dim text-sm">No data this month</div>';
+  const max = Math.max(...rows.map(r => parseFloat(r.revenue) || 0), 1);
+  return rows.map(r => {
+    const pct = Math.round(((parseFloat(r.revenue) || 0) / max) * 100);
+    return `<div style="margin-bottom:12px;font-size:13px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span>${r[labelKey] || '—'}</span>
+        <span style="color:var(--gold-l)">${Number(r.revenue || 0).toFixed(0)} EGP · ${r.invoice_count || r.visits_with_invoice || 0}</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill gold" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+async function loadSalesReport() {
+  const inp = document.getElementById('sr-month');
+  if (inp && !inp.value) {
+    const n = new Date();
+    inp.value = `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}`;
+  }
+  const [y, m] = (inp?.value || '').split('-').map(Number);
+  const data = await invoiceIntegration.getSalesReport(y, m);
+  const t = data.totals || {};
+  document.getElementById('sr-kpis').innerHTML = `
+    <div class="mini-card mc-gold"><div class="mc-lbl">Revenue</div><div class="mc-val">${Number(t.total_revenue || 0).toFixed(0)}</div></div>
+    <div class="mini-card mc-violet"><div class="mc-lbl">Invoices</div><div class="mc-val">${t.invoice_count || 0}</div></div>
+    <div class="mini-card mc-gray"><div class="mc-lbl">Pending B2B</div><div class="mc-val">${t.pending_b2b || 0}</div></div>`;
+  document.getElementById('sr-brick').innerHTML = renderReportRows(data.by_brick, 'brick');
+  document.getElementById('sr-class').innerHTML = renderReportRows(data.by_class, 'doctor_class');
+  document.getElementById('sr-rep').innerHTML = renderReportRows(data.by_rep, 'rep_name');
+
+  const invoices = await invoicesAdmin.list(y, m);
+  const sourceLabel = { order: 'Store order', doctor: 'Admin (doctor)', rep: 'Rep', import: 'Imported' };
+  document.getElementById('sr-invoices-tbody').innerHTML = invoices.map(inv => {
+    const remaining = Number(inv.total || 0) - Number(inv.amount_paid || 0);
+    const statusClass = inv.status === 'paid' ? 'badge-ok' : inv.status === 'partial' ? 'badge-warn' : 'badge-bad';
+    return `<tr class="tr-hover">
+      <td>${inv.invoice_number}</td>
+      <td>${inv.crm_doctors?.name || inv.customer_name || '—'}</td>
+      <td class="td-muted">${inv.crm_reps?.name || '—'}</td>
+      <td class="td-muted">${sourceLabel[inv.source_type] || inv.source_type}</td>
+      <td class="td-muted">${inv.invoice_date}</td>
+      <td>${Number(inv.total || 0).toFixed(0)}</td>
+      <td class="td-muted">${Number(inv.amount_paid || 0).toFixed(0)}</td>
+      <td style="color:${remaining > 0 ? 'var(--danger)' : 'var(--dim)'}">${remaining.toFixed(0)}</td>
+      <td><span class="badge ${statusClass}">${inv.status}</span></td>
+      <td>${!inv.crm_doctors ? `<button class="btn btn-sm" onclick="openLinkDoctorModal(${inv.id})">🔗 Link</button>` : ''}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="10" class="text-dim text-sm" style="padding:16px 0">No invoices this month.</td></tr>';
+}
+
+window.loadSalesReport = loadSalesReport;
+
+let LINK_INVOICE_ID = null;
+
+window.openLinkDoctorModal = async (invoiceId) => {
+  LINK_INVOICE_ID = invoiceId;
+  if (!ALL_DOCTORS.length) ALL_DOCTORS = await doctors.list();
+  document.getElementById('link-doctor-search').value = '';
+  renderLinkDoctorList();
+  document.getElementById('m-link-doctor').classList.remove('hidden');
+};
+
+window.renderLinkDoctorList = () => {
+  const q = document.getElementById('link-doctor-search').value.trim().toLowerCase();
+  const matches = q
+    ? ALL_DOCTORS.filter(d => d.name.toLowerCase().includes(q)).slice(0, 40)
+    : [];
+  document.getElementById('link-doctor-list').innerHTML = matches.map(d => `
+    <div class="rep-row" style="cursor:pointer;padding:10px 12px" onclick="confirmLinkDoctor('${d.id}')">
+      <div class="rep-info">
+        <div class="rep-name">${d.name}</div>
+        <div class="rep-meta">${d.doctor_type || 'doctor'} · ${d.crm_bricks?.name || '—'}</div>
+      </div>
+    </div>`).join('') || `<div class="text-dim text-sm" style="padding:14px">${q ? 'No matches' : 'Type to search…'}</div>`;
+};
+
+window.confirmLinkDoctor = async (doctorId) => {
+  try {
+    await invoicesAdmin.linkDoctor(LINK_INVOICE_ID, doctorId);
+    closeModal('m-link-doctor');
+    await loadSalesReport();
+    toast('Invoice linked ✓', 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+};
+
+function humanFileSize(bytes) {
+  if (!bytes) return '—';
+  const kb = bytes / 1024;
+  return kb < 1024 ? `${kb.toFixed(0)} KB` : `${(kb / 1024).toFixed(1)} MB`;
+}
+
+async function loadSalesFiles() {
+  const tbody = document.getElementById('sales-files-tbody');
+  try {
+    const files = await salesFileUploads.list();
+    tbody.innerHTML = files.map(f => `
+      <tr class="tr-hover">
+        <td>${f.name.replace(/^\d+_/, '')}</td>
+        <td class="td-muted">${f.created_at ? new Date(f.created_at).toLocaleString('en', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'}</td>
+        <td class="td-muted">${humanFileSize(f.metadata?.size)}</td>
+        <td style="display:flex;gap:6px">
+          <a class="btn btn-sm" href="${salesFileUploads.urlFor(f.name)}" target="_blank" rel="noopener">↓ Download</a>
+          <button class="btn btn-sm btn-danger" onclick="deleteSalesFile('${f.name}')">✕</button>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="4" class="text-dim text-sm" style="padding:16px 0">No files uploaded yet.</td></tr>';
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="4" class="text-dim text-sm" style="padding:16px 0">${e.message}</td></tr>`;
+  }
+}
+
+window.uploadSalesFile = async (input) => {
+  const file = input.files?.[0];
+  if (!file) return;
+  const statusEl = document.getElementById('sales-file-status');
+  statusEl.textContent = 'Uploading…';
+  try {
+    await salesFileUploads.upload(file);
+    statusEl.textContent = '';
+    input.value = '';
+    await loadSalesFiles();
+    toast('File uploaded ✓', 'ok');
+  } catch (e) {
+    statusEl.textContent = '';
+    toast(e.message, 'err');
+  }
+};
+
+window.deleteSalesFile = async (name) => {
+  if (!confirm('Delete this file?')) return;
+  try {
+    await salesFileUploads.remove(name);
+    await loadSalesFiles();
+    toast('File deleted', 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+};
+
+async function loadArSchedule() {
+  const tbody = document.getElementById('ar-tbody');
+  try {
+    const rows = await invoiceIntegration.getArSchedule();
+    const overdue = rows.filter(r => r.collection_status === 'overdue');
+    const dueSoon = rows.filter(r => r.collection_status === 'due_soon');
+    const totalBal = rows.reduce((s, r) => s + (parseFloat(r.balance_due) || 0), 0);
+    document.getElementById('ar-kpis').innerHTML = `
+    <div class="mini-card mc-gold"><div class="mc-lbl">Open AR balance</div><div class="mc-val">${totalBal.toFixed(0)} EGP</div></div>
+    <div class="mini-card mc-violet"><div class="mc-lbl">Overdue</div><div class="mc-val">${overdue.length}</div></div>
+    <div class="mini-card mc-gray"><div class="mc-lbl">Due in 7 days</div><div class="mc-val">${dueSoon.length}</div></div>`;
+    const arBadge = document.getElementById('nav-ar-count');
+    if (arBadge) {
+      arBadge.textContent = overdue.length || '';
+      arBadge.style.display = overdue.length ? '' : 'none';
+    }
+    const statusBadge = (s) => {
+      if (s === 'overdue') return '<span class="badge badge-bad">Overdue</span>';
+      if (s === 'due_soon') return '<span class="badge badge-warn">Due soon</span>';
+      return '<span class="badge badge-ab2">Open</span>';
+    };
+    tbody.innerHTML = rows.length ? rows.map(r => `
+    <tr class="tr-hover">
+      <td><b>${r.invoice_number}</b></td>
+      <td>${r.doctor_name || '—'}</td>
+      <td class="td-muted">${r.rep_name || '—'}</td>
+      <td class="td-muted">${r.due_date || '—'}${r.days_to_due != null ? `<div class="text-dim text-sm">${r.days_to_due}d</div>` : ''}</td>
+      <td>${Number(r.total || 0).toFixed(0)}</td>
+      <td>${Number(r.amount_paid || 0).toFixed(0)}</td>
+      <td><b style="color:var(--gold-l)">${Number(r.balance_due || 0).toFixed(0)}</b></td>
+      <td>${statusBadge(r.collection_status)}</td>
+      <td><button class="btn btn-sm" onclick="invoiceIntegration.openSavedInvoice(${r.id})">Open</button></td>
+    </tr>`).join('') : '<tr><td colspan="9" class="text-dim text-sm">No open credit invoices — save a credit/partial invoice from a visit first</td></tr>';
+  } catch (e) {
+    document.getElementById('ar-kpis').innerHTML = '';
+    tbody.innerHTML = `<tr><td colspan="9" class="text-dim text-sm" style="padding:16px;line-height:1.6">
+      ⚠️ Accounts / AR غير متاح: ${e.message || e}<br>
+      <span style="color:var(--dim)">شغّل migration <b>059_crm_ar_kpis.sql</b> على Supabase، ثم احفظ فاتورة آجل من زيارة صيدلية.</span>
+    </td></tr>`;
+  }
+}
+window.loadArSchedule = loadArSchedule;
+
+window.loadVisitReports = loadVisitReports;
+
+// ── Samples ───────────────────────────────────────────────
+async function loadSamples() {
+  const data = await samplesReport.get();
+  const byProd = {};
+  let total = 0;
+  data.forEach(s => {
+    const p = s.crm_products?.name || 'Unknown';
+    byProd[p] = (byProd[p] || 0) + s.quantity;
+    total += s.quantity;
+  });
+
+  document.getElementById('samples-kpis').innerHTML = `
+    <div class="mini-card mc-gold"><div class="mc-lbl">Total units (MTD)</div><div class="mc-val">${total}</div></div>
+    <div class="mini-card mc-violet"><div class="mc-lbl">Products tracked</div><div class="mc-val">${Object.keys(byProd).length}</div></div>
+    <div class="mini-card mc-gray"><div class="mc-lbl">Visit records</div><div class="mc-val">${data.length}</div></div>`;
+
+  document.getElementById('samples-tbody').innerHTML = data.map(s => {
+    const v = s.crm_visits;
+    const date = new Date(v?.visited_at).toLocaleDateString('en', { month:'short', day:'numeric' });
+    return `<tr class="tr-hover">
+      <td>${v?.crm_reps?.name || '—'}</td>
+      <td>${s.crm_products?.name || '—'}</td>
+      <td><b style="color:var(--gold-l)">${s.quantity}</b></td>
+      <td>${v?.crm_doctors?.name || '—'}</td>
+      <td class="td-muted">${v?.crm_doctors?.crm_bricks?.name || '—'}</td>
+      <td class="td-muted">${date}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" class="text-dim text-sm" style="padding:16px 0">No samples recorded yet.</td></tr>';
+}
+
+window.exportSamples = async () => {
+  const data = await samplesReport.get();
+  downloadCSV('montana-samples.csv', data.map(s => ({
+    Rep:     s.crm_visits?.crm_reps?.name || '',
+    Product: s.crm_products?.name || '',
+    Units:   s.quantity,
+    Doctor:  s.crm_visits?.crm_doctors?.name || '',
+    Date:    s.crm_visits?.visited_at?.slice(0, 10) || ''
+  })));
+};
+
+// ── Sample custody ────────────────────────────────────────
+async function loadSampleCustody() {
+  const [repsList, summary, custody] = await Promise.all([
+    reps.list(), sampleCustody.summary(), sampleCustody.list(),
+  ]);
+
+  const repSelect = document.getElementById('cust-rep');
+  if (!repSelect.dataset.filled) {
+    repSelect.innerHTML = repsList.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+    repSelect.dataset.filled = '1';
+  }
+  const prodSelect = document.getElementById('cust-product');
+  if (!prodSelect.dataset.filled) {
+    prodSelect.innerHTML = ALL_PRODUCTS.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    prodSelect.dataset.filled = '1';
+  }
+
+  document.getElementById('cust-stock-summary').innerHTML = summary.map(s => `
+    <div class="mini-card mc-gray">
+      <div class="mc-lbl">${s.product_name}</div>
+      <div class="mc-val" style="font-size:18px">${s.warehouse_stock} <span class="text-dim text-sm">in stock</span></div>
+      <div class="text-sm text-gold" style="margin-top:4px">${s.total_in_rep_custody} with reps</div>
+    </div>`).join('') || '<div class="text-dim text-sm">No linked products yet.</div>';
+
+  document.getElementById('cust-tbody').innerHTML = custody
+    .filter(c => c.quantity !== 0)
+    .map(c => `
+    <tr class="tr-hover">
+      <td>${c.crm_reps?.name || '—'}</td>
+      <td>${c.crm_products?.name || '—'}</td>
+      <td><b style="color:${c.quantity < 0 ? 'var(--danger)' : 'var(--gold-l)'}">${c.quantity}</b></td>
+      <td class="td-muted">${new Date(c.updated_at).toLocaleDateString('en', { month:'short', day:'numeric' })}</td>
+    </tr>`).join('') || '<tr><td colspan="4" class="text-dim text-sm" style="padding:16px 0">No custody allocated yet.</td></tr>';
+}
+
+window.allocateSample = async () => {
+  const repId = document.getElementById('cust-rep').value;
+  const productId = document.getElementById('cust-product').value;
+  const qty = parseInt(document.getElementById('cust-qty').value, 10);
+  const note = document.getElementById('cust-note').value.trim();
+  if (!repId || !productId) { toast('Pick a rep and a product', 'err'); return; }
+  if (!qty) { toast('Enter a non-zero quantity', 'err'); return; }
+
+  const btn = document.getElementById('cust-allocate-btn');
+  btn.disabled = true;
+  try {
+    await sampleCustody.allocate(repId, productId, qty, note);
+    document.getElementById('cust-qty').value = '';
+    document.getElementById('cust-note').value = '';
+    await loadSampleCustody();
+    toast(qty > 0 ? `Gave ${qty} units ✓` : `Reclaimed ${-qty} units ✓`, 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+  finally { btn.disabled = false; }
+};
+
+// ── Competitor Intel ──────────────────────────────────────
+async function loadCompetitors() {
+  const data = await visits.adminAll();
+  const mentions = {};
+  const recent = [];
+  data.forEach(v => {
+    (v.competitor_products || []).forEach(c => {
+      mentions[c] = (mentions[c] || 0) + 1;
+      recent.push({ comp: c, doc: v.crm_doctors?.name, rep: v.crm_reps?.name, date: v.visited_at });
+    });
+  });
+  const sorted = Object.entries(mentions).sort((a, b) => b[1] - a[1]);
+  const max = sorted[0]?.[1] || 1;
+
+  document.getElementById('comp-chart').innerHTML = sorted.length
+    ? sorted.map(([c, n]) => `
+        <div class="comp-bar">
+          <div class="comp-name">${c}</div>
+          <div class="comp-track"><div class="comp-fill" style="width:${n/max*100}%"></div></div>
+          <div class="comp-count">${n}</div>
+        </div>`).join('')
+    : '<div class="text-dim text-sm mt-16">No competitor mentions recorded yet.</div>';
+
+  document.getElementById('comp-tbody').innerHTML = recent.slice(0, 20).map(r => {
+    const date = new Date(r.date).toLocaleDateString('en', { month:'short', day:'numeric' });
+    return `<tr class="tr-hover">
+      <td><span class="badge badge-warn">${r.comp}</span></td>
+      <td class="td-muted">${r.doc || '—'}</td>
+      <td class="td-muted">${r.rep || '—'}</td>
+      <td class="td-muted">${date}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="4" class="text-dim text-sm" style="padding:16px 0">No mentions yet.</td></tr>';
+}
+
+// ── Leaderboard ───────────────────────────────────────────
+async function loadLeaderboard() {
+  const data = await leaderboard.get();
+  const month = new Date().toLocaleString('en', { month:'long', year:'numeric' });
+  document.getElementById('lb-month').textContent = month + ' — cycle performance';
+
+  const rankClass = i => i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
+  document.getElementById('lb-list').innerHTML = data.map((r, i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+      <div class="rank-num ${rankClass(i)}">${i+1}</div>
+      <div class="av av-sm">${r.name.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500">${r.name}</div>
+        <div class="text-dim text-sm">${r.territory || ''} · ${r.total_visits} visits</div>
+        <div class="bar-track" style="margin-top:5px"><div class="bar-fill ${i===0?'gold':''}" style="width:${r.coverage_pct||0}%"></div></div>
+      </div>
+      <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--gold-l)">${r.coverage_pct||0}%</div>
+    </div>`).join('') || '<div class="text-dim text-sm mt-16">No data yet.</div>';
+
+  document.getElementById('lb-samples').innerHTML = [...data].sort((a,b)=>(b.total_samples||0)-(a.total_samples||0)).map((r,i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+      <div class="rank-num ${rankClass(i)}">${i+1}</div>
+      <div class="av av-sm">${r.name.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500">${r.name}</div>
+        <div class="text-dim text-sm">${r.territory || ''}</div>
+      </div>
+      <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--gold-l)">${r.total_samples||0}</div>
+    </div>`).join('') || '<div class="text-dim text-sm mt-16">No samples yet.</div>';
+}
+
+// ── eDetailing ────────────────────────────────────────────
+async function loadEDetailing() {
+  ALL_PRODUCTS = await products.list();
+  const mats = ALL_PRODUCTS.flatMap(p => (p.crm_materials||[]).map(m => ({...m, productName: p.name})));
+  document.getElementById('mat-count').textContent = `${mats.length} files uploaded`;
+  document.getElementById('mat-list').innerHTML = mats.map(m => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+      <div style="font-size:22px">${m.type==='pdf'?'📄':'🖼️'}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500">${m.title}</div>
+        <div class="text-dim text-sm">${m.productName} · ${m.type.toUpperCase()}</div>
+      </div>
+      <a href="${m.url}" target="_blank" class="btn btn-sm">View</a>
+    </div>`).join('') || '<div class="text-dim text-sm mt-16">No materials uploaded yet.</div>';
+}
+
+window.uploadMaterial = async () => {
+  const file = document.getElementById('mat-file').files[0];
+  const pid  = document.getElementById('mat-product').value;
+  if (!file || !pid) { toast('Select a product first', 'err'); return; }
+  document.getElementById('upload-status').textContent = 'Uploading…';
+  try {
+    await materials.upload(file, pid);
+    document.getElementById('upload-status').textContent = '';
+    toast('Material uploaded ✓', 'ok');
+    await loadEDetailing();
+  } catch (e) { toast(e.message, 'err'); }
+};
+
+// ── Products ──────────────────────────────────────────────
+async function loadProducts() {
+  ALL_PRODUCTS = await products.list();
+  if (!STORE_PRODUCTS.length) {
+    try { STORE_PRODUCTS = await invoiceIntegration.listStoreProducts(); } catch { STORE_PRODUCTS = []; }
+  }
+  const storeName = id => STORE_PRODUCTS.find(p => p.id === id)?.name || '—';
+  document.getElementById('products-tbody').innerHTML = ALL_PRODUCTS.map(p => `
+    <tr class="tr-hover">
+      <td><b>${p.name}</b>${p.description ? `<div class="text-dim text-sm">${p.description}</div>` : ''}</td>
+      <td class="td-muted">${p.store_product_id ? storeName(p.store_product_id) : '—'}</td>
+      <td>${(p.crm_materials||[]).length} files</td>
+      <td><span class="badge ${p.active?'badge-ok':'badge-warn'}">${p.active?'Active':'Inactive'}</span></td>
+      <td><button class="btn btn-sm" onclick="editProduct('${p.id}')">Edit</button></td>
+    </tr>`).join('') || '<tr><td colspan="5" class="text-dim text-sm" style="padding:16px 0">No products yet.</td></tr>';
+}
+
+function populateStoreProductSelect(selectedId) {
+  const sel = document.getElementById('fp-store-product');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— Not linked —</option>' +
+    STORE_PRODUCTS.map(p => `<option value="${p.id}" ${String(p.id) === String(selectedId) ? 'selected' : ''}>${p.name} (stock: ${p.stock ?? 0})</option>`).join('');
+}
+
+let EDITING_PRODUCT_ID = null;
+
+window.openAddProduct = () => {
+  EDITING_PRODUCT_ID = null;
+  document.getElementById('fp-title').textContent = 'Add product';
+  document.getElementById('fp-name').value = '';
+  document.getElementById('fp-desc').value = '';
+  document.getElementById('fp-active').value = 'true';
+  populateStoreProductSelect('');
+  document.getElementById('m-product').classList.remove('hidden');
+};
+
+window.editProduct = (id) => {
+  const p = ALL_PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  EDITING_PRODUCT_ID = id;
+  document.getElementById('fp-title').textContent = 'Edit product';
+  document.getElementById('fp-name').value = p.name || '';
+  document.getElementById('fp-desc').value = p.description || '';
+  document.getElementById('fp-active').value = String(p.active !== false);
+  populateStoreProductSelect(p.store_product_id || '');
+  document.getElementById('m-product').classList.remove('hidden');
+};
+
+window.syncStoreProductLinks = async () => {
+  try {
+    const r = await products.ensureFromStore();
+    toast(`تم: ${r?.inserted ?? 0} منتج جديد، ${r?.linked ?? 0} ربط — الإجمالي ${r?.crm_total ?? '?'}/${r?.store_total ?? '?'}`, 'ok');
+    await loadProducts();
+  } catch (e) { toast(e.message, 'err'); }
+};
+
+window.saveProduct = async () => {
+  const storeRaw = document.getElementById('fp-store-product').value;
+  const payload = {
+    name: document.getElementById('fp-name').value.trim(),
+    description: document.getElementById('fp-desc').value.trim() || null,
+    active: document.getElementById('fp-active').value === 'true',
+    store_product_id: storeRaw ? parseInt(storeRaw, 10) : null,
+  };
+  if (!payload.name) { toast('Product name is required', 'err'); return; }
+  const btn = document.getElementById('fp-save-btn');
+  btn.disabled = true;
+  try {
+    if (EDITING_PRODUCT_ID) await products.update(EDITING_PRODUCT_ID, payload);
+    else await products.create(payload);
+    closeModal('m-product');
+    await loadProducts();
+    populateProductSelect();
+    toast(EDITING_PRODUCT_ID ? 'Product updated ✓' : 'Product added ✓', 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+  finally { btn.disabled = false; }
+};
+
+// ── Helpers ───────────────────────────────────────────────
+function populateBrickSelect() {
+  document.getElementById('fd-brick').innerHTML = '<option value="">Select brick…</option>' +
+    BRICKS.map(b => `<option value="${b.id}">${b.name} (${b.crm_areas?.name||''})</option>`).join('');
+}
+
+function brickGroupLabel(b) {
+  const office = b.crm_areas?.crm_offices?.name || 'Office';
+  const area = b.crm_areas?.name || 'Area';
+  return `${office} · ${area}`;
+}
+
+function renderBrickPicker(containerId, selectedIds = []) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const selected = new Set(selectedIds);
+  const sorted = [...BRICKS].sort((a, b) => brickGroupLabel(a).localeCompare(brickGroupLabel(b)) || a.name.localeCompare(b.name));
+
+  el.innerHTML = `
+    <input type="search" class="brick-picker-search" placeholder="Search brick name…" oninput="filterBrickPicker('${containerId}')">
+    <div class="brick-picker-actions">
+      <button type="button" onclick="selectAllBricks('${containerId}', true)">Select all visible</button>
+      <button type="button" onclick="selectAllBricks('${containerId}', false)">Clear all</button>
+    </div>
+    <div class="brick-picker-list" id="${containerId}-list"></div>
+    <div class="brick-picker-count" id="${containerId}-count">${selected.size} selected</div>
+  `;
+
+  const list = document.getElementById(`${containerId}-list`);
+  let lastGroup = '';
+  sorted.forEach(b => {
+    const group = brickGroupLabel(b);
+    if (group !== lastGroup) {
+      const gl = document.createElement('div');
+      gl.className = 'brick-group-label';
+      gl.textContent = group;
+      gl.dataset.group = group;
+      list.appendChild(gl);
+      lastGroup = group;
+    }
+    const lbl = document.createElement('label');
+    lbl.className = 'brick-check';
+    lbl.dataset.name = b.name.toLowerCase();
+    lbl.dataset.group = group;
+    lbl.innerHTML = `<input type="checkbox" value="${b.id}" ${selected.has(b.id) ? 'checked' : ''} onchange="updateBrickPickerCount('${containerId}')"><span>${b.name}</span>`;
+    list.appendChild(lbl);
+  });
+}
+
+window.filterBrickPicker = (containerId) => {
+  const q = document.querySelector(`#${containerId} .brick-picker-search`)?.value.trim().toLowerCase() || '';
+  const list = document.getElementById(`${containerId}-list`);
+  if (!list) return;
+  let lastVisibleGroup = '';
+  list.querySelectorAll('.brick-group-label, .brick-check').forEach(node => {
+    if (node.classList.contains('brick-group-label')) {
+      node.style.display = 'none';
+      return;
+    }
+    const show = !q || node.dataset.name.includes(q) || node.dataset.group.toLowerCase().includes(q);
+    node.style.display = show ? '' : 'none';
+    if (show && node.dataset.group !== lastVisibleGroup) {
+      const gl = list.querySelector(`.brick-group-label[data-group="${CSS.escape(node.dataset.group)}"]`);
+      if (gl) gl.style.display = '';
+      lastVisibleGroup = node.dataset.group;
+    }
+  });
+};
+
+window.selectAllBricks = (containerId, checked) => {
+  document.querySelectorAll(`#${containerId}-list .brick-check`).forEach(lbl => {
+    if (lbl.style.display === 'none') return;
+    lbl.querySelector('input').checked = checked;
+  });
+  updateBrickPickerCount(containerId);
+};
+
+window.updateBrickPickerCount = (containerId) => {
+  const n = getSelectedBrickIds(containerId).length;
+  const c = document.getElementById(`${containerId}-count`);
+  if (c) c.textContent = `${n} selected`;
+};
+
+function getSelectedBrickIds(containerId) {
+  return [...document.querySelectorAll(`#${containerId}-list input[type=checkbox]:checked`)].map(i => i.value);
+}
+
+function populateProductSelect() {
+  document.getElementById('mat-product').innerHTML = '<option value="">Select product…</option>' +
+    ALL_PRODUCTS.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+}
+
+// Excel opens the UTF-8 BOM'd CSV with Arabic names intact
+function downloadCSV(filename, rows) {
+  if (!rows.length) { toast('Nothing to export yet', 'info'); return; }
+  const headers = Object.keys(rows[0]);
+  const esc = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const BOM = '\\uFEFF'; // so Excel detects UTF-8 (Arabic names)
+  const csv = BOM + [headers.join(','), ...rows.map(r => headers.map(h => esc(r[h])).join(','))].join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast(`Exported ${rows.length} rows ✓`, 'ok');
+}
+
+window.exportReport = async () => {
+  const data = await visits.adminAll();
+  downloadCSV('montana-visits.csv', data.map(v => ({
+    Rep:         v.crm_reps?.name || '',
+    Doctor:      v.crm_doctors?.name || '',
+    Date:        v.visited_at?.replace('T', ' ').slice(0, 16) || '',
+    'Time of day': v.time_of_day || '',
+    Type:        v.visit_type || 'regular',
+    'GPS status': v.gps_verified ? 'Verified' : 'Flagged',
+    'Distance (m)': v.distance_from_doctor ?? '',
+    Samples:     (v.crm_visit_samples || []).reduce((s, x) => s + x.quantity, 0),
+    Competitors: (v.competitor_products || []).join('; '),
+    Notes:       v.notes || '',
+    Photo:       v.photo_url || ''
+  })));
+};
+
+window.toggleCreditFields = (type) => {
+  const isPharm = type === 'pharmacy';
+  document.getElementById('fd-credit-wrap').style.display = isPharm ? '' : 'none';
+  document.getElementById('fd-terms-wrap').style.display = isPharm ? '' : 'none';
+};
+
+async function loadDoctorCreditStatus(doctorId) {
+  const wrap = document.getElementById('fd-credit-status');
+  const el = document.getElementById('fd-credit-info');
+  wrap.classList.remove('hidden');
+  try {
+    const cs = await getPharmacyCreditStatus(doctorId, 0);
+    if (!cs?.found) { el.textContent = '—'; return; }
+    el.innerHTML = `Limit: <b>${cs.credit_limit || 0}</b> EGP · Outstanding: <b>${cs.outstanding || 0}</b> · Available: <b style="color:var(--gold-l)">${cs.available || 0}</b> EGP`;
+  } catch (e) { el.textContent = e.message; }
+}
+window.loadDoctorCreditStatus = loadDoctorCreditStatus;
+
+async function refreshAdminPushButton() {
+  const btn = document.getElementById('admin-push-btn');
+  if (!btn) return;
+  try {
+    const st = await adminPush.status();
+    btn.textContent = st === 'subscribed' ? '🔔 Alerts ON' : st === 'denied' ? '🔔 Blocked' : '🔔 Enable CRM alerts';
+  } catch { btn.textContent = '🔔 Enable CRM alerts'; }
+}
+
+window.toggleAdminPush = async () => {
+  try {
+    const st = await adminPush.status();
+    if (st === 'subscribed') {
+      await adminPush.unsubscribe();
+      toast('Admin alerts disabled', 'ok');
+    } else {
+      await adminPush.subscribe();
+      toast('Admin alerts enabled ✓', 'ok');
+    }
+    refreshAdminPushButton();
+  } catch (e) { toast(e.message, 'err'); }
+};
+
+window.doLogout = async () => {
+  await auth.logout();
+  location.href = '/crm/';
+};
+
+window.toast = (msg, type='ok') => {
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+};
+
+init();
+</script>
+</body>
+</html>

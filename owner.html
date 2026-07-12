@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Montana | لوحة المالك</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet"></noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
+    <link rel="stylesheet" href="owner.css">
+</head>
+<body>
+    <header class="owner-header">
+        <div class="owner-header-brand">
+            <img src="images/logo.png" alt="Montana" onerror="this.style.display='none'">
+            <div>
+                <h1>لوحة المالك</h1>
+                <p>نظرة عامة على أداء Montana</p>
+            </div>
+        </div>
+        <div class="owner-header-actions">
+            <a href="admin.html" class="owner-link-btn"><i class="fas fa-cog"></i> لوحة التحكم</a>
+            <a href="index.html" target="_blank" rel="noopener noreferrer" class="owner-link-btn"><i class="fas fa-external-link-alt"></i> الموقع</a>
+            <button type="button" class="owner-link-btn owner-logout" onclick="ownerLogout()"><i class="fas fa-sign-out-alt"></i> خروج</button>
+        </div>
+    </header>
+
+    <main class="owner-main">
+        <div class="owner-dash-toolbar">
+            <p class="owner-dash-sub">المخزون · الفواتير · المندوبين · رسائل العملاء حسب القناة</p>
+            <div class="owner-month-picker">
+                <label for="ownerDashMonth">الفترة:</label>
+                <input type="month" id="ownerDashMonth" onchange="loadOwnerDashboard()">
+            </div>
+        </div>
+
+        <div class="stats-grid owner-stats-primary">
+            <div class="stat-card purple"><div class="stat-icon"><i class="fas fa-coins"></i></div><div class="stat-info"><h3 id="odRevenueMonth">0</h3><span>مبيعات الشهر (ج.م)</span></div></div>
+            <div class="stat-card green"><div class="stat-icon"><i class="fas fa-shopping-cart"></i></div><div class="stat-info"><h3 id="odOrdersMonth">0</h3><span>طلبات الشهر</span></div></div>
+            <div class="stat-card blue"><div class="stat-icon"><i class="fas fa-file-invoice"></i></div><div class="stat-info"><h3 id="odInvoicesMonth">0</h3><span>فواتير الشهر</span></div></div>
+            <div class="stat-card gold"><div class="stat-icon"><i class="fas fa-cubes"></i></div><div class="stat-info"><h3 id="odStockUnits">0</h3><span>وحدات المخزون</span></div></div>
+        </div>
+
+        <div class="stats-grid owner-stats-secondary">
+            <div class="stat-card mini"><div class="stat-info"><h3 id="odProducts">0</h3><span>منتجات نشطة</span></div></div>
+            <div class="stat-card mini"><div class="stat-info"><h3 id="odCustomers">0</h3><span>عملاء</span></div></div>
+            <div class="stat-card mini"><div class="stat-info"><h3 id="odReps">0</h3><span>مندوبين نشطين</span></div></div>
+            <div class="stat-card mini"><div class="stat-info"><h3 id="odVisits">0</h3><span>زيارات CRM (الشهر)</span></div></div>
+            <div class="stat-card mini warn"><div class="stat-info"><h3 id="odLowStock">0</h3><span>مخزون منخفض</span></div></div>
+            <div class="stat-card mini warn"><div class="stat-info"><h3 id="odPendingOrders">0</h3><span>طلبات معلّقة</span></div></div>
+        </div>
+
+        <div class="dashboard-grid owner-grid-3">
+            <div class="card owner-card-wide">
+                <h3><i class="fas fa-comments"></i> رسائل وطلبات حسب القناة</h3>
+                <div class="card-body" id="ownerChannels"><p class="empty">جارٍ التحميل…</p></div>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-route"></i> فريق المبيعات (CRM)</h3>
+                <div class="card-body" id="ownerCrm"><p class="empty">جارٍ التحميل…</p></div>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-file-invoice-dollar"></i> الفواتير</h3>
+                <div class="card-body" id="ownerInvoices"><p class="empty">جارٍ التحميل…</p></div>
+            </div>
+        </div>
+
+        <div id="lowStockAlert" class="card owner-alert" style="display:none">
+            <h3><i class="fas fa-triangle-exclamation"></i> تنبيه مخزون منخفض</h3>
+            <div id="lowStockList" class="card-body"></div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card"><h3><i class="fas fa-clock"></i> آخر الطلبات</h3><div id="recentOrders" class="card-body"><p class="empty">لا توجد طلبات بعد</p></div></div>
+            <div class="card"><h3><i class="fas fa-envelope"></i> تواصل العملاء</h3><div id="ownerContact" class="card-body"><p class="empty">—</p></div></div>
+        </div>
+    </main>
+
+    <div id="toast" class="toast"></div>
+
+    <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+    const SUPABASE_URL = 'https://ikryeyqrithikabwidov.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrcnlleXFyaXRoaWthYndpZG92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MzY1ODcsImV4cCI6MjA5NzMxMjU4N30.kNfHPxV4fq67cOF8uFsTrLOxPYcLcmmDO3ScIHzI9Uo';
+    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+    window.__ownerSb = sb;
+
+    window.ownerLogout = async () => { await sb.auth.signOut(); location.href = 'owner-login.html'; };
+
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { location.href = 'owner-login.html'; }
+    else {
+      const { data: isOwner, error } = await sb.rpc('is_owner');
+      if (error || !isOwner) { await sb.auth.signOut(); location.href = 'owner-login.html'; }
+      else {
+        window.__OWNER_TOKEN__ = session.access_token;
+        const s = document.createElement('script');
+        s.src = 'owner.js';
+        document.body.appendChild(s);
+      }
+    }
+    </script>
+</body>
+</html>

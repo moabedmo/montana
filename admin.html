@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Montana | لوحة التحكم</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet"></noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="images/logo.png" alt="Montana" onerror="this.outerHTML='<h2>MONTANA</h2>'">
+            <span>لوحة التحكم</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-link active" data-page="dashboard"><i class="fas fa-chart-line"></i> الرئيسية</a>
+            <a href="#" class="nav-link" data-page="products"><i class="fas fa-box"></i> المنتجات</a>
+            <a href="#" class="nav-link" data-page="orders"><i class="fas fa-shopping-cart"></i> الطلبات <span class="nav-count" id="ordersCount">0</span></a>
+            <a href="#" class="nav-link" data-page="customers"><i class="fas fa-users"></i> العملاء</a>
+            <a href="#" class="nav-link" data-page="categories"><i class="fas fa-th-large"></i> الأقسام</a>
+            <a href="#" class="nav-link" data-page="coupons"><i class="fas fa-ticket-alt"></i> الكوبونات</a>
+            <a href="#" class="nav-link" data-page="ingredients"><i class="fas fa-flask"></i> المكونات</a>
+            <a href="#" class="nav-link" data-page="shipping"><i class="fas fa-map-marked-alt"></i> الشحن</a>
+            <a href="#" class="nav-link" data-page="messages"><i class="fas fa-envelope"></i> الرسائل</a>
+            <a href="#" class="nav-link" data-page="returns"><i class="fas fa-rotate-left"></i> الإرجاع</a>
+            <a href="#" class="nav-link" data-page="invoices"><i class="fas fa-file-invoice"></i> الفواتير</a>
+            <a href="#" class="nav-link" data-page="crm"><i class="fas fa-route"></i> CRM المندوبين</a>
+            <a href="#" class="nav-link" data-page="reviews"><i class="fas fa-star"></i> التقييمات</a>
+            <a href="#" class="nav-link" data-page="settings"><i class="fas fa-cog"></i> الإعدادات</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="owner.html" target="_blank" rel="noopener noreferrer"><i class="fas fa-chart-pie"></i> لوحة المالك</a>
+            <a href="index.html" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt"></i> زيارة الموقع</a>
+            <a href="#" onclick="event.preventDefault(); adminLogout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+            <h1 id="pageTitle">الرئيسية</h1>
+            <div class="topbar-actions">
+                <span class="admin-name"><i class="fas fa-user-shield"></i> Admin</span>
+            </div>
+        </header>
+
+        <!-- Pages Container -->
+        <div class="content">
+
+            <!-- ===== DASHBOARD ===== -->
+            <div class="page active" id="page-dashboard">
+                <div class="stats-grid">
+                    <div class="stat-card purple"><div class="stat-icon"><i class="fas fa-box"></i></div><div class="stat-info"><h3 id="statProducts">0</h3><span>المنتجات</span></div></div>
+                    <div class="stat-card green"><div class="stat-icon"><i class="fas fa-shopping-cart"></i></div><div class="stat-info"><h3 id="statOrders">0</h3><span>الطلبات</span></div></div>
+                    <div class="stat-card blue"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-info"><h3 id="statCustomers">0</h3><span>العملاء</span></div></div>
+                    <div class="stat-card gold"><div class="stat-icon"><i class="fas fa-coins"></i></div><div class="stat-info"><h3 id="statRevenue">0</h3><span>الإيرادات (ج.م)</span></div></div>
+                </div>
+                <div id="lowStockAlert" class="card" style="display:none;margin-bottom:20px;border-color:#e74c3c;background:rgba(231,76,60,.06)">
+                    <h3 style="color:#c0392b"><i class="fas fa-triangle-exclamation"></i> تنبيه مخزون منخفض</h3>
+                    <div id="lowStockList" class="card-body"></div>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="card"><h3><i class="fas fa-clock"></i> آخر الطلبات</h3><div id="recentOrders" class="card-body"><p class="empty">لا توجد طلبات بعد</p></div></div>
+                    <div class="card"><h3><i class="fas fa-fire"></i> الأكثر مبيعاً</h3><div id="topProducts" class="card-body"></div></div>
+                </div>
+            </div>
+
+            <!-- ===== PRODUCTS ===== -->
+            <div class="page" id="page-products">
+                <div class="page-actions">
+                    <button class="btn-primary" onclick="openProductModal()"><i class="fas fa-plus"></i> إضافة منتج</button>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>الصورة</th><th>المنتج</th><th>السعر</th><th>المخزون</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                        <tbody id="productsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== ORDERS ===== -->
+            <div class="page" id="page-orders">
+                <div class="filter-bar">
+                    <button class="filter-btn active" data-status="all">الكل</button>
+                    <button class="filter-btn" data-status="pending">قيد الانتظار</button>
+                    <button class="filter-btn" data-status="confirmed">مؤكد</button>
+                    <button class="filter-btn" data-status="shipped">تم الشحن</button>
+                    <button class="filter-btn" data-status="delivered">تم التوصيل</button>
+                    <button class="filter-btn" data-status="cancelled">ملغي</button>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>رقم الطلب</th><th>العميل</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+                        <tbody id="ordersTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== CUSTOMERS ===== -->
+            <div class="page" id="page-customers">
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>العميل</th><th>الهاتف</th><th>البريد</th><th>النقاط</th><th>العضوية</th><th>تاريخ التسجيل</th></tr></thead>
+                        <tbody id="customersTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== CATEGORIES ===== -->
+            <div class="page" id="page-categories">
+                <div class="page-actions">
+                    <button class="btn-primary" onclick="openCategoryModal()"><i class="fas fa-plus"></i> إضافة قسم</button>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>الأيقونة</th><th>القسم</th><th>الاسم بالإنجليزي</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                        <tbody id="categoriesTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== COUPONS ===== -->
+            <div class="page" id="page-coupons">
+                <div class="page-actions">
+                    <button class="btn-primary" onclick="openCouponModal()"><i class="fas fa-plus"></i> إضافة كوبون</button>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>الكود</th><th>النوع</th><th>القيمة</th><th>الحد الأدنى</th><th>الاستخدام</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                        <tbody id="couponsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== INGREDIENTS ===== -->
+            <div class="page" id="page-ingredients">
+                <div class="page-actions">
+                    <button class="btn-primary" onclick="openIngredientModal()"><i class="fas fa-plus"></i> إضافة مكون</button>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>المكون</th><th>Slug</th><th>الترتيب</th><th>إجراءات</th></tr></thead>
+                        <tbody id="ingredientsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== SHIPPING ===== -->
+            <div class="page" id="page-shipping">
+                <p style="color:var(--muted);margin-bottom:16px">أسعار الشحن لكل محافظة — تظهر في صفحة الدفع.</p>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>المحافظة</th><th>التكلفة (ج.م)</th><th>نشط</th><th>إجراءات</th></tr></thead>
+                        <tbody id="shippingTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== MESSAGES ===== -->
+            <div class="page" id="page-messages">
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>الاسم</th><th>البريد</th><th>الموضوع</th><th>الرسالة</th><th>التاريخ</th></tr></thead>
+                        <tbody id="messagesTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== RETURNS ===== -->
+            <div class="page" id="page-returns">
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>الطلب</th><th>العميل</th><th>الهاتف</th><th>السبب</th><th>التفاصيل</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+                        <tbody id="returnsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== INVOICES ===== -->
+            <div class="page" id="page-invoices">
+                <div class="page-actions">
+                    <button class="btn-primary" onclick="openManualInvoice()"><i class="fas fa-plus"></i> فاتورة يدوية جديدة</button>
+                    <button class="btn-primary btn-outline" onclick="document.querySelector('[data-page=products]').click()"><i class="fas fa-box"></i> المنتجات</button>
+                </div>
+                <p style="color:var(--muted);margin-bottom:16px">فاتورة مربوطة بالنظام: اختر عميل من <strong>طلب</strong> أو <strong>CRM (دكتور/صيدلية)</strong> أو <strong>عميل متجر</strong> — أو اكتب البيانات يدوياً. أضف الأصناف من المخزون مع عرض الكمية المتاحة.</p>
+                <div class="card" style="margin-bottom:20px">
+                    <h3><i class="fas fa-shopping-cart"></i> إصدار فاتورة من طلب</h3>
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead><tr><th>رقم الطلب</th><th>العميل</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+                            <tbody id="invoiceOrdersTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-file-invoice-dollar"></i> الفواتير المحفوظة</h3>
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead><tr><th>رقم الفاتورة</th><th>المصدر</th><th>الطلب</th><th>العميل</th><th>الإجمالي</th><th>المخزون</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+                            <tbody id="invoicesTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:20px">
+                    <h3><i class="fas fa-chart-bar"></i> تقرير مبيعات الشهر</h3>
+                    <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px">
+                        <input type="month" id="adminSalesMonth" onchange="loadAdminSalesReport()" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border)">
+                        <button class="btn-primary btn-outline" onclick="loadAdminSalesReport()"><i class="fas fa-sync"></i> تحديث</button>
+                    </div>
+                    <div id="adminSalesReport" style="color:var(--muted)">اختر الشهر لعرض التقرير</div>
+                </div>
+            </div>
+
+            <!-- ===== CRM ===== -->
+            <div class="page" id="page-crm">
+                <div id="crmAccessBanner"></div>
+                <div class="stats-grid" id="crmStatsGrid" style="margin-bottom:20px;display:none">
+                    <div class="stat-card purple"><div class="stat-icon"><i class="fas fa-user-tie"></i></div><div class="stat-info"><h3 id="crmStatReps">—</h3><span>مندوبين نشطين</span></div></div>
+                    <div class="stat-card green"><div class="stat-icon"><i class="fas fa-stethoscope"></i></div><div class="stat-info"><h3 id="crmStatDoctors">—</h3><span>أطباء بانتظار الاعتماد</span></div></div>
+                    <div class="stat-card blue"><div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div><div class="stat-info"><h3 id="crmStatVisits">—</h3><span>زيارات هذا الشهر</span></div></div>
+                    <div class="stat-card gold"><div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><h3 id="crmStatFlagged">—</h3><span>زيارات مشبوهة</span></div></div>
+                </div>
+                <div class="crm-launch-grid">
+                    <div class="card crm-launch-card">
+                        <div class="crm-launch-icon"><i class="fas fa-chart-pie"></i></div>
+                        <h3>لوحة CRM — الإدارة</h3>
+                        <p>إدارة المندوبين، الأطباء والصيدليات، اعتماد الزيارات، التقارير، والـ eDetailing.</p>
+                        <button class="btn-primary" onclick="openCrmAdmin(true)"><i class="fas fa-external-link-alt"></i> فتح لوحة CRM</button>
+                        <button class="btn-primary btn-outline" style="margin-top:8px" onclick="openCrmAdmin(false)"><i class="fas fa-window-restore"></i> فتح في تبويب جديد</button>
+                    </div>
+                    <div class="card crm-launch-card">
+                        <div class="crm-launch-icon rep"><i class="fas fa-mobile-alt"></i></div>
+                        <h3>بوابة المندوب</h3>
+                        <p>معاينة تطبيق المندوب: الخطة الشهرية، تسجيل الزيارات، GPS، والعينات.</p>
+                        <button class="btn-primary btn-outline" onclick="openCrmRep()"><i class="fas fa-external-link-alt"></i> فتح بوابة المندوب</button>
+                    </div>
+                    <div class="card crm-launch-card">
+                        <div class="crm-launch-icon guide"><i class="fas fa-book-open"></i></div>
+                        <h3>دليل الاستخدام</h3>
+                        <p>شرح كامل للمندوبين والإدارة: تسجيل الدخول، الزيارات، والاعتماد.</p>
+                        <button class="btn-primary btn-outline" onclick="openCrmGuide()"><i class="fas fa-book"></i> فتح الدليل</button>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:20px">
+                    <h3><i class="fas fa-link"></i> روابط سريعة</h3>
+                    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.8">
+                        تسجيل الدخول: <code>/crm/</code> · لوحة الإدارة: <code>/crm/admin/</code> · المندوب: <code>/crm/rep/</code>
+                    </p>
+                    <button class="btn-sm btn-edit" onclick="openCrmLogin()"><i class="fas fa-sign-in-alt"></i> صفحة تسجيل CRM</button>
+                </div>
+            </div>
+
+            <!-- ===== REVIEWS ===== -->
+            <div class="page" id="page-reviews">
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>العميل</th><th>المنتج</th><th>التقييم</th><th>التعليق</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+                        <tbody id="reviewsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== SETTINGS ===== -->
+            <div class="page" id="page-settings">
+                <div class="settings-grid">
+                    <div class="card">
+                        <h3><i class="fas fa-store"></i> بيانات المتجر</h3>
+                        <div class="form-group"><label>اسم المتجر</label><input type="text" id="set_site_name" value="Montana"></div>
+                        <div class="form-group"><label>الشعار</label><input type="text" id="set_site_tagline" value="Premium Care"></div>
+                        <div class="form-group"><label>الهاتف</label><input type="text" id="set_phone" dir="ltr"></div>
+                        <div class="form-group"><label>البريد</label><input type="email" id="set_email" dir="ltr"></div>
+                        <div class="form-group"><label>واتساب</label><input type="text" id="set_whatsapp" dir="ltr" placeholder="2010123456789"><small style="color:var(--muted);font-size:11px">يُستخدم في Footer وزر wa.me</small></div>
+                        <div class="form-group"><label>العنوان</label><input type="text" id="set_address"></div>
+                        <div class="form-group"><label>ساعات العمل</label><input type="text" id="set_working_hours"></div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-truck"></i> الشحن</h3>
+                        <div class="form-group"><label>حد الشحن المجاني (ج.م)</label><input type="number" id="set_free_shipping_min"></div>
+                        <div class="form-group"><label>تكلفة الشحن (ج.م)</label><input type="number" id="set_shipping_cost"></div>
+                        <div class="form-group"><label>تكلفة الشحن السريع (ج.م)</label><input type="number" id="set_express_shipping_cost"></div>
+                        <div class="form-group"><label>مدة الإرجاع (يوم)</label><input type="number" id="set_return_days"></div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-wallet"></i> Instapay / المحفظة</h3>
+                        <div class="form-group"><label>رقم التحويل</label><input type="text" id="set_instapay_wallet_number" dir="ltr"></div>
+                        <div class="form-group"><label>اسم صاحب المحفظة</label><input type="text" id="set_instapay_wallet_name"></div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-palette"></i> الألوان</h3>
+                        <div class="form-group"><label>اللون الأساسي</label><input type="color" id="set_primary_color" value="#9B6CB8"></div>
+                        <div class="form-group"><label>اللون الغامق</label><input type="color" id="set_dark_color" value="#2D1B3D"></div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fab fa-facebook"></i> السوشيال ميديا</h3>
+                        <p style="font-size:12px;color:var(--muted);margin-bottom:12px">تظهر في Footer الموقع وصفحة تواصل معنا</p>
+                        <div class="form-group"><label><i class="fab fa-facebook-f"></i> Facebook</label><input type="url" id="set_facebook_url" dir="ltr" placeholder="https://facebook.com/yourpage"></div>
+                        <div class="form-group"><label><i class="fab fa-instagram"></i> Instagram</label><input type="url" id="set_instagram_url" dir="ltr" placeholder="https://instagram.com/yourpage"></div>
+                        <div class="form-group"><label><i class="fab fa-tiktok"></i> TikTok</label><input type="url" id="set_tiktok_url" dir="ltr" placeholder="https://tiktok.com/@yourpage"></div>
+                        <p style="font-size:11px;color:var(--muted)">رابط الواتساب يُبنى تلقائياً من رقم الواتساب في «بيانات المتجر»</p>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fab fa-cc-visa"></i> بطاقة ائتمان (Visa / Meeza)</h3>
+                        <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Paymob Accept — المفاتيح السرية تُضبط في Vercel فقط (لا تُخزّن هنا)</p>
+                        <div class="form-group">
+                            <label>تفعيل الدفع بالبطاقة في Checkout</label>
+                            <select id="set_paymob_card_enabled">
+                                <option value="false">معطّل</option>
+                                <option value="true">مفعّل (يظهر لو Paymob مضبوط على السيرفر)</option>
+                            </select>
+                        </div>
+                        <div id="paymobStatus" class="integration-status">جارٍ التحقق…</div>
+                        <p style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.7">
+                            Vercel env: <code>PAYMOB_API_KEY</code>, <code>PAYMOB_INTEGRATION_ID</code>, <code>PAYMOB_IFRAME_ID</code>, <code>PAYMOB_HMAC_SECRET</code>
+                        </p>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-plug"></i> ربط القنوات والإشعارات</h3>
+                        <p style="font-size:12px;color:var(--muted);margin-bottom:12px">البوت والطلبات مش من روابط Facebook/Instagram في «السوشيال» — الربط من <strong>Meta Developers</strong> + Vercel (تحت)</p>
+                        <div id="webhookUrls" class="webhook-urls" style="font-size:11px;line-height:1.8;margin-bottom:14px;padding:12px;background:var(--bg);border-radius:10px"></div>
+                        <div id="integrationsStatus" class="integration-grid">جارٍ التحقق…</div>
+                    </div>
+                </div>
+                <button class="btn-primary btn-save" onclick="saveSettings()"><i class="fas fa-save"></i> حفظ الإعدادات</button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">إضافة منتج</h3>
+                <button onclick="closeModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script type="module">
+    // Auth gate — admin.js only ever loads after a verified store-admin
+    // session exists, so it never races the redirect below with real
+    // fetch() calls against RLS-protected tables.
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+    const SUPABASE_URL = 'https://ikryeyqrithikabwidov.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrcnlleXFyaXRoaWthYndpZG92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MzY1ODcsImV4cCI6MjA5NzMxMjU4N30.kNfHPxV4fq67cOF8uFsTrLOxPYcLcmmDO3ScIHzI9Uo';
+    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+    window.__adminSb = sb;
+
+    window.adminLogout = async () => { await sb.auth.signOut(); location.href = 'admin-login.html'; };
+
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { location.href = 'admin-login.html'; }
+    else {
+      const { data: isAdmin, error } = await sb.rpc('is_store_admin');
+      if (error || !isAdmin) { await sb.auth.signOut(); location.href = 'admin-login.html'; }
+      else {
+        window.__ADMIN_TOKEN__ = session.access_token;
+        const s = document.createElement('script');
+        s.src = 'admin.js';
+        document.body.appendChild(s);
+      }
+    }
+    </script>
+</body>
+</html>

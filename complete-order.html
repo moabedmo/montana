@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#9B6CB8">
+    <title>Montana | إتمام الطلب</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="app.css">
+    <link rel="stylesheet" href="pages.css">
+    <link rel="stylesheet" href="premium.css">
+    <link rel="stylesheet" href="dark-theme.css">
+    <style>
+        .co-wrap { padding:16px 20px 40px; max-width:520px; margin:0 auto; }
+        .co-intro { font-size:13px; color:var(--text-muted); line-height:1.8; margin-bottom:16px; }
+        .co-form { display:flex; flex-direction:column; gap:12px; }
+        .co-form input, .co-form textarea, .co-form select {
+            padding:12px 14px; border:1.5px solid var(--border); border-radius:12px;
+            font-family:'Tajawal',sans-serif; font-size:14px; background:var(--bg-light,#fff); color:var(--text);
+        }
+        .co-form textarea { min-height:70px; resize:vertical; }
+        .co-gov-row { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+        .co-gov-row select { flex:1; }
+        .co-gov-cost { font-size:13px; font-weight:800; color:var(--accent); white-space:nowrap; }
+        .co-err { color:#EF5350; font-size:13px; text-align:center; padding:4px; display:none; }
+        .co-submit { padding:13px; border:none; border-radius:12px; background:var(--accent,#9B6CB8); color:#fff; font-weight:700; font-size:15px; cursor:pointer; }
+        .co-submit:disabled { opacity:.6; cursor:not-allowed; }
+        .co-empty { text-align:center; padding:40px 20px; color:var(--text-muted); }
+        .co-cart { border:1.5px solid var(--border); border-radius:14px; padding:14px 16px; margin-bottom:16px; }
+        .co-cart-item { display:flex; justify-content:space-between; font-size:13.5px; padding:4px 0; }
+        .co-cart-total { display:flex; justify-content:space-between; font-weight:800; font-size:14px; margin-top:8px; padding-top:8px; border-top:1px solid var(--border); }
+        .co-deposit-box { border:1.5px dashed var(--accent); border-radius:14px; padding:16px; margin-top:6px; }
+        .co-deposit-box p { font-size:13px; color:var(--text-light); line-height:1.9; margin-bottom:10px; }
+        .co-order-num { text-align:center; margin-bottom:14px; }
+        .co-order-num span { display:block; font-size:12px; color:var(--text-muted); }
+        .co-order-num strong { font-size:20px; color:var(--accent); }
+        .co-deposit-num { font-size:16px; font-weight:800; color:var(--text); direction:ltr; text-align:center; padding:8px; background:var(--bg-light,rgba(0,0,0,.03)); border-radius:10px; margin-bottom:10px; }
+        .co-proof { padding:16px; border:1.5px dashed var(--border); border-radius:14px; text-align:center; margin-top:16px; }
+        .co-proof p { margin:0 0 10px; font-size:13px; color:var(--text-muted); }
+        .co-proof label { display:inline-block; padding:10px 20px; border-radius:12px; background:var(--accent,#9B6CB8); color:#fff; font-weight:700; cursor:pointer; font-size:14px; }
+        .co-proof label.disabled { opacity:.55; cursor:not-allowed; pointer-events:none; }
+        .co-proof input[type=file] { display:none; }
+        .co-proof-msg { font-size:13px; margin-top:8px; }
+        .co-proof-msg.ok { color:#27ae60; }
+        .co-proof-msg.err { color:#EF5350; }
+        .co-points-note { font-size:12px; color:var(--text-muted); line-height:1.8; margin:-4px 0 4px; }
+        .co-points-balance { font-size:13px; font-weight:700; color:var(--accent); margin:-4px 0 4px; display:none; }
+    </style>
+</head>
+<body>
+
+<div class="page-header">
+    <a href="index.html" class="page-back"><i class="fas fa-arrow-right"></i></a>
+    <h2>إتمام الطلب</h2>
+    <div class="page-header-actions"></div>
+</div>
+
+<div class="co-wrap">
+    <div id="coEmpty" class="co-empty" style="display:none">الرابط ده غير صالح أو الجلسة انتهت. ارجعي للشات وابدئي من هناك 💜</div>
+
+    <div id="coFormBox">
+        <div id="coCartSummary"></div>
+        <p class="co-intro">كمّلي بياناتك عشان نسجل طلبك ونحسب تكلفة الشحن حسب محافظتك 💜</p>
+        <form class="co-form" id="coForm">
+            <input type="text" id="coName" placeholder="الاسم بالكامل" required>
+            <input type="tel" id="coPhone" placeholder="رقم الموبايل (01xxxxxxxxx)" dir="ltr" required>
+            <p class="co-points-note">🎁 برنامج نقاط مونتانيا: بتكسبي نقطة لكل 10 ج.م في كل عملية شراء، وتقدري تستبدليها بخصومات وهدايا وشحن مجاني — مربوط برقم موبايلك.</p>
+            <p class="co-points-balance" id="coPointsBalance"></p>
+            <textarea id="coAddress" placeholder="العنوان بالتفصيل (المنطقة + الشارع)" required></textarea>
+            <div class="co-gov-row">
+                <select id="coGov" required><option value="">جارٍ تحميل المحافظات…</option></select>
+                <span class="co-gov-cost" id="coGovCost"></span>
+            </div>
+            <p class="co-err" id="coErr"></p>
+            <button type="submit" class="co-submit" id="coSubmitBtn">تأكيد الطلب</button>
+        </form>
+    </div>
+
+    <div id="coSuccessBox" style="display:none"></div>
+</div>
+
+<script src="components.js"></script>
+<script type="module">
+import { shipping as shippingApi } from '/js/store-api.js';
+
+const params = new URLSearchParams(location.search);
+const sid = params.get('sid');
+
+if (!sid) {
+    document.getElementById('coEmpty').style.display = '';
+    document.getElementById('coFormBox').style.display = 'none';
+}
+
+async function loadGovernorates() {
+    const sel = document.getElementById('coGov');
+    try {
+        const rates = await shippingApi.list();
+        sel.innerHTML = '<option value="">اختاري المحافظة</option>' +
+            rates.map(r => `<option value="${r.governorate}" data-cost="${r.cost}">${r.governorate} — ${Math.round(r.cost)} ج.م شحن</option>`).join('');
+    } catch (e) {
+        sel.innerHTML = '<option value="">تعذّر تحميل المحافظات</option>';
+    }
+}
+if (sid) loadGovernorates();
+
+async function loadCartSummary() {
+    const box = document.getElementById('coCartSummary');
+    try {
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId: sid, getCart: true }),
+        });
+        const data = await res.json();
+        const cart = Array.isArray(data.cart) ? data.cart : [];
+        if (!cart.length) return;
+        const items = cart.map(i => `<div class="co-cart-item"><span>${i.name} × ${i.qty}</span><span>${Math.round(i.price * i.qty)} ج.م</span></div>`).join('');
+        box.innerHTML = `<div class="co-cart">${items}<div class="co-cart-total"><span>الإجمالي (قبل الشحن)</span><span>${Math.round(data.subtotal)} ج.م</span></div></div>`;
+    } catch (e) { /* summary is a nice-to-have — form still works without it */ }
+}
+if (sid) loadCartSummary();
+
+let pointsLookupTimer = null;
+document.getElementById('coPhone').addEventListener('input', (e) => {
+    const balanceEl = document.getElementById('coPointsBalance');
+    const digits = e.target.value.replace(/[^\d]/g, '');
+    if (!/^01\d{9}$/.test(digits)) {
+        balanceEl.style.display = 'none';
+        return;
+    }
+    clearTimeout(pointsLookupTimer);
+    pointsLookupTimer = setTimeout(async () => {
+        try {
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ getPoints: true, phone: digits }),
+            });
+            const data = await res.json();
+            if (data.points > 0) {
+                balanceEl.textContent = `💜 عندك ${data.points} نقطة من رقم الموبايل ده (بتساوي ${Math.round(data.points / 10)} ج.م خصم)`;
+                balanceEl.style.display = '';
+            } else {
+                balanceEl.style.display = 'none';
+            }
+        } catch (e) { /* balance is a nice-to-have — form still works without it */ }
+    }, 600);
+});
+
+document.getElementById('coGov').addEventListener('change', (e) => {
+    const opt = e.target.selectedOptions[0];
+    document.getElementById('coGovCost').textContent = opt?.dataset.cost ? `${Math.round(opt.dataset.cost)} ج.م شحن` : '';
+});
+
+function renderSuccess(order) {
+    document.getElementById('coFormBox').style.display = 'none';
+    const box = document.getElementById('coSuccessBox');
+    box.style.display = '';
+    box.innerHTML = `
+        <div class="co-order-num">
+            <span>رقم الطلب</span>
+            <strong>${order.order_number}</strong>
+        </div>
+        <div class="co-deposit-box">
+            <p>الإجمالي <strong>${Math.round(order.total)} ج.م</strong> (شامل مقدّم حجز <strong>${Math.round(order.deposit_amount)} ج.م</strong> هيتخصم منه). حوّلي المقدّم على الرقم التالي وارفعي صورة الإيصال تحت وهنأكدلك الحجز على طول:</p>
+            <div class="co-deposit-num">${order.transfer_number || ''}${order.transfer_name ? ' — ' + order.transfer_name : ''}</div>
+        </div>
+        <div class="co-proof" id="proofBox">
+            <p>ارفعي صورة إيصال التحويل هنا 💜</p>
+            <label for="proofFile" id="proofLabel"><i class="fas fa-camera"></i> ارفعي صورة الإيصال</label>
+            <input type="file" id="proofFile" accept="image/*">
+            <div class="co-proof-msg" id="proofMsg"></div>
+        </div>`;
+
+    document.getElementById('proofFile').addEventListener('change', () => uploadProof(order.order_number, order.phone));
+}
+
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+async function uploadProof(orderNumber, phone) {
+    const input = document.getElementById('proofFile');
+    const label = document.getElementById('proofLabel');
+    const msgEl = document.getElementById('proofMsg');
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 4_000_000) {
+        msgEl.textContent = 'الصورة كبيرة أوي، جرّبي صورة أصغر من 4 ميجا';
+        msgEl.className = 'co-proof-msg err';
+        return;
+    }
+    // Prevent a second upload firing while the first is still in flight —
+    // the input stays enabled otherwise, letting a re-pick race the request.
+    label.classList.add('disabled');
+    input.disabled = true;
+    msgEl.textContent = 'بترفع الصورة...';
+    msgEl.className = 'co-proof-msg';
+    try {
+        const base64 = await fileToBase64(file);
+        const res = await fetch('/api/send-telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(25000),
+            body: JSON.stringify({
+                attach_proof: true,
+                order_number: orderNumber,
+                phone,
+                customer_phone: phone,
+                proof_base64: base64,
+                proof_mime: file.type || 'image/jpeg',
+            }),
+        });
+        const result = await res.json();
+        if (!result.ok) {
+            msgEl.textContent = 'حصلت مشكلة، حاولي تاني 🙏';
+            msgEl.className = 'co-proof-msg err';
+            label.classList.remove('disabled');
+            input.disabled = false;
+            return;
+        }
+        msgEl.textContent = 'تمام! ✅ استلمنا الصورة وهنراجعها قريب';
+        msgEl.className = 'co-proof-msg ok';
+    } catch (e) {
+        msgEl.textContent = e?.name === 'AbortError' ? 'الاتصال بطيء، حاولي تاني' : 'تعذّر رفع الصورة، حاولي تاني';
+        msgEl.className = 'co-proof-msg err';
+        label.classList.remove('disabled');
+        input.disabled = false;
+    }
+}
+
+document.getElementById('coForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errEl = document.getElementById('coErr');
+    errEl.style.display = 'none';
+    const name = document.getElementById('coName').value.trim();
+    const phone = document.getElementById('coPhone').value.trim();
+    const address = document.getElementById('coAddress').value.trim();
+    const governorate = document.getElementById('coGov').value;
+
+    if (!name || !phone || !address || !governorate) {
+        errEl.textContent = 'من فضلك املي كل الحقول';
+        errEl.style.display = 'block';
+        return;
+    }
+
+    const btn = document.getElementById('coSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'جارٍ التسجيل...';
+
+    try {
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(20000),
+            body: JSON.stringify({ sessionId: sid, formSubmit: { name, phone, address, governorate } }),
+        });
+        const data = await res.json();
+        if (!data.order) {
+            errEl.textContent = (data.reply || 'حصلت مشكلة، حاولي تاني').replace(/\*\*/g, '');
+            errEl.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'تأكيد الطلب';
+            return;
+        }
+        renderSuccess({ ...data.order, phone });
+    } catch (err) {
+        errEl.textContent = err?.name === 'AbortError' ? 'الاتصال بطيء، حاولي تاني' : 'تعذّر الاتصال، حاولي تاني';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'تأكيد الطلب';
+    }
+});
+</script>
+</body>
+</html>

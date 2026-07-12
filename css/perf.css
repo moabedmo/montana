@@ -1,0 +1,30 @@
+/* Performance + image quality helpers */
+
+/* Prevent distorted product/hero images */
+.showcase-img,
+.showcase-reflection,
+.product-img img,
+.cat-product-img img,
+.pd-gallery-main img,
+.app-offer-card img,
+.lux-ing-card img,
+.modal-img img {
+  object-fit: contain;
+  max-width: 100%;
+  height: auto;
+}
+
+.showcase-stage .showcase-img {
+  width: min(100%, 420px);
+  aspect-ratio: 1 / 1;
+}
+
+.product-img img,
+.cat-product-img img {
+  aspect-ratio: 1 / 1;
+}
+
+/* Reserve space before images load (reduces CLS) */
+img[width][height] {
+  height: auto;
+}

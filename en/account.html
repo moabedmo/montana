@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#9B6CB8">
+    <title>Montana | My account</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../app.css">
+    <link rel="stylesheet" href="../pages.css">
+    <link rel="stylesheet" href="../premium.css">
+    <link rel="stylesheet" href="../css/ltr-en.css?v=1">
+    <link rel="stylesheet" href="../dark-theme.css">
+    <script src="../js/seo.js" defer></script>
+</head>
+<body class="mnt-en">
+
+<div class="page-header">
+    <a href="/en/index.html" class="page-back"><i class="fas fa-arrow-left"></i></a>
+    <h2>My account</h2>
+    <div class="page-header-actions"></div>
+</div>
+
+<div id="accountApp">
+    <p style="text-align:center;padding:40px;color:var(--text-muted)">Loading…</p>
+</div>
+
+
+<script>window.MONTANA_LOCALE="en";</script>
+<script type="module" src="../js/i18n/bootstrap-en.js"></script>
+<script type="module" src="../js/en-apply-ui.js"></script>
+<script src="../components.js"></script>
+<script src="../js/lang-switch.js?v=2"></script>
+<script src="../js/cart.js"></script>
+<script src="../js/wishlist.js"></script>
+<script type="module">
+import { sb, auth as authApi, orders as ordersApi } from '/js/store-api.js';
+
+const TIER_LABELS = { bronze: 'عضوية برونزية', silver: 'عضوية فضية', gold: 'Gold membership', platinum: 'عضوية بلاتينية' };
+const TIER_THRESH = { bronze: 500, silver: 1500, gold: 2500, platinum: 999999 };
+const STATUS_LABELS = {
+  pending: 'قيد الانتظار', confirmed: 'مؤكد', preparing: 'جاري التجهيز',
+  shipped: 'تم الشحن', delivered: 'تم التوصيل', cancelled: 'ملغي'
+};
+
+function tierProgress(points, tier) {
+  const next = TIER_THRESH[tier] || 500;
+  return Math.min(100, Math.round((points / next) * 100));
+}
+
+function formatDate(iso) {
+  try { return new Date(iso).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' }); }
+  catch { return ''; }
+}
+
+function renderOrdersList(orders) {
+  if (!orders?.length) {
+    return `<p style="padding:12px 20px;font-size:13px;color:var(--text-muted)">لا توجد طلبات بعد — <a href="/en/category.html" style="color:var(--accent)">Shop now</a></p>`;
+  }
+  return orders.slice(0, 10).map(o => {
+    const trackUrl = `tracking.html?order=${encodeURIComponent(o.order_number)}&phone=${encodeURIComponent(o.customer_phone || '')}`;
+    return `<a href="${trackUrl}" class="acc-menu-item">
+      <div class="acc-menu-icon"><i class="fas fa-box"></i></div>
+      <div style="flex:1">
+        <span style="display:block;font-weight:700">#${o.order_number}</span>
+        <small style="color:var(--text-muted)">${formatDate(o.created_at)} · ${Math.round(o.total || 0)} EGP</small>
+      </div>
+      <span style="font-size:11px;color:var(--accent);font-weight:600">${STATUS_LABELS[o.status] || o.status}</span>
+      <i class="fas fa-chevron-left acc-arrow"></i>
+    </a>`;
+  }).join('');
+}
+
+async function renderAccount(user, profile, myOrders) {
+  const name = profile?.name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'عضو';
+  const email = profile?.email || user.email || '';
+  const points = profile?.points ?? 0;
+  const tier = profile?.tier || 'bronze';
+  const wishCount = window.Wishlist?.getCount() || 0;
+  const orderCount = myOrders?.length || 0;
+  const initial = name.charAt(0);
+
+  document.getElementById('accountApp').innerHTML = `
+    <div class="acc-profile">
+        <div class="acc-avatar">${initial}</div>
+        <div class="acc-info">
+            <h2>${name}</h2>
+            <span>${email}</span>
+        </div>
+    </div>
+    <div class="acc-rewards">
+        <div class="acc-rewards-top">
+            <div>
+                <span class="acc-rewards-label"><i class="fas fa-crown"></i> Montana Rewards</span>
+                <h3>${points.toLocaleString('ar')} نقطة</h3>
+            </div>
+            <span class="acc-rewards-tier">${TIER_LABELS[tier] || tier}</span>
+        </div>
+        <div class="acc-rewards-bar"><div class="acc-rewards-fill" style="width:${tierProgress(points, tier)}%"></div></div>
+        <span class="acc-rewards-hint">${tier === 'platinum' ? 'أعلى مستوى عضوية 🎉' : `${Math.max(0, (TIER_THRESH[tier] || 500) - points)} نقطة للوصول للمستوى التالي`}</span>
+    </div>
+    <div class="acc-stats">
+        <div class="acc-stat"><span class="acc-stat-num">${orderCount}</span><span class="acc-stat-label">طلب</span></div>
+        <div class="acc-stat"><span class="acc-stat-num">${wishCount}</span><span class="acc-stat-label">المفضلة</span></div>
+        <div class="acc-stat"><span class="acc-stat-num">${points}</span><span class="acc-stat-label">نقطة</span></div>
+    </div>
+    <div class="acc-menu-section">
+        <h3>طلباتي</h3>
+        ${renderOrdersList(myOrders)}
+        <a href="/en/tracking.html" class="acc-menu-item"><div class="acc-menu-icon"><i class="fas fa-truck"></i></div><span>تتبع طلب برقم الطلب</span><i class="fas fa-chevron-left acc-arrow"></i></a>
+    </div>
+    <div class="acc-menu-section">
+        <h3>My account</h3>
+        <a href="/en/wishlist.html" class="acc-menu-item"><div class="acc-menu-icon"><i class="far fa-heart"></i></div><span>المفضلة (${wishCount})</span><i class="fas fa-chevron-left acc-arrow"></i></a>
+        <a href="/en/returns.html" class="acc-menu-item"><div class="acc-menu-icon"><i class="fas fa-rotate-left"></i></div><span>Return policy</span><i class="fas fa-chevron-left acc-arrow"></i></a>
+    </div>
+    <div class="acc-menu-section" id="accEditSection">
+        <h3>تعديل البيانات</h3>
+        <div style="padding:0 20px 16px;display:flex;flex-direction:column;gap:10px">
+            <input type="text" id="editName" value="${name.replace(/"/g, '&quot;')}" placeholder="Name" style="padding:12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit">
+            <input type="tel" id="editPhone" value="${(profile?.phone || user.user_metadata?.phone || '').replace(/"/g, '&quot;')}" placeholder="01xxxxxxxxx" dir="ltr" style="padding:12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit">
+            <button type="button" id="saveProfileBtn" style="padding:12px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;font-family:inherit;cursor:pointer">حفظ البيانات</button>
+            <p id="profileMsg" style="font-size:12px;display:none"></p>
+            <hr style="border:none;border-top:1px solid var(--border);margin:4px 0">
+            <input type="password" id="newPassword" placeholder="كلمة مرور New (6+ أحرف)" dir="ltr" style="padding:12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit">
+            <button type="button" id="changePassBtn" style="padding:12px;border:1.5px solid var(--accent);border-radius:10px;background:transparent;color:var(--accent);font-weight:700;font-family:inherit;cursor:pointer">تغيير كلمة المرور</button>
+            <p id="passMsg" style="font-size:12px;display:none"></p>
+        </div>
+    </div>
+    <div class="acc-menu-section">
+        <h3>المساعدة</h3>
+        <a href="/en/contact.html" class="acc-menu-item"><div class="acc-menu-icon"><i class="fas fa-headset"></i></div><span>Customer care</span><i class="fas fa-chevron-left acc-arrow"></i></a>
+        <a href="/en/faq.html" class="acc-menu-item"><div class="acc-menu-icon"><i class="fas fa-question-circle"></i></div><span>FAQ</span><i class="fas fa-chevron-left acc-arrow"></i></a>
+        <a href="/en/privacy.html" class="acc-menu-item"><div class="acc-menu-icon"><i class="fas fa-shield-halved"></i></div><span>Privacy policy</span><i class="fas fa-chevron-left acc-arrow"></i></a>
+        <a href="/en/terms.html" class="acc-menu-item"><div class="acc-menu-icon"><i class="fas fa-file-contract"></i></div><span>Terms & conditions</span><i class="fas fa-chevron-left acc-arrow"></i></a>
+    </div>
+    <div class="acc-logout">
+        <button class="acc-logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</button>
+    </div>
+    <div class="acc-version">Montana</div>`;
+
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await sb.auth.signOut();
+    location.href = 'login.html';
+  });
+
+  document.getElementById('saveProfileBtn')?.addEventListener('click', async () => {
+    const msg = document.getElementById('profileMsg');
+    try {
+      const updated = await authApi.updateProfile(
+        document.getElementById('editName').value.trim(),
+        document.getElementById('editPhone').value.trim()
+      );
+      await sb.auth.updateUser({ data: { full_name: updated.name, phone: updated.phone } });
+      msg.style.display = 'block'; msg.style.color = '#27ae60'; msg.textContent = 'تم حفظ البيانات ✓';
+      setTimeout(() => location.reload(), 800);
+    } catch (e) {
+      msg.style.display = 'block'; msg.style.color = '#EF5350'; msg.textContent = e?.message || 'تعذّر الحفظ';
+    }
+  });
+
+  document.getElementById('changePassBtn')?.addEventListener('click', async () => {
+    const pw = document.getElementById('newPassword').value;
+    const msg = document.getElementById('passMsg');
+    if (pw.length < 6) { msg.style.display = 'block'; msg.style.color = '#EF5350'; msg.textContent = '6 أحرف على الأقل'; return; }
+    const { error } = await sb.auth.updateUser({ password: pw });
+    msg.style.display = 'block';
+    msg.style.color = error ? '#EF5350' : '#27ae60';
+    msg.textContent = error ? error.message : 'تم تغيير كلمة المرور ✓';
+    if (!error) document.getElementById('newPassword').value = '';
+  });
+}
+
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = 'login.html'; return; }
+  let profile = null;
+  let myOrders = [];
+  try { profile = await authApi.upsertProfile(session.user.user_metadata?.full_name, session.user.user_metadata?.phone); } catch { /* migration 012 */ }
+  try { myOrders = await ordersApi.listMine(); } catch { /* migration 013 */ }
+  await renderAccount(session.user, profile, myOrders);
+})();
+</script>
+<script type="module" src="../js/site-settings.js"></script>
+</body>
+</html>

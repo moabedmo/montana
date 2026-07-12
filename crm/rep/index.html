@@ -1,0 +1,3176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#231840">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Montana — Rep App</title>
+<link rel="manifest" href="/crm/rep/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#231840;--panel:rgba(255,255,255,.05);--b:rgba(255,255,255,.09);
+  --text:rgba(255,255,255,.92);--dim:rgba(255,255,255,.5);
+  --violet:#A78BFA;--vd:#7C3AED;--gold:#C9A84C;--gl:#E8D48A;
+  --ok:#4ADE80;--warn:#F5A623;--bad:#F0997B;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;
+  font-weight:300;min-height:100dvh;overscroll-behavior:none;}
+body{
+  background:
+    radial-gradient(circle at 20% 0%,rgba(167,139,250,.15),transparent 40%),
+    radial-gradient(circle at 85% 100%,rgba(201,168,76,.1),transparent 40%),
+    var(--bg);
+}
+
+/* ── Shell ── */
+#app{display:flex;flex-direction:column;height:100dvh;}
+.topnav{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 20px 10px;border-bottom:1px solid var(--b);
+  background:rgba(0,0,0,.15);backdrop-filter:blur(8px);
+  position:sticky;top:0;z-index:10;
+}
+.topnav .logo{font-family:'Playfair Display',serif;font-size:17px;letter-spacing:.06em;}
+.topnav .logo span{color:var(--gl);}
+.topnav .rep-name{font-size:12px;color:var(--dim);}
+.topnav .sync-btn{font-size:12px;color:var(--violet);cursor:pointer;padding:6px 10px;
+  border:1px solid rgba(167,139,250,.3);border-radius:7px;}
+
+.screens{flex:1;overflow:hidden;position:relative;}
+.screen{position:absolute;inset:0;overflow-y:auto;padding:20px 20px 100px;
+  opacity:0;pointer-events:none;transition:opacity .2s;}
+.screen.active{opacity:1;pointer-events:auto;}
+
+/* ── Bottom nav ── */
+.botnav{
+  display:flex;border-top:1px solid var(--b);background:rgba(13,10,28,.9);
+  backdrop-filter:blur(12px);padding-bottom:env(safe-area-inset-bottom);
+}
+.botnav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:10px 0;font-size:10px;color:var(--dim);cursor:pointer;border:none;
+  background:none;font-family:'Jost',sans-serif;transition:color .2s;
+}
+.botnav-item.active{color:var(--gl);}
+.botnav-item svg{width:20px;height:20px;}
+
+/* ── Screen: Plan ── */
+.greet{margin-bottom:18px;}
+.greet .hi{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);}
+.greet h1{font-family:'Playfair Display',serif;font-weight:400;font-size:22px;margin-top:3px;}
+.stat-row{display:flex;gap:10px;margin-bottom:22px;}
+.stat{flex:1;background:var(--panel);border:1px solid var(--b);border-radius:14px;padding:14px;}
+.stat .n{font-family:'Playfair Display',serif;font-size:22px;}
+.stat .l{font-size:11px;color:var(--dim);margin-top:3px;}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.section-head h2{font-size:14px;font-weight:500;}
+.section-head a{font-size:12px;color:var(--violet);cursor:pointer;}
+
+.visit-card{
+  background:var(--panel);border:1px solid var(--b);border-radius:16px;
+  padding:15px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
+  cursor:pointer;transition:border-color .2s;
+}
+.visit-card:hover{border-color:rgba(167,139,250,.4);}
+.visit-card.done{opacity:.5;}
+.vc-left{display:flex;gap:12px;align-items:center;}
+.vc-av{width:42px;height:42px;border-radius:12px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--violet),var(--vd));
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;}
+.vc-av.done-av{background:rgba(74,222,128,.15);}
+.vc-name{font-size:14px;font-weight:500;}
+.vc-meta{font-size:11px;color:var(--dim);margin-top:3px;display:flex;align-items:center;gap:6px;}
+.class-pill{font-size:9px;padding:2px 7px;border-radius:5px;font-weight:500;}
+.AB1{background:rgba(201,168,76,.2);color:var(--gl);}
+.AB2{background:rgba(167,139,250,.2);color:var(--violet);}
+.BB1{background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);}
+.BB2{background:rgba(255,255,255,.06);color:rgba(255,255,255,.4);}
+.vc-arrow{color:var(--gl);font-size:18px;font-weight:300;}
+.badge-ok{color:var(--ok);font-size:18px;}
+
+/* Month schedule calendar */
+.cal-wrap{background:var(--panel);border:1px solid var(--b);border-radius:16px;padding:14px;margin-bottom:0;min-width:0;}
+/* Calendar + doctors: balanced split — doctors column ~310px */
+.plan-layout{
+  display:grid;grid-template-columns:minmax(0,1fr) 310px;
+  gap:12px;align-items:start;margin-bottom:20px;
+}
+.plan-side{
+  min-width:0;width:310px;flex-shrink:0;
+  display:flex;flex-direction:column;
+  background:var(--panel);border:1px solid var(--b);border-radius:16px;
+  padding:12px;
+}
+.plan-side .section-head{margin-bottom:8px;}
+.plan-side .section-head h2{font-size:14px;font-weight:500;}
+.plan-type-tabs{display:flex;gap:4px;margin-bottom:8px;overflow-x:auto;padding-bottom:2px;flex-shrink:0;}
+.plan-list-scroll{overflow:visible;}
+.plan-list-scroll .visit-card{
+  padding:10px;margin-bottom:8px;flex-direction:column;align-items:stretch;gap:6px;
+}
+.plan-list-scroll .visit-card .vc-left{width:100%;align-items:flex-start;}
+.plan-list-scroll .visit-card .vc-av{width:36px;height:36px;font-size:12px;flex-shrink:0;}
+.plan-list-scroll .visit-card .vc-name{
+  font-size:14px;font-weight:500;line-height:1.4;
+  word-break:break-word;color:var(--text);
+}
+.plan-list-scroll .visit-card .vc-meta{font-size:12px;color:var(--dim);margin-top:4px;}
+.plan-list-scroll .visit-card .sched-badge{font-size:11px;color:var(--violet);margin-top:4px;line-height:1.3;}
+.plan-list-scroll .visit-card .class-pill{font-size:9px;}
+.plan-list-scroll .plan-card-actions{display:flex;justify-content:flex-end;gap:6px;}
+.plan-list-scroll .plan-card-actions button{font-size:13px;padding:5px 8px;}
+@media (max-width:900px){
+  .plan-layout{grid-template-columns:minmax(0,1fr) 280px;gap:10px;}
+  .plan-side{width:280px;padding:10px;}
+  .cal-wrap{padding:10px;}
+  .cal-hint{display:none;}
+}
+@media (max-width:560px){
+  .plan-layout{grid-template-columns:minmax(0,1fr) 260px;gap:8px;}
+  .plan-side{width:260px;}
+  .plan-list-scroll .visit-card .vc-name{font-size:13px;}
+  .cal-date-picks select{padding:5px 6px;font-size:11px;}
+  .type-tab{padding:5px 8px;font-size:11px;}
+}
+.cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.cal-head h3{font-size:14px;font-weight:500;}
+.cal-date-picks{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.cal-date-picks select{
+  background:var(--bg);border:1px solid var(--b);border-radius:8px;
+  color:#fff;padding:6px 10px;font-size:12px;font-family:inherit;
+  cursor:pointer;appearance:auto;
+}
+.cal-date-picks select:focus{outline:none;border-color:var(--gold);}
+.cal-date-picks #cal-day-sel{min-width:52px;}
+.cal-date-picks #cal-month-sel{min-width:108px;}
+.cal-date-picks #cal-year-sel{min-width:68px;}
+.cal-legend{display:flex;gap:10px;font-size:10px;color:var(--dim);margin-bottom:10px;flex-wrap:wrap;}
+.cal-legend span{display:flex;align-items:center;gap:4px;}
+.cal-dot{width:8px;height:8px;border-radius:3px;display:inline-block;}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px;}
+.cal-weekdays span{text-align:center;font-size:10px;color:var(--dim);text-transform:uppercase;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-cell{
+  border-radius:10px;border:1px solid transparent;
+  display:flex;flex-direction:column;align-items:stretch;
+  font-size:13px;cursor:pointer;transition:all .15s;
+  min-height:56px;padding:3px 2px 4px;
+  background:rgba(255,255,255,.03);color:var(--dim);position:relative;
+}
+.cal-cell.empty{visibility:hidden;pointer-events:none;}
+.cal-cell.today{box-shadow:0 0 0 1px rgba(201,168,76,.5);}
+.cal-cell.selected{box-shadow:0 0 0 2px rgba(255,255,255,.55);}
+.cal-cell.leave{background:rgba(240,153,123,.12);border-color:rgba(240,153,123,.3);}
+.cal-cell.has-visits{border-color:rgba(167,139,250,.35);min-height:84px;}
+.cal-cell.cal-drop-hover{border-color:var(--gl)!important;background:rgba(201,168,76,.2)!important;transform:scale(1.03);}
+.cal-day-num{font-size:12px;font-weight:600;text-align:right;padding:0 4px;line-height:1;}
+.cal-visits{display:flex;flex-direction:column;gap:3px;width:100%;margin-top:3px;flex:1;}
+.cal-visit-chip{
+  cursor:pointer;
+  font-size:10px;line-height:1.3;padding:3px 4px;border-radius:4px;
+  text-align:left;overflow:hidden;text-overflow:ellipsis;
+  border:1px solid transparent;white-space:normal;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+.cal-visit-chip b{font-weight:600;font-size:9px;opacity:.9;}
+.cal-visit-chip.am{background:rgba(201,168,76,.22);color:var(--gl);border-color:rgba(201,168,76,.35);}
+.cal-visit-chip.pm{background:rgba(167,139,250,.22);color:var(--violet);border-color:rgba(167,139,250,.35);}
+.cal-leave-mark{font-size:9px;text-align:center;margin-top:auto;}
+.visit-card[draggable="true"]{cursor:grab;}
+.visit-card.dragging{opacity:.45;border-color:var(--gl);}
+.visit-card .sched-badge{font-size:10px;color:var(--violet);margin-top:4px;}
+.visit-day-panel{
+  margin-top:12px;border:1px solid rgba(167,139,250,.35);border-radius:12px;
+  background:rgba(0,0,0,.25);overflow:hidden;
+}
+.visit-day-panel.hidden{display:none;}
+.visit-day-panel-head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 12px;border-bottom:1px solid var(--b);
+  background:rgba(167,139,250,.1);
+}
+.visit-day-panel-head span{font-size:13px;font-weight:500;}
+.visit-day-panel-head button{
+  background:none;border:none;color:var(--dim);font-size:16px;cursor:pointer;padding:2px 6px;
+}
+.visit-day-panel-body{padding:12px;max-height:320px;overflow-y:auto;}
+.visit-day-panel-body .section-label{margin-top:0;font-size:10px;}
+.visit-day-field-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+.visit-day-field-row .ampm-btn{flex:0 1 auto;padding:6px 12px;font-size:11px;}
+.visit-day-row{display:flex;align-items:center;gap:8px;padding:10px;background:var(--panel);border:1px solid var(--b);border-radius:10px;margin-bottom:6px;}
+.visit-day-row .vd-name{flex:1;font-size:13px;font-weight:500;cursor:pointer;}
+.visit-day-row .vd-name:hover{color:var(--violet);}
+.ci-schedule-banner{
+  padding:10px 12px;margin-bottom:12px;border-radius:12px;
+  background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);font-size:12px;line-height:1.5;
+}
+.ci-schedule-banner.hidden,.ci-existing.hidden{display:none;}
+.ci-schedule-banner b{font-size:13px;display:block;margin-bottom:2px;}
+.ci-existing{
+  padding:12px;margin-bottom:14px;border-radius:12px;
+  background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.3);font-size:12px;line-height:1.5;
+}
+.ci-existing .ci-extra-btn{margin-top:10px;padding:10px 14px;border-radius:10px;border:1px solid rgba(167,139,250,.45);
+  background:rgba(167,139,250,.12);color:var(--violet);font-family:inherit;font-size:12px;cursor:pointer;width:100%;}
+.ci-visit-history{font-size:11px;color:var(--dim);margin-top:8px;padding:8px;border-radius:8px;background:rgba(0,0,0,.15);}
+.ci-stock-list{margin-bottom:4px;}
+.ci-stock-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-bottom:12px;}
+.ci-stock-card{padding:8px;border-radius:10px;border:1px solid var(--b);background:rgba(255,255,255,.03);text-align:center;font-size:10px;line-height:1.35;}
+.ci-stock-card img{width:100%;height:56px;object-fit:contain;border-radius:6px;margin-bottom:4px;background:rgba(0,0,0,.2);}
+.ci-stock-card b{display:block;font-size:11px;color:var(--text);margin-bottom:2px;}
+.ci-stock-card .stk-ok{color:var(--ok);}
+.ci-stock-card .stk-low{color:var(--bad);}
+.sample-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+.sample-row:last-child{border-bottom:none;}
+.sample-thumb{width:48px;height:48px;border-radius:10px;object-fit:contain;background:rgba(0,0,0,.25);border:1px solid var(--b);flex-shrink:0;}
+.sample-thumb-ph{width:48px;height:48px;border-radius:10px;background:rgba(167,139,250,.12);border:1px dashed rgba(167,139,250,.35);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;color:var(--dim);}
+.sample-row .sbody{flex:1;min-width:0;}
+.sample-row .sstock{display:block;font-size:10px;color:var(--dim);margin-top:2px;}
+.sample-row .sstock.low{color:var(--bad);}
+.sample-row .sprice{font-size:10px;color:var(--gl);margin-top:2px;}
+.visit-day-add{display:flex;align-items:center;gap:8px;padding:11px 12px;border:1px dashed rgba(167,139,250,.35);border-radius:12px;margin-bottom:8px;}
+.visit-day-add .vd-info{flex:1;min-width:0;}
+.visit-day-slot-btns{display:flex;gap:6px;flex-shrink:0;}
+.slot-pick-btn{padding:6px 10px;border-radius:8px;border:1px solid var(--b);background:rgba(255,255,255,.05);color:var(--dim);font-size:11px;cursor:pointer;font-family:inherit;}
+.slot-pick-btn.am{border-color:rgba(201,168,76,.45);color:var(--gl);}
+.slot-pick-btn.pm{border-color:rgba(167,139,250,.45);color:var(--violet);}
+.slot-pick-btn:hover{filter:brightness(1.15);}
+.visit-day-row .slot-toggle{display:flex;gap:4px;}
+.visit-day-row .slot-toggle button{padding:4px 8px;border-radius:6px;border:1px solid var(--b);background:rgba(255,255,255,.05);font-size:10px;cursor:pointer;font-family:inherit;color:var(--dim);}
+.visit-day-row .slot-toggle button.on.am{background:rgba(201,168,76,.2);border-color:rgba(201,168,76,.45);color:var(--gl);}
+.visit-day-row .slot-toggle button.on.pm{background:rgba(167,139,250,.2);border-color:rgba(167,139,250,.45);color:var(--violet);}
+#ampm-pick-sheet{
+  position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.45);padding:16px;
+}
+#ampm-pick-sheet:not(.hidden){display:flex;}
+#ampm-pick-sheet.hidden{display:none;}
+#ampm-pick-sheet .ampm-pick-actions{display:flex;gap:10px;margin-top:16px;}
+#ampm-pick-sheet .ampm-pick-actions button{flex:1;padding:14px;border-radius:12px;border:1px solid var(--b);font-size:13px;cursor:pointer;font-family:inherit;}
+#ampm-pick-sheet .ampm-pick-actions .pick-am{background:rgba(201,168,76,.18);border-color:rgba(201,168,76,.45);color:var(--gl);}
+#ampm-pick-sheet .ampm-pick-actions .pick-pm{background:rgba(167,139,250,.18);border-color:rgba(167,139,250,.45);color:var(--violet);}
+.cal-hint{font-size:10px;color:var(--dim);margin-bottom:10px;line-height:1.4;}
+
+/* ── Screen: Check-in ── */
+.checkin-header{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.back-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--b);
+  background:none;color:var(--text);font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;}
+.map-mini{
+  height:180px;border-radius:16px;margin-bottom:16px;position:relative;overflow:hidden;
+  background:
+    radial-gradient(circle at 50% 45%,rgba(167,139,250,.25),transparent 50%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 28px),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,transparent 1px 28px),
+    #1c1334;
+  border:1px solid var(--b);
+}
+.you-pin{position:absolute;width:14px;height:14px;border-radius:50%;
+  background:var(--violet);border:3px solid #fff;
+  box-shadow:0 0 0 8px rgba(167,139,250,.2);
+  top:50%;left:50%;transform:translate(-50%,-50%);}
+.target-ring{position:absolute;width:80px;height:80px;border-radius:50%;
+  border:1.5px dashed rgba(201,168,76,.5);
+  top:50%;left:50%;transform:translate(-50%,-50%);}
+.gps-badge{display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:12px;margin-bottom:16px;}
+.gps-retry{margin-left:auto;padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.08);color:var(--text);font-size:11px;cursor:pointer;font-family:inherit;flex-shrink:0;}
+.gps-ok {background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);}
+.gps-bad{background:rgba(240,153,123,.1);border:1px solid rgba(240,153,123,.3);}
+.gps-icon{font-size:22px;}
+.gps-text b{display:block;font-size:13px;font-weight:500;}
+.gps-text span{font-size:11px;color:var(--dim);}
+
+/* ── Check-in cards ── */
+.ci-card{background:var(--panel);border:1px solid var(--b);border-radius:14px;padding:14px;margin-bottom:14px;}
+.ci-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.ci-card-head h3{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--gl);font-weight:500;margin:0;}
+.ci-meta{font-size:12px;line-height:1.65;color:var(--dim);}
+.ci-meta b{color:var(--text);font-weight:500;}
+.ci-type-badge{font-size:10px;padding:3px 8px;border-radius:6px;background:rgba(167,139,250,.15);color:var(--violet);}
+.ci-loc-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px;}
+.ci-loc-row:last-child{border-bottom:none;padding-bottom:0;}
+.ci-loc-label{color:var(--dim);min-width:72px;}
+.ci-coords{font-family:ui-monospace,monospace;font-size:11px;color:var(--text);word-break:break-all;line-height:1.5;}
+.loc-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.loc-btn{padding:8px 12px;border-radius:9px;border:1px solid rgba(167,139,250,.35);
+  background:rgba(167,139,250,.1);color:var(--violet);font-size:11px;cursor:pointer;
+  font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
+.loc-btn.gold{border-color:rgba(201,168,76,.4);background:rgba(201,168,76,.1);color:var(--gl);}
+.ci-present{display:grid;gap:8px;}
+.ci-prod-card{padding:12px;border-radius:12px;border:1px solid var(--b);cursor:pointer;transition:all .2s;}
+.ci-prod-card.active{border-color:var(--gold);background:rgba(201,168,76,.08);}
+.ci-prod-card .pname{font-size:13px;font-weight:500;}
+.ci-prod-card .psub{font-size:11px;color:var(--dim);margin-top:3px;}
+.ci-mat-strip{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.ci-mat-chip{padding:6px 10px;border-radius:8px;border:1px solid var(--b);font-size:11px;cursor:pointer;background:rgba(255,255,255,.04);}
+.ci-mat-chip:hover{border-color:var(--violet);}
+.fin-block{padding:12px;border-radius:12px;border:1px solid var(--b);margin-bottom:10px;background:rgba(0,0,0,.12);}
+.fin-block-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;font-weight:500;}
+.hidden{display:none !important;}
+.fin-field{margin-bottom:8px;}
+.fin-field label{display:block;font-size:10px;color:var(--dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em;}
+.fin-field input,.fin-field select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--b);
+  background:#2a1f4a;color:var(--text);font-family:inherit;font-size:15px;line-height:1.4;
+  -webkit-appearance:none;appearance:none;color-scheme:dark;}
+.fin-field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23a78bfa' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:left 12px center;padding-left:32px;}
+.fin-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.pharm-lines{display:flex;flex-direction:column;gap:10px;margin:12px 0;}
+.pharm-line-card{padding:12px;border-radius:12px;border:1px solid var(--b);background:rgba(0,0,0,.15);}
+.pharm-pick-btn{width:100%;text-align:right;padding:14px;border-radius:10px;border:1px solid rgba(167,139,250,.45);
+  background:rgba(167,139,250,.12);color:var(--text);font-family:inherit;cursor:pointer;margin-bottom:10px;}
+.pharm-pick-btn .pharm-pick-label{display:block;font-size:15px;font-weight:500;line-height:1.45;color:var(--text);}
+.pharm-pick-btn .pharm-pick-sub{display:block;font-size:12px;color:var(--gl);margin-top:4px;}
+.pharm-pick-btn.empty .pharm-pick-label{color:var(--dim);}
+.pharm-line-qty-row{display:grid;grid-template-columns:1fr 1fr 36px;gap:8px;align-items:end;}
+.pharm-line-qty-row label{display:block;font-size:11px;color:var(--dim);margin-bottom:4px;}
+.pharm-line-qty-row input{padding:12px;border-radius:10px;border:1px solid var(--b);
+  background:#2a1f4a;color:var(--text);font-size:16px;width:100%;font-family:inherit;}
+.pharm-rm{width:36px;height:44px;border-radius:10px;border:1px solid rgba(240,153,123,.4);
+  background:rgba(240,153,123,.12);color:var(--bad);font-size:18px;cursor:pointer;font-family:inherit;}
+#pharm-pick-sheet{
+  /* Higher than #walkin-sheet — this picker can be opened from within it,
+     and must render on top, not behind it. */
+  position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.72);display:flex;align-items:flex-end;justify-content:center;}
+#pharm-pick-sheet.hidden{display:none !important;}
+#walkin-sheet{
+  position:fixed;inset:0;z-index:65;background:rgba(0,0,0,.72);display:flex;align-items:flex-end;justify-content:center;}
+#walkin-sheet.hidden{display:none !important;}
+#walkin-sheet .pharm-pick-panel{overflow-y:auto;}
+.pharm-pick-panel{
+  width:100%;max-width:480px;max-height:85vh;background:#1c1334;border:1px solid var(--b);
+  border-radius:18px 18px 0 0;padding:16px;display:flex;flex-direction:column;}
+.pharm-pick-panel h3{margin:0 0 12px;font-size:17px;font-family:'Playfair Display',serif;color:var(--gl);}
+.pharm-pick-search{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--b);
+  background:#2a1f4a;color:var(--text);font-size:15px;font-family:inherit;margin-bottom:12px;}
+.pharm-pick-list{overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:8px;padding-bottom:8px;}
+.pharm-pick-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;border:1px solid var(--b);
+  background:rgba(255,255,255,.04);cursor:pointer;text-align:right;width:100%;font-family:inherit;color:var(--text);}
+.pharm-pick-item:active{background:rgba(167,139,250,.2);border-color:var(--violet);}
+.pharm-pick-item img{width:52px;height:52px;object-fit:contain;border-radius:8px;background:rgba(0,0,0,.25);flex-shrink:0;}
+.pharm-pick-item .ppi-body{flex:1;min-width:0;}
+.pharm-pick-item .ppi-name{font-size:15px;font-weight:500;line-height:1.4;}
+.pharm-pick-item .ppi-meta{font-size:12px;color:var(--dim);margin-top:4px;}
+.pharm-pick-item .ppi-meta b{color:var(--gl);}
+.pharm-add{font-size:13px;color:var(--violet);cursor:pointer;margin-top:4px;padding:8px 0;}
+
+/* ── Check-in wizard ── */
+.ci-steps{display:flex;gap:4px;margin-bottom:16px;padding:4px;background:rgba(0,0,0,.2);border-radius:12px;border:1px solid var(--b);}
+.ci-step{flex:1;padding:10px 4px;border:none;border-radius:9px;background:transparent;color:var(--dim);
+  font-size:11px;font-family:inherit;cursor:pointer;text-align:center;line-height:1.3;transition:all .2s;}
+.ci-step.active{background:rgba(167,139,250,.2);color:var(--violet);font-weight:500;}
+.ci-step.done{color:var(--ok);}
+.ci-panel{display:none;}
+.ci-panel.active{display:block;}
+.ci-nav{display:flex;gap:10px;margin:16px 0;}
+.ci-nav button{flex:1;padding:12px;border-radius:11px;border:1px solid var(--b);background:var(--panel);
+  color:var(--text);font-family:inherit;font-size:13px;cursor:pointer;}
+.ci-nav .ci-next{background:linear-gradient(135deg,#7C3AED,var(--violet));border:none;color:#fff;font-weight:500;}
+.ci-help{font-size:11px;color:var(--dim);margin:-6px 0 12px;line-height:1.5;}
+.ci-vtype-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
+.ci-vtype-tile{padding:14px 8px;border-radius:12px;border:2px solid var(--b);background:var(--panel);
+  text-align:center;cursor:pointer;font-family:inherit;color:var(--dim);font-size:12px;line-height:1.4;}
+.ci-vtype-tile b{display:block;font-size:20px;margin-bottom:4px;}
+.ci-vtype-tile.active{border-color:var(--gold);background:rgba(201,168,76,.1);color:var(--gl);}
+.ci-vtype-tile[data-vt="no_show"].active{border-color:var(--bad);color:var(--bad);background:rgba(240,153,123,.1);}
+.ci-vtype-tile[data-vt="actual"].active{border-color:var(--ok);color:var(--ok);background:rgba(74,222,128,.1);}
+.ci-quick-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.ci-quick-actions a,.ci-quick-actions button{font-size:12px;padding:8px 12px;border-radius:9px;text-decoration:none;
+  border:1px solid var(--b);background:rgba(255,255,255,.05);color:var(--text);font-family:inherit;cursor:pointer;}
+.ci-details-toggle{font-size:11px;color:var(--violet);cursor:pointer;margin-top:8px;display:inline-block;}
+.ci-details-box{display:none;margin-top:8px;padding:10px;border-radius:9px;background:rgba(0,0,0,.15);font-size:11px;color:var(--dim);}
+.ci-details-box.open{display:block;}
+.ci-optional{border:1px dashed rgba(255,255,255,.12);border-radius:12px;padding:12px;margin-bottom:12px;}
+.ci-optional summary{font-size:12px;color:var(--dim);cursor:pointer;list-style:none;}
+.ci-optional summary::-webkit-details-marker{display:none;}
+
+.section-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin:18px 0 10px;}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{padding:8px 14px;border-radius:9px;border:1px solid var(--b);
+  font-size:12px;color:var(--dim);cursor:pointer;transition:all .2s;}
+.chip.sel{border-color:var(--gold);color:var(--gl);background:rgba(201,168,76,.1);}
+
+.sample-rows{background:var(--panel);border:1px solid var(--b);border-radius:12px;padding:0 12px;margin-bottom:4px;}
+.sname{display:flex;align-items:center;gap:8px;font-size:13px;}
+.sdot{width:8px;height:8px;border-radius:50%;}
+.sqty{display:flex;align-items:center;gap:8px;}
+.qbtn{width:28px;height:28px;border-radius:7px;border:1px solid var(--b);
+  background:rgba(255,255,255,.07);color:var(--text);font-size:16px;cursor:pointer;}
+.qval{font-size:15px;font-weight:500;min-width:20px;text-align:center;}
+.qunit{font-size:11px;color:var(--dim);}
+.sample-total{font-size:12px;color:var(--dim);margin:8px 0 16px;}
+.sample-total b{color:var(--gl);}
+
+.competitor-row{display:flex;gap:8px;margin-bottom:8px;}
+.competitor-row input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--b);
+  border-radius:9px;padding:10px 12px;color:var(--text);font-family:'Jost',sans-serif;font-size:13px;}
+.competitor-row input:focus{outline:none;border-color:var(--violet);}
+.add-comp{font-size:12px;color:var(--violet);cursor:pointer;margin-bottom:14px;}
+
+textarea{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--b);
+  border-radius:12px;padding:13px;color:var(--text);font-family:'Jost',sans-serif;
+  font-size:13px;min-height:80px;resize:none;margin-bottom:16px;}
+textarea:focus{outline:none;border-color:var(--violet);}
+
+.submit-btn{
+  width:100%;padding:15px;border-radius:12px;border:none;
+  background:linear-gradient(135deg,#C9A84C 0%,#E8D48A 50%,#C9A84C 100%);
+  color:#1a1030;font-weight:500;font-size:13px;letter-spacing:.06em;text-transform:uppercase;
+  cursor:pointer;font-family:'Jost',sans-serif;
+}
+.submit-btn:disabled{opacity:.5;cursor:default;}
+
+/* ── Screen: History ── */
+.history-item{background:var(--panel);border:1px solid var(--b);border-radius:14px;
+  padding:14px;margin-bottom:10px;}
+.hi-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.hi-name{font-size:14px;font-weight:500;}
+.hi-date{font-size:11px;color:var(--dim);}
+.hi-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.gps-tag{font-size:10px;padding:3px 8px;border-radius:5px;}
+.gps-v{background:rgba(74,222,128,.12);color:var(--ok);}
+.gps-f{background:rgba(240,153,123,.12);color:var(--bad);}
+
+/* ── Screen: eDetailing ── */
+.material-card{background:var(--panel);border:1px solid var(--b);border-radius:14px;
+  padding:16px;margin-bottom:10px;cursor:pointer;transition:border-color .2s;}
+.material-card:hover{border-color:rgba(167,139,250,.4);}
+.mat-icon{width:44px;height:44px;border-radius:10px;background:rgba(167,139,250,.15);
+  display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.mat-info{flex:1;}
+.mat-title{font-size:14px;font-weight:500;}
+.mat-sub{font-size:11px;color:var(--dim);margin-top:3px;}
+.mat-type{font-size:10px;padding:2px 8px;border-radius:5px;background:rgba(167,139,250,.15);color:var(--violet);}
+.viewer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;
+  display:flex;flex-direction:column;}
+.viewer-overlay.hidden{display:none !important;}
+.viewer-top{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--b);}
+.viewer-close{background:none;border:none;color:var(--text);font-size:22px;cursor:pointer;}
+.viewer-title{flex:1;font-size:14px;font-weight:500;}
+.viewer-content{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.viewer-content iframe{width:100%;height:100%;border:none;}
+.viewer-content img{max-width:100%;max-height:100%;object-fit:contain;}
+
+/* ── Screen: Leaderboard ── */
+.board-item{display:flex;align-items:center;gap:14px;padding:14px;
+  background:var(--panel);border:1px solid var(--b);border-radius:14px;margin-bottom:10px;}
+.board-rank{font-family:'Playfair Display',serif;font-size:22px;width:32px;text-align:center;flex-shrink:0;}
+.r1{color:var(--gl);}
+.r2{color:#b0c4de;}
+.r3{color:#cd7f32;}
+.board-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--vd));
+  display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.board-info{flex:1;}
+.board-name{font-size:14px;font-weight:500;}
+.board-meta{font-size:11px;color:var(--dim);margin-top:2px;}
+.board-pct{font-family:'Playfair Display',serif;font-size:20px;color:var(--gl);}
+.board-bar{height:4px;border-radius:2px;background:rgba(255,255,255,.08);margin-top:4px;overflow:hidden;}
+.board-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--vd),var(--violet));}
+.board-bar-fill.gold{background:linear-gradient(90deg,#C9A84C,#E8D48A);}
+.you-badge{font-size:10px;padding:2px 7px;border-radius:5px;background:rgba(201,168,76,.2);color:var(--gl);}
+
+/* ── Screen: Profile ── */
+.profile-av{width:72px;height:72px;border-radius:50%;
+  background:linear-gradient(135deg,var(--violet),var(--vd));
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:500;margin:0 auto 16px;}
+.profile-name{text-align:center;font-family:'Playfair Display',serif;font-size:20px;}
+.profile-meta{text-align:center;font-size:12px;color:var(--dim);margin-top:4px;margin-bottom:24px;}
+.profile-card{background:var(--panel);border:1px solid var(--b);border-radius:14px;padding:16px;margin-bottom:16px;}
+.profile-row{display:flex;justify-content:space-between;padding:10px 0;
+  border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;}
+.profile-row:last-child{border-bottom:none;}
+.profile-row span{color:var(--dim);}
+.logout-btn{width:100%;padding:13px;border-radius:12px;border:1px solid rgba(240,153,123,.3);
+  background:none;color:var(--bad);font-family:'Jost',sans-serif;font-size:13px;cursor:pointer;}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+  padding:12px 20px;border-radius:12px;font-size:13px;white-space:nowrap;z-index:500;
+  animation:pop .3s ease;}
+.toast-ok {background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.4);color:var(--ok);}
+.toast-err{background:rgba(240,153,123,.15);border:1px solid rgba(240,153,123,.4);color:var(--bad);}
+.toast-info{background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.4);color:var(--violet);}
+@keyframes pop{from{opacity:0;transform:translateX(-50%) scale(.9)}to{opacity:1;transform:translateX(-50%) scale(1)}}
+
+.offline-bar{background:rgba(245,166,35,.15);border-bottom:1px solid rgba(245,166,35,.3);
+  padding:7px 20px;font-size:12px;color:var(--warn);display:none;text-align:center;}
+
+/* ── Type filter tabs ── */
+.type-tab{
+  padding:7px 14px;border-radius:20px;border:1px solid var(--b);
+  background:none;color:var(--dim);font-family:'Jost',sans-serif;font-size:12px;
+  cursor:pointer;white-space:nowrap;transition:all .2s;
+}
+.type-tab.active{background:rgba(201,168,76,.15);border-color:rgba(201,168,76,.4);color:var(--gl);}
+
+/* ── Day status option buttons ── */
+.day-opt{
+  width:100%;padding:14px 16px;border-radius:12px;border:1px solid var(--b);
+  background:var(--panel);color:var(--text);font-family:'Jost',sans-serif;
+  font-size:14px;text-align:left;cursor:pointer;transition:all .2s;
+}
+.day-opt:hover{border-color:rgba(201,168,76,.4);background:rgba(201,168,76,.08);}
+.day-opt.selected{border-color:rgba(201,168,76,.6);background:rgba(201,168,76,.12);color:var(--gl);}
+
+/* ── AM/PM buttons ── */
+.ampm-btn{
+  flex:1;padding:9px 0;border-radius:9px;border:1px solid var(--b);
+  background:none;color:var(--dim);font-family:'Jost',sans-serif;font-size:13px;
+  cursor:pointer;transition:all .2s;
+}
+.ampm-btn.active{background:rgba(167,139,250,.15);border-color:rgba(167,139,250,.4);color:var(--violet);}
+
+/* ── Visit type buttons ── */
+.vtype-btn{
+  padding:8px 12px;border-radius:9px;border:1px solid var(--b);
+  background:none;color:var(--dim);font-family:'Jost',sans-serif;font-size:12px;
+  cursor:pointer;transition:all .2s;
+}
+.vtype-btn.active{background:rgba(201,168,76,.15);border-color:rgba(201,168,76,.4);color:var(--gl);}
+.vtype-btn[data-vt="actual"].active{background:rgba(74,222,128,.12);border-color:rgba(74,222,128,.45);color:var(--ok);}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="offline-bar" id="offline-bar">📶 Offline — visits will sync when connected</div>
+  <div class="topnav">
+    <div class="logo">M<span>.</span></div>
+    <div class="rep-name" id="rep-name-top">Loading…</div>
+    <div class="sync-btn" id="walkin-invoice-btn" onclick="openWalkinInvoice()" style="margin-inline-end:8px">🧾 فاتورة</div>
+    <div class="sync-btn" id="sync-btn" onclick="syncOffline()">⟳ Sync</div>
+  </div>
+
+  <div class="screens">
+    <!-- Plan -->
+    <div class="screen active" id="s-plan">
+      <div class="greet">
+        <div class="hi" id="greeting">Good morning</div>
+        <h1 id="rep-fullname">…</h1>
+      </div>
+      <!-- KPI Stats -->
+      <div class="stat-row">
+        <div class="stat">
+          <div class="n" id="st-planactual" style="font-size:16px">0<span style="color:var(--dim);font-size:13px">/0</span></div>
+          <div class="l">Plan / Actual</div>
+          <div style="height:3px;border-radius:2px;background:rgba(255,255,255,.08);margin-top:8px;overflow:hidden">
+            <div id="st-plan-bar" style="height:100%;border-radius:2px;background:linear-gradient(90deg,var(--vd),var(--violet));width:0%;transition:width .6s"></div>
+          </div>
+        </div>
+        <div class="stat">
+          <div class="n" id="st-revenue" style="font-size:15px">0</div>
+          <div class="l">Sales (EGP)</div>
+        </div>
+        <div class="stat">
+          <div class="n" id="st-units">0</div>
+          <div class="l">Units / عبوات</div>
+        </div>
+      </div>
+      <div class="stat-row" style="margin-top:-8px">
+        <div class="stat">
+          <div class="n" id="st-coverage">—</div>
+          <div class="l">Coverage</div>
+        </div>
+        <div class="stat">
+          <div class="n" id="st-freq">—</div>
+          <div class="l">Avg freq.</div>
+        </div>
+        <div class="stat">
+          <div class="n" id="st-actual">0</div>
+          <div class="l">Actual visits</div>
+        </div>
+      </div>
+
+      <!-- Day Status -->
+      <div id="day-status-bar" onclick="openDaySheet()" style="display:flex;align-items:center;justify-content:space-between;background:var(--panel);border:1px solid var(--b);border-radius:12px;padding:11px 14px;margin-bottom:18px;cursor:pointer">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span id="day-status-icon" style="font-size:18px">🗓️</span>
+          <div>
+            <div style="font-size:12px;font-weight:500" id="day-status-label">Set today's status</div>
+            <div style="font-size:11px;color:var(--dim)" id="day-status-sub">Tap to update</div>
+          </div>
+        </div>
+        <span style="color:var(--dim);font-size:16px">›</span>
+      </div>
+
+      <!-- Calendar + doctors side by side -->
+      <div class="plan-layout">
+        <div class="cal-wrap">
+          <div class="cal-head">
+            <div class="cal-date-picks">
+              <select id="cal-day-sel" aria-label="Day"></select>
+              <select id="cal-month-sel" aria-label="Month"></select>
+              <select id="cal-year-sel" aria-label="Year"></select>
+            </div>
+            <span style="font-size:11px;color:var(--dim)">Tap day · drag doctor</span>
+          </div>
+          <p class="cal-hint">Drag a doctor onto a day — choose AM or PM. Tap a day to add doctors with AM/PM buttons.</p>
+          <div class="cal-legend">
+            <span><i class="cal-dot" style="background:var(--gl)"></i> AM visit</span>
+            <span><i class="cal-dot" style="background:var(--violet)"></i> PM visit</span>
+          </div>
+          <div class="cal-weekdays">
+            <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+          </div>
+          <div class="cal-grid" id="month-cal-grid"></div>
+
+          <!-- Inline day list — opens below calendar, not full screen -->
+          <div class="visit-day-panel hidden" id="visit-day-panel">
+            <div class="visit-day-panel-head">
+              <span id="visit-day-title">Day visits</span>
+              <button type="button" onclick="closeVisitDaySheet()" title="Close">✕</button>
+            </div>
+            <div class="visit-day-panel-body">
+              <div class="section-label">Scheduled doctors</div>
+              <div id="visit-day-assigned"></div>
+              <div class="section-label" style="margin-top:12px">Add from your plan</div>
+              <div id="visit-day-add-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="plan-side">
+          <div class="section-head">
+            <h2 id="plan-title">Doctors to visit</h2>
+            <a onclick="openAddDoctor()" style="color:var(--gold)">+ Add</a>
+          </div>
+          <div class="plan-type-tabs">
+            <button class="type-tab active" data-type="all"    onclick="filterPlanType('all',this)">All</button>
+            <button class="type-tab"        data-type="doctor" onclick="filterPlanType('doctor',this)">🩺 Dr</button>
+            <button class="type-tab"        data-type="pharmacy" onclick="filterPlanType('pharmacy',this)">💊 Phar</button>
+            <button class="type-tab"        data-type="polyclinic" onclick="filterPlanType('polyclinic',this)">🏥 Poly</button>
+            <button class="type-tab"        data-type="hospital" onclick="filterPlanType('hospital',this)">🏨 Hosp</button>
+          </div>
+          <div class="plan-list-scroll" id="plan-list"><div style="color:var(--dim);font-size:13px">Loading…</div></div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- Add Doctor Sheet -->
+    <div class="viewer-overlay hidden" id="add-doc-sheet" style="background:rgba(13,10,28,.97)">
+      <div class="viewer-top">
+        <button class="viewer-close" onclick="closeAddDoctor()">✕</button>
+        <div class="viewer-title">Add doctor to plan</div>
+      </div>
+      <div style="padding:14px 16px;border-bottom:1px solid var(--b)">
+        <input id="add-doc-search" type="text" placeholder="Search by name…" oninput="filterDocSheet(this.value)"
+          style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Jost',sans-serif;font-size:14px">
+      </div>
+      <div id="add-doc-list" style="flex:1;overflow-y:auto;padding:12px 16px"></div>
+    </div>
+
+    <!-- Day Status Sheet -->
+    <div class="viewer-overlay hidden" id="day-sheet" style="background:rgba(13,10,28,.97)">
+      <div class="viewer-top">
+        <button class="viewer-close" onclick="closeDaySheet()">✕</button>
+        <div class="viewer-title">Today's status</div>
+      </div>
+      <div style="padding:20px 16px;overflow-y:auto">
+        <div style="font-size:12px;color:var(--dim);margin-bottom:14px;text-transform:uppercase;letter-spacing:.07em">Select day type</div>
+        <div id="day-options" style="display:flex;flex-direction:column;gap:10px">
+          <button class="day-opt" data-type="regular"  data-icon="✅" onclick="setDayType('regular','✅','Regular working day')">✅ Regular working day</button>
+          <button class="day-opt" data-type="saturday" data-icon="📅" onclick="setDayType('saturday','📅','Saturday')">📅 Saturday</button>
+          <button class="day-opt" data-type="sat_sun"  data-icon="📅" onclick="setDayType('sat_sun','📅','Saturday + Sunday')">📅 Saturday + Sunday</button>
+          <div style="height:1px;background:var(--b);margin:4px 0"></div>
+          <button class="day-opt" data-type="annual_leave" data-icon="✈️" onclick="setDayType('annual_leave','✈️','Annual leave')">✈️ Annual leave</button>
+          <button class="day-opt" data-type="day_off"  data-icon="🌴" onclick="setDayType('day_off','🌴','Day off (vacation)')">🌴 Day off (vacation)</button>
+          <button class="day-opt" data-type="office"   data-icon="🏢" onclick="setDayType('office','🏢','Office work day')">🏢 Office work day</button>
+          <button class="day-opt" data-type="health"   data-icon="🏥" onclick="setDayType('health','🏥','Health day')">🏥 Health day</button>
+        </div>
+        <div style="font-size:12px;color:var(--dim);margin:20px 0 10px;text-transform:uppercase;letter-spacing:.07em">Annual leave balance</div>
+        <div style="display:flex;gap:10px">
+          <div style="flex:1;background:var(--panel);border:1px solid var(--b);border-radius:12px;padding:14px;text-align:center">
+            <div style="font-size:22px;font-family:'Playfair Display',serif;color:var(--gl)" id="al-total">21</div>
+            <div style="font-size:11px;color:var(--dim);margin-top:3px">Total days</div>
+          </div>
+          <div style="flex:1;background:var(--panel);border:1px solid var(--b);border-radius:12px;padding:14px;text-align:center">
+            <div style="font-size:22px;font-family:'Playfair Display',serif;color:var(--warn)" id="al-used">0</div>
+            <div style="font-size:11px;color:var(--dim);margin-top:3px">Used</div>
+          </div>
+          <div style="flex:1;background:var(--panel);border:1px solid var(--b);border-radius:12px;padding:14px;text-align:center">
+            <div style="font-size:22px;font-family:'Playfair Display',serif;color:var(--ok)" id="al-remain">21</div>
+            <div style="font-size:11px;color:var(--dim);margin-top:3px">Remaining</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AM/PM picker — small popup, not full page -->
+    <div class="hidden" id="ampm-pick-sheet">
+      <div style="background:var(--panel);border:1px solid var(--b);border-radius:16px;padding:22px 18px;width:min(320px,92vw)">
+        <div style="font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em">Visit time</div>
+        <div style="font-size:16px;font-weight:500;margin:8px 0 4px" id="ampm-pick-doc-name">Doctor</div>
+        <div style="font-size:12px;color:var(--dim)" id="ampm-pick-date-label"></div>
+        <div class="ampm-pick-actions">
+          <button class="pick-am" onclick="confirmAssignSlot('AM')">🌅 AM visit</button>
+          <button class="pick-pm" onclick="confirmAssignSlot('PM')">🌆 PM visit</button>
+        </div>
+        <button onclick="closeAmpmPicker()" style="width:100%;margin-top:10px;padding:10px;border:none;background:none;color:var(--dim);cursor:pointer;font-family:inherit">Cancel</button>
+      </div>
+    </div>
+
+    <!-- اختيار منتج للصيدلية — قائمة واضحة بدل الـ select -->
+    <div class="hidden" id="pharm-pick-sheet" onclick="if(event.target===this)closePharmPicker()">
+      <div class="pharm-pick-panel" onclick="event.stopPropagation()">
+        <h3>اختر منتج</h3>
+        <input type="search" class="pharm-pick-search" id="pharm-pick-search" placeholder="بحث بالاسم…" oninput="filterPharmPicker()">
+        <div class="pharm-pick-list" id="pharm-pick-list"></div>
+        <button type="button" onclick="closePharmPicker()" style="margin-top:10px;padding:12px;border:none;background:none;color:var(--dim);font-size:14px;cursor:pointer;font-family:inherit">إلغاء</button>
+      </div>
+    </div>
+
+    <!-- فاتورة لعميل مش مسجل في النظام (صيدلية/دكتور جديد) -->
+    <div class="hidden" id="walkin-sheet" onclick="if(event.target===this)closeWalkinInvoice()">
+      <div class="pharm-pick-panel" onclick="event.stopPropagation()" style="max-height:92vh">
+        <h3>🧾 فاتورة لعميل جديد</h3>
+        <p class="ci-help" style="margin:-6px 0 12px">لعميل مش موجود في النظام — اكتب بياناته يدويًا</p>
+        <div class="form-group" style="margin-bottom:10px"><label style="display:block;font-size:11px;color:var(--dim);margin-bottom:4px">اسم العميل / الصيدلية *</label>
+          <input id="wi-name" placeholder="مثال: صيدلية النور" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--b);background:#2a1f4a;color:var(--text);font-family:inherit;font-size:15px"></div>
+        <div class="form-group" style="margin-bottom:10px"><label style="display:block;font-size:11px;color:var(--dim);margin-bottom:4px">رقم الهاتف (اختياري)</label>
+          <input id="wi-phone" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--b);background:#2a1f4a;color:var(--text);font-family:inherit;font-size:15px"></div>
+        <div class="form-group" style="margin-bottom:14px"><label style="display:block;font-size:11px;color:var(--dim);margin-bottom:4px">العنوان (اختياري)</label>
+          <input id="wi-address" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--b);background:#2a1f4a;color:var(--text);font-family:inherit;font-size:15px"></div>
+
+        <div class="section-label" style="margin-top:0">المنتجات (السعر الأصلي قبل الخصم)</div>
+        <div id="walkin-lines" class="pharm-lines"></div>
+        <div class="pharm-add" onclick="addPharmLine()">+ إضافة منتج</div>
+
+        <div class="fin-grid" style="margin-top:14px">
+          <div class="fin-field"><label>طريقة الدفع</label>
+            <select id="wi-mode" onchange="onWalkinPayMode()">
+              <option value="cash">كاش — كامل</option>
+              <option value="partial">جزئي — مقدّم + باقي</option>
+              <option value="credit">آجل — شهر واحد</option>
+            </select>
+          </div>
+          <div class="fin-field" id="wi-paid-wrap"><label>المقدّم الآن (ج.م)</label><input id="wi-paid" type="number" min="0"></div>
+          <div class="fin-field"><label>تاريخ التحصيل</label><input id="wi-due" type="date"></div>
+          <div class="fin-field"><label>نسبة الخصم %</label><input id="wi-discount" type="number" min="0" max="100" value="0" oninput="onWalkinDiscountChange()"></div>
+        </div>
+        <div id="wi-discount-hint" style="margin-top:8px;font-size:11px;color:var(--dim)"></div>
+
+        <button type="button" class="submit-btn" style="margin-top:16px" onclick="submitWalkinInvoice()">✓ حفظ الفاتورة</button>
+        <button type="button" onclick="closeWalkinInvoice()" style="width:100%;margin-top:8px;padding:10px;border:none;background:none;color:var(--dim);font-size:14px;cursor:pointer;font-family:inherit">إلغاء</button>
+      </div>
+    </div>
+
+    <!-- Check-in — 4 خطوات بسيطة -->
+    <div class="screen" id="s-checkin">
+      <div class="checkin-header">
+        <button class="back-btn" onclick="showScreen('plan')">‹</button>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Playfair Display',serif;font-size:17px" id="ci-drname">Dr. Name</div>
+          <div style="font-size:11px;color:var(--dim)" id="ci-brick">Brick</div>
+          <div id="ci-header-meta" style="font-size:11px;color:var(--dim);margin-top:4px;line-height:1.5"></div>
+        </div>
+        <span class="ci-type-badge" id="ci-type-badge">Doctor</span>
+      </div>
+
+      <div id="ci-schedule-banner" class="ci-schedule-banner hidden"></div>
+      <div id="ci-existing-visit" class="ci-existing hidden"></div>
+      <div id="ci-visit-history" class="ci-visit-history" style="display:none;margin-bottom:10px"></div>
+
+      <div class="ci-steps" id="ci-steps">
+        <button type="button" class="ci-step active" data-step="1" onclick="goCiStep(1)">١ الزيارة</button>
+        <button type="button" class="ci-step" data-step="2" onclick="goCiStep(2)">٢ الموقع</button>
+        <button type="button" class="ci-step" data-step="3" onclick="goCiStep(3)">٣ المنتجات</button>
+        <button type="button" class="ci-step" data-step="4" onclick="goCiStep(4)">٤ إرسال</button>
+      </div>
+
+      <!-- الخطوة ١: نوع الزيارة والوقت -->
+      <div class="ci-panel active" id="ci-panel-1">
+        <p class="ci-help">حدّد وقت الزيارة ونوعها. <b>زيارة فعلية</b> = قابلت العميل وجهًا لوجه.</p>
+        <div class="section-label" style="margin-top:0">وقت الزيارة</div>
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <button type="button" id="ampm-am" class="ampm-btn active" style="flex:1;padding:14px" onclick="selectAmPm('AM')">🌅 صباحاً AM</button>
+          <button type="button" id="ampm-pm" class="ampm-btn" style="flex:1;padding:14px" onclick="selectAmPm('PM')">🌆 مساءً PM</button>
+        </div>
+        <div class="section-label">نوع الزيارة</div>
+        <div class="ci-vtype-grid">
+          <button type="button" class="ci-vtype-tile active" data-vt="actual" onclick="selectVisitType('actual',this)"><b>✓</b>زيارة فعلية</button>
+          <button type="button" class="ci-vtype-tile" data-vt="regular" onclick="selectVisitType('regular',this)"><b>○</b>عادية</button>
+          <button type="button" class="ci-vtype-tile" data-vt="no_show" onclick="selectVisitType('no_show',this)"><b>✕</b>لم يحضر</button>
+        </div>
+        <button type="button" class="vtype-btn" data-vt="dr_request" style="width:100%;margin-bottom:12px;display:none" onclick="selectVisitType('dr_request',this)">طلب من الدكتور</button>
+        <div class="ci-meta" id="ci-client-meta" style="display:none"></div>
+        <div class="ci-quick-actions" id="ci-quick-actions"></div>
+      </div>
+
+      <!-- الخطوة ٢: الموقع -->
+      <div class="ci-panel" id="ci-panel-2">
+        <p class="ci-help">فعّل الموقع عشان نتحقق إنك عند العميل. اضغط <b>فتح الخريطة</b> للوصول.</p>
+        <div class="ci-card" id="ci-location-card" style="margin-bottom:10px;padding:0;border:none;background:transparent">
+          <div class="gps-badge" id="gps-badge" style="margin-bottom:12px">
+            <div class="gps-icon" id="gps-icon">📍</div>
+            <div class="gps-text" style="flex:1">
+              <b id="gps-status">جاري تحديد موقعك…</b>
+              <span id="gps-detail">اسمح بالموقع من إعدادات المتصفح</span>
+            </div>
+            <button type="button" class="gps-retry" id="gps-retry" onclick="checkGPS()">إعادة</button>
+          </div>
+          <div class="loc-actions">
+            <a class="loc-btn gold" id="ci-maps-doctor" href="#" target="_blank" rel="noopener">🗺 فتح الخريطة للعميل</a>
+            <a class="loc-btn" id="ci-maps-rep" href="#" target="_blank" rel="noopener" style="display:none">📍 موقعي</a>
+          </div>
+          <span class="ci-details-toggle" onclick="toggleCiCoords()">عرض الإحداثيات ▾</span>
+          <div class="ci-details-box" id="ci-coords-box">
+            <div>العميل: <span class="ci-coords" id="ci-doctor-coords">—</span></div>
+            <div style="margin-top:4px" id="ci-doctor-addr">—</div>
+            <div style="margin-top:6px">أنت: <span class="ci-coords" id="ci-rep-coords">—</span></div>
+            <button type="button" class="loc-btn" style="margin-top:8px" onclick="copyVisitCoords()">📋 نسخ الإحداثيات</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- الخطوة ٣: المنتجات والعينات -->
+      <div class="ci-panel" id="ci-panel-3">
+        <div id="ci-present-card">
+        <p class="ci-help">اختار المنتجات اللي اتكلمت عنها. سجّل العينات اللي خرجت من مخزونك.</p>
+        <div class="section-label" style="margin-top:0">منتجات تم شرحها</div>
+        <div class="chips" id="prod-chips"></div>
+        <details class="ci-optional" style="margin-top:14px">
+          <summary>📱 عرض مواد العرض (PDF / صور)</summary>
+          <div class="ci-present" id="ci-present-products" style="margin-top:10px"></div>
+          <div id="ci-present-materials"></div>
+        </details>
+        <div class="section-label">عينات من المخزون</div>
+        <div id="ci-stock-list" class="ci-stock-list"></div>
+        <div class="sample-rows" id="sample-rows"></div>
+        <div class="sample-total">إجمالي العينات: <b id="sample-total">0</b> عبوة</div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;margin-top:8px">
+          <input type="checkbox" id="fin-sample-invoice">
+          <span>طلب <b>فاتورة عينات</b> من الإدارة</span>
+        </label>
+        </div>
+      </div>
+
+      <!-- الخطوة ٤: ملاحظات وفواتير وإرسال -->
+      <div class="ci-panel" id="ci-panel-4">
+        <p class="ci-help">اكتب ملخص الزيارة. فعّل الفواتير لو في تسليم أو اتفاق مالي.</p>
+        <div class="section-label" style="margin-top:0">ملاحظات الزيارة <span style="color:var(--bad)">*</span></div>
+        <textarea id="visit-notes" placeholder="إيه اللي اتناقش؟ طلبات العميل؟ ملاحظات مهمة؟" style="min-height:90px"></textarea>
+
+        <div class="ci-card" id="ci-financial-card" style="padding:12px">
+          <div class="ci-card-head" style="margin-bottom:8px"><h3>🧾 فواتير (اختياري)</h3></div>
+          <div id="ci-fin-doctor" class="hidden">
+            <div class="fin-block">
+              <div class="fin-block-head"><input type="checkbox" id="fin-leaflet-en"> اتفاق روشيتات مع دكتور</div>
+              <p class="ci-help" style="margin-bottom:8px">مبلغ مقابل روشيتات من صيدلية معينة</p>
+              <div class="fin-grid">
+                <div class="fin-field"><label>اسم الصيدلية</label><input id="fin-leaf-pharm" placeholder="مثال: العزبي"></div>
+                <div class="fin-field"><label>عدد الروشيتات</label><input id="fin-leaf-count" type="number" min="0"></div>
+                <div class="fin-field"><label>المبلغ (ج.م)</label><input id="fin-leaf-amount" type="number" min="0"></div>
+                <div class="fin-field"><label>تاريخ الاستحقاق</label><input id="fin-leaf-due" type="date"></div>
+              </div>
+            </div>
+          </div>
+          <div id="ci-fin-pharmacy" class="hidden">
+            <div id="ci-pharm-credit" class="sample-total" style="margin-bottom:10px;padding:10px;border-radius:10px;border:1px solid rgba(167,139,250,.25);display:none"></div>
+            <div class="fin-block">
+              <div class="fin-block-head"><input type="checkbox" id="fin-pharm-en"> تسليم منتجات للصيدلية</div>
+              <div class="fin-grid" style="margin-bottom:10px">
+                <div class="fin-field"><label>طريقة الدفع</label>
+                  <select id="fin-pharm-mode" onchange="onPharmPayMode()">
+                    <option value="cash">كاش — كامل</option>
+                    <option value="partial">جزئي — مقدّم + باقي</option>
+                    <option value="credit">آجل — شهر واحد</option>
+                  </select>
+                </div>
+                <div class="fin-field" id="fin-pharm-paid-wrap"><label>المقدّم الآن (ج.م)</label><input id="fin-pharm-paid" type="number" min="0"></div>
+                <div class="fin-field"><label>تاريخ التحصيل (٣٠ يوم max)</label><input id="fin-pharm-due" type="date"></div>
+                <div class="fin-field"><label>نسبة الخصم %</label><input id="fin-pharm-discount" type="number" min="0" max="100" value="0" placeholder="0" oninput="onPharmDiscountChange()"></div>
+              </div>
+              <div class="section-label" style="margin-top:10px;margin-bottom:6px">المنتجات المسلّمة (السعر الأصلي قبل الخصم)</div>
+              <div id="fin-pharm-lines" class="pharm-lines"></div>
+              <div class="pharm-add" onclick="addPharmLine()">+ إضافة منتج</div>
+              <div id="fin-pharm-discount-hint" style="margin-top:8px;font-size:11px;color:var(--dim)"></div>
+            </div>
+          </div>
+        </div>
+
+        <details class="ci-optional">
+          <summary>📷 صورة الزيارة (اختياري)</summary>
+          <input type="file" id="visit-photo-input" accept="image/*" capture="environment" style="display:none" onchange="photoSelected(this)">
+          <div id="photo-box" onclick="document.getElementById('visit-photo-input').click()"
+            style="border:1px dashed rgba(167,139,250,.4);border-radius:12px;padding:16px;text-align:center;color:var(--dim);font-size:13px;cursor:pointer;margin-top:10px">
+            اضغط لالتقاط صورة
+          </div>
+          <div id="photo-preview" style="display:none;position:relative;margin-top:10px">
+            <img id="photo-img" style="width:100%;border-radius:12px" alt="Visit photo">
+            <button type="button" onclick="clearPhoto()" style="position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(0,0,0,.6);color:#fff;cursor:pointer">✕</button>
+          </div>
+        </details>
+
+        <details class="ci-optional">
+          <summary>🏷 منافسين (اختياري)</summary>
+          <div id="competitor-list" style="margin-top:10px"></div>
+          <div class="add-comp" onclick="addCompetitor()">+ إضافة منتج منافس</div>
+        </details>
+
+        <div id="b2b-request-wrap" style="display:none;margin:12px 0;font-size:12px">
+          <label style="display:flex;gap:8px;cursor:pointer"><input type="checkbox" id="needs-b2b"> طلب فاتورة B2B من الإدارة</label>
+        </div>
+
+        <button type="button" class="submit-btn" id="submit-btn" onclick="submitVisit()" style="margin-top:8px">✓ إرسال تقرير الزيارة</button>
+      </div>
+
+      <div class="ci-nav" id="ci-nav">
+        <button type="button" id="ci-prev" onclick="goCiStep(CI_STEP - 1)">→ السابق</button>
+        <button type="button" class="ci-next" id="ci-next" onclick="ciNextStep()">التالي ←</button>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="screen" id="s-history">
+      <h2 style="font-family:'Playfair Display',serif;font-weight:400;margin-bottom:14px">Visit history</h2>
+      <div style="display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px">
+        <button class="type-tab hist-tab active" onclick="filterHistory('all',this)">All</button>
+        <button class="type-tab hist-tab" onclick="filterHistory('actual',this)">Actual</button>
+        <button class="type-tab hist-tab" onclick="filterHistory('regular',this)">Regular</button>
+        <button class="type-tab hist-tab" onclick="filterHistory('no_show',this)">No Show</button>
+        <button class="type-tab hist-tab" onclick="filterHistory('dr_request',this)">Dr Request</button>
+      </div>
+      <div id="history-list"><div style="color:var(--dim);font-size:13px">Loading…</div></div>
+    </div>
+
+    <!-- eDetailing -->
+    <div class="screen" id="s-detailing">
+      <h2 style="font-family:'Playfair Display',serif;font-weight:400;margin-bottom:6px">Product materials</h2>
+      <p style="font-size:12px;color:var(--dim);margin-bottom:18px">Show these during your visit</p>
+      <div id="materials-list"></div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="screen" id="s-leaderboard">
+      <h2 style="font-family:'Playfair Display',serif;font-weight:400;margin-bottom:6px">Leaderboard</h2>
+      <p style="font-size:12px;color:var(--dim);margin-bottom:18px" id="lb-cycle">This month's cycle</p>
+      <div id="lb-list"></div>
+    </div>
+
+    <!-- Profile -->
+    <div class="screen" id="s-profile">
+      <div class="profile-av" id="profile-av">MN</div>
+      <div class="profile-name" id="profile-name">—</div>
+      <div class="profile-meta" id="profile-meta">—</div>
+      <div class="profile-card">
+        <div class="profile-row"><span>Territory</span><div id="pr-territory">—</div></div>
+        <div class="profile-row"><span>Office</span><div id="pr-office">—</div></div>
+        <div class="profile-row"><span>Email</span><div id="pr-email">—</div></div>
+      </div>
+      <button class="logout-btn" id="push-btn" onclick="togglePush()"
+        style="border-color:rgba(167,139,250,.35);color:var(--violet);margin-bottom:12px">🔔 Enable daily reminders</button>
+      <button class="logout-btn" onclick="location.href='/crm/guide.html'"
+        style="border-color:rgba(201,168,76,.35);color:var(--gl);margin-bottom:12px">📖 دليل الاستخدام</button>
+      <button class="logout-btn" onclick="doLogout()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="botnav">
+    <button class="botnav-item active" data-screen="plan" onclick="showScreen('plan',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M9 22V9"/></svg>
+      Plan
+    </button>
+    <button class="botnav-item" data-screen="history" onclick="showScreen('history',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      History
+    </button>
+    <button class="botnav-item" data-screen="detailing" onclick="showScreen('detailing',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16v16H4z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>
+      Materials
+    </button>
+    <button class="botnav-item" data-screen="leaderboard" onclick="showScreen('leaderboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 17V9m4 8V5m4 12v-5"/></svg>
+      Ranking
+    </button>
+    <button class="botnav-item" data-screen="profile" onclick="showScreen('profile',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Profile
+    </button>
+  </div>
+</div>
+
+<!-- eDetailing viewer -->
+<div class="viewer-overlay hidden" id="viewer">
+  <div class="viewer-top">
+    <button class="viewer-close" onclick="closeViewer()">✕</button>
+    <div class="viewer-title" id="viewer-title"></div>
+  </div>
+  <div class="viewer-content" id="viewer-content"></div>
+</div>
+
+<script type="module">
+import {
+  auth, visits, plans, products, materials, leaderboard, doctors, dayLogs, visitSchedule,
+  getCurrentPosition, haversineMeters, GPS_THRESHOLD_M,
+  offlineQueue, geo, push, isCrmAdminAccess, notifyVisitSubmitted, getPharmacyCreditStatus, getRepMonthKpis,
+  sampleCustody, repInvoices, notifyDiscountRequest,
+} from '../js/crm-api.js';
+
+// Offline caching + push notifications
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/crm/rep/sw.js').catch(() => {});
+}
+
+// ── State ─────────────────────────────────────────────────
+let ME = null, PLAN = null, PRODUCTS = [], MATERIALS = [];
+let CURRENT_DOCTOR = null, CURRENT_ITEM = null;
+let ALL_TERRITORY_DOCS = [];
+let GPS_OK = false, GPS_LAT = null, GPS_LNG = null, GPS_DIST = null;
+let SELECTED_PRODUCTS = new Set();
+let SAMPLE_QTY = {};
+let MATERIAL_TIMES = {};
+let MONTH_SCHEDULE = {}; // 'YYYY-MM-DD' → 'AM'|'PM' (field days)
+let SCHEDULE_META = {};  // non-field day types (leave, office…)
+let VISIT_SCHEDULE = {}; // 'YYYY-MM-DD' → [assignment rows]
+let VISIT_SCHEDULE_LOCAL = false;
+let ACTIVE_VISIT_DAY = null;
+let PENDING_ASSIGN = null;
+let CAL_VIEW = { year: new Date().getFullYear(), month: new Date().getMonth(), day: new Date().getDate() };
+let CAL_PICKERS_INITED = false;
+let VIEWING_MATERIAL = null;
+let VIEW_START = null;
+let PLAN_FILTER = 'all';
+let VISIT_AMPM = 'AM';
+let VISIT_TYPE = 'actual';
+let CI_STEP = 1;
+let TODAY_TYPE = null;
+let PHOTO_DATA = null;
+let PRODUCT_STOCK = {};
+let PRODUCT_STORE = {};
+let PRODUCT_CUSTODY = {};
+let CURRENT_SCHEDULE = null;
+let EXISTING_VISIT = null;
+let ACTIVE_PRESENT_PRODUCT = null;
+let PHARM_LINES = [{ product_id: '', qty: 1, unit_price: '' }];
+// Walk-in invoices (unregistered doctor/pharmacy) reuse the same line-editor
+// UI as the in-visit pharmacy delivery form — LINES_MODE picks which array
+// and DOM container the shared render/pick functions operate on.
+let WALKIN_LINES = [{ product_id: '', qty: 1, unit_price: '' }];
+let LINES_MODE = 'visit';
+function activeLines() { return LINES_MODE === 'walkin' ? WALKIN_LINES : PHARM_LINES; }
+function activeLinesContainerId() { return LINES_MODE === 'walkin' ? 'walkin-lines' : 'fin-pharm-lines'; }
+let PHARM_PICK_LINE = null;
+let PHARMACY_CREDIT = null;
+
+// ── Init ──────────────────────────────────────────────────
+window.showScreen = (name, el) => {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.botnav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('s-' + name)?.classList.add('active');
+  if (el) el.classList.add('active');
+  else document.querySelector(`[data-screen="${name}"]`)?.classList.add('active');
+  if (name === 'history') loadHistory();
+  if (name === 'leaderboard') loadLeaderboard();
+  if (name === 'detailing') renderMaterials();
+  if (name === 'profile') renderProfile();
+};
+
+// Offline detection
+window.syncOffline = async () => {
+  if (!navigator.onLine) return;
+  const result = await offlineQueue.flush();
+  if (result.synced > 0) toast(`✓ Synced ${result.synced} offline visit${result.synced>1?'s':''}`, 'ok');
+};
+
+function updateOnlineStatus() {
+  document.getElementById('offline-bar').style.display = navigator.onLine ? 'none' : 'block';
+  if (navigator.onLine) window.syncOffline();
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+updateOnlineStatus();
+
+// Greeting
+function greet() {
+  const h = new Date().getHours();
+  return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+}
+
+async function syncCrmProductsFromStore() {
+  try {
+    await products.ensureFromStore();
+    const fresh = await products.list();
+    if (fresh.length) {
+      PRODUCTS = fresh;
+      PRODUCTS.forEach((p) => { if (SAMPLE_QTY[p.id] == null) SAMPLE_QTY[p.id] = 0; });
+      MATERIALS = PRODUCTS.flatMap((p) => (p.crm_materials || []).map((m) => ({ ...m, productName: p.name })));
+    }
+  } catch (e) {
+    console.warn('syncCrmProductsFromStore:', e);
+  }
+}
+
+async function init() {
+  try {
+    ME = await auth.me();
+    if (!ME?.user) { location.href = '/crm/'; return; }
+    if (ME.rep?.role === 'admin') { location.href = '/crm/admin/'; return; }
+    if (!ME?.rep) {
+      if (await isCrmAdminAccess()) { location.href = '/crm/admin/'; return; }
+      document.getElementById('plan-list').innerHTML =
+        '<div style="color:var(--bad);padding:20px;text-align:center">No CRM account found for this user. Contact your admin.</div>';
+      document.getElementById('rep-name-top').textContent = 'Error';
+      return;
+    }
+    const rep = ME.rep;
+    document.getElementById('rep-name-top').textContent = rep?.name?.split(' ')[0] || 'Rep';
+    document.getElementById('greeting').textContent = greet();
+    document.getElementById('rep-fullname').textContent = rep?.name || '';
+
+    try { PRODUCTS = await products.list(); } catch { PRODUCTS = []; }
+    await syncCrmProductsFromStore();
+    PRODUCTS.forEach((p) => { SAMPLE_QTY[p.id] = 0; });
+
+    await loadPlan();
+    restoreDayStatus();
+    syncOffline();
+  } catch (e) {
+    console.error('init error:', e);
+    document.getElementById('plan-list').innerHTML =
+      `<div style="color:var(--bad);padding:20px;text-align:center">Error: ${e.message}</div>`;
+    document.getElementById('rep-name-top').textContent = 'Error';
+  }
+}
+
+async function loadPlan() {
+  const rep = ME.rep;
+  try { PLAN = await plans.currentPlan(rep.id); } catch { PLAN = { plan: null, items: [] }; }
+
+  const items = PLAN?.items || [];
+  const today = new Date();
+  if (!CAL_PICKERS_INITED) {
+    CAL_VIEW = { year: today.getFullYear(), month: today.getMonth(), day: today.getDate() };
+    initCalDatePickers();
+    bindCalDatePickers();
+    CAL_PICKERS_INITED = true;
+  } else {
+    syncCalPickersFromView();
+  }
+  document.getElementById('plan-title').textContent = `Doctors to visit · ${formatCalMonthLabel()}`;
+
+  await loadMonthSchedule();
+  await loadVisitSchedule();
+  renderMonthCalendar();
+  bindCalendarDrop();
+
+  const totalPlanned2 = items.reduce((s, i) => s + i.planned_visits, 0);
+  const totalDone2    = items.reduce((s, i) => s + i.completed_visits, 0);
+  const planEl = document.getElementById('st-planactual');
+  planEl.innerHTML = `${totalDone2}<span style="color:var(--dim);font-size:13px">/${totalPlanned2}</span>`;
+  const barPct = totalPlanned2 ? Math.round(totalDone2 / totalPlanned2 * 100) : 0;
+  document.getElementById('st-plan-bar').style.width = barPct + '%';
+
+  const visitedOnce = items.filter(i => i.completed_visits > 0).length;
+  const coveragePct = items.length ? Math.round(visitedOnce / items.length * 100) : 0;
+  document.getElementById('st-coverage').textContent = coveragePct + '%';
+
+  const avgFreq = visitedOnce ? (totalDone2 / visitedOnce).toFixed(1) : '—';
+  document.getElementById('st-freq').textContent = avgFreq === '—' ? '—' : avgFreq + 'x';
+
+  try {
+    const kpis = await getRepMonthKpis(ME.rep.id, CAL_VIEW.year, CAL_VIEW.month + 1);
+    document.getElementById('st-revenue').textContent = Math.round(kpis?.revenue_egp || 0).toLocaleString();
+    document.getElementById('st-units').textContent = kpis?.total_units ?? 0;
+    document.getElementById('st-actual').textContent = kpis?.actual_visits ?? 0;
+  } catch {
+    document.getElementById('st-revenue').textContent = '—';
+    document.getElementById('st-units').textContent = '—';
+    document.getElementById('st-actual').textContent = '—';
+  }
+
+  renderPlanItems(items);
+}
+
+async function loadMonthSchedule() {
+  MONTH_SCHEDULE = {};
+  SCHEDULE_META = {};
+  if (!ME?.rep?.id) return;
+  try {
+    const rows = await dayLogs.listMonth(ME.rep.id, CAL_VIEW.year, CAL_VIEW.month + 1);
+    rows.forEach(r => {
+      const d = r.log_date?.slice(0, 10);
+      if (!d) return;
+      if (r.day_type === 'field' && (r.time_of_day === 'AM' || r.time_of_day === 'PM')) {
+        MONTH_SCHEDULE[d] = r.time_of_day;
+      } else if (r.day_type && r.day_type !== 'field') {
+        SCHEDULE_META[d] = r.day_type;
+      }
+    });
+  } catch (e) { console.warn('schedule load', e); }
+}
+
+function formatCalMonthLabel() {
+  const d = new Date(CAL_VIEW.year, CAL_VIEW.month, CAL_VIEW.day);
+  return d.toLocaleString('en', { month: 'long', year: 'numeric' });
+}
+
+function initCalDatePickers() {
+  const yearSel = document.getElementById('cal-year-sel');
+  const monthSel = document.getElementById('cal-month-sel');
+  if (!yearSel || !monthSel) return;
+
+  if (!yearSel.options.length) {
+    const now = new Date().getFullYear();
+    for (let y = now - 2; y <= now + 3; y++) yearSel.add(new Option(String(y), String(y)));
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    months.forEach((name, i) => monthSel.add(new Option(name, String(i))));
+  }
+
+  syncCalPickersFromView();
+}
+
+function bindCalDatePickers() {
+  ['cal-day-sel', 'cal-month-sel', 'cal-year-sel'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el && !el.dataset.bound) {
+      el.addEventListener('change', onCalDatePickChange);
+      el.dataset.bound = '1';
+    }
+  });
+}
+
+function syncCalPickersFromView() {
+  const yearSel = document.getElementById('cal-year-sel');
+  const monthSel = document.getElementById('cal-month-sel');
+  if (yearSel) yearSel.value = String(CAL_VIEW.year);
+  if (monthSel) monthSel.value = String(CAL_VIEW.month);
+  syncCalDayOptions();
+}
+
+function syncCalDayOptions() {
+  const daySel = document.getElementById('cal-day-sel');
+  if (!daySel) return;
+  const daysInMonth = new Date(CAL_VIEW.year, CAL_VIEW.month + 1, 0).getDate();
+  if (CAL_VIEW.day > daysInMonth) CAL_VIEW.day = daysInMonth;
+  const keep = CAL_VIEW.day;
+  daySel.innerHTML = '';
+  for (let d = 1; d <= daysInMonth; d++) daySel.add(new Option(String(d), String(d)));
+  daySel.value = String(keep);
+}
+
+async function onCalDatePickChange() {
+  const yearSel = document.getElementById('cal-year-sel');
+  const monthSel = document.getElementById('cal-month-sel');
+  const daySel = document.getElementById('cal-day-sel');
+  if (!yearSel || !monthSel || !daySel) return;
+
+  const prevYear = CAL_VIEW.year;
+  const prevMonth = CAL_VIEW.month;
+  const newYear = parseInt(yearSel.value, 10);
+  const newMonth = parseInt(monthSel.value, 10);
+  const newDay = parseInt(daySel.value, 10);
+
+  CAL_VIEW.year = newYear;
+  CAL_VIEW.month = newMonth;
+  CAL_VIEW.day = newDay;
+
+  const daysInMonth = new Date(CAL_VIEW.year, CAL_VIEW.month + 1, 0).getDate();
+  if (CAL_VIEW.day > daysInMonth) {
+    CAL_VIEW.day = daysInMonth;
+    daySel.value = String(CAL_VIEW.day);
+  }
+  syncCalDayOptions();
+
+  document.getElementById('plan-title').textContent = `Doctors to visit · ${formatCalMonthLabel()}`;
+
+  if (newYear !== prevYear || newMonth !== prevMonth) {
+    await loadMonthSchedule();
+    await loadVisitSchedule();
+  }
+  renderMonthCalendar();
+}
+window.onCalDatePickChange = onCalDatePickChange;
+
+function onCalDayClick(dateKey, day) {
+  selectCalDay(day);
+  if (ACTIVE_VISIT_DAY === dateKey) {
+    closeVisitDaySheet();
+  } else {
+    openVisitDaySheet(dateKey);
+  }
+}
+window.onCalDayClick = onCalDayClick;
+
+function selectCalDay(day) {
+  CAL_VIEW.day = day;
+  const daySel = document.getElementById('cal-day-sel');
+  if (daySel) daySel.value = String(day);
+  renderMonthCalendar();
+}
+window.selectCalDay = selectCalDay;
+
+function visitScheduleLocalKey(repId) {
+  return `crm_visit_sched_${repId}`;
+}
+
+function readLocalVisitSchedule(repId) {
+  try {
+    return JSON.parse(localStorage.getItem(visitScheduleLocalKey(repId)) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function writeLocalVisitSchedule(repId, data) {
+  localStorage.setItem(visitScheduleLocalKey(repId), JSON.stringify(data));
+}
+
+function planItemById(planItemId) {
+  return (PLAN?.items || []).find((i) => i.id === planItemId) || null;
+}
+
+function countScheduledForItem(planItemId) {
+  let n = 0;
+  Object.values(VISIT_SCHEDULE).forEach((rows) => {
+    rows.forEach((r) => { if (r.plan_item_id === planItemId) n++; });
+  });
+  return n;
+}
+
+function shortDocName(fullName) {
+  const parts = (fullName || '').trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return 'Doctor';
+  if (parts.length <= 2) return parts.join(' ');
+  return `${parts[0]} ${parts[parts.length - 1]}`;
+}
+
+function scheduledDatesForItem(planItemId) {
+  const entries = [];
+  Object.entries(VISIT_SCHEDULE).forEach(([dateKey, rows]) => {
+    rows.forEach((r) => {
+      if (r.plan_item_id === planItemId) {
+        entries.push({ day: parseInt(dateKey.slice(8), 10), slot: r.time_of_day === 'PM' ? 'PM' : 'AM' });
+      }
+    });
+  });
+  return entries.sort((a, b) => a.day - b.day);
+}
+
+function promptAssignSlot(planItemId, dateKey) {
+  PENDING_ASSIGN = { planItemId, dateKey };
+  const item = planItemById(planItemId);
+  const doc = item?.crm_doctors;
+  const d = new Date(dateKey + 'T12:00:00');
+  document.getElementById('ampm-pick-doc-name').textContent = doc?.name || 'Doctor';
+  document.getElementById('ampm-pick-date-label').textContent =
+    d.toLocaleDateString('en', { weekday: 'short', day: 'numeric', month: 'short' });
+  document.getElementById('ampm-pick-sheet').classList.remove('hidden');
+}
+window.promptAssignSlot = promptAssignSlot;
+
+window.closeAmpmPicker = () => {
+  PENDING_ASSIGN = null;
+  document.getElementById('ampm-pick-sheet').classList.add('hidden');
+};
+
+window.confirmAssignSlot = async (slot) => {
+  if (!PENDING_ASSIGN) return;
+  const { planItemId, dateKey } = PENDING_ASSIGN;
+  document.getElementById('ampm-pick-sheet').classList.add('hidden');
+  PENDING_ASSIGN = null;
+  await assignDoctorToDay(planItemId, dateKey, slot);
+};
+
+async function assignDoctorToDay(planItemId, dateKey, timeOfDay) {
+  if (!ME?.rep?.id) return;
+  if (!timeOfDay) {
+    promptAssignSlot(planItemId, dateKey);
+    return;
+  }
+  const item = planItemById(planItemId);
+  if (!item) return toast('Doctor not in your plan', 'err');
+  if (countScheduledForItem(planItemId) >= item.planned_visits) {
+    return toast('All visits for this doctor are already scheduled', 'err');
+  }
+  if ((VISIT_SCHEDULE[dateKey] || []).some((r) => r.plan_item_id === planItemId && r.time_of_day === slot)) {
+    return toast('نفس العميل مجدول في هذه الفترة (صباح/مساء) بالفعل', 'err');
+  }
+  const slot = timeOfDay === 'PM' ? 'PM' : 'AM';
+  try {
+    let row;
+    if (VISIT_SCHEDULE_LOCAL) {
+      const all = readLocalVisitSchedule(ME.rep.id);
+      row = {
+        id: `local-${Date.now()}`,
+        plan_item_id: planItemId,
+        scheduled_date: dateKey,
+        time_of_day: slot,
+        crm_plan_items: item,
+      };
+      if (!all[dateKey]) all[dateKey] = [];
+      all[dateKey].push(row);
+      writeLocalVisitSchedule(ME.rep.id, all);
+    } else {
+      row = await visitSchedule.assign(ME.rep.id, planItemId, dateKey, slot);
+    }
+    if (!VISIT_SCHEDULE[dateKey]) VISIT_SCHEDULE[dateKey] = [];
+    VISIT_SCHEDULE[dateKey].push(row);
+    renderMonthCalendar();
+    renderPlanItems(PLAN?.items || []);
+    if (ACTIVE_VISIT_DAY === dateKey) renderVisitDaySheet();
+    toast(`Scheduled · ${slot} ✓`, 'ok');
+  } catch (e) { toast(e.message || 'Could not schedule visit', 'err'); }
+}
+window.assignDoctorToDay = assignDoctorToDay;
+
+window.assignToSelectedDay = (planItemId) => {
+  const dateKey = `${CAL_VIEW.year}-${String(CAL_VIEW.month + 1).padStart(2, '0')}-${String(CAL_VIEW.day).padStart(2, '0')}`;
+  promptAssignSlot(planItemId, dateKey);
+};
+
+async function updateVisitSlot(scheduleId, dateKey, timeOfDay) {
+  const slot = timeOfDay === 'PM' ? 'PM' : 'AM';
+  try {
+    let row;
+    if (VISIT_SCHEDULE_LOCAL || String(scheduleId).startsWith('local-')) {
+      const all = readLocalVisitSchedule(ME.rep.id);
+      const rows = all[dateKey] || [];
+      const idx = rows.findIndex((r) => r.id === scheduleId);
+      if (idx >= 0) {
+        rows[idx].time_of_day = slot;
+        all[dateKey] = rows;
+        writeLocalVisitSchedule(ME.rep.id, all);
+        row = rows[idx];
+      }
+    } else {
+      row = await visitSchedule.updateSlot(scheduleId, slot);
+    }
+    if (row && VISIT_SCHEDULE[dateKey]) {
+      const i = VISIT_SCHEDULE[dateKey].findIndex((r) => r.id === scheduleId);
+      if (i >= 0) VISIT_SCHEDULE[dateKey][i] = { ...VISIT_SCHEDULE[dateKey][i], ...row, time_of_day: slot };
+    }
+    renderMonthCalendar();
+    renderPlanItems(PLAN?.items || []);
+    if (ACTIVE_VISIT_DAY === dateKey) renderVisitDaySheet();
+  } catch (e) { toast(e.message, 'err'); }
+}
+window.updateVisitSlot = updateVisitSlot;
+
+async function loadVisitSchedule() {
+  VISIT_SCHEDULE = {};
+  if (!ME?.rep?.id) return;
+  const y = CAL_VIEW.year;
+  const m = CAL_VIEW.month + 1;
+  try {
+    const rows = await visitSchedule.listMonth(ME.rep.id, y, m);
+    rows.forEach((r) => {
+      const d = r.scheduled_date;
+      if (!VISIT_SCHEDULE[d]) VISIT_SCHEDULE[d] = [];
+      VISIT_SCHEDULE[d].push(r);
+    });
+    VISIT_SCHEDULE_LOCAL = false;
+  } catch (e) {
+    console.warn('visit schedule load — using local cache', e.message);
+    VISIT_SCHEDULE_LOCAL = true;
+    const all = readLocalVisitSchedule(ME.rep.id);
+    const prefix = `${y}-${String(m).padStart(2, '0')}-`;
+    Object.entries(all).forEach(([dateKey, rows]) => {
+      if (dateKey.startsWith(prefix)) VISIT_SCHEDULE[dateKey] = rows;
+    });
+  }
+}
+
+async function unassignDoctorFromDay(scheduleId, dateKey) {
+  try {
+    if (!VISIT_SCHEDULE_LOCAL && !String(scheduleId).startsWith('local-')) {
+      await visitSchedule.unassign(scheduleId);
+    } else if (VISIT_SCHEDULE_LOCAL) {
+      const all = readLocalVisitSchedule(ME.rep.id);
+      all[dateKey] = (all[dateKey] || []).filter((r) => r.id !== scheduleId);
+      writeLocalVisitSchedule(ME.rep.id, all);
+    }
+    VISIT_SCHEDULE[dateKey] = (VISIT_SCHEDULE[dateKey] || []).filter((r) => r.id !== scheduleId);
+    if (!VISIT_SCHEDULE[dateKey]?.length) delete VISIT_SCHEDULE[dateKey];
+    renderMonthCalendar();
+    renderPlanItems(PLAN?.items || []);
+    if (ACTIVE_VISIT_DAY === dateKey) renderVisitDaySheet();
+    toast('Removed from day', 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+}
+window.unassignDoctorFromDay = unassignDoctorFromDay;
+
+function openVisitDaySheet(dateKey) {
+  ACTIVE_VISIT_DAY = dateKey;
+  const d = new Date(dateKey + 'T12:00:00');
+  document.getElementById('visit-day-title').textContent =
+    d.toLocaleDateString('en', { weekday: 'short', day: 'numeric', month: 'short' });
+  document.getElementById('visit-day-panel').classList.remove('hidden');
+  renderVisitDaySheet();
+  requestAnimationFrame(() => {
+    document.getElementById('visit-day-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+}
+window.openVisitDaySheet = openVisitDaySheet;
+
+window.closeVisitDaySheet = () => {
+  document.getElementById('visit-day-panel').classList.add('hidden');
+  ACTIVE_VISIT_DAY = null;
+  renderMonthCalendar();
+};
+
+function renderVisitDaySheet() {
+  if (!ACTIVE_VISIT_DAY) return;
+  const dateKey = ACTIVE_VISIT_DAY;
+  const assigned = VISIT_SCHEDULE[dateKey] || [];
+  const assignedEl = document.getElementById('visit-day-assigned');
+  const addEl = document.getElementById('visit-day-add-list');
+
+  if (!assigned.length) {
+    assignedEl.innerHTML = '<p style="font-size:12px;color:var(--dim);padding:4px 0 8px">No doctors on this day yet.</p>';
+  } else {
+    assignedEl.innerHTML = assigned.map((row) => {
+      const item = row.crm_plan_items || planItemById(row.plan_item_id);
+      const doc = item?.crm_doctors;
+      const name = doc?.name || 'Doctor';
+      const isAm = row.time_of_day !== 'PM';
+      return `<div class="visit-day-row">
+        <div class="vd-name" onclick="openCheckinFromSchedule('${row.id}','${dateKey}')" title="Open visit report">🩺 ${name}</div>
+        <div class="slot-toggle">
+          <button class="${isAm ? 'on am' : ''}" onclick="updateVisitSlot('${row.id}','${dateKey}','AM')">AM</button>
+          <button class="${!isAm ? 'on pm' : ''}" onclick="updateVisitSlot('${row.id}','${dateKey}','PM')">PM</button>
+        </div>
+        <button onclick="unassignDoctorFromDay('${row.id}','${dateKey}')" style="background:none;border:none;color:var(--bad);font-size:18px;cursor:pointer">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  const scheduledIds = new Set(assigned.map((r) => r.plan_item_id));
+  const available = (PLAN?.items || []).filter((item) => {
+    if (scheduledIds.has(item.id)) return false;
+    return countScheduledForItem(item.id) < item.planned_visits;
+  });
+
+  if (!available.length) {
+    addEl.innerHTML = '<p style="font-size:12px;color:var(--dim);padding:8px 0">All plan doctors are scheduled or completed.</p>';
+  } else {
+    addEl.innerHTML = available.map((item) => {
+      const doc = item.crm_doctors;
+      if (!doc) return '';
+      const remain = item.planned_visits - countScheduledForItem(item.id);
+      return `<div class="visit-day-add">
+        <div class="vd-info">
+          <div style="font-size:13px;font-weight:500">🩺 ${doc.name}</div>
+          <div style="font-size:11px;color:var(--dim)">${remain} visit${remain > 1 ? 's' : ''} left</div>
+        </div>
+        <div class="visit-day-slot-btns">
+          <button class="slot-pick-btn am" onclick="assignDoctorToDay('${item.id}','${dateKey}','AM')">AM</button>
+          <button class="slot-pick-btn pm" onclick="assignDoctorToDay('${item.id}','${dateKey}','PM')">PM</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+window.setFieldSlotForDay = async (slot) => {
+  if (!ACTIVE_VISIT_DAY || !ME?.rep?.id) return;
+  const dateKey = ACTIVE_VISIT_DAY;
+  try {
+    await dayLogs.setWorkSlot(ME.rep.id, dateKey, slot);
+    if (slot) {
+      MONTH_SCHEDULE[dateKey] = slot;
+      delete SCHEDULE_META[dateKey];
+    } else {
+      delete MONTH_SCHEDULE[dateKey];
+    }
+    renderMonthCalendar();
+    renderVisitDaySheet();
+  } catch (e) { toast(e.message, 'err'); }
+};
+
+function bindCalendarDrop() {
+  const grid = document.getElementById('month-cal-grid');
+  if (!grid || grid.dataset.dropBound) return;
+  grid.dataset.dropBound = '1';
+  grid.addEventListener('dragover', (e) => {
+    const cell = e.target.closest('.cal-cell:not(.empty)');
+    if (!cell) return;
+    e.preventDefault();
+    grid.querySelectorAll('.cal-drop-hover').forEach((c) => c.classList.remove('cal-drop-hover'));
+    cell.classList.add('cal-drop-hover');
+  });
+  grid.addEventListener('dragleave', (e) => {
+    const cell = e.target.closest('.cal-cell');
+    if (cell) cell.classList.remove('cal-drop-hover');
+  });
+  grid.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    const cell = e.target.closest('.cal-cell:not(.empty)');
+    if (!cell) return;
+    cell.classList.remove('cal-drop-hover');
+    const planItemId = e.dataTransfer.getData('text/plan-item-id');
+    const dateKey = cell.dataset.date;
+    if (planItemId && dateKey) promptAssignSlot(planItemId, dateKey);
+  });
+  grid.addEventListener('click', (e) => {
+    const chip = e.target.closest('.cal-visit-chip');
+    if (chip?.dataset.scheduleId && chip?.dataset.date) {
+      e.stopPropagation();
+      openCheckinFromSchedule(chip.dataset.scheduleId, chip.dataset.date);
+      return;
+    }
+    const cell = e.target.closest('.cal-cell:not(.empty)');
+    if (!cell) return;
+    onCalDayClick(cell.dataset.date, parseInt(cell.dataset.day, 10));
+  });
+}
+
+function bindPlanDragDrop() {
+  document.querySelectorAll('.visit-card[data-plan-item-id]').forEach((card) => {
+    if (card.dataset.dragBound) return;
+    card.dataset.dragBound = '1';
+    card.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plan-item-id', card.dataset.planItemId);
+      card.classList.add('dragging');
+    });
+    card.addEventListener('dragend', () => card.classList.remove('dragging'));
+  });
+}
+
+function renderMonthCalendar() {
+  const grid = document.getElementById('month-cal-grid');
+  if (!grid) return;
+  const y = CAL_VIEW.year, m = CAL_VIEW.month;
+  const firstDow = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const selectedKey = `${y}-${String(m + 1).padStart(2, '0')}-${String(CAL_VIEW.day).padStart(2, '0')}`;
+  let html = '';
+  for (let i = 0; i < firstDow; i++) html += '<div class="cal-cell empty"></div>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateKey = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const meta = SCHEDULE_META[dateKey];
+    let cls = 'cal-cell';
+    if (dateKey === todayKey) cls += ' today';
+    if (dateKey === selectedKey) cls += ' selected';
+    if (meta) cls += ' leave';
+    const dayVisits = VISIT_SCHEDULE[dateKey] || [];
+    if (dayVisits.length) cls += ' has-visits';
+    const visitChips = dayVisits.map((row) => {
+      const item = row.crm_plan_items || planItemById(row.plan_item_id);
+      const name = item?.crm_doctors?.name || 'Doctor';
+      const slot = row.time_of_day === 'PM' ? 'PM' : 'AM';
+      const slotCls = slot === 'PM' ? 'pm' : 'am';
+      return `<div class="cal-visit-chip ${slotCls}" data-schedule-id="${row.id}" data-date="${dateKey}" title="${name} · ${slot} — tap for visit report">${name}<br><b>${slot}</b></div>`;
+    }).join('');
+    const leaveMark = meta
+      ? `<span class="cal-leave-mark">${meta === 'day_off' ? '🌴' : meta === 'annual_leave' ? '✈️' : '•'}</span>`
+      : '';
+    html += `<div class="${cls}" data-date="${dateKey}" data-day="${d}">
+      <div class="cal-day-num">${d}</div>
+      ${visitChips ? `<div class="cal-visits">${visitChips}</div>` : ''}
+      ${leaveMark}
+    </div>`;
+  }
+  grid.innerHTML = html;
+}
+
+window.toggleScheduleDay = async (dateKey) => {
+  if (!ME?.rep?.id) return;
+  const order = [null, 'AM', 'PM'];
+  const cur = MONTH_SCHEDULE[dateKey] || null;
+  const next = order[(order.indexOf(cur) + 1) % order.length];
+  try {
+    await dayLogs.setWorkSlot(ME.rep.id, dateKey, next);
+    if (next) {
+      MONTH_SCHEDULE[dateKey] = next;
+      delete SCHEDULE_META[dateKey];
+    } else {
+      delete MONTH_SCHEDULE[dateKey];
+    }
+    renderMonthCalendar();
+  } catch (e) { toast(e.message, 'err'); }
+};
+
+function renderPlanItems(items) {
+  const filtered = PLAN_FILTER === 'all'
+    ? items
+    : items.filter(i => (i.crm_doctors?.doctor_type || i.crm_doctors?.specialty || 'doctor').toLowerCase() === PLAN_FILTER);
+
+  const sorted = [...filtered].sort((a, b) => a.completed_visits - b.completed_visits);
+  const container = document.getElementById('plan-list');
+  if (!sorted.length && !(PLAN?.items?.length)) {
+    container.innerHTML = `<div style="color:var(--dim);font-size:13px;padding:30px 0;text-align:center">
+      No doctors in your plan yet.<br>
+      <span onclick="openAddDoctor()" style="color:var(--gold);cursor:pointer;text-decoration:underline">+ Add your first doctor</span>
+    </div>`;
+    return;
+  }
+  if (!sorted.length) {
+    container.innerHTML = `<div style="color:var(--dim);font-size:13px;padding:20px 0;text-align:center">No doctors of this type in your plan.</div>`;
+    return;
+  }
+
+  const typeIconMap = { pharmacy:'💊', doctor:'🩺', polyclinic:'🏥', hospital:'🏨' };
+
+  container.innerHTML = sorted.map(item => {
+    const doc = item.crm_doctors;
+    if (!doc) return '';
+    const done = item.completed_visits >= item.planned_visits;
+    const initials = doc.name.split(' ').slice(1, 3).map(w => w[0]).join('').toUpperCase() || '??';
+    const dtype = (doc.doctor_type || doc.specialty || 'doctor').toLowerCase();
+    const typeIcon = typeIconMap[dtype] || '🩺';
+    const schedEntries = scheduledDatesForItem(item.id);
+    const schedHint = schedEntries.length
+      ? `<div class="sched-badge">📅 ${schedEntries.map((e) => `${e.day} ${e.slot}`).join(' · ')}</div>`
+      : '';
+    const freqHint = `<div class="sched-badge" style="opacity:.85">📊 ${item.completed_visits}/${item.planned_visits} زيارة الشهر${done ? ' · زيارات إضافية مسموحة' : ''}</div>`;
+    return `<div class="visit-card ${done ? 'done' : ''}" draggable="true" data-plan-item-id="${item.id}">
+      <div class="vc-left" onclick="openCheckin('${item.id}','${doc.id}')" style="cursor:pointer">
+        <div class="vc-av ${done ? 'done-av' : ''}">${done ? '✓' : initials}</div>
+        <div style="min-width:0;flex:1">
+          <div class="vc-name">${typeIcon} ${doc.name}</div>
+          <div class="vc-meta"><span class="class-pill ${doc.class}">${doc.class}</span> · ${item.completed_visits}/${item.planned_visits} زيارة</div>
+          ${freqHint}
+          ${schedHint}
+        </div>
+      </div>
+      <div class="plan-card-actions">
+        <button onclick="event.stopPropagation();assignToSelectedDay('${item.id}')" title="جدولة يوم" style="background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.3);color:var(--violet);border-radius:8px;cursor:pointer;font-family:inherit">📅</button>
+        <button onclick="removePlanItem('${item.id}')" style="background:none;border:none;color:rgba(240,153,123,.7);cursor:pointer;font-family:inherit" title="Remove">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+  bindPlanDragDrop();
+}
+
+window.filterPlanType = (type, el) => {
+  PLAN_FILTER = type;
+  document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderPlanItems(PLAN?.items || []);
+};
+
+// ── Add Doctor Sheet ──────────────────────────────────────
+window.openAddDoctor = async () => {
+  document.getElementById('add-doc-sheet').classList.remove('hidden');
+  document.getElementById('add-doc-search').value = '';
+  const listEl = document.getElementById('add-doc-list');
+  listEl.innerHTML = '<div style="color:var(--dim);font-size:13px;padding:20px 0">Loading…</div>';
+  try {
+    const bricks = await geo.repBricks(ME.rep.id);
+    const brickIds = bricks.map(b => b.id);
+    if (!brickIds.length) {
+      listEl.innerHTML = '<div style="color:var(--dim);font-size:13px;padding:20px 0">No bricks assigned to your territory.</div>';
+      return;
+    }
+    const allDocs = await doctors.list();
+    ALL_TERRITORY_DOCS = allDocs.filter(d => brickIds.includes(d.brick_id) && d.approved);
+    renderDocSheet(ALL_TERRITORY_DOCS);
+  } catch (e) {
+    listEl.innerHTML = `<div style="color:var(--bad);font-size:13px;padding:20px 0">${e.message}</div>`;
+  }
+};
+
+function renderDocSheet(docs) {
+  const inPlan = new Set((PLAN?.items || []).map(i => i.doctor_id));
+  const listEl = document.getElementById('add-doc-list');
+  if (!docs.length) { listEl.innerHTML = '<div style="color:var(--dim);font-size:13px;padding:20px 0">No doctors found.</div>'; return; }
+  const typeIconMap = { pharmacy:'💊', doctor:'🩺', polyclinic:'🏥', hospital:'🏨' };
+  listEl.innerHTML = docs.map(doc => {
+    const already = inPlan.has(doc.id);
+    const dtype = (doc.doctor_type || doc.specialty || 'doctor').toLowerCase();
+    const tIcon = typeIconMap[dtype] || '🩺';
+    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:500">${tIcon} ${doc.name} <span class="class-pill ${doc.class}">${doc.class}</span></div>
+        <div style="font-size:12px;color:var(--dim)">${doc.crm_bricks?.name || ''} · ${dtype}</div>
+      </div>
+      ${already
+        ? `<span style="font-size:12px;color:var(--ok)">✓ In plan</span>`
+        : `<button onclick="addDocToPlan('${doc.id}')" style="background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);color:var(--gl);border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:'Jost',sans-serif">Add</button>`}
+    </div>`;
+  }).join('');
+}
+
+window.filterDocSheet = (q) => {
+  const filtered = ALL_TERRITORY_DOCS.filter(d => d.name.toLowerCase().includes(q.toLowerCase()));
+  renderDocSheet(filtered);
+};
+
+window.closeAddDoctor = () => document.getElementById('add-doc-sheet').classList.add('hidden');
+
+window.addDocToPlan = async (docId) => {
+  try {
+    if (!PLAN?.plan) {
+      const p = await plans.ensurePlan(ME.rep.id);
+      PLAN = { plan: p, items: [] };
+    }
+    await plans.addItem(PLAN.plan.id, docId, 1);
+    await loadPlan();
+    renderDocSheet(ALL_TERRITORY_DOCS);
+    toast('Doctor added to plan ✓', 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+};
+
+window.removePlanItem = async (itemId) => {
+  if (!confirm('Remove this doctor from your plan?')) return;
+  try {
+    await plans.removeItem(itemId);
+    await loadPlan();
+    toast('Removed', 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+};
+
+// Rep sets AM/PM per doctor manually (no auto-fill plan).
+window.toggleItemTime = async (itemId, newTime) => {
+  try {
+    await plans.updateItem(itemId, { preferred_time: newTime });
+    const item = (PLAN?.items || []).find(i => i.id === itemId);
+    if (item) item.preferred_time = newTime;
+    renderPlanItems(PLAN?.items || []);
+  } catch (e) { toast(e.message, 'err'); }
+};
+
+// ── Check-in ──────────────────────────────────────────────
+function normalizeProdName(n) {
+  return (n || '').toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function storeMeta(pid) {
+  return PRODUCT_STORE[pid] || { stock: null, linked: false };
+}
+
+function stockFor(pid) {
+  const s = storeMeta(pid).stock;
+  return s === null || s === undefined ? null : Number(s);
+}
+
+// What the rep has physically on hand — set by the admin, decreases as
+// samples get logged against visits. This (not the shared warehouse figure)
+// is what actually limits how much a rep can hand out in the field.
+function custodyFor(pid) {
+  const c = PRODUCT_CUSTODY[pid];
+  return c === null || c === undefined ? 0 : Number(c);
+}
+
+async function loadProductStock() {
+  PRODUCT_STORE = {};
+  let rows = [];
+  try {
+    rows = await products.listWithStock();
+  } catch { rows = []; }
+
+  PRODUCT_CUSTODY = {};
+  try {
+    (await sampleCustody.mine()).forEach((c) => { PRODUCT_CUSTODY[c.product_id] = c.quantity; });
+  } catch { /* migration not deployed yet */ }
+
+  rows.forEach((r) => {
+    PRODUCT_STORE[r.crm_product_id] = {
+      stock: r.stock_available ?? 0,
+      price: r.store_price,
+      image: r.image_url,
+      storeName: r.store_name || r.crm_name,
+      linked: r.is_linked ?? !!r.store_product_id,
+    };
+  });
+
+  const needsMatch = PRODUCTS.filter((p) => !PRODUCT_STORE[p.id]?.linked);
+  if (needsMatch.length) {
+    try {
+      const catalog = await products.listStoreCatalog();
+      const byName = new Map(catalog.map((p) => [normalizeProdName(p.name), p]));
+      needsMatch.forEach((cp) => {
+        const sp = byName.get(normalizeProdName(cp.name));
+        if (sp) {
+          PRODUCT_STORE[cp.id] = {
+            stock: sp.stock ?? 0,
+            price: sp.price,
+            image: sp.image_url,
+            storeName: sp.name,
+            linked: true,
+            nameMatch: true,
+          };
+        }
+      });
+    } catch { /* RPC not deployed yet */ }
+  }
+
+  PRODUCTS.forEach((p) => {
+    if (!PRODUCT_STORE[p.id]) PRODUCT_STORE[p.id] = { stock: null, linked: false };
+  });
+
+  // Legacy map for any code still reading PRODUCT_STOCK
+  PRODUCT_STOCK = {};
+  PRODUCTS.forEach((p) => { PRODUCT_STOCK[p.id] = stockFor(p.id); });
+}
+
+function updateSampleTotal() {
+  const total = Object.values(SAMPLE_QTY).reduce((s, v) => s + (v || 0), 0);
+  document.getElementById('sample-total').textContent = String(total);
+}
+
+function renderStockOverview() {
+  const el = document.getElementById('ci-stock-list');
+  if (!el) return;
+  const linked = PRODUCTS.filter((p) => storeMeta(p.id).linked);
+  if (!linked.length) {
+    el.innerHTML = '<p style="font-size:11px;color:var(--dim);margin:0 0 10px;line-height:1.5">مفيش منتجات مربوطة بمخزون الموقع. تأكد إن أسماء منتجات CRM نفس أسماء المنتجات على الموقع، أو اطلب من الإدارة الربط.</p>';
+    return;
+  }
+  el.innerHTML = `<div class="ci-stock-grid">${
+    linked.map((p) => {
+      const m = storeMeta(p.id);
+      const stk = m.stock ?? 0;
+      const stkCls = stk > 0 ? 'stk-ok' : 'stk-low';
+      const img = m.image
+        ? `<img src="${m.image}" alt="" loading="lazy">`
+        : '<div style="height:56px;display:flex;align-items:center;justify-content:center;font-size:22px">💊</div>';
+      const price = m.price != null ? `<div style="color:var(--gl);margin-top:2px">${Number(m.price).toLocaleString('ar-EG')} ج.م</div>` : '';
+      return `<div class="ci-stock-card">${img}<b>${p.name}</b>${price}<span class="${stkCls}">متوفر: ${stk}</span></div>`;
+    }).join('')
+  }</div>`;
+}
+
+function sampleThumb(pid) {
+  const img = storeMeta(pid).image;
+  return img
+    ? `<img class="sample-thumb" src="${img}" alt="" loading="lazy">`
+    : '<div class="sample-thumb-ph">💊</div>';
+}
+
+function sampleStockLabel(pid) {
+  const have = custodyFor(pid);
+  if (have <= 0) return '<span class="sstock low">معاكش عهدة من المنتج ده</span>';
+  return `<span class="sstock">معاك: ${have} عبوة</span>`;
+}
+
+function mapsUrl(lat, lng) {
+  return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+}
+
+function formatCoords(lat, lng) {
+  if (lat == null || lng == null) return '—';
+  return `${Number(lat).toFixed(6)}, ${Number(lng).toFixed(6)}`;
+}
+
+function renderClientCard() {
+  const doc = CURRENT_DOCTOR;
+  if (!doc) return;
+  const dtype = (doc.doctor_type || doc.specialty || 'doctor').toLowerCase();
+  const typeLabels = { doctor: 'دكتور', pharmacy: 'صيدلية', polyclinic: 'عيادة', hospital: 'مستشفى' };
+  document.getElementById('ci-type-badge').textContent = typeLabels[dtype] || 'عميل';
+  const meta = [
+    doc.class ? `تصنيف ${doc.class}` : '',
+    doc.specialty || '',
+    doc.address || '',
+  ].filter(Boolean).join(' · ');
+  const headerMeta = document.getElementById('ci-header-meta');
+  if (headerMeta) headerMeta.textContent = meta;
+  const quick = document.getElementById('ci-quick-actions');
+  if (quick) {
+    quick.innerHTML = [
+      doc.phone ? `<a href="tel:${doc.phone}">📞 اتصال</a>` : '',
+      doc.address ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(doc.address)}" target="_blank" rel="noopener">🗺 العنوان</a>` : '',
+    ].filter(Boolean).join('');
+  }
+  const legacy = document.getElementById('ci-client-meta');
+  if (legacy) legacy.innerHTML = '';
+}
+
+function renderLocationCard() {
+  const doc = CURRENT_DOCTOR;
+  const docCoords = document.getElementById('ci-doctor-coords');
+  const docAddr = document.getElementById('ci-doctor-addr');
+  const mapsDoctor = document.getElementById('ci-maps-doctor');
+  if (doc?.lat && doc?.lng) {
+    docCoords.textContent = formatCoords(doc.lat, doc.lng);
+    docAddr.textContent = doc.address || 'موقع العميل المحفوظ';
+    mapsDoctor.href = mapsUrl(doc.lat, doc.lng);
+    mapsDoctor.style.display = '';
+  } else {
+    docCoords.textContent = 'أول زيارة — هيتسجل الموقع تلقائياً';
+    docAddr.textContent = doc?.address || 'مفيش إحداثيات لسه';
+    if (doc?.address) {
+      mapsDoctor.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(doc.address)}`;
+      mapsDoctor.style.display = '';
+    } else {
+      mapsDoctor.style.display = 'none';
+    }
+  }
+  document.getElementById('ci-rep-coords').textContent = 'اضغط إعادة لتحديد موقعك';
+  document.getElementById('ci-maps-rep').style.display = 'none';
+}
+
+function updateRepLocationDisplay() {
+  const el = document.getElementById('ci-rep-coords');
+  const mapsRep = document.getElementById('ci-maps-rep');
+  if (GPS_LAT != null && GPS_LNG != null) {
+    el.textContent = formatCoords(GPS_LAT, GPS_LNG);
+    mapsRep.href = mapsUrl(GPS_LAT, GPS_LNG);
+    mapsRep.style.display = '';
+  }
+}
+
+window.copyVisitCoords = () => {
+  const doc = CURRENT_DOCTOR;
+  const parts = [];
+  if (doc?.lat && doc?.lng) parts.push(`Client: ${formatCoords(doc.lat, doc.lng)}`);
+  if (GPS_LAT != null) parts.push(`You: ${formatCoords(GPS_LAT, GPS_LNG)}`);
+  if (!parts.length) { toast('No coordinates yet', 'err'); return; }
+  navigator.clipboard.writeText(parts.join('\n')).then(
+    () => toast('Coordinates copied — paste in Google Maps', 'ok'),
+    () => toast(parts.join(' | '), 'info')
+  );
+};
+
+function renderProductPresentation() {
+  const el = document.getElementById('ci-present-products');
+  if (!PRODUCTS.length) {
+    el.innerHTML = '<p style="font-size:12px;color:var(--dim)">No products configured</p>';
+    return;
+  }
+  el.innerHTML = PRODUCTS.map((p) => {
+    const matCount = MATERIALS.filter((m) => m.product_id === p.id || m.productName === p.name).length;
+    const active = ACTIVE_PRESENT_PRODUCT === p.id ? ' active' : '';
+    return `<div class="ci-prod-card${active}" onclick="selectPresentProduct('${p.id}')">
+      <div class="pname">${p.name}</div>
+      <div class="psub">${matCount ? matCount + ' presentation material' + (matCount > 1 ? 's' : '') : 'No materials yet'}</div>
+    </div>`;
+  }).join('');
+  renderPresentMaterials();
+}
+
+window.selectPresentProduct = (pid) => {
+  ACTIVE_PRESENT_PRODUCT = ACTIVE_PRESENT_PRODUCT === pid ? null : pid;
+  renderProductPresentation();
+  const chip = document.querySelector(`.chip[data-pid="${pid}"]`);
+  if (chip && ACTIVE_PRESENT_PRODUCT) {
+    chip.classList.add('sel');
+    SELECTED_PRODUCTS.add(pid);
+  }
+};
+
+function renderPresentMaterials() {
+  const el = document.getElementById('ci-present-materials');
+  if (!ACTIVE_PRESENT_PRODUCT) { el.innerHTML = ''; return; }
+  const p = PRODUCTS.find((x) => x.id === ACTIVE_PRESENT_PRODUCT);
+  const mats = MATERIALS.filter((m) => m.product_id === p?.id || m.productName === p?.name);
+  if (!mats.length) {
+    el.innerHTML = '<p style="font-size:11px;color:var(--dim)">No eDetailing files for this product</p>';
+    return;
+  }
+  el.innerHTML = `<div style="font-size:10px;color:var(--dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Show during visit</div>
+    <div class="ci-mat-strip">${mats.map((m) =>
+      `<span class="ci-mat-chip" onclick="openMaterial('${m.id}')">${m.type === 'pdf' ? '📄' : '🖼️'} ${m.title}</span>`
+    ).join('')}</div>`;
+}
+
+function defaultDueDate30() {
+  const d = new Date();
+  d.setDate(d.getDate() + 30);
+  return d.toISOString().slice(0, 10);
+}
+
+function resetFinancialForm() {
+  document.getElementById('fin-sample-invoice').checked = false;
+  document.getElementById('fin-leaflet-en').checked = false;
+  document.getElementById('fin-leaf-pharm').value = '';
+  document.getElementById('fin-leaf-count').value = '';
+  document.getElementById('fin-leaf-amount').value = '';
+  document.getElementById('fin-leaf-due').value = defaultDueDate30();
+  document.getElementById('fin-pharm-en').checked = false;
+  document.getElementById('fin-pharm-mode').value = 'credit';
+  document.getElementById('fin-pharm-paid').value = '';
+  document.getElementById('fin-pharm-due').value = defaultDueDate30();
+  document.getElementById('fin-pharm-discount').value = '0';
+  PHARM_LINES = [{ product_id: '', qty: 1, unit_price: '' }];
+  onPharmPayMode();
+  onPharmDiscountChange();
+  renderPharmLines();
+}
+
+function renderFinancialSections() {
+  const dtype = (CURRENT_DOCTOR?.doctor_type || 'doctor').toLowerCase();
+  document.getElementById('ci-fin-doctor').classList.toggle('hidden', dtype === 'pharmacy');
+  document.getElementById('ci-fin-pharmacy').classList.toggle('hidden', dtype !== 'pharmacy');
+  if (dtype === 'pharmacy') loadPharmacyCreditBanner();
+}
+
+async function loadPharmacyCreditBanner() {
+  const el = document.getElementById('ci-pharm-credit');
+  if (!el || !CURRENT_DOCTOR?.id) return;
+  try {
+    PHARMACY_CREDIT = await getPharmacyCreditStatus(CURRENT_DOCTOR.id, 0);
+    if (!PHARMACY_CREDIT?.found) { el.style.display = 'none'; return; }
+    const c = PHARMACY_CREDIT;
+    el.style.display = 'block';
+    el.innerHTML = `💳 Credit limit: <b>${c.credit_limit || 0}</b> EGP · Outstanding: <b>${c.outstanding || 0}</b> · Available: <b style="color:var(--gl)">${c.available || 0}</b> EGP`;
+  } catch {
+    el.style.display = 'none';
+    PHARMACY_CREDIT = null;
+  }
+}
+
+async function validatePharmacyCreditBeforeSubmit(financial_requests) {
+  const req = financial_requests.find((r) => r.enabled !== false && r.type === 'pharmacy_delivery');
+  if (!req || !['credit', 'partial'].includes(req.payment_mode)) return true;
+  const subtotal = (req.lines || []).reduce((s, l) => s + (l.qty || 0) * (l.unit_price || 0), 0);
+  const total = subtotal * (1 - (req.discount_pct || 0) / 100);
+  const additional = Math.max(total - (req.amount_paid || 0), 0);
+  if (additional <= 0) return true;
+  try {
+    const cs = await getPharmacyCreditStatus(CURRENT_DOCTOR.id, additional);
+    if (cs?.found && cs.ok === false) {
+      toast(`Credit limit exceeded — available ${cs.available} EGP of ${cs.credit_limit} EGP`, 'err');
+      return false;
+    }
+  } catch { /* migration not applied */ }
+  return true;
+}
+
+function pharmProductLabel(pid) {
+  if (!pid) return null;
+  return PRODUCTS.find((p) => p.id === pid)?.name || 'منتج';
+}
+
+function renderPharmLines() {
+  const el = document.getElementById(activeLinesContainerId());
+  if (!el) return;
+  el.innerHTML = activeLines().map((line, i) => {
+    const name = pharmProductLabel(line.product_id);
+    const meta = line.product_id ? storeMeta(line.product_id) : null;
+    const have = line.product_id ? custodyFor(line.product_id) : null;
+    const sub = meta?.price != null ? `${Number(meta.price).toLocaleString('ar-EG')} ج.م · معاك ${have ?? '—'} عبوة` : '';
+    const overCustody = line.product_id && (line.qty || 0) > have;
+    return `<div class="pharm-line-card">
+      <button type="button" class="pharm-pick-btn${name ? '' : ' empty'}" onclick="openPharmPicker(${i})">
+        <span class="pharm-pick-label">${name || 'اضغط لاختيار المنتج'}</span>
+        ${sub ? `<span class="pharm-pick-sub">${sub}</span>` : ''}
+      </button>
+      <div class="pharm-line-qty-row">
+        <div><label>الكمية</label><input type="number" min="1" value="${line.qty || 1}" onchange="setLineQty(${i}, this.value)" style="${overCustody ? 'border-color:var(--bad);color:var(--bad)' : ''}"></div>
+        <div><label>السعر (ج.م)</label><input type="number" min="0" value="${line.unit_price ?? ''}" placeholder="0" onchange="setLinePrice(${i}, this.value)"></div>
+        <button type="button" class="pharm-rm" onclick="removePharmLine(${i})" aria-label="حذف">✕</button>
+      </div>
+      ${overCustody ? '<div style="font-size:11px;color:var(--bad);margin-top:2px">أكتر من اللي معاك في العهدة</div>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderPharmPickerList(filter = '') {
+  const list = document.getElementById('pharm-pick-list');
+  if (!list) return;
+  const q = normalizeProdName(filter);
+  // Only offer products the rep actually has in custody — an invoice draws
+  // from the same pool as sample distribution, so what's sellable here is
+  // exactly what the admin allocated to this rep, not the store's warehouse.
+  const items = PRODUCTS
+    .filter((p) => custodyFor(p.id) > 0)
+    .filter((p) => !q || normalizeProdName(p.name).includes(q));
+  if (!items.length) {
+    list.innerHTML = `<p style="font-size:14px;color:var(--dim);padding:12px;text-align:center">${
+      q ? 'لا توجد منتجات مطابقة معاك في العهدة' : 'معاكش عهدة من أي منتج — كلّم الإدارة'
+    }</p>`;
+    return;
+  }
+  list.innerHTML = items.map((p) => {
+    const m = storeMeta(p.id);
+    const img = m.image ? `<img src="${m.image}" alt="">` : '<div style="width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:24px">💊</div>';
+    const price = m.price != null ? `${Number(m.price).toLocaleString('ar-EG')} ج.م` : '—';
+    return `<button type="button" class="pharm-pick-item" onclick="selectPharmProduct('${p.id}')">
+      ${img}
+      <div class="ppi-body">
+        <div class="ppi-name">${p.name}</div>
+        <div class="ppi-meta"><b>${price}</b> · معاك: ${custodyFor(p.id)} عبوة</div>
+      </div>
+    </button>`;
+  }).join('');
+}
+
+window.openPharmPicker = (lineIndex) => {
+  PHARM_PICK_LINE = lineIndex;
+  const sheet = document.getElementById('pharm-pick-sheet');
+  const search = document.getElementById('pharm-pick-search');
+  if (search) search.value = '';
+  renderPharmPickerList('');
+  sheet?.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+};
+
+window.closePharmPicker = () => {
+  PHARM_PICK_LINE = null;
+  document.getElementById('pharm-pick-sheet')?.classList.add('hidden');
+  document.body.style.overflow = '';
+};
+
+window.filterPharmPicker = () => {
+  renderPharmPickerList(document.getElementById('pharm-pick-search')?.value || '');
+};
+
+window.selectPharmProduct = (productId) => {
+  if (PHARM_PICK_LINE == null) return;
+  const line = activeLines()[PHARM_PICK_LINE];
+  if (!line) return;
+  line.product_id = productId;
+  const price = storeMeta(productId).price;
+  if (price != null && !line.unit_price) line.unit_price = Number(price);
+  closePharmPicker();
+  renderPharmLines();
+};
+
+window.addPharmLine = () => {
+  activeLines().push({ product_id: '', qty: 1, unit_price: '' });
+  renderPharmLines();
+};
+
+window.removePharmLine = (i) => {
+  const lines = activeLines();
+  lines.splice(i, 1);
+  if (!lines.length) lines.push({ product_id: '', qty: 1, unit_price: '' });
+  renderPharmLines();
+};
+
+// Inline onchange="…" attributes run in the page's global scope, not this
+// module's — they can't see PHARM_LINES/WALKIN_LINES directly (silently
+// fails, nothing throws), so number inputs must go through window-exposed
+// setters instead of assigning to the array bare.
+window.setLineQty = (i, val) => {
+  const line = activeLines()[i];
+  if (line) line.qty = +val;
+};
+window.setLinePrice = (i, val) => {
+  const line = activeLines()[i];
+  if (line) line.unit_price = +val;
+};
+
+window.onPharmPayMode = () => {
+  const mode = document.getElementById('fin-pharm-mode')?.value;
+  const wrap = document.getElementById('fin-pharm-paid-wrap');
+  if (wrap) wrap.style.display = mode === 'cash' ? 'none' : '';
+};
+
+window.onPharmDiscountChange = () => {
+  const pct = +(document.getElementById('fin-pharm-discount')?.value || 0);
+  const hint = document.getElementById('fin-pharm-discount-hint');
+  if (!hint) return;
+  hint.textContent = pct > 40
+    ? `خصم ${pct}% أكتر من الحد المسموح (40%) — الفاتورة هتتبعت للإدارة على تليجرام للموافقة الأول`
+    : pct > 0 ? `خصم ${pct}% — هتتعمل الفاتورة فورًا` : '';
+  hint.style.color = pct > 40 ? 'var(--bad)' : 'var(--dim)';
+};
+
+function collectFinancialRequests() {
+  const reqs = [];
+  if (document.getElementById('fin-sample-invoice')?.checked) {
+    reqs.push({ type: 'sample_invoice', enabled: true });
+  }
+  if (document.getElementById('fin-leaflet-en')?.checked) {
+    reqs.push({
+      type: 'leaflet_deal', enabled: true,
+      pharmacy_name: document.getElementById('fin-leaf-pharm')?.value?.trim() || '',
+      leaflet_count: +(document.getElementById('fin-leaf-count')?.value || 0),
+      amount: +(document.getElementById('fin-leaf-amount')?.value || 0),
+      due_date: document.getElementById('fin-leaf-due')?.value || null,
+    });
+  }
+  if (document.getElementById('fin-pharm-en')?.checked) {
+    const lines = PHARM_LINES.filter((l) => l.product_id && l.qty > 0).map((l) => {
+      const p = PRODUCTS.find((x) => x.id === l.product_id);
+      return { product_id: l.product_id, product_name: p?.name || '', qty: l.qty, unit_price: l.unit_price || 0 };
+    });
+    reqs.push({
+      type: 'pharmacy_delivery', enabled: true,
+      payment_mode: document.getElementById('fin-pharm-mode')?.value || 'credit',
+      amount_paid: +(document.getElementById('fin-pharm-paid')?.value || 0),
+      due_date: document.getElementById('fin-pharm-due')?.value || null,
+      discount_pct: +(document.getElementById('fin-pharm-discount')?.value || 0),
+      lines,
+    });
+  }
+  return reqs;
+}
+
+// Creates the real invoice right away (stock drawn from the rep's own
+// custody) — unless the discount is over 40%, in which case it's queued for
+// the admin to approve on Telegram first. The visit itself gets linked once
+// the invoice actually exists.
+async function createPharmacyInvoiceIfAny(financial_requests, visitId) {
+  const req = financial_requests.find((r) => r.enabled !== false && r.type === 'pharmacy_delivery');
+  if (!req || !req.lines?.length) return;
+  const items = req.lines.map((l) => ({ product_id: l.product_id, qty: l.qty, list_price: l.unit_price }));
+  const discountPct = req.discount_pct || 0;
+  const subtotal = items.reduce((s, it) => s + it.qty * it.list_price, 0);
+  const discountedTotal = subtotal * (1 - discountPct / 100);
+  const amountPaid = req.payment_mode === 'cash' ? discountedTotal : (req.amount_paid || 0);
+
+  await requestInvoiceAndNotify({
+    doctorId: CURRENT_DOCTOR.id, doctorName: CURRENT_DOCTOR.name, items, discountPct, amountPaid,
+    paymentMode: req.payment_mode, visitId, dueDate: req.due_date || null,
+  });
+}
+
+// Shared by both the in-visit pharmacy delivery form and the standalone
+// walk-in invoice modal — creates the invoice immediately (<=40% discount)
+// or queues it for Telegram approval above that.
+async function requestInvoiceAndNotify({ doctorId, doctorName, items, discountPct, amountPaid, paymentMode, notes, visitId, dueDate, customer }) {
+  try {
+    const subtotal = items.reduce((s, it) => s + it.qty * it.list_price, 0);
+    const result = await repInvoices.request(
+      doctorId, items, discountPct, amountPaid, paymentMode, notes || null, visitId || null, dueDate || null, customer
+    );
+
+    if (result.auto_approved) {
+      toast(`فاتورة ${result.invoice_number} اتعملت ✓ (${result.total} ج.م)`, 'ok');
+      return true;
+    }
+
+    // Over 40% — held for admin approval on Telegram.
+    await notifyDiscountRequest({
+      approval_id: result.approval_id,
+      rep_name: ME.rep.name,
+      doctor_name: doctorName,
+      discount_pct: discountPct,
+      subtotal,
+      requested_total: result.requested_total,
+      items: items.map((it) => ({ ...it, name: PRODUCTS.find((p) => p.id === it.product_id)?.name })),
+    });
+    toast(`خصم ${discountPct}% محتاج موافقة الإدارة — هتوصلك رسالة لما يتوافق عليه`, 'info');
+    return true;
+  } catch (e) {
+    toast('تعذر إنشاء الفاتورة — راجع الإدارة: ' + e.message, 'err');
+    return false;
+  }
+}
+
+// ── Walk-in invoice (unregistered doctor/pharmacy) ─────────
+window.openWalkinInvoice = () => {
+  LINES_MODE = 'walkin';
+  WALKIN_LINES = [{ product_id: '', qty: 1, unit_price: '' }];
+  document.getElementById('wi-name').value = '';
+  document.getElementById('wi-phone').value = '';
+  document.getElementById('wi-address').value = '';
+  document.getElementById('wi-mode').value = 'cash';
+  document.getElementById('wi-paid').value = '';
+  document.getElementById('wi-due').value = defaultDueDate30();
+  document.getElementById('wi-discount').value = '0';
+  renderPharmLines();
+  onWalkinPayMode();
+  onWalkinDiscountChange();
+  document.getElementById('walkin-sheet').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeWalkinInvoice = () => {
+  document.getElementById('walkin-sheet').classList.add('hidden');
+  document.body.style.overflow = '';
+  LINES_MODE = 'visit';
+};
+
+window.onWalkinPayMode = () => {
+  const mode = document.getElementById('wi-mode')?.value;
+  const wrap = document.getElementById('wi-paid-wrap');
+  if (wrap) wrap.style.display = mode === 'cash' ? 'none' : '';
+};
+
+window.onWalkinDiscountChange = () => {
+  const pct = +(document.getElementById('wi-discount')?.value || 0);
+  const hint = document.getElementById('wi-discount-hint');
+  if (!hint) return;
+  hint.textContent = pct > 40
+    ? `خصم ${pct}% أكتر من الحد المسموح (40%) — الفاتورة هتتبعت للإدارة على تليجرام للموافقة الأول`
+    : pct > 0 ? `خصم ${pct}% — هتتعمل الفاتورة فورًا` : '';
+  hint.style.color = pct > 40 ? 'var(--bad)' : 'var(--dim)';
+};
+
+window.submitWalkinInvoice = async () => {
+  const name = document.getElementById('wi-name').value.trim();
+  if (!name) { toast('اكتب اسم العميل أو الصيدلية', 'err'); return; }
+  const lines = WALKIN_LINES.filter((l) => l.product_id && l.qty > 0);
+  if (!lines.length) { toast('أضف منتج واحد على الأقل', 'err'); return; }
+
+  const items = lines.map((l) => ({ product_id: l.product_id, qty: l.qty, list_price: l.unit_price || 0 }));
+  const discountPct = +(document.getElementById('wi-discount').value || 0);
+  const mode = document.getElementById('wi-mode').value;
+  const subtotal = items.reduce((s, it) => s + it.qty * it.list_price, 0);
+  const discountedTotal = subtotal * (1 - discountPct / 100);
+  const amountPaid = mode === 'cash' ? discountedTotal : +(document.getElementById('wi-paid').value || 0);
+  const dueDate = document.getElementById('wi-due').value || null;
+  const customer = {
+    name,
+    phone: document.getElementById('wi-phone').value.trim() || null,
+    address: document.getElementById('wi-address').value.trim() || null,
+  };
+
+  const ok = await requestInvoiceAndNotify({
+    doctorId: null, doctorName: name, items, discountPct, amountPaid,
+    paymentMode: mode, dueDate, customer,
+  });
+  if (ok) closeWalkinInvoice();
+};
+
+function renderScheduleBanner(opts = {}) {
+  const el = document.getElementById('ci-schedule-banner');
+  if (!opts.scheduledDate) {
+    el.classList.add('hidden');
+    el.innerHTML = '';
+    return;
+  }
+  const d = new Date(opts.scheduledDate + 'T12:00:00');
+  const dateStr = d.toLocaleDateString('en', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+  const slot = opts.timeOfDay === 'PM' ? '🌆 PM' : '🌅 AM';
+  el.innerHTML = `<b>زيارة مجدولة</b><span>${dateStr} · ${slot}</span>`;
+  el.classList.remove('hidden');
+}
+
+function setCheckinReadOnly(ro) {
+  document.querySelectorAll('#s-checkin .chip, #s-checkin .qbtn, #s-checkin .vtype-btn, #s-checkin .ci-vtype-tile, #s-checkin .ampm-btn, #s-checkin .ci-step, #s-checkin .ci-nav button, #photo-box, .add-comp').forEach((el) => {
+    el.style.pointerEvents = ro ? 'none' : '';
+    el.style.opacity = ro ? '0.55' : '';
+  });
+  const notes = document.getElementById('visit-notes');
+  if (notes) notes.readOnly = ro;
+  const b2b = document.getElementById('needs-b2b');
+  if (b2b) b2b.disabled = ro;
+}
+
+function activeVisitDateKey() {
+  return CURRENT_SCHEDULE?.dateKey || new Date().toISOString().slice(0, 10);
+}
+
+async function refreshExistingVisitForSlot() {
+  if (!ME?.rep?.id || !CURRENT_DOCTOR?.id) return;
+  try {
+    const ex = await visits.findForDaySlot(ME.rep.id, CURRENT_DOCTOR.id, activeVisitDateKey(), VISIT_AMPM);
+    showExistingVisitSummary(ex);
+  } catch { showExistingVisitSummary(null); }
+}
+
+window.startFollowUpVisit = () => {
+  EXISTING_VISIT = null;
+  document.getElementById('visit-notes').value = '';
+  SELECTED_PRODUCTS = new Set();
+  PRODUCTS.forEach((p) => { SAMPLE_QTY[p.id] = 0; });
+  document.querySelectorAll('#competitor-list input').forEach((i) => { i.value = ''; });
+  clearPhoto();
+  renderSampleRows(false);
+  document.getElementById('prod-chips').querySelectorAll('.chip').forEach((c) => c.classList.remove('sel'));
+  showExistingVisitSummary(null);
+  toast('زيارة جديدة — سجّل التقرير', 'info');
+  goCiStep(1);
+};
+
+function showExistingVisitSummary(v) {
+  const el = document.getElementById('ci-existing-visit');
+  const btn = document.getElementById('submit-btn');
+  EXISTING_VISIT = v || null;
+  if (!v) {
+    el.classList.add('hidden');
+    el.innerHTML = '';
+    btn.disabled = false;
+    btn.textContent = '✓ إرسال تقرير الزيارة';
+    setCheckinReadOnly(false);
+    return;
+  }
+  const when = new Date(v.visited_at).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' });
+  const samples = (v.crm_visit_samples || [])
+    .filter((s) => s.quantity > 0)
+    .map((s) => `${s.crm_products?.name || 'منتج'}: ${s.quantity}`)
+    .join('، ') || 'لا يوجد';
+  const otherSlot = v.time_of_day === 'AM' ? 'مساءً PM' : 'صباحاً AM';
+  el.innerHTML = `<b>✓ تقرير ${v.time_of_day || 'AM'} مُرسَل</b>
+    <span style="color:var(--dim)">${when}</span>
+    ${v.notes ? `<div style="margin-top:6px">${v.notes.replace(/</g, '&lt;')}</div>` : ''}
+    <div style="margin-top:4px">العينات: ${samples}</div>
+    <p style="margin:10px 0 6px;font-size:11px;color:var(--dim)">لزيارة تانية: غيّر لـ <b>${otherSlot}</b> أو سجّل زيارة إضافية</p>
+    <button type="button" class="ci-extra-btn" onclick="startFollowUpVisit()">+ زيارة إضافية (نفس اليوم)</button>`;
+  el.classList.remove('hidden');
+  btn.disabled = true;
+  btn.textContent = 'تم الإرسال لهذه الفترة';
+  setCheckinReadOnly(true);
+}
+
+function renderSampleRows(readOnly = false) {
+  const html = PRODUCTS.map((p) => {
+    const m = storeMeta(p.id);
+    const stockLabel = sampleStockLabel(p.id);
+    const priceLabel = m.price != null ? `<div class="sprice">${Number(m.price).toLocaleString('ar-EG')} ج.م</div>` : '';
+    const qty = SAMPLE_QTY[p.id] || 0;
+    // Soft warning only — never hard-block the "+" button. A rep who already
+    // handed out more than their recorded custody must still be able to log
+    // what actually happened in the field (admin may just be behind on entry).
+    const overCustody = qty > custodyFor(p.id);
+    if (readOnly) {
+      if (!qty) return '';
+      return `<div class="sample-row">${sampleThumb(p.id)}<div class="sbody"><div class="sname">${p.name}</div><div>${qty} عبوة</div></div></div>`;
+    }
+    return `<div class="sample-row">
+      ${sampleThumb(p.id)}
+      <div class="sbody">
+        <div class="sname"><span class="sdot" style="background:var(--violet)"></span>${p.name}${stockLabel}${priceLabel}</div>
+        <div class="sqty">
+          <button class="qbtn" onclick="adjSample('${p.id}',-1)">−</button>
+          <span class="qval" id="sq-${p.id}"${overCustody ? ' style="color:var(--bad)"' : ''}>${qty}</span>
+          <button class="qbtn" onclick="adjSample('${p.id}',1)">+</button>
+          <span class="qunit">عبوة</span>
+        </div>
+        ${overCustody ? '<div class="sstock low" style="margin-top:2px">أكتر من عهدتك المسجّلة</div>' : ''}
+      </div>
+    </div>`;
+  }).filter(Boolean).join('');
+  document.getElementById('sample-rows').innerHTML = html || '<p style="font-size:11px;color:var(--dim)">لا توجد منتجات CRM — أضفها من لوحة الإدارة.</p>';
+  updateSampleTotal();
+}
+
+window.openCheckinFromSchedule = async (scheduleId, dateKey) => {
+  const row = (VISIT_SCHEDULE[dateKey] || []).find((r) => r.id === scheduleId);
+  if (!row) return;
+  const item = row.crm_plan_items || planItemById(row.plan_item_id);
+  const doc = item?.crm_doctors;
+  if (!item || !doc) return;
+  closeVisitDaySheet();
+  let existing = null;
+  try { existing = await visits.findForDaySlot(ME.rep.id, doc.id, dateKey, row.time_of_day === 'PM' ? 'PM' : 'AM'); } catch { /* offline */ }
+  await openCheckin(item.id, doc.id, {
+    scheduledDate: dateKey,
+    scheduleId,
+    timeOfDay: row.time_of_day === 'PM' ? 'PM' : 'AM',
+    existingVisit: existing
+  });
+};
+
+window.openCheckin = async (itemId, docId, opts = {}) => {
+  const { doctors } = await import('../js/crm-api.js');
+  CURRENT_DOCTOR = await doctors.get(docId);
+  CURRENT_ITEM = itemId;
+  CURRENT_SCHEDULE = opts.scheduledDate
+    ? { dateKey: opts.scheduledDate, scheduleId: opts.scheduleId, timeOfDay: opts.timeOfDay }
+    : null;
+  SELECTED_PRODUCTS = new Set();
+  PRODUCTS.forEach((p) => { SAMPLE_QTY[p.id] = 0; });
+  document.querySelectorAll('#competitor-list input').forEach((i) => { i.value = ''; });
+  document.getElementById('visit-notes').value = '';
+  document.getElementById('ci-drname').textContent = CURRENT_DOCTOR.name;
+  document.getElementById('ci-brick').textContent = CURRENT_DOCTOR.crm_bricks?.name || '';
+
+  await syncCrmProductsFromStore();
+  await loadProductStock();
+  renderClientCard();
+  renderLocationCard();
+  renderFinancialSections();
+  resetFinancialForm();
+  renderProductPresentation();
+  ACTIVE_PRESENT_PRODUCT = null;
+  renderStockOverview();
+  renderSampleRows(false);
+
+  document.getElementById('prod-chips').innerHTML = PRODUCTS.map((p) =>
+    `<div class="chip" data-pid="${p.id}" onclick="toggleProd(this,'${p.id}')">${p.name}</div>`
+  ).join('');
+
+  document.getElementById('competitor-list').innerHTML = '';
+  clearPhoto();
+  const dt = (CURRENT_DOCTOR.doctor_type || 'doctor').toLowerCase();
+  const b2bAuto = ['pharmacy', 'hospital', 'polyclinic'].includes(dt);
+  const b2bWrap = document.getElementById('b2b-request-wrap');
+  const b2bChk = document.getElementById('needs-b2b');
+  if (b2bWrap && b2bChk) {
+    b2bWrap.style.display = 'block';
+    b2bChk.checked = b2bAuto;
+    b2bChk.disabled = b2bAuto;
+  }
+
+  const planItem = (PLAN?.items || []).find((i) => i.id === itemId);
+  VISIT_AMPM = opts.timeOfDay || (planItem?.preferred_time === 'PM' ? 'PM' : 'AM');
+  VISIT_TYPE = 'actual';
+  renderScheduleBanner(opts);
+  showExistingVisitSummary(null);
+
+  let existing = opts.existingVisit;
+  if (!existing && ME?.rep?.id) {
+    try {
+      const dateKey = opts.scheduledDate || activeVisitDateKey();
+      existing = await visits.findForDaySlot(ME.rep.id, docId, dateKey, VISIT_AMPM);
+    } catch { /* offline */ }
+  }
+
+  if (existing) {
+    const v = existing;
+    VISIT_AMPM = v.time_of_day || VISIT_AMPM;
+    VISIT_TYPE = v.visit_type || 'actual';
+    document.getElementById('visit-notes').value = v.notes || '';
+    (v.crm_visit_samples || []).forEach((s) => { SAMPLE_QTY[s.product_id] = s.quantity || 0; });
+    renderSampleRows(true);
+    showExistingVisitSummary(v);
+  }
+
+  const planItem2 = planItem;
+  if (planItem2) {
+    try {
+      const now = new Date();
+      const hist = await visits.listForDoctorMonth(ME.rep.id, docId, now.getFullYear(), now.getMonth() + 1);
+      const histEl = document.getElementById('ci-visit-history');
+      if (histEl && hist.length) {
+        histEl.style.display = 'block';
+        histEl.innerHTML = `<b>زيارات هذا الشهر (${hist.length}):</b> ` + hist.slice(0, 5).map((h) => {
+          const d = new Date(h.visited_at).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' });
+          return `${d} ${h.time_of_day || ''}`;
+        }).join(' · ');
+      } else if (histEl) histEl.style.display = 'none';
+    } catch { /* offline */ }
+  }
+
+  document.getElementById('ampm-am').classList.toggle('active', VISIT_AMPM === 'AM');
+  document.getElementById('ampm-pm').classList.toggle('active', VISIT_AMPM === 'PM');
+  syncVisitTypeUI();
+  goCiStep(1);
+  showScreen('checkin');
+  if (!existing && VISIT_TYPE !== 'no_show') checkGPS();
+};
+
+window.toggleProd = (el, pid) => {
+  el.classList.toggle('sel');
+  if (SELECTED_PRODUCTS.has(pid)) SELECTED_PRODUCTS.delete(pid);
+  else SELECTED_PRODUCTS.add(pid);
+};
+
+window.adjSample = (pid, delta) => {
+  const next = Math.max(0, (SAMPLE_QTY[pid] || 0) + delta);
+  if (delta > 0 && next > custodyFor(pid)) {
+    toast('العدد أكتر من عهدتك المسجّلة — هيتسجّل برضو بس راجع الأدمن', 'err');
+  }
+  SAMPLE_QTY[pid] = next;
+  const el = document.getElementById('sq-' + pid);
+  if (el) el.textContent = next;
+  renderSampleRows(false);
+};
+
+window.addCompetitor = () => {
+  const div = document.createElement('div');
+  div.className = 'competitor-row';
+  div.innerHTML = `<input type="text" placeholder="Competitor product name…">`;
+  document.getElementById('competitor-list').appendChild(div);
+};
+
+// ── Visit photo (compressed so it also fits the offline queue) ──
+window.photoSelected = (input) => {
+  const file = input.files?.[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    const MAX = 1024;
+    const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(img.width * scale);
+    canvas.height = Math.round(img.height * scale);
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    PHOTO_DATA = canvas.toDataURL('image/jpeg', 0.65);
+    URL.revokeObjectURL(img.src);
+    document.getElementById('photo-img').src = PHOTO_DATA;
+    document.getElementById('photo-preview').style.display = 'block';
+    document.getElementById('photo-box').style.display = 'none';
+  };
+  img.src = URL.createObjectURL(file);
+  input.value = '';
+};
+
+window.clearPhoto = () => {
+  PHOTO_DATA = null;
+  document.getElementById('photo-preview').style.display = 'none';
+  document.getElementById('photo-box').style.display = 'block';
+};
+
+async function checkGPS() {
+  const badge = document.getElementById('gps-badge');
+  const status = document.getElementById('gps-status');
+  const detail = document.getElementById('gps-detail');
+  const icon   = document.getElementById('gps-icon');
+  const retry  = document.getElementById('gps-retry');
+  badge.className = 'gps-badge';
+  status.textContent = 'جاري تحديد موقعك…';
+  detail.textContent = 'اسمح بالموقع من المتصفح';
+  if (retry) retry.disabled = true;
+  GPS_OK = false;
+
+  try {
+    const pos = await getCurrentPosition();
+    GPS_LAT = pos.lat;
+    GPS_LNG = pos.lng;
+
+    if (CURRENT_DOCTOR.lat && CURRENT_DOCTOR.lng) {
+      GPS_DIST = Math.round(haversineMeters(GPS_LAT, GPS_LNG, CURRENT_DOCTOR.lat, CURRENT_DOCTOR.lng));
+      GPS_OK = GPS_DIST <= GPS_THRESHOLD_M;
+      badge.className = 'gps-badge ' + (GPS_OK ? 'gps-ok' : 'gps-bad');
+      icon.textContent = GPS_OK ? '📍' : '⚠️';
+      status.textContent = GPS_OK ? `الموقع مظبوط — على بُعد ${GPS_DIST} متر` : `بعيد ${GPS_DIST} متر — خارج النطاق`;
+      detail.textContent = `${CURRENT_DOCTOR.name} · افتح الخريطة للوصول`;
+    } else {
+      GPS_OK = true;
+      badge.className = 'gps-badge gps-ok';
+      icon.textContent = '🔍';
+      status.textContent = 'أول زيارة — هيتسجل موقع العميل';
+      detail.textContent = formatCoords(GPS_LAT, GPS_LNG);
+    }
+    updateRepLocationDisplay();
+  } catch (err) {
+    badge.className = 'gps-badge gps-bad';
+    icon.textContent = '❌';
+    if (err?.code === 1) {
+      status.textContent = 'الموقع مرفوض';
+      detail.textContent = 'اسمح بالموقع لـ montana.com.eg من إعدادات المتصفح ثم إعادة';
+    } else if (err?.code === 2) {
+      status.textContent = 'إشارة GPS ضعيفة';
+      detail.textContent = 'فعّل خدمة الموقع على الجهاز ثم إعادة';
+    } else if (err?.code === 3) {
+      status.textContent = 'انتهت مهلة الموقع';
+      detail.textContent = 'جرّب في مكان مفتوح ثم إعادة';
+    } else {
+      status.textContent = 'تعذّر تحديد الموقع';
+      detail.textContent = 'فعّل صلاحية الموقع واضغط إعادة';
+    }
+  } finally {
+    if (retry) retry.disabled = false;
+  }
+}
+window.checkGPS = checkGPS;
+
+window.submitVisit = async () => {
+  if (EXISTING_VISIT) {
+    toast('تم تسجيل زيارة لهذه الفترة — غيّر صباح/مساء أو اضغط زيارة إضافية', 'err');
+    return;
+  }
+  // Validation
+  const isNoShow = VISIT_TYPE === 'no_show';
+  const hasProducts = SELECTED_PRODUCTS.size > 0;
+  const hasSamples = Object.values(SAMPLE_QTY).some(v => v > 0);
+  const hasNotes = document.getElementById('visit-notes').value.trim().length > 0;
+
+  const financial_requests = collectFinancialRequests();
+  const hasFinancial = financial_requests.length > 0;
+
+  if (!isNoShow && !hasProducts && !hasSamples && !hasNotes && !hasFinancial) {
+    toast('أضف منتجات أو عينات أو ملاحظات قبل الإرسال', 'err');
+    goCiStep(3);
+    return;
+  }
+  if (isNoShow && !hasNotes) {
+    toast('اكتب سبب عدم الحضور في الملاحظات', 'err');
+    goCiStep(4);
+    return;
+  }
+
+  if (!(await validatePharmacyCreditBeforeSubmit(financial_requests))) return;
+
+  const btn = document.getElementById('submit-btn');
+
+  if (!isNoShow && CURRENT_DOCTOR?.lat != null && CURRENT_DOCTOR?.lng != null) {
+    if (GPS_LAT == null || GPS_LNG == null) {
+      toast('فعّل الموقع من خطوة ٢ قبل إرسال الزيارة', 'err');
+      goCiStep(2);
+      return;
+    }
+    if (!GPS_OK) {
+      toast(`لا يمكن الإرسال — أنت على بُعد ${GPS_DIST ?? '?'}م من العميل (الحد ${GPS_THRESHOLD_M}م)`, 'err');
+      goCiStep(2);
+      return;
+    }
+  }
+
+  const sampleUnits = Object.values(SAMPLE_QTY).reduce((s, v) => s + (v || 0), 0);
+  btn.disabled = true;
+  btn.textContent = 'جاري الإرسال…';
+
+  const competitors = [...document.querySelectorAll('#competitor-list input')]
+    .map(i => i.value.trim()).filter(Boolean);
+
+  const payload = {
+    // client_id makes retries (offline queue flush) idempotent — the server
+    // rejects a second insert with the same id instead of duplicating.
+    client_id: crypto.randomUUID(),
+    rep_id: ME.rep.id,
+    doctor_id: CURRENT_DOCTOR.id,
+    plan_item_id: CURRENT_ITEM,
+    lat: GPS_LAT, lng: GPS_LNG,
+    notes: document.getElementById('visit-notes').value,
+    competitor_products: competitors,
+    products: [...SELECTED_PRODUCTS],
+    samples: PRODUCTS.map(p => ({ product_id: p.id, qty: SAMPLE_QTY[p.id] || 0 })),
+    time_of_day: VISIT_AMPM,
+    visit_type: VISIT_TYPE,
+    needs_b2b_invoice: document.getElementById('needs-b2b')?.checked || financial_requests.length > 0,
+    financial_requests,
+    photo_data: PHOTO_DATA,
+    materials: Object.entries(MATERIAL_TIMES)
+      .filter(([, secs]) => secs > 0)
+      .map(([id, seconds]) => ({ id, seconds }))
+  };
+
+  try {
+    if (navigator.onLine) {
+      const result = await visits.submit(payload);
+      if (!result?.duplicate) {
+        await notifyVisitSubmitted({
+          visit_id: result?.id,
+          rep_name: ME.rep.name,
+          doctor_name: CURRENT_DOCTOR.name,
+          doctor_type: CURRENT_DOCTOR.doctor_type,
+          visit_type: VISIT_TYPE,
+          time_of_day: VISIT_AMPM,
+          sample_units: sampleUnits,
+          needs_b2b: payload.needs_b2b_invoice,
+          financial_requests,
+          notes: payload.notes,
+          gps_verified: GPS_OK,
+          distance_m: GPS_DIST,
+        });
+        await createPharmacyInvoiceIfAny(financial_requests, result?.id);
+      }
+    } else {
+      offlineQueue.push(payload);
+      toast('Saved offline — will sync when connected', 'info');
+    }
+
+    toast('تم إرسال تقرير الزيارة ✓', 'ok');
+    await loadPlan();
+    setTimeout(() => showScreen('plan', document.querySelector('[data-screen="plan"]')), 800);
+  } catch (e) {
+    toast('Error: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✓ إرسال تقرير الزيارة';
+  }
+};
+
+// ── History ───────────────────────────────────────────────
+let ALL_HISTORY = [];
+let HIST_FILTER = 'all';
+
+async function loadHistory() {
+  const el = document.getElementById('history-list');
+  el.innerHTML = '<div style="color:var(--dim);font-size:13px">Loading…</div>';
+  try { ALL_HISTORY = await visits.myVisits(ME.rep.id); } catch { ALL_HISTORY = []; }
+  renderHistory();
+}
+
+function renderHistory() {
+  const el = document.getElementById('history-list');
+  const data = HIST_FILTER === 'all'
+    ? ALL_HISTORY
+    : ALL_HISTORY.filter(v => (v.visit_type || 'regular') === HIST_FILTER);
+
+  if (!data.length) { el.innerHTML = '<div style="color:var(--dim);font-size:13px">No visits found.</div>'; return; }
+
+  const vtLabel = { regular:'Regular', actual:'Actual', no_show:'No Show', dr_request:'Dr Request' };
+  const vtColor = { regular:'var(--violet)', actual:'var(--ok)', no_show:'var(--bad)', dr_request:'var(--gold)' };
+
+  el.innerHTML = data.map(v => {
+    const doc = v.crm_doctors;
+    const samples = (v.crm_visit_samples || []).reduce((s, sv) => s + sv.quantity, 0);
+    const date = new Date(v.visited_at).toLocaleString('en', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+    const vt = v.visit_type || 'regular';
+    const tod = v.time_of_day || '';
+    return `<div class="history-item">
+      <div class="hi-head">
+        <div class="hi-name">${doc?.name || '—'} <span class="class-pill ${doc?.class}">${doc?.class || ''}</span></div>
+        <div class="hi-date">${date}</div>
+      </div>
+      <div class="hi-meta">
+        <span class="gps-tag ${v.gps_verified ? 'gps-v' : 'gps-f'}">${v.gps_verified ? '📍 Verified' : '⚠️ Flagged'}</span>
+        <span style="font-size:10px;padding:3px 8px;border-radius:5px;background:rgba(255,255,255,.07);color:${vtColor[vt]}">${vtLabel[vt] || vt}</span>
+        ${tod ? `<span style="font-size:10px;padding:3px 8px;border-radius:5px;background:rgba(255,255,255,.07);color:var(--dim)">${tod === 'AM' ? '🌅 AM' : '🌆 PM'}</span>` : ''}
+        ${samples ? `<span style="font-size:11px;color:var(--dim)">· ${samples} samples</span>` : ''}
+        ${v.competitor_products?.length ? `<span style="font-size:11px;color:var(--warn)">· ${v.competitor_products.length} competitors</span>` : ''}
+      </div>
+      ${v.notes ? `<div style="font-size:12px;color:var(--dim);margin-top:8px">${v.notes}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+window.filterHistory = (type, el) => {
+  HIST_FILTER = type;
+  document.querySelectorAll('.hist-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderHistory();
+};
+
+// ── eDetailing ────────────────────────────────────────────
+function renderMaterials() {
+  const el = document.getElementById('materials-list');
+  if (!MATERIALS.length) { el.innerHTML = '<div style="color:var(--dim);font-size:13px">No materials uploaded yet.</div>'; return; }
+  const grouped = {};
+  MATERIALS.forEach(m => {
+    if (!grouped[m.productName]) grouped[m.productName] = [];
+    grouped[m.productName].push(m);
+  });
+  el.innerHTML = Object.entries(grouped).map(([pname, mats]) =>
+    `<div style="margin-bottom:20px">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:10px">${pname}</div>
+      ${mats.map(m => `
+        <div class="material-card" onclick="openMaterial('${m.id}')">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div class="mat-icon">${m.type === 'pdf' ? '📄' : '🖼️'}</div>
+            <div class="mat-info">
+              <div class="mat-title">${m.title}</div>
+              <div class="mat-sub"><span class="mat-type">${m.type.toUpperCase()}</span></div>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>`
+  ).join('');
+}
+
+window.openMaterial = (mid) => {
+  const mat = MATERIALS.find(m => m.id === mid);
+  if (!mat) return;
+  VIEWING_MATERIAL = mat;
+  VIEW_START = Date.now();
+  document.getElementById('viewer-title').textContent = mat.title;
+  const content = document.getElementById('viewer-content');
+  if (mat.type === 'pdf') {
+    content.innerHTML = `<iframe src="${mat.url}"></iframe>`;
+  } else if (mat.type === 'image') {
+    content.innerHTML = `<img src="${mat.url}" alt="${mat.title}">`;
+  } else {
+    content.innerHTML = `<iframe src="${mat.url}" allow="autoplay"></iframe>`;
+  }
+  document.getElementById('viewer').classList.remove('hidden');
+};
+
+window.closeViewer = () => {
+  if (VIEWING_MATERIAL && VIEW_START) {
+    const secs = Math.round((Date.now() - VIEW_START) / 1000);
+    MATERIAL_TIMES[VIEWING_MATERIAL.id] = (MATERIAL_TIMES[VIEWING_MATERIAL.id] || 0) + secs;
+  }
+  document.getElementById('viewer').classList.add('hidden');
+  document.getElementById('viewer-content').innerHTML = '';
+  VIEWING_MATERIAL = null;
+};
+
+// ── Leaderboard ───────────────────────────────────────────
+async function loadLeaderboard() {
+  const data = await leaderboard.get();
+  const el = document.getElementById('lb-list');
+  const month = new Date().toLocaleString('en', { month: 'long', year: 'numeric' });
+  document.getElementById('lb-cycle').textContent = month + ' cycle';
+  const rankClass = i => i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : '';
+  el.innerHTML = data.map((r, i) => {
+    const isMe = r.rep_id === ME?.rep?.id;
+    const pct = r.coverage_pct || 0;
+    return `<div class="board-item" ${isMe ? 'style="border-color:rgba(201,168,76,.4)"' : ''}>
+      <div class="board-rank ${rankClass(i)}">${i + 1}</div>
+      <div class="board-av">${r.name.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+      <div class="board-info">
+        <div class="board-name">${r.name} ${isMe ? '<span class="you-badge">You</span>' : ''}</div>
+        <div class="board-meta">${r.territory || ''} · ${r.total_visits} visits · ${r.total_samples || 0} samples</div>
+        <div class="board-bar"><div class="board-bar-fill ${i===0?'gold':''}" style="width:${pct}%"></div></div>
+      </div>
+      <div class="board-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Profile ───────────────────────────────────────────────
+function renderProfile() {
+  const rep = ME?.rep;
+  if (!rep) return;
+  const initials = rep.name.split(' ').map(w=>w[0]).slice(0,2).join('');
+  document.getElementById('profile-av').textContent = initials;
+  document.getElementById('profile-name').textContent = rep.name;
+  document.getElementById('profile-meta').textContent = rep.territory || 'Field Representative';
+  document.getElementById('pr-territory').textContent = rep.territory || '—';
+  document.getElementById('pr-office').textContent = rep.crm_offices?.name || '—';
+  document.getElementById('pr-email').textContent = rep.email;
+  refreshPushButton();
+}
+
+async function refreshPushButton() {
+  const btn = document.getElementById('push-btn');
+  const st = await push.status();
+  if (st === 'unsupported') { btn.style.display = 'none'; return; }
+  btn.style.display = 'block';
+  btn.disabled = st === 'denied';
+  btn.dataset.state = st;
+  btn.textContent =
+    st === 'subscribed' ? '🔕 Disable daily reminders' :
+    st === 'denied'     ? '🔔 Notifications blocked in browser settings' :
+                          '🔔 Enable daily reminders';
+}
+
+window.togglePush = async () => {
+  const btn = document.getElementById('push-btn');
+  try {
+    if (btn.dataset.state === 'subscribed') {
+      await push.unsubscribe();
+      toast('Daily reminders disabled', 'info');
+    } else {
+      await push.subscribe(ME.rep.id);
+      toast('Daily reminders enabled ✓', 'ok');
+    }
+  } catch (e) { toast(e.message, 'err'); }
+  refreshPushButton();
+};
+
+// ── Day Status ────────────────────────────────────────────
+const DAY_TYPES = {
+  regular:      { icon:'✅', label:'Regular working day' },
+  saturday:     { icon:'📅', label:'Saturday' },
+  sat_sun:      { icon:'📅', label:'Saturday + Sunday' },
+  annual_leave: { icon:'✈️', label:'Annual leave' },
+  day_off:      { icon:'🌴', label:'Day off' },
+  office:       { icon:'🏢', label:'Office work' },
+  health:       { icon:'🏥', label:'Health day' },
+};
+
+window.openDaySheet = () => {
+  document.getElementById('day-sheet').classList.remove('hidden');
+  // highlight current selection
+  document.querySelectorAll('.day-opt').forEach(b => {
+    b.classList.toggle('selected', b.dataset.type === TODAY_TYPE);
+  });
+};
+
+window.closeDaySheet = () => document.getElementById('day-sheet').classList.add('hidden');
+
+window.setDayType = async (type, icon, label) => {
+  TODAY_TYPE = type;
+  document.getElementById('day-status-icon').textContent = icon;
+  document.getElementById('day-status-label').textContent = label;
+  document.getElementById('day-status-sub').textContent = new Date().toLocaleDateString('en', {weekday:'long', day:'numeric', month:'short'});
+  document.querySelectorAll('.day-opt').forEach(b => b.classList.toggle('selected', b.dataset.type === type));
+  const todayKey = new Date().toISOString().slice(0,10);
+  localStorage.setItem('crm_day_' + todayKey, JSON.stringify({ type, icon, label }));
+  try {
+    if (ME?.rep?.id) {
+      await dayLogs.upsert(ME.rep.id, type);
+      delete MONTH_SCHEDULE[todayKey];
+      SCHEDULE_META[todayKey] = type;
+      renderMonthCalendar();
+    }
+  } catch (e) { console.warn('day log save failed', e); }
+  updateAnnualLeaveBalance();
+  setTimeout(closeDaySheet, 350);
+};
+
+function updateAnnualLeaveBalance() {
+  // Count all days in localStorage this year marked as annual_leave
+  const year = new Date().getFullYear();
+  let used = 0;
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key?.startsWith('crm_day_' + year)) continue;
+    try {
+      const val = JSON.parse(localStorage.getItem(key));
+      if (val?.type === 'annual_leave') used++;
+    } catch {}
+  }
+  const total = parseInt(document.getElementById('al-total').textContent) || 21;
+  document.getElementById('al-used').textContent = used;
+  document.getElementById('al-remain').textContent = Math.max(0, total - used);
+}
+
+// Restore today's status on load
+function restoreDayStatus() {
+  const saved = localStorage.getItem('crm_day_' + new Date().toISOString().slice(0,10));
+  if (saved) {
+    try {
+      const { type, icon, label } = JSON.parse(saved);
+      TODAY_TYPE = type;
+      document.getElementById('day-status-icon').textContent = icon;
+      document.getElementById('day-status-label').textContent = label;
+      document.getElementById('day-status-sub').textContent = new Date().toLocaleDateString('en', {weekday:'long', day:'numeric', month:'short'});
+    } catch {}
+  }
+  updateAnnualLeaveBalance();
+}
+
+// ── AM/PM & Visit Type ────────────────────────────────────
+window.selectAmPm = async (val) => {
+  VISIT_AMPM = val;
+  document.getElementById('ampm-am').classList.toggle('active', val === 'AM');
+  document.getElementById('ampm-pm').classList.toggle('active', val === 'PM');
+  if (document.getElementById('s-checkin')?.classList.contains('active')) {
+    await refreshExistingVisitForSlot();
+  }
+};
+
+function syncVisitTypeUI() {
+  document.querySelectorAll('.ci-vtype-tile, .vtype-btn').forEach((b) => {
+    b.classList.toggle('active', b.dataset.vt === VISIT_TYPE);
+  });
+  updateCiStepsForVisitType();
+}
+
+function updateCiStepsForVisitType() {
+  const noShow = VISIT_TYPE === 'no_show';
+  document.querySelectorAll('.ci-step').forEach((btn) => {
+    const n = Number(btn.dataset.step);
+    const skip = noShow && (n === 2 || n === 3);
+    btn.style.opacity = skip ? '0.35' : '1';
+    btn.style.pointerEvents = skip ? 'none' : 'auto';
+  });
+  const fin = document.getElementById('ci-financial-card');
+  if (fin) fin.style.display = noShow ? 'none' : 'block';
+  const b2bWrap = document.getElementById('b2b-request-wrap');
+  if (b2bWrap) b2bWrap.style.display = noShow ? 'none' : 'block';
+}
+
+function ciMaxStep() {
+  return VISIT_TYPE === 'no_show' ? 4 : 4;
+}
+
+function ciEffectiveStep(step) {
+  if (VISIT_TYPE === 'no_show' && step === 2) return 4;
+  if (VISIT_TYPE === 'no_show' && step === 3) return 4;
+  return Math.max(1, Math.min(4, step));
+}
+
+window.goCiStep = (step) => {
+  const target = ciEffectiveStep(step);
+  CI_STEP = target;
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('ci-panel-' + i)?.classList.toggle('active', i === target);
+  }
+  document.querySelectorAll('.ci-step').forEach((btn) => {
+    const n = Number(btn.dataset.step);
+    btn.classList.toggle('active', n === target);
+    btn.classList.toggle('done', n < target);
+  });
+  const prev = document.getElementById('ci-prev');
+  const next = document.getElementById('ci-next');
+  const nav = document.getElementById('ci-nav');
+  if (prev) prev.style.visibility = target <= 1 ? 'hidden' : 'visible';
+  if (next) next.style.display = target >= 4 ? 'none' : 'block';
+  if (nav) nav.style.display = target >= 4 ? 'none' : 'flex';
+  if (target === 2 && VISIT_TYPE !== 'no_show') checkGPS();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+window.ciNextStep = () => {
+  if (CI_STEP === 1 && VISIT_TYPE === 'no_show') {
+    goCiStep(4);
+    return;
+  }
+  if (CI_STEP < 4) goCiStep(CI_STEP + 1);
+};
+
+window.toggleCiCoords = () => {
+  const box = document.getElementById('ci-coords-box');
+  if (box) box.classList.toggle('open');
+};
+
+window.selectVisitType = (type, el) => {
+  VISIT_TYPE = type;
+  document.querySelectorAll('.ci-vtype-tile, .vtype-btn').forEach((b) => b.classList.remove('active'));
+  el.classList.add('active');
+  updateCiStepsForVisitType();
+  if (type === 'no_show' && CI_STEP > 1 && CI_STEP < 4) goCiStep(4);
+};
+
+window.doLogout = async () => { await auth.logout(); location.href = '/crm/'; };
+
+// ── Toast ─────────────────────────────────────────────────
+window.toast = (msg, type = 'ok') => {
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+};
+
+init();
+</script>
+</body>
+</html>

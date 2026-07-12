@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#9B6CB8">
+    <title>Montana | Product Details</title>
+    <link rel="icon" href="/images/logo.png" type="image/png">
+    <script src="..//js/seo.js" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="..//styles.css">
+    <link rel="stylesheet" href="..//app.css">
+    <link rel="stylesheet" href="..//pages.css">
+    <link rel="stylesheet" href="..//premium.css">
+    <link rel="stylesheet" href="..//dark-theme.css">
+    <style>.pd-loading,.pd-error{padding:60px 20px;text-align:center;color:var(--text-muted)}</style>
+</head>
+<body class="mnt-en">
+
+<!-- App Back Header -->
+<div class="page-header">
+    <a href="/en/category.html" class="page-back"><i class="fas fa-arrow-left"></i></a>
+    <h2>Product details</h2>
+    <div class="page-header-actions">
+        <button class="page-action-btn"><i class="far fa-heart"></i></button>
+        <button class="page-action-btn"><i class="fas fa-share-alt"></i></button>
+    </div>
+</div>
+
+<div id="pdRoot"><div class="pd-loading"><i class="fas fa-spinner fa-spin"></i> Loading…</div></div>
+
+<script src="..//components.js"></script>
+<script src="..//js/cart.js"></script>
+<script src="/js/lang-switch.js?v=2"></script>
+<script type="module">
+import { products as productsApi, ingredients as ingredientsApi, reviews as reviewsApi } from '/js/store-api.js';
+import { getProductIndications, PRODUCT_NAMES, COSMETIC_DISCLAIMER } from '/js/indications-data.js';
+import { localizeProduct, formatPrice, getLocale, productUrl } from '/js/i18n/locale.js?v=3';
+import { UI_STRINGS, PRODUCT_COPY, COSMETIC_DISCLAIMER as EN_DISCLAIMER } from '/js/i18n/en.js';
+import { escapeHtml } from '/js/escape-html.js';
+
+const L = () => (getLocale() === 'en' ? UI_STRINGS.product : null);
+
+const params = new URLSearchParams(location.search);
+const pathSlug = location.pathname.match(/\/product\/([^/?#]+)/)?.[1];
+const slug = params.get('slug') || (pathSlug ? decodeURIComponent(pathSlug) : null);
+const root = document.getElementById('pdRoot');
+
+function stars(rating) {
+    const full = Math.floor(rating), half = rating - full >= 0.5;
+    let html = '';
+    for (let i = 0; i < full; i++) html += '<i class="fas fa-star"></i>';
+    if (half) html += '<i class="fas fa-star-half-alt"></i>';
+    for (let i = full + (half ? 1 : 0); i < 5; i++) html += '<i class="far fa-star"></i>';
+    return html;
+}
+
+function renderReviewsSection(p, reviewList) {
+    const P = L() || {};
+    const ratingOptions = getLocale() === 'en'
+      ? [
+          ['', P.reviewRating || 'Rating'],
+          ['5', P.reviewExcellent || '★★★★★ Excellent'],
+          ['4', P.reviewVeryGood || '★★★★☆ Very good'],
+          ['3', P.reviewGood || '★★★☆☆ Good'],
+          ['2', P.reviewFair || '★★☆☆☆ Fair'],
+          ['1', P.reviewPoor || '★☆☆☆☆ Poor'],
+        ]
+      : [
+          ['', 'Rating'], ['5', '★★★★★ Excellent'], ['4', '★★★★☆ Very good'], ['3', '★★★☆☆ Good'], ['2', '★★☆☆☆ Fair'], ['1', '★☆☆☆☆ Poor'],
+        ];
+
+    const listHtml = reviewList.length ? reviewList.map(r => `
+        <div style="border-bottom:1px solid var(--border);padding:12px 0">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <strong>${r.customer_name}</strong>
+                <span>${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
+            </div>
+            ${r.comment ? `<p style="font-size:13px;color:var(--text-light);margin-top:6px">${r.comment}</p>` : ''}
+        </div>`).join('') : `<p style="text-align:center;padding:12px;color:var(--text-muted);font-size:13px">${L()?.noReviews || 'No reviews yet — be the first!'}</p>`;
+
+    return `
+            <div class="pd-section">
+                <div class="pd-section-header"><h3>${L()?.reviews || 'Reviews'} (${p.review_count})</h3></div>
+                <div id="reviewsList">${listHtml}</div>
+                <form id="reviewForm" style="margin-top:16px;display:flex;flex-direction:column;gap:10px">
+                    <input type="text" id="reviewName" placeholder="${P.reviewName || 'Your name'}" required style="padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit">
+                    <select id="reviewRating" required style="padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit">
+                        ${ratingOptions.map(([v, t]) => `<option value="${v}">${t}</option>`).join('')}
+                    </select>
+                    <textarea id="reviewComment" placeholder="${getLocale() === 'en' ? (P.reviewComment || 'Your comment (optional)') : 'Your comment (optional)'}" rows="3" style="padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit"></textarea>
+                    <button type="submit" class="pd-add-cart" style="position:static;width:100%"><i class="fas fa-star"></i> ${P.writeReview || 'Submit review'}</button>
+                    <p id="reviewMsg" style="font-size:12px;text-align:center;display:none"></p>
+                </form>
+            </div>`;
+}
+
+function renderIndicationsSection(slug) {
+    if (getLocale() === 'en') {
+        const copy = PRODUCT_COPY[slug];
+        if (!copy) return '';
+        const tags = copy.concerns.split('·').map((t) => t.trim()).filter(Boolean);
+        const tagsHtml = tags.map((t) => `<li><i class="fas fa-check-circle"></i> ${t}</li>`).join('');
+        return `
+            <div class="pd-divider"></div>
+            <div class="pd-section">
+                <h3>${UI_STRINGS.product.indications}</h3>
+                <p class="pd-indication-usage">${copy.tagline}. ${copy.description.slice(0, 160)}…</p>
+                <ul class="pd-features pd-indication-tags">${tagsHtml}</ul>
+                <p class="pd-indication-note">${EN_DISCLAIMER}</p>
+            </div>`;
+    }
+
+    const ind = getProductIndications(slug);
+    if (!ind) return '';
+
+    const tags = ind.tags
+        .map(t => `<li><i class="fas fa-check-circle"></i> ${t}</li>`)
+        .join('');
+
+    const combo = ind.combo?.length
+        ? `<p class="pd-indication-combo"><strong>Pairs well with:</strong> ${ind.combo.map(s => PRODUCT_NAMES[s] || s).join(' · ')}</p>`
+        : '';
+
+    return `
+            <div class="pd-divider"></div>
+            <div class="pd-section">
+                <h3>Indications</h3>
+                <p class="pd-indication-usage">${ind.usage}</p>
+                <ul class="pd-features pd-indication-tags">${tags}</ul>
+                ${combo}
+                <blockquote class="pd-indication-story">${ind.story}</blockquote>
+                <p class="pd-indication-note">${COSMETIC_DISCLAIMER}</p>
+            </div>`;
+}
+
+function renderProduct(p, related, ingredientsList, reviewList) {
+    if (window.MontanaSEO) window.MontanaSEO.setProductMeta(p);
+    const pn = escapeHtml(p.name);
+    const pdesc = escapeHtml(p.description);
+    const pimg = escapeHtml(p.image_url);
+    const psize = p.size ? escapeHtml(p.size) : '';
+    const discountPct = p.old_price ? Math.round((1 - p.price / p.old_price) * 100) : null;
+    const sep = ',';
+    const ingredients = (p.ingredients || '').split(sep).map(s => s.trim()).filter(Boolean);
+    const matchIngredient = (token) => ingredientsList.find(ing => token.includes(ing.name));
+    const reviewsLabel = UI_STRINGS.product.reviewsCount;
+
+    root.innerHTML = `
+    <div class="pd-page-layout">
+        <div class="pd-gallery">
+            <div class="pd-gallery-main"><img src="${pimg}" alt="${pn}"></div>
+        </div>
+        <div class="pd-info">
+            <span class="pd-brand">Montaña</span>
+            <h1 class="pd-title">${pn}${psize ? ' - ' + psize : ''}</h1>
+            <div class="pd-rating">
+                <div class="stars">${stars(p.rating)}</div>
+                <span>${p.rating} (${p.review_count} ${reviewsLabel})</span>
+            </div>
+            <div class="pd-price-row">
+                <div class="pd-prices">
+                    <span class="pd-price-current">${formatPrice(p.price)}</span>
+                    ${p.old_price ? `<span class="pd-price-old">${formatPrice(p.old_price)}</span>` : ''}
+                </div>
+                ${discountPct ? `<span class="pd-discount">-${discountPct}%</span>` : ''}
+            </div>
+
+            <div class="pd-divider"></div>
+
+            <div class="pd-section">
+                <h3>${L()?.description || 'Description'}</h3>
+                <p>${pdesc}</p>
+            </div>
+
+            ${renderIndicationsSection(p.slug)}
+
+            ${ingredients.length ? `
+            <div class="pd-divider"></div>
+            <div class="pd-section">
+                <h3>${L()?.ingredients || 'Key ingredients'}</h3>
+                <ul class="pd-features">
+                    ${ingredients.map(i => {
+                        const match = matchIngredient(i);
+                        return match
+                            ? `<li><i class="fas fa-check-circle"></i> <a href="/en/ingredients.html?slug=${match.slug}" style="color:inherit;text-decoration:underline;text-underline-offset:3px">${i}</a></li>`
+                            : `<li><i class="fas fa-check-circle"></i> ${i}</li>`;
+                    }).join('')}
+                </ul>
+            </div>` : ''}
+
+            <div class="pd-divider"></div>
+            ${renderReviewsSection(p, reviewList)}
+
+            ${related.length ? `
+            <div class="pd-divider"></div>
+            <div class="pd-section">
+                <h3>${getLocale() === 'en' ? 'You may also like' : 'You may also like'}</h3>
+                <div class="pd-related">
+                    ${related.map(r => {
+                        const rr = localizeProduct(r) || r;
+                        return `
+                        <a href="${productUrl(r.slug)}" class="pd-related-card" style="text-decoration:none;color:inherit">
+                            <img src="${escapeHtml(rr.image_url || r.image_url)}" alt="${escapeHtml(rr.name)}">
+                            <span class="pd-related-brand">Montaña</span>
+                            <span class="pd-related-name">${rr.name}</span>
+                            <span class="pd-related-price">${formatPrice(r.price)}</span>
+                        </a>`;
+                    }).join('')}
+                </div>
+            </div>` : ''}
+        </div>
+    </div>
+
+    <div class="pd-bottom-bar">
+        <div class="pd-qty">
+            <button id="qtyMinus">-</button>
+            <span id="qtyVal">1</span>
+            <button id="qtyPlus">+</button>
+        </div>
+        <button class="pd-add-cart" id="addToCartBtn"><i class="fas fa-shopping-bag"></i> ${getLocale() === 'en' ? `Add to bag — ${formatPrice(p.price)}` : `Add to bag - ${Math.round(p.price)} EGP`}</button>
+    </div>`;
+
+    let qty = 1;
+    const qtyEl = document.getElementById('qtyVal');
+    document.getElementById('qtyMinus').addEventListener('click', () => { qty = Math.max(1, qty - 1); qtyEl.textContent = qty; });
+    document.getElementById('qtyPlus').addEventListener('click', () => { qty = qty + 1; qtyEl.textContent = qty; });
+    document.getElementById('addToCartBtn').addEventListener('click', function () {
+        window.Cart.add({ id: p.id, name: p.name + (p.size ? ' - ' + p.size : ''), image: p.image_url, price: p.price }, qty);
+        const original = this.innerHTML;
+        this.innerHTML = getLocale() === 'en' ? '<i class="fas fa-check"></i> Added to bag' : '<i class="fas fa-check"></i> Added to bag';
+        setTimeout(() => { this.innerHTML = original; }, 1500);
+    });
+
+    document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msgEl = document.getElementById('reviewMsg');
+        try {
+            await reviewsApi.submit({
+                product_id: p.id,
+                customer_name: document.getElementById('reviewName').value.trim(),
+                rating: parseInt(document.getElementById('reviewRating').value, 10),
+                comment: document.getElementById('reviewComment').value.trim()
+            });
+            msgEl.textContent = UI_STRINGS.product.reviewThanks;
+            msgEl.style.color = '#27ae60';
+            msgEl.style.display = 'block';
+            e.target.reset();
+            const updated = await productsApi.get(p.slug);
+            const list = await reviewsApi.listForProduct(p.id);
+            document.getElementById('reviewsList').innerHTML = list.length ? list.map(r => `
+                <div style="border-bottom:1px solid var(--border);padding:12px 0">
+                    <div style="display:flex;justify-content:space-between"><strong>${r.customer_name}</strong><span>${'★'.repeat(r.rating)}</span></div>
+                    ${r.comment ? `<p style="font-size:13px;margin-top:6px">${r.comment}</p>` : ''}
+                </div>`).join('') : '';
+            document.querySelector('.pd-section-header h3').textContent = `Reviews (${updated.review_count})`;
+        } catch {
+            msgEl.textContent = UI_STRINGS.product.reviewError;
+            msgEl.style.color = '#EF5350';
+            msgEl.style.display = 'block';
+        }
+    });
+}
+
+(async () => {
+    if (!slug) {
+        root.innerHTML = `<div class="pd-error">No product selected<br><a href="/en/category.html">Browse products</a></div>`;
+        return;
+    }
+    try {
+        const raw = await productsApi.get(slug);
+        const product = localizeProduct(raw) || raw;
+        const [all, ingredientsList, reviewList] = await Promise.all([
+            productsApi.list(),
+            ingredientsApi.list(),
+            reviewsApi.listForProduct(product.id)
+        ]);
+        const related = all.filter(x => x.slug !== slug).slice(0, 3).map((x) => localizeProduct(x) || x);
+        renderProduct(product, related, ingredientsList, reviewList);
+    } catch (e) {
+        root.innerHTML = `<div class="pd-error">${getLocale() === 'en' ? 'Product not found' : 'Product not found'}<br><a href="/en/category.html">${getLocale() === 'en' ? 'Browse products' : 'Browse products'}</a></div>`;
+    }
+})();
+</script>
+</body>
+</html>

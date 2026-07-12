@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://www.montana.com.eg/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.montana.com.eg/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.montana.com.eg/en/"/>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://www.montana.com.eg/en/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.montana.com.eg/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.montana.com.eg/en/"/>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://www.montana.com.eg/category.html</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.montana.com.eg/category.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.montana.com.eg/en/category.html"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.montana.com.eg/en/category.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.montana.com.eg/product/acne-facial-cleanser</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.montana.com.eg/product/acne-facial-cleanser"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.montana.com.eg/en/product/acne-facial-cleanser"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.montana.com.eg/product/brightening-facial-cleanser</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.montana.com.eg/product/acne-treatment-cream</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.montana.com.eg/product/brightening-cream</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.montana.com.eg/product/post-laser-cream</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.montana.com.eg/product/acne-treatment-set</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.montana.com.eg/about.html</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.montana.com.eg/about.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.montana.com.eg/en/about.html"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.montana.com.eg/contact.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.montana.com.eg/faq.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.montana.com.eg/ingredients.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.montana.com.eg/privacy.html</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://www.montana.com.eg/terms.html</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://www.montana.com.eg/en/about.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.montana.com.eg/en/contact.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.montana.com.eg/en/faq.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>

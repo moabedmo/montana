@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MONTAÑA | Discount Cards</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet"></noscript>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Tajawal',sans-serif;background:#0a0510;display:flex;flex-direction:column;align-items:center;gap:30px;padding:30px}
+
+        .card{
+            width:90mm;height:55mm;
+            position:relative;overflow:hidden;
+            border-radius:12px;
+            box-shadow:0 10px 40px rgba(0,0,0,0.5);
+        }
+        .silk{position:absolute;inset:0;background-size:cover;background-position:center}
+        .dim{position:absolute;inset:0;background:rgba(12,5,22,0.88)}
+
+        /* Geometric pattern overlay */
+        .geo-pattern{
+            position:absolute;inset:0;z-index:1;opacity:0.04;
+            background-image:repeating-linear-gradient(45deg,transparent,transparent 20px,rgba(197,165,90,1) 20px,rgba(197,165,90,1) 21px),
+                            repeating-linear-gradient(-45deg,transparent,transparent 20px,rgba(197,165,90,1) 20px,rgba(197,165,90,1) 21px);
+        }
+
+        /* Monogram watermark */
+        .watermark{
+            position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+            font-family:'Cormorant Garamond',serif;font-size:180px;font-weight:700;
+            color:rgba(197,165,90,0.03);z-index:1;pointer-events:none;line-height:1;
+        }
+
+        /* Double border */
+        .border-outer{position:absolute;inset:4px;border:1px solid rgba(197,165,90,0.25);border-radius:10px;z-index:2;pointer-events:none}
+        .border-inner{position:absolute;inset:8px;border:1px solid rgba(197,165,90,0.12);border-radius:8px;z-index:2;pointer-events:none}
+
+        /* Holographic stripe */
+        .holo-stripe{
+            position:absolute;top:0;right:18mm;width:8mm;height:100%;z-index:3;pointer-events:none;
+            background:linear-gradient(180deg,
+                rgba(197,165,90,0.0) 0%,
+                rgba(197,165,90,0.08) 15%,
+                rgba(180,140,255,0.06) 30%,
+                rgba(197,165,90,0.1) 45%,
+                rgba(100,200,255,0.05) 60%,
+                rgba(197,165,90,0.08) 75%,
+                rgba(180,140,255,0.06) 90%,
+                rgba(197,165,90,0.0) 100%
+            );
+        }
+
+        /* Metallic texture */
+        .metallic{
+            position:absolute;inset:0;z-index:1;opacity:0.015;
+            background:linear-gradient(135deg,#fff 0%,transparent 30%,#fff 50%,transparent 70%,#fff 100%);
+            background-size:4px 4px;
+        }
+
+        /* Gold top/bottom lines */
+        .gold-t{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 5%,#C5A55A 50%,transparent 95%);z-index:10}
+        .gold-b{position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 5%,#C5A55A 50%,transparent 95%);z-index:10}
+
+        /* Embossed logo effect */
+        .embossed{
+            filter:brightness(0) invert(1) drop-shadow(1px 1px 0px rgba(0,0,0,0.4)) drop-shadow(-1px -1px 0px rgba(255,255,255,0.08));
+        }
+
+        /* Foil stamp - animated gold shimmer */
+        @keyframes foilShimmer{
+            0%{background-position:200% center}
+            100%{background-position:-200% center}
+        }
+        .foil-text{
+            background:linear-gradient(90deg,#C5A55A 0%,#E8D5A3 25%,#FFF8E7 50%,#E8D5A3 75%,#C5A55A 100%);
+            background-size:200% auto;
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+            animation:foilShimmer 4s linear infinite;
+        }
+
+        /* ===== CARD 1: Discount Front ===== */
+        .card1-front .content{
+            position:absolute;inset:0;z-index:5;
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            text-align:center;padding:14px;
+        }
+        .card1-front .logo{height:28px;margin-bottom:6px}
+        .card1-front .limited{
+            font-size:8px;color:rgba(197,165,90,0.7);letter-spacing:4px;text-transform:uppercase;margin-bottom:4px;
+        }
+        .card1-front .discount{
+            font-family:'Cormorant Garamond',serif;
+            font-size:52px;font-weight:700;
+            line-height:1;margin-bottom:2px;
+        }
+        .card1-front .discount span{font-size:26px}
+        .card1-front .disc-text{
+            font-size:15px;font-weight:700;color:#fff;
+            letter-spacing:2px;margin-bottom:4px;
+        }
+        .card1-front .disc-sub{
+            font-size:9px;color:rgba(255,255,255,0.4);
+            letter-spacing:2px;
+        }
+
+        /* ===== CARD 1: Back ===== */
+        .card1-back .content{
+            position:absolute;inset:0;z-index:5;
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            padding:12px;
+        }
+        .card1-back .logo{height:55px;margin-bottom:8px}
+        .card1-back .brand-name{
+            font-family:'Cormorant Garamond',serif;
+            font-size:20px;font-weight:300;color:#fff;
+            letter-spacing:8px;margin-bottom:6px;
+        }
+        .card1-back .website{font-size:9px;color:rgba(197,165,90,0.6);letter-spacing:3px}
+
+        /* ===== CARD 2: Arabic Front ===== */
+        .card2-front .content{
+            position:absolute;inset:0;z-index:5;
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            text-align:center;padding:14px;
+        }
+        .card2-front .logo{height:42px;margin-bottom:8px}
+        .card2-front .brand-name{
+            font-family:'Cormorant Garamond',serif;
+            font-size:26px;font-weight:300;color:#fff;
+            letter-spacing:8px;margin-bottom:4px;
+        }
+        .card2-front .tagline{
+            font-size:11px;color:rgba(255,255,255,0.45);
+            letter-spacing:2px;margin-bottom:10px;
+        }
+        .card2-front .bar{width:40px;height:1px;background:linear-gradient(90deg,transparent,#C5A55A,transparent)}
+        .card2-front .footer-info{
+            position:absolute;bottom:0;left:0;right:0;
+            display:flex;justify-content:space-between;align-items:center;
+            font-size:8px;color:rgba(255,255,255,0.6);
+            background:rgba(20,10,35,0.92);
+            border-top:1px solid rgba(197,165,90,0.2);
+            padding:6px 14px;z-index:6;
+        }
+        .card2-front .footer-info span{display:flex;align-items:center;gap:3px}
+
+        /* ===== CARD 2: English Back ===== */
+        .card2-back .content{
+            position:absolute;inset:0;z-index:5;
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            text-align:center;padding:14px;direction:ltr;
+        }
+        .card2-back .logo{height:42px;margin-bottom:8px}
+        .card2-back .brand-name{
+            font-family:'Cormorant Garamond',serif;
+            font-size:26px;font-weight:300;color:#fff;
+            letter-spacing:8px;margin-bottom:4px;
+        }
+        .card2-back .tagline{
+            font-size:10px;color:rgba(255,255,255,0.45);
+            letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;
+        }
+        .card2-back .bar{width:40px;height:1px;background:linear-gradient(90deg,transparent,#C5A55A,transparent)}
+        .card2-back .footer-info{
+            position:absolute;bottom:0;left:0;right:0;
+            display:flex;justify-content:space-between;align-items:center;
+            font-size:8px;color:rgba(255,255,255,0.6);direction:ltr;
+            background:rgba(20,10,35,0.92);
+            border-top:1px solid rgba(197,165,90,0.2);
+            padding:6px 14px;z-index:6;
+        }
+        .card2-back .footer-info span{display:flex;align-items:center;gap:3px}
+
+        .gold-icon{color:#C5A55A;font-size:9px}
+
+        /* Labels */
+        .label{text-align:center;font-size:14px;color:#C5A55A;font-weight:700;letter-spacing:2px;margin-top:10px}
+
+        /* Print */
+        .no-print{text-align:center;padding:20px}
+        .btn{background:#9B6CB8;color:#fff;border:none;padding:12px 32px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Tajawal';margin:0 8px}
+        @media print{
+            body{background:#fff;padding:10mm;display:flex;flex-wrap:wrap;gap:10mm;justify-content:center}
+            .card{box-shadow:none;page-break-inside:avoid}
+            .no-print,.label{display:none!important}
+            @page{size:A4;margin:10mm}
+            *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;color-adjust:exact !important}
+            .foil-text{animation:none}
+        }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <button class="btn" onclick="window.print()">🖨️ طباعة الكروت</button>
+    <button class="btn" onclick="window.history.back()" style="background:transparent;border:1px solid #9B6CB8;color:#9B6CB8">← رجوع</button>
+</div>
+
+<!-- ===== CARD 1: Discount - Front ===== -->
+<div class="label">كارت الخصم - الوجه</div>
+<div class="card card1-front">
+    <div class="silk" style="background-image:url('images/silk-bg.jpg')"></div>
+    <div class="dim"></div>
+    <div class="geo-pattern"></div>
+    <div class="metallic"></div>
+    <div class="watermark">M</div>
+    <div class="border-outer"></div>
+    <div class="border-inner"></div>
+    <div class="holo-stripe"></div>
+    <div class="gold-t"></div><div class="gold-b"></div>
+    <div class="content">
+        <img src="images/logo-icon.png" class="logo embossed">
+        <div class="limited">عرض حصري · LIMITED EDITION</div>
+        <div class="discount foil-text">20<span>%</span></div>
+        <div class="disc-text">خصم على جميع المنتجات</div>
+        <div class="disc-sub">DISCOUNT ON ALL PRODUCTS</div>
+    </div>
+</div>
+
+<!-- ===== CARD 1: Discount - Back ===== -->
+<div class="label">كارت الخصم - الظهر</div>
+<div class="card card1-back">
+    <div class="silk" style="background-image:url('images/silk-bg.jpg')"></div>
+    <div class="dim"></div>
+    <div class="geo-pattern"></div>
+    <div class="metallic"></div>
+    <div class="watermark">M</div>
+    <div class="border-outer"></div>
+    <div class="border-inner"></div>
+    <div class="holo-stripe"></div>
+    <div class="gold-t"></div><div class="gold-b"></div>
+    <div class="content">
+        <img src="images/logo-icon.png" class="logo embossed">
+        <div class="brand-name">MONTAÑA</div>
+        <div class="website">www.montana.com.eg</div>
+    </div>
+</div>
+
+<!-- ===== CARD 2: Arabic Front ===== -->
+<div class="label">كارت البراند - الوجه (عربي)</div>
+<div class="card card2-front">
+    <div class="silk" style="background-image:url('images/silk-bg.jpg')"></div>
+    <div class="dim"></div>
+    <div class="geo-pattern"></div>
+    <div class="metallic"></div>
+    <div class="watermark">M</div>
+    <div class="border-outer"></div>
+    <div class="border-inner"></div>
+    <div class="holo-stripe"></div>
+    <div class="gold-t"></div><div class="gold-b"></div>
+    <div class="content">
+        <img src="images/logo-icon.png" class="logo embossed">
+        <div class="brand-name">MONTAÑA</div>
+        <div class="tagline">للعناية بالبشرة والتجميل</div>
+        <div class="bar"></div>
+    </div>
+    <div class="footer-info">
+        <span><span class="gold-icon">📍</span> القاهرة، مصر</span>
+        <span><span class="gold-icon">📞</span> 01XX-XXX-XXXX</span>
+        <span><span class="gold-icon">🌐</span> montana.com.eg</span>
+    </div>
+</div>
+
+<!-- ===== CARD 2: English Back ===== -->
+<div class="label">كارت البراند - الظهر (إنجليزي)</div>
+<div class="card card2-back">
+    <div class="silk" style="background-image:url('images/silk-bg.jpg')"></div>
+    <div class="dim"></div>
+    <div class="geo-pattern"></div>
+    <div class="metallic"></div>
+    <div class="watermark">M</div>
+    <div class="border-outer"></div>
+    <div class="border-inner"></div>
+    <div class="holo-stripe"></div>
+    <div class="gold-t"></div><div class="gold-b"></div>
+    <div class="content">
+        <img src="images/logo-icon.png" class="logo embossed">
+        <div class="brand-name">MONTAÑA</div>
+        <div class="tagline">Premium Skincare · Cosmetics</div>
+        <div class="bar"></div>
+    </div>
+    <div class="footer-info">
+        <span><span class="gold-icon">📍</span> Cairo, Egypt</span>
+        <span><span class="gold-icon">📞</span> 01XX-XXX-XXXX</span>
+        <span><span class="gold-icon">🌐</span> montana.com.eg</span>
+    </div>
+</div>
+
+</body>
+</html>

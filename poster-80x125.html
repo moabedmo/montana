@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Montana — بوستر 80×125 سم</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+  @font-face { font-family:'Cormorant Garamond'; src:local('Georgia'); }
+</style>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  width:100%; height:100%;
+  background:#1a1a1a;
+  margin:0; padding:0;
+  overflow:auto;
+}
+
+/* Portrait: 80×125 cm → ratio 16:25
+   Preview at 1890×2953 (1/5 of 300DPI print) */
+#wrapper {
+  width: 1890px;
+  height: 2953px;
+  transform-origin: top left;
+  position: absolute;
+  top:0; left:0;
+}
+
+.poster {
+  width: 1890px;
+  height: 2953px;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Tajawal', sans-serif;
+}
+
+/* ── BACKGROUND ── */
+.bg {
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 20%, #F0E8FF 0%, transparent 55%),
+    radial-gradient(ellipse 100% 70% at 10% 80%, #DDD0F5 0%, transparent 55%),
+    radial-gradient(ellipse 80% 60% at 90% 70%, #E5D8FF 0%, transparent 55%),
+    linear-gradient(170deg, #EDE0FF 0%, #DDD0F5 35%, #D0C2EE 65%, #C8B8E8 100%);
+}
+
+/* subtle shimmer texture */
+.bg-shimmer {
+  position:absolute; inset:0; opacity:0.18;
+  background-image:
+    radial-gradient(ellipse 3px 80px at 20% 30%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(ellipse 2px 120px at 75% 55%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(ellipse 2px 60px at 45% 70%, rgba(255,255,255,0.5) 0%, transparent 100%);
+}
+
+/* top glow */
+.bg-glow-top {
+  position:absolute; top:-100px; left:50%;
+  transform:translateX(-50%);
+  width:1400px; height:800px;
+  background:radial-gradient(ellipse, rgba(255,255,255,0.55) 0%, transparent 70%);
+  border-radius:50%; pointer-events:none;
+}
+
+/* bottom glow */
+.bg-glow-bottom {
+  position:absolute; bottom:-100px; left:50%;
+  transform:translateX(-50%);
+  width:1200px; height:600px;
+  background:radial-gradient(ellipse, rgba(180,140,230,0.3) 0%, transparent 70%);
+  border-radius:50%; pointer-events:none;
+}
+
+/* ── BORDER FRAME ── */
+.frame {
+  position:absolute; inset:38px;
+  border:2.5px solid rgba(255,255,255,0.6);
+  border-radius:4px;
+  pointer-events:none; z-index:30;
+}
+.frame::before {
+  content:'';
+  position:absolute; inset:10px;
+  border:1px solid rgba(255,255,255,0.25);
+  border-radius:2px;
+}
+
+/* ── CORNER ORNAMENTS ── */
+.corner {
+  position:absolute; width:220px; height:220px;
+  z-index:31; pointer-events:none;
+}
+.c-tl { top:0; left:0; }
+.c-tr { top:0; right:0; transform:scaleX(-1); }
+.c-bl { bottom:0; left:0; transform:scaleY(-1); }
+.c-br { bottom:0; right:0; transform:scale(-1,-1); }
+
+/* horizontal ornament lines */
+.hline {
+  position:absolute; left:70px; right:70px; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.7) 20%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 80%, transparent);
+  z-index:20;
+}
+.hline-top    { top:65px; }
+.hline-bottom { bottom:65px; }
+
+/* ── HEADER ── */
+.header {
+  position:absolute;
+  top:0; left:0; right:0;
+  height:380px;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:16px; z-index:10;
+  padding-top:10px;
+}
+
+.logo-area {
+  display:flex; align-items:center; gap:28px;
+  direction:ltr;
+}
+
+.logo-img {
+  height:90px;
+  object-fit:contain;
+  filter: drop-shadow(0 4px 16px rgba(120,80,180,0.3)) brightness(0) invert(1) opacity(0.9);
+}
+
+.vdiv {
+  width:1.5px; height:80px;
+  background:linear-gradient(to bottom, transparent, rgba(255,255,255,0.8), transparent);
+}
+
+.brand-name {
+  font-family:'Cormorant Garamond', serif;
+  font-size:110px; font-weight:300;
+  letter-spacing:0.2em; line-height:1;
+  color:#fff;
+  text-transform:uppercase;
+  text-shadow:0 2px 30px rgba(150,100,220,0.4);
+}
+
+.brand-sub {
+  font-size:28px; font-weight:300;
+  letter-spacing:0.35em;
+  color:rgba(255,255,255,0.85);
+  text-transform:uppercase;
+  font-family:'Cormorant Garamond', serif;
+  text-align:center;
+}
+
+/* tagline badge */
+.tagline-badge {
+  display:flex; align-items:center; gap:18px;
+  background:rgba(255,255,255,0.18);
+  backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.35);
+  border-radius:50px;
+  padding:10px 36px;
+  margin-top:4px;
+}
+
+.tagline-text {
+  font-size:26px; font-weight:400;
+  color:#fff; letter-spacing:0.08em;
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic;
+}
+
+/* dot */
+.bdot { width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,0.6); }
+
+/* ── PRODUCT IMAGE ── */
+.product-wrap {
+  position:absolute;
+  top:340px; bottom:380px;
+  left:60px; right:60px;
+  display:flex; align-items:center; justify-content:center;
+  z-index:5;
+}
+
+.product-img {
+  max-width:100%; max-height:100%;
+  object-fit:contain;
+  filter:drop-shadow(0 30px 80px rgba(100,60,180,0.35))
+         drop-shadow(0 10px 30px rgba(80,40,150,0.25));
+}
+
+/* ── PRODUCT NAMES STRIP ── */
+.products-strip {
+  position:absolute;
+  bottom:200px; left:60px; right:60px;
+  display:flex; justify-content:center; gap:0;
+  z-index:10;
+}
+
+.prod-pill {
+  display:flex; flex-direction:column; align-items:center;
+  padding:14px 24px;
+  flex:1;
+  position:relative;
+}
+
+.prod-pill + .prod-pill::before {
+  content:'';
+  position:absolute; left:0; top:20%; bottom:20%;
+  width:1px;
+  background:linear-gradient(to bottom, transparent, rgba(255,255,255,0.4), transparent);
+}
+
+.prod-num {
+  font-family:'Cormorant Garamond', serif;
+  font-size:20px; color:rgba(255,255,255,0.6);
+  letter-spacing:0.2em;
+}
+
+.prod-en {
+  font-family:'Cormorant Garamond', serif;
+  font-size:24px; color:#fff;
+  letter-spacing:0.04em; text-align:center;
+  line-height:1.2; margin-top:4px;
+}
+
+.prod-ar {
+  font-size:20px; color:rgba(255,255,255,0.8);
+  margin-top:4px; text-align:center; font-weight:400;
+}
+
+/* ── FOOTER ── */
+.footer {
+  position:absolute;
+  bottom:44px; left:70px; right:70px;
+  display:flex; align-items:center; justify-content:space-between;
+  z-index:10;
+}
+
+.footer-left {
+  display:flex; flex-direction:column; gap:4px;
+}
+
+.f-brand {
+  font-family:'Cormorant Garamond', serif;
+  font-size:30px; color:#fff;
+  letter-spacing:0.08em; font-weight:600;
+}
+
+.f-claim {
+  font-size:22px; color:rgba(255,255,255,0.75);
+  font-weight:300; letter-spacing:0.05em;
+}
+
+.footer-center {
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+}
+
+.footer-right {
+  text-align:left; direction:ltr;
+}
+
+.f-social {
+  font-family:'Cormorant Garamond', serif;
+  font-size:28px; color:#fff; letter-spacing:0.1em;
+}
+
+.f-note {
+  font-size:20px; color:rgba(255,255,255,0.75);
+  margin-top:4px; font-weight:300;
+}
+
+/* ── PHARMACY BADGE ── */
+.pharmacy-badge {
+  position:absolute;
+  top:50%; right:52px;
+  transform:translateY(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  z-index:15;
+  writing-mode:vertical-rl;
+}
+
+/* ── FREE FROM badge ── */
+.free-badge {
+  position:absolute;
+  top:430px; left:80px;
+  z-index:15;
+  display:flex; flex-direction:column; align-items:center;
+  gap:6px;
+}
+
+.badge-circle {
+  width:200px; height:200px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.18);
+  backdrop-filter:blur(12px);
+  border:1.5px solid rgba(255,255,255,0.45);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center; padding:20px;
+}
+
+.badge-main {
+  font-family:'Cormorant Garamond', serif;
+  font-size:28px; color:#fff; font-weight:600;
+  line-height:1.2;
+}
+
+.badge-sub {
+  font-size:18px; color:rgba(255,255,255,0.85);
+  margin-top:4px; font-weight:400;
+}
+
+/* watermark */
+.watermark {
+  position:absolute;
+  top:50%; left:50%; transform:translate(-50%,-50%);
+  font-family:'Cormorant Garamond', serif;
+  font-size:280px; font-weight:300;
+  letter-spacing:0.1em; color:rgba(255,255,255,0.06);
+  white-space:nowrap; pointer-events:none; z-index:1;
+  text-transform:uppercase; line-height:1;
+  writing-mode:horizontal-tb;
+}
+</style>
+</head>
+<body>
+
+<div id="wrapper">
+<div class="poster">
+
+  <!-- BG -->
+  <div class="bg"></div>
+  <div class="bg-shimmer"></div>
+  <div class="bg-glow-top"></div>
+  <div class="bg-glow-bottom"></div>
+
+  <!-- WATERMARK -->
+  <div class="watermark">MONTAÑA</div>
+
+  <!-- FRAME -->
+  <div class="frame"></div>
+  <div class="hline hline-top"></div>
+  <div class="hline hline-bottom"></div>
+
+  <!-- CORNERS -->
+  <div class="corner c-tl">
+    <svg viewBox="0 0 220 220" fill="none">
+      <path d="M210 18 L18 18 L18 210" stroke="rgba(255,255,255,0.7)" stroke-width="2.5"/>
+      <path d="M190 18 L190 38 M18 190 L38 190" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+      <circle cx="18" cy="18" r="5" fill="rgba(255,255,255,0.8)"/>
+      <path d="M48 48 Q88 30 108 68 Q128 106 88 116 Q55 124 48 48Z"
+            stroke="rgba(255,255,255,0.4)" stroke-width="1.2" fill="rgba(255,255,255,0.05)"/>
+      <path d="M68 36 Q108 18 128 56" stroke="rgba(255,255,255,0.3)" stroke-width="0.9" fill="none"/>
+      <ellipse cx="86" cy="72" rx="18" ry="10" transform="rotate(-30 86 72)"
+               stroke="rgba(255,255,255,0.3)" stroke-width="0.8" fill="none"/>
+      <circle cx="108" cy="68" r="3.5" fill="rgba(255,255,255,0.5)"/>
+      <circle cx="88" cy="114" r="2.5" fill="rgba(255,255,255,0.4)"/>
+    </svg>
+  </div>
+  <div class="corner c-tr">
+    <svg viewBox="0 0 220 220" fill="none">
+      <path d="M210 18 L18 18 L18 210" stroke="rgba(255,255,255,0.7)" stroke-width="2.5"/>
+      <path d="M190 18 L190 38 M18 190 L38 190" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+      <circle cx="18" cy="18" r="5" fill="rgba(255,255,255,0.8)"/>
+      <path d="M48 48 Q88 30 108 68 Q128 106 88 116 Q55 124 48 48Z"
+            stroke="rgba(255,255,255,0.4)" stroke-width="1.2" fill="rgba(255,255,255,0.05)"/>
+      <ellipse cx="86" cy="72" rx="18" ry="10" transform="rotate(-30 86 72)"
+               stroke="rgba(255,255,255,0.3)" stroke-width="0.8" fill="none"/>
+      <circle cx="108" cy="68" r="3.5" fill="rgba(255,255,255,0.5)"/>
+    </svg>
+  </div>
+  <div class="corner c-bl">
+    <svg viewBox="0 0 220 220" fill="none">
+      <path d="M210 18 L18 18 L18 210" stroke="rgba(255,255,255,0.7)" stroke-width="2.5"/>
+      <path d="M190 18 L190 38 M18 190 L38 190" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+      <circle cx="18" cy="18" r="5" fill="rgba(255,255,255,0.8)"/>
+      <path d="M48 48 Q88 30 108 68 Q128 106 88 116 Q55 124 48 48Z"
+            stroke="rgba(255,255,255,0.4)" stroke-width="1.2" fill="rgba(255,255,255,0.05)"/>
+    </svg>
+  </div>
+  <div class="corner c-br">
+    <svg viewBox="0 0 220 220" fill="none">
+      <path d="M210 18 L18 18 L18 210" stroke="rgba(255,255,255,0.7)" stroke-width="2.5"/>
+      <path d="M190 18 L190 38 M18 190 L38 190" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+      <circle cx="18" cy="18" r="5" fill="rgba(255,255,255,0.8)"/>
+    </svg>
+  </div>
+
+  <!-- ══ HEADER ══ -->
+  <div class="header">
+    <div class="logo-area">
+      <img src="images/logo-full.png" class="logo-img" alt="Montana"
+           onerror="this.style.display='none'">
+      <div class="vdiv"></div>
+      <div>
+        <div class="brand-name">Montaña</div>
+      </div>
+    </div>
+    <div class="brand-sub">Skin Care &nbsp;·&nbsp; عناية بالبشرة</div>
+    <div class="tagline-badge">
+      <div class="bdot"></div>
+      <div class="tagline-text">Nature's Luxury, Science's Precision</div>
+      <div class="bdot"></div>
+      <div class="tagline-text">فخامة الطبيعة بدقة العلم</div>
+      <div class="bdot"></div>
+    </div>
+  </div>
+
+  <!-- ══ PRODUCT IMAGE ══ -->
+  <div class="product-wrap">
+    <img src="images/111.png" class="product-img" alt="Montana Products">
+  </div>
+
+  <!-- free-from badge -->
+  <div class="free-badge">
+    <div class="badge-circle">
+      <div class="badge-main">خالية من<br>الهيدروكينون</div>
+      <div class="badge-sub">Hydroquinone<br>Free</div>
+    </div>
+  </div>
+
+  <!-- ══ PRODUCTS STRIP ══ -->
+  <div class="products-strip">
+
+    <div class="prod-pill">
+      <div class="prod-num">·01·</div>
+      <div class="prod-en">Acne Facial<br>Cleanser</div>
+      <div class="prod-ar">غسول الشوائب</div>
+    </div>
+
+    <div class="prod-pill">
+      <div class="prod-num">·02·</div>
+      <div class="prod-en">Whitening<br>Cleanser</div>
+      <div class="prod-ar">غسول التفتيح</div>
+    </div>
+
+    <div class="prod-pill">
+      <div class="prod-num">·03·</div>
+      <div class="prod-en">Whitening<br>Cream</div>
+      <div class="prod-ar">كريم التفتيح</div>
+    </div>
+
+    <div class="prod-pill">
+      <div class="prod-num">·04·</div>
+      <div class="prod-en">Hand &amp; Body<br>Lotion</div>
+      <div class="prod-ar">لوشن الجسم</div>
+    </div>
+
+  </div>
+
+  <!-- ══ FOOTER ══ -->
+  <div class="footer">
+    <div class="footer-left">
+      <div class="f-brand">مجموعة منتانا</div>
+      <div class="f-claim">للعناية بالبشرة</div>
+    </div>
+
+    <div class="footer-center">
+      <svg width="180" height="24" viewBox="0 0 180 24" fill="none">
+        <line x1="0" y1="12" x2="58" y2="12" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+        <circle cx="66" cy="12" r="4" stroke="rgba(255,255,255,0.6)" stroke-width="1" fill="none"/>
+        <polygon points="90,3 96,12 90,21 84,12" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+        <circle cx="114" cy="12" r="4" stroke="rgba(255,255,255,0.6)" stroke-width="1" fill="none"/>
+        <line x1="122" y1="12" x2="180" y2="12" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+        <circle cx="90" cy="12" r="3" fill="rgba(255,255,255,0.7)"/>
+      </svg>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:rgba(255,255,255,0.55);letter-spacing:0.2em;">MADE IN EGYPT</div>
+    </div>
+
+    <div class="footer-right">
+      <div class="f-social">@montana_skincare</div>
+      <div class="f-note">متاح في جميع الصيدليات</div>
+    </div>
+  </div>
+
+</div><!-- /poster -->
+</div><!-- /wrapper -->
+
+<script>
+(function(){
+  var w = document.getElementById('wrapper');
+  function fit(){
+    var vw = Math.max(window.innerWidth  || document.documentElement.clientWidth  || 800, 100);
+    var vh = Math.max(window.innerHeight || document.documentElement.clientHeight || 600, 100);
+    var bw = 1890, bh = 2953;
+    var s = Math.min(vw/bw, vh/bh);
+    if(s <= 0) s = 0.27;
+    w.style.transform = 'scale('+s+')';
+    document.body.style.width  = Math.round(bw*s)+'px';
+    document.body.style.height = Math.round(bh*s)+'px';
+  }
+  if(document.readyState === 'complete'){ fit(); } else { window.addEventListener('load', fit); }
+  window.addEventListener('resize', fit);
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "Montana Premium Care",
+  "short_name": "Montana",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#9B6CB8",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "images/logo.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "images/logo.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

@@ -1,0 +1,1509 @@
+/* ═══════════════════════════════════════════════════════
+   MONTANA PREMIUM — Complete visual upgrade layer
+   Overrides base styles for a luxury, dimensional feel
+═══════════════════════════════════════════════════════ */
+
+/* ── Premium Font Import ── */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Tajawal:wght@300;400;500;700;900&display=swap');
+
+/* ── Design Tokens ── */
+:root {
+    --gold:        #C9A84C;
+    --gold-light:  #E8D48A;
+    --gold-glow:   rgba(201,168,76,.35);
+    --deep:        #38304c;
+    --deep-mid:    #1E0F3A;
+    --plum:        #2D1B4E;
+    --plum-mid:    #3D2460;
+    --violet:      #7C4FA0;
+    --violet-soft: #A478C8;
+    --silk-white:  rgba(255,255,255,.92);
+    --glass-bg:    rgba(255,255,255,.08);
+    --glass-border:rgba(255,255,255,.14);
+    --glass-hover: rgba(255,255,255,.13);
+    --shadow-gold: 0 8px 40px rgba(201,168,76,.18);
+    --shadow-deep: 0 20px 60px rgba(12,5,25,.4);
+    --glow-violet: 0 0 40px rgba(124,79,160,.3);
+    --premium-radius: 18px;
+    --easing: cubic-bezier(.22,1,.36,1);
+}
+
+/* ── Global Resets for Premium Feel ── */
+* { -webkit-font-smoothing: antialiased; }
+
+body {
+    background: #342f44;
+    position: relative;
+}
+
+/* ── Aurora Background ── */
+#aurora-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    overflow: hidden;
+    background: #342f44;
+}
+
+/* Each aurora blob */
+#aurora-bg::before,
+#aurora-bg::after,
+#aurora-bg .a1,
+#aurora-bg .a2,
+#aurora-bg .a3 {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: .55;
+    will-change: transform;
+}
+
+/* Blob 1 — deep violet, top-left */
+#aurora-bg::before {
+    width: 80vw; height: 70vh;
+    background: radial-gradient(ellipse, #4a1a7a 0%, #2a0a50 50%, transparent 75%);
+    top: -20%; left: -20%;
+    animation: aurora1 18s ease-in-out infinite alternate;
+}
+
+/* Blob 2 — rose-violet, top-right */
+#aurora-bg::after {
+    width: 70vw; height: 65vh;
+    background: radial-gradient(ellipse, #7b2d8b 0%, #3d0f5a 50%, transparent 75%);
+    top: -15%; right: -20%;
+    animation: aurora2 22s ease-in-out infinite alternate;
+}
+
+/* Blob 3 — gold shimmer, center */
+#aurora-bg .a1 {
+    width: 60vw; height: 55vh;
+    background: radial-gradient(ellipse, rgba(180,120,30,.45) 0%, rgba(120,70,10,.2) 50%, transparent 75%);
+    top: 30%; left: 20%;
+    animation: aurora3 25s ease-in-out infinite alternate;
+    opacity: .35;
+}
+
+/* Blob 4 — midnight blue, bottom */
+#aurora-bg .a2 {
+    width: 75vw; height: 60vh;
+    background: radial-gradient(ellipse, #1a0a40 0%, #0d0520 60%, transparent 80%);
+    bottom: -20%; left: 10%;
+    animation: aurora4 20s ease-in-out infinite alternate;
+    opacity: .8;
+}
+
+/* Blob 5 — pink-violet, bottom-right */
+#aurora-bg .a3 {
+    width: 55vw; height: 50vh;
+    background: radial-gradient(ellipse, #6a1a6a 0%, #3a0a3a 55%, transparent 80%);
+    bottom: -10%; right: -10%;
+    animation: aurora5 28s ease-in-out infinite alternate;
+    opacity: .45;
+}
+
+/* Noise grain overlay for texture */
+#aurora-bg .noise {
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    opacity: .04;
+    pointer-events: none;
+}
+
+@keyframes aurora1 {
+    0%   { transform: translate(0, 0)      scale(1);    }
+    33%  { transform: translate(8vw, 6vh)  scale(1.08); }
+    66%  { transform: translate(-4vw, 12vh) scale(.95); }
+    100% { transform: translate(12vw, 4vh) scale(1.12); }
+}
+
+@keyframes aurora2 {
+    0%   { transform: translate(0, 0)        scale(1);    }
+    33%  { transform: translate(-10vw, 8vh)  scale(1.1);  }
+    66%  { transform: translate(5vw, -6vh)   scale(.92);  }
+    100% { transform: translate(-6vw, 14vh)  scale(1.05); }
+}
+
+@keyframes aurora3 {
+    0%   { transform: translate(0, 0)       scale(1);    }
+    50%  { transform: translate(6vw, -10vh) scale(1.15); }
+    100% { transform: translate(-8vw, 8vh)  scale(.9);   }
+}
+
+@keyframes aurora4 {
+    0%   { transform: translate(0, 0)       scale(1);   }
+    40%  { transform: translate(5vw, -8vh)  scale(1.1); }
+    100% { transform: translate(-6vw, -4vh) scale(.95); }
+}
+
+@keyframes aurora5 {
+    0%   { transform: translate(0, 0)        scale(1);    }
+    35%  { transform: translate(-8vw, -10vh) scale(1.08); }
+    100% { transform: translate(10vw, 5vh)   scale(.93);  }
+}
+
+/* ── Promo Banner — Luxury strip ── */
+.promo-banner {
+    background: linear-gradient(90deg, var(--deep-mid) 0%, var(--plum) 40%, var(--plum-mid) 70%, var(--deep-mid) 100%);
+    border-bottom: 1px solid rgba(201,168,76,.25);
+    font-size: 12px;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    position: relative;
+}
+
+.promo-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent 0%, transparent 49%,
+        rgba(201,168,76,.04) 49%, rgba(201,168,76,.04) 51%
+    );
+    pointer-events: none;
+}
+
+/* ── Header — Glassmorphic ── */
+header.header {
+    background: rgba(56, 48, 76,.75) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(201,168,76,.15);
+    box-shadow: 0 4px 30px rgba(12,5,25,.3);
+    position: sticky;
+    top: 0;
+    z-index: 200;
+}
+
+.header-top {
+    background: transparent;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    padding: 7px 0;
+}
+
+.header-top-links a { color: rgba(255,255,255,.55); font-size: 11px; letter-spacing: .3px; }
+.header-top-links a:hover { color: var(--gold-light); }
+
+.header-main {
+    padding: 16px 0;
+    border-bottom: none;
+}
+
+.search-bar input {
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.12);
+    color: #fff;
+    border-radius: 50px;
+    font-size: 13px;
+}
+
+.search-bar input::placeholder { color: rgba(255,255,255,.4); }
+.search-bar input:focus {
+    background: rgba(255,255,255,.1);
+    border-color: rgba(201,168,76,.5);
+    box-shadow: 0 0 0 3px rgba(201,168,76,.1);
+    color: #fff;
+}
+
+.search-bar button {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+    color: var(--deep);
+}
+
+.header-action { color: rgba(255,255,255,.8); }
+.header-action small { color: rgba(255,255,255,.4); }
+.header-action:hover { color: var(--gold-light); }
+.header-action .badge { background: var(--gold); color: var(--deep); font-weight: 800; }
+
+/* ── Navigation Bar — Prestige dark ── */
+.main-nav {
+    background: rgba(56, 48, 76,.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(201,168,76,.12);
+    box-shadow: none;
+    position: sticky;
+    top: 0;
+    z-index: 199;
+}
+
+.nav-item > a {
+    color: rgba(255,255,255,.72);
+    font-size: 13px;
+    letter-spacing: .4px;
+    padding: 15px 20px;
+}
+
+.nav-item > a::after {
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    height: 2px;
+}
+
+.nav-item:hover > a { color: #fff; }
+
+.nav-highlight { color: var(--gold-light) !important; }
+
+/* Mega Menu — Glassy dark */
+.mega-menu {
+    background: rgba(56, 48, 76,.96);
+    backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(201,168,76,.2);
+    box-shadow: 0 32px 80px rgba(0,0,0,.5);
+    padding: 28px 40px;
+}
+
+.mega-col h4 {
+    color: var(--gold-light);
+    border-bottom: 1px solid rgba(201,168,76,.25);
+    font-size: 13px;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.mega-col a { color: rgba(255,255,255,.6); }
+.mega-col a:hover { color: var(--gold-light); }
+
+.mega-featured {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: var(--premium-radius);
+}
+
+.mega-featured h4 { color: #fff; border: none; }
+
+/* ── Features Bar — Glass cards ── */
+.features-bar {
+    background: rgba(255,255,255,.06);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255,255,255,.1);
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    padding: 22px 0;
+}
+
+.feature-item {
+    gap: 14px;
+    padding: 0 20px;
+    border-right: 1px solid rgba(255,255,255,.08);
+}
+.feature-item:last-child { border-right: none; }
+
+.feature-item i {
+    font-size: 26px;
+    color: var(--gold-light);
+    filter: drop-shadow(0 0 8px var(--gold-glow));
+}
+
+.feature-item h4 { color: #fff; font-size: 13px; font-weight: 700; }
+.feature-item p  { color: rgba(255,255,255,.45); font-size: 11px; }
+
+/* ══════════════════════════════════
+   TYPOGRAPHY — all on dark aurora
+══════════════════════════════════ */
+
+/* Global headings — white on dark */
+h1, h2, h3, h4, h5, h6 {
+    color: #fff !important;
+}
+
+/* Body text */
+p, span, li, label, small {
+    color: rgba(255,255,255,.78);
+}
+
+/* Muted / secondary text */
+.text-muted, .subtitle, .desc, .product-desc {
+    color: rgba(255,255,255,.5) !important;
+}
+
+/* Links default */
+a { color: rgba(255,255,255,.8); }
+a:hover { color: var(--gold-light); }
+
+/* ── Section Headers — Editorial ── */
+.section-header { margin-bottom: 52px; }
+
+.section-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 600;
+    color: #fff !important;
+    letter-spacing: -.02em;
+    line-height: 1.15;
+    position: relative;
+    display: inline-block;
+}
+
+.section-header p {
+    color: rgba(255,255,255,.55) !important;
+    font-size: 15px;
+    margin-top: 20px;
+    max-width: 480px;
+    margin-inline: auto;
+    line-height: 1.7;
+}
+
+/* ── Product / Category cards — text dark inside light cards ── */
+.product-card h1,.product-card h2,.product-card h3,.product-card h4,
+.product-card p,.product-card span,.product-card a,
+.product-card .product-name,.product-card .product-brand,
+.product-card .current-price,.product-card .old-price,
+.product-card .rating-count,.product-card small {
+    color: var(--deep) !important;
+}
+.product-card .product-brand  { color: var(--gold) !important; }
+.product-card .current-price  { color: var(--plum) !important; }
+.product-card .old-price      { color: rgba(45,27,78,.45) !important; }
+
+/* Category card text is on image overlay — keep white */
+.category-card h3, .category-card h2,
+.category-card .category-count,
+.category-card .category-link { color: #fff !important; }
+.category-card .category-link:hover { color: var(--gold-light) !important; }
+
+/* Brands section headings */
+.brands-section .section-header h2 { color: #fff !important; }
+.brands-section .section-header p   { color: rgba(255,255,255,.5) !important; }
+.brand-name { color: rgba(255,255,255,.75) !important; }
+
+/* ── Product Cards — 3D Glass ── */
+.product-card {
+    background: rgba(255,255,255,.88);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,.6);
+    border-radius: var(--premium-radius);
+    overflow: hidden;
+    transition: transform .45s var(--easing), box-shadow .45s var(--easing), border-color .3s;
+    transform-style: preserve-3d;
+    will-change: transform;
+    position: relative;
+}
+
+.product-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--premium-radius);
+    background: linear-gradient(135deg, rgba(201,168,76,.07) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity .3s;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.product-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow:
+        0 30px 70px rgba(45,27,78,.22),
+        0 0 0 1px rgba(201,168,76,.2),
+        inset 0 1px 0 rgba(255,255,255,.8);
+    border-color: rgba(201,168,76,.3);
+}
+
+.product-card:hover::before { opacity: 1; }
+
+.product-img {
+    background: linear-gradient(145deg, #f5f0fc 0%, #ece5f8 100%);
+    overflow: hidden;
+}
+
+.product-img img {
+    transition: transform .6s var(--easing);
+}
+
+.product-card:hover .product-img img { transform: scale(1.08); }
+
+/* Quick actions — Elegant */
+.add-to-cart-btn {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%) !important;
+    color: var(--deep) !important;
+    font-weight: 700 !important;
+    letter-spacing: .3px !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 16px var(--gold-glow) !important;
+    transition: all .3s var(--easing) !important;
+    width: auto !important;
+    height: auto !important;
+    font-size: 13px !important;
+    padding: 9px 16px !important;
+}
+
+.add-to-cart-btn:hover {
+    box-shadow: 0 8px 28px rgba(201,168,76,.45) !important;
+    transform: scale(1.02) !important;
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%) !important;
+}
+
+.quick-view, [class*="quick-view"] {
+    background: rgba(56, 48, 76,.82) !important;
+    color: #fff !important;
+    border-radius: 10px !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255,255,255,.12) !important;
+    width: auto !important;
+    height: auto !important;
+    font-size: 12px !important;
+    padding: 9px 14px !important;
+}
+
+.product-brand { color: var(--gold); }
+
+.current-price {
+    color: var(--plum);
+    font-size: 22px;
+    font-weight: 900;
+}
+
+.wishlist-btn {
+    background: rgba(255,255,255,.9);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 12px rgba(0,0,0,.1);
+    border: 1px solid rgba(255,255,255,.6);
+}
+
+.wishlist-btn:hover { color: #e74c3c; transform: scale(1.15); box-shadow: 0 4px 20px rgba(231,76,60,.2); }
+
+/* Badges — luxe language: gold whispers, red screams */
+.badge-sale  { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: var(--deep); font-weight: 800; box-shadow: 0 2px 10px var(--gold-glow); }
+.badge-new   { background: rgba(45,27,61,.88); color: var(--gold-light); border: 1px solid rgba(232,212,138,.5); box-shadow: 0 2px 8px rgba(26,16,48,.35); }
+.badge-best  { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: var(--deep); box-shadow: 0 2px 8px var(--gold-glow); }
+
+/* Tab buttons */
+.tab-btn {
+    background: rgba(255,255,255,.55);
+    border-color: rgba(255,255,255,.4);
+    color: var(--plum);
+    backdrop-filter: blur(6px);
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.tab-btn.active, .tab-btn:hover {
+    background: linear-gradient(135deg, var(--plum), var(--plum-mid));
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 4px 20px rgba(45,27,78,.3);
+}
+
+/* ── Category Cards — 3D Immersive ── */
+.category-card {
+    cursor: pointer;
+    transform-style: preserve-3d;
+}
+
+.category-img {
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(45,27,78,.18);
+    transition: box-shadow .4s var(--easing);
+}
+
+.category-card:hover .category-img {
+    box-shadow: 0 24px 60px rgba(45,27,78,.32), 0 0 0 2px rgba(201,168,76,.25);
+}
+
+.category-overlay {
+    background: linear-gradient(
+        to top,
+        rgba(56, 48, 76,.85) 0%,
+        rgba(45,27,78,.4) 40%,
+        transparent 70%
+    );
+}
+
+.category-count {
+    background: rgba(201,168,76,.15);
+    border: 1px solid rgba(201,168,76,.3);
+    color: var(--gold-light);
+    font-weight: 700;
+    letter-spacing: .5px;
+}
+
+.category-card h3 { color: var(--deep); font-size: 17px; margin-top: 4px; }
+.category-link { color: var(--violet); }
+.category-link:hover { color: var(--gold); }
+
+/* ── Brands Bar — Glassy ── */
+.brands-section {
+    background: rgba(255,255,255,.05);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(255,255,255,.08);
+    border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.brand-logo {
+    background: rgba(255,255,255,.9);
+    border: 1px solid rgba(255,255,255,.5);
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(45,27,78,.08);
+    transition: all .35s var(--easing);
+}
+
+.brand-logo:hover {
+    transform: translateY(-4px) scale(1.04);
+    border-color: rgba(201,168,76,.4);
+    box-shadow: 0 12px 36px rgba(45,27,78,.18), 0 0 0 1px rgba(201,168,76,.25);
+}
+
+/* ── Hero Video — Enhanced ── */
+.hero-video-content h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    letter-spacing: -.01em;
+    font-size: clamp(40px, 7vw, 88px);
+    text-shadow: 0 4px 30px rgba(0,0,0,.5);
+    line-height: 1.1;
+}
+
+.hero-video-content p {
+    font-size: clamp(14px, 1.8vw, 18px);
+    letter-spacing: .5px;
+    color: rgba(255,255,255,.8);
+    max-width: 500px;
+}
+
+/* Hero CTA — Gold */
+.hero-video-content .btn-primary {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%);
+    background-size: 200% auto;
+    color: var(--deep);
+    font-weight: 800;
+    letter-spacing: .6px;
+    padding: 16px 48px;
+    border-radius: 50px;
+    box-shadow: 0 8px 30px var(--gold-glow), 0 0 0 1px rgba(201,168,76,.3);
+    transition: all .4s var(--easing);
+    font-size: 15px;
+}
+
+.hero-video-content .btn-primary:hover {
+    background-position: right center;
+    box-shadow: 0 16px 50px rgba(201,168,76,.45), 0 0 0 1px rgba(201,168,76,.5);
+    transform: translateY(-3px) scale(1.03);
+}
+
+/* ── Primary Button — Gold everywhere ── */
+.btn-primary {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+    color: var(--deep) !important;
+    font-weight: 700;
+    letter-spacing: .4px;
+    box-shadow: 0 6px 24px var(--gold-glow);
+    border-radius: 50px;
+    transition: all .35s var(--easing);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 36px rgba(201,168,76,.45);
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+}
+
+/* Secondary button */
+.btn-outline {
+    border: 1.5px solid var(--gold) !important;
+    color: var(--gold) !important;
+    background: transparent !important;
+    transition: all .3s var(--easing) !important;
+}
+
+.btn-outline:hover {
+    background: var(--gold) !important;
+    color: var(--deep) !important;
+    box-shadow: 0 8px 24px var(--gold-glow) !important;
+}
+
+/* ── Section backgrounds — transparent so aurora shows through ── */
+.categories-section,
+.products-section,
+.brands-section,
+.offers-section,
+.features-bar,
+section,
+.section {
+    background: transparent !important;
+}
+
+/* Subtle frosted panels for readability */
+.categories-section { padding: 90px 0; }
+.products-section   { padding: 90px 0; }
+
+/* Content wrapper gets a very faint dark scrim */
+.container {
+    position: relative;
+    z-index: 1;
+}
+
+/* ── Sections with dark panels ── */
+.offers-section,
+.brands-section,
+.features-bar {
+    position: relative;
+}
+
+/* ── Scroll entrance animation (CSS-driven) ── */
+@keyframes revealUp {
+    from { opacity: 0; transform: translateY(32px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes revealScale {
+    from { opacity: 0; transform: scale(.95); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.product-card {
+    animation: revealScale .5s var(--easing) both;
+}
+
+.products-grid .product-card:nth-child(1) { animation-delay: .05s; }
+.products-grid .product-card:nth-child(2) { animation-delay: .12s; }
+.products-grid .product-card:nth-child(3) { animation-delay: .19s; }
+.products-grid .product-card:nth-child(4) { animation-delay: .26s; }
+
+.category-card {
+    animation: revealUp .6s var(--easing) both;
+}
+.categories-grid .category-card:nth-child(1) { animation-delay: .08s; }
+.categories-grid .category-card:nth-child(2) { animation-delay: .16s; }
+.categories-grid .category-card:nth-child(3) { animation-delay: .24s; }
+
+/* ── Section dividers — Gold hairline ── */
+.categories-section::before,
+.products-section::before {
+    content: '';
+    display: block;
+    width: 80px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0 auto 60px;
+}
+
+/* ── Offer Cards / Promo Banners ── */
+.offer-card, .promo-card, .banner-card {
+    border-radius: 20px;
+    overflow: hidden;
+    transition: transform .4s var(--easing), box-shadow .4s var(--easing);
+    box-shadow: 0 8px 32px rgba(45,27,78,.14);
+}
+
+.offer-card:hover, .promo-card:hover, .banner-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px rgba(45,27,78,.25);
+}
+
+/* ── Footer — Dark luxury ── */
+footer, .footer {
+    background: linear-gradient(170deg, var(--deep) 0%, var(--deep-mid) 60%, #0a0520 100%) !important;
+    border-top: 1px solid rgba(201,168,76,.18);
+    color: rgba(255,255,255,.7);
+    position: relative;
+}
+
+footer::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+}
+
+.footer-heading, .footer h4, .footer h3 {
+    color: var(--gold-light) !important;
+    letter-spacing: .5px;
+}
+
+.footer a { color: rgba(255,255,255,.55) !important; transition: color .25s; }
+.footer a:hover { color: var(--gold-light) !important; }
+
+.footer-bottom {
+    border-top: 1px solid rgba(255,255,255,.07) !important;
+    background: rgba(0,0,0,.25) !important;
+}
+
+.footer-bottom p { color: rgba(255,255,255,.35); font-size: 12px; }
+
+/* ── Star ratings ── */
+.stars { color: var(--gold); filter: drop-shadow(0 0 4px rgba(201,168,76,.4)); }
+
+/* ── Floating premium orb (canvas fallback shape) ── */
+.premium-orb {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: -1;
+    filter: blur(80px);
+    animation: orbDrift 20s ease-in-out infinite alternate;
+}
+
+.premium-orb-1 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(124,79,160,.15) 0%, transparent 70%);
+    top: 20%; left: -10%;
+}
+
+.premium-orb-2 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(201,168,76,.08) 0%, transparent 70%);
+    bottom: 10%; right: -8%;
+    animation-delay: -10s;
+    animation-duration: 25s;
+}
+
+@keyframes orbDrift {
+    0%   { transform: translate(0, 0) scale(1); }
+    33%  { transform: translate(40px, -30px) scale(1.1); }
+    66%  { transform: translate(-20px, 50px) scale(.95); }
+    100% { transform: translate(60px, 20px) scale(1.05); }
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: rgba(56, 48, 76,.1); }
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(var(--gold), var(--plum));
+    border-radius: 10px;
+}
+
+/* ── Loading / hover shimmer on cards ── */
+@keyframes shimmerSlide {
+    0%   { left: -100%; }
+    100% { left: 200%; }
+}
+
+.product-card .shimmer-layer {
+    position: absolute;
+    top: 0; width: 60%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+    pointer-events: none;
+    left: -100%;
+    z-index: 10;
+}
+
+.product-card:hover .shimmer-layer {
+    animation: shimmerSlide .7s ease forwards;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+    }
+}
+
+/* ══════════════════════════════════════════
+   UPGRADE PACK — 7 Premium Enhancements
+══════════════════════════════════════════ */
+
+/* 1. Product cards — glass morphism بدل أبيض صلب */
+.product-card {
+    background: rgba(255,255,255,.88) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255,255,255,.55) !important;
+}
+
+/* 2. Section titles — ذهبي مزخرف */
+/* ✦ قبل العنوان — عنصر منفصل بدل ::before */
+.section-header::before {
+    content: '✦';
+    display: block;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 4px;
+    margin-bottom: 8px;
+    opacity: .75;
+    font-family: serif;
+    text-align: center;
+}
+
+/* الخط الذهبي تحت العنوان مباشرة */
+.section-header h2 {
+    position: relative;
+    padding-bottom: 20px;
+}
+
+/* The single, authoritative underline rule — only `left` is used (never
+   `right`) so it can't be knocked over-constrained under dir="rtl". */
+.section-header h2::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        var(--gold-light) 25%,
+        var(--gold) 50%,
+        var(--gold-light) 75%,
+        transparent 100%
+    );
+    display: block;
+}
+
+/* 3. Category cards — shimmer on hover */
+.category-img {
+    position: relative;
+    overflow: hidden;
+}
+
+.category-img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        115deg,
+        transparent 30%,
+        rgba(255,255,255,.18) 50%,
+        transparent 70%
+    );
+    transform: translateX(-100%);
+    transition: none;
+}
+
+.category-card:hover .category-img::after {
+    animation: catShimmer .7s ease forwards;
+}
+
+@keyframes catShimmer {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(100%); }
+}
+
+/* Category overlay — أقوى */
+.category-overlay {
+    background: linear-gradient(
+        to top,
+        rgba(51, 45, 62,.92) 0%,
+        rgba(66, 53, 90,.55) 45%,
+        rgba(45,27,78,.1) 75%,
+        transparent 100%
+    ) !important;
+}
+
+/* 4. Brand logos — glass داكن بدل أبيض */
+.brand-logo {
+    background: rgba(255,255,255,.07) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255,255,255,.12) !important;
+    border-radius: 16px !important;
+    transition: all .35s var(--easing) !important;
+    filter: brightness(0) invert(1) opacity(.6);
+}
+
+.brand-logo:hover {
+    background: rgba(201,168,76,.1) !important;
+    border-color: rgba(201,168,76,.35) !important;
+    box-shadow: 0 8px 30px rgba(201,168,76,.15) !important;
+    filter: brightness(0) invert(1) opacity(.9);
+    transform: translateY(-4px) scale(1.04) !important;
+}
+
+/* 5. Promo bar — marquee متحرك */
+.promo-banner .promo-text,
+.promo-banner span,
+.promo-banner p {
+    display: inline-block;
+    animation: marqueeRtl 28s linear infinite;
+    white-space: nowrap;
+}
+
+@keyframes marqueeRtl {
+    from { transform: translateX(-30%); }
+    to   { transform: translateX(100%); }
+}
+
+/* 6. Hero CTA — نبضة ذهبية */
+.hero-video-content .btn-primary,
+.hero-video-content a.btn-primary {
+    animation: heroPulse 2.8s ease-in-out infinite;
+}
+
+@keyframes heroPulse {
+    0%, 100% {
+        box-shadow: 0 8px 30px rgba(201,168,76,.35),
+                    0 0 0 0 rgba(201,168,76,.4);
+    }
+    50% {
+        box-shadow: 0 16px 50px rgba(201,168,76,.5),
+                    0 0 0 12px rgba(201,168,76,.0);
+    }
+}
+
+/* 7. Stars — glow ذهبي */
+.stars, .rating, .star-rating,
+[class*="star"], [class*="rating"] i,
+.fa-star, .fas.fa-star {
+    color: var(--gold) !important;
+    filter: drop-shadow(0 0 5px rgba(201,168,76,.6)) !important;
+    text-shadow: 0 0 10px rgba(201,168,76,.5);
+}
+
+/* Bonus — Tab buttons بريميم */
+.tab-btn {
+    border-radius: 50px !important;
+    padding: 8px 22px !important;
+    font-weight: 600 !important;
+    transition: all .3s var(--easing) !important;
+    background: rgba(255,255,255,.07) !important;
+    border: 1px solid rgba(255,255,255,.12) !important;
+    color: rgba(255,255,255,.65) !important;
+}
+
+.tab-btn.active, .tab-btn:hover {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%) !important;
+    color: var(--deep) !important;
+    border-color: transparent !important;
+    box-shadow: 0 6px 24px rgba(201,168,76,.35) !important;
+}
+
+/* Bonus — Badges animation */
+.badge-sale, .badge-new, .badge-best,
+[class*="badge"], .product-badge {
+    animation: badgePop 3s ease-in-out infinite;
+}
+
+@keyframes badgePop {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.06); }
+}
+
+/* ══════════════════════════════════════════
+   FIX PACK — 6 Issues
+══════════════════════════════════════════ */
+
+/* 1. before-after + reviews — glass داكن بدل أبيض */
+.before-after-section,
+.reviews-section,
+.ba-section,
+[class*="before-after"],
+[class*="review"] {
+    background: rgba(56, 48, 76,.55) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-top: 1px solid rgba(255,255,255,.07) !important;
+    border-bottom: 1px solid rgba(255,255,255,.07) !important;
+}
+
+/* text داخلهم يبقى أبيض */
+.before-after-section h1,.before-after-section h2,.before-after-section h3,
+.before-after-section h4,.before-after-section p,.before-after-section span,
+.reviews-section h1,.reviews-section h2,.reviews-section h3,
+.reviews-section h4,.reviews-section p,.reviews-section span {
+    color: rgba(255,255,255,.88) !important;
+}
+
+/* ba-card داخل البفور-أفتر */
+.ba-card {
+    background: rgba(255,255,255,.07) !important;
+    border: 1px solid rgba(255,255,255,.12) !important;
+    border-radius: 18px !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+.ba-card h3, .ba-card h4, .ba-card p, .ba-card span {
+    color: rgba(255,255,255,.85) !important;
+}
+
+/* 2. header-main — glass بدل أبيض */
+.header-main {
+    background: transparent !important;
+}
+
+header.header, .header {
+    background: rgba(51, 45, 64,.82) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+}
+
+/* 3. product-card-horizontal — glass */
+.product-card-horizontal {
+    background: rgba(255,255,255,.88) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border: 1px solid rgba(255,255,255,.5) !important;
+    border-radius: 18px !important;
+    transition: transform .4s var(--easing), box-shadow .4s var(--easing) !important;
+}
+
+.product-card-horizontal:hover {
+    transform: translateY(-6px) !important;
+    box-shadow: 0 20px 50px rgba(45,27,78,.25), 0 0 0 1px rgba(201,168,76,.2) !important;
+}
+
+/* text داخل الكروت الأفقية */
+.product-card-horizontal .product-name,
+.product-card-horizontal h3,
+.product-card-horizontal h4 {
+    color: var(--deep) !important;
+    font-size: 14px !important;
+}
+
+.product-card-horizontal .current-price { color: var(--plum) !important; }
+.product-card-horizontal .product-brand { color: var(--gold) !important; }
+
+/* 4. Product name — 14px minimum */
+.product-name, .product-title, .product-info h3,
+.product-info h4, .product-card h3, .product-card h4 {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    line-height: 1.4 !important;
+    color: var(--deep) !important;
+}
+
+/* 5. Footer — force dark gradient */
+footer, .footer, .site-footer {
+    background: linear-gradient(170deg, #38304c 0%, #1E0F3A 60%, #0a0520 100%) !important;
+    border-top: 1px solid rgba(201,168,76,.2) !important;
+    color: rgba(255,255,255,.7) !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+footer *, .footer * {
+    color: rgba(255,255,255,.65);
+}
+
+footer h2, footer h3, footer h4,
+.footer h2, .footer h3, .footer h4 {
+    color: var(--gold-light) !important;
+}
+
+footer a, .footer a {
+    color: rgba(255,255,255,.5) !important;
+    transition: color .25s !important;
+}
+
+footer a:hover, .footer a:hover {
+    color: var(--gold-light) !important;
+}
+
+/* footer top gold line */
+footer::before, .footer::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+    pointer-events: none;
+}
+
+/* footer bottom strip */
+.footer-bottom, .footer-copy {
+    background: rgba(0,0,0,.3) !important;
+    border-top: 1px solid rgba(255,255,255,.06) !important;
+    color: rgba(255,255,255,.3) !important;
+}
+
+/* 6. Search bar — pill shape */
+.search-bar input,
+.search-bar input[type="text"],
+.search-bar input[type="search"] {
+    border-radius: 50px !important;
+    background: rgba(255,255,255,.08) !important;
+    border: 1px solid rgba(255,255,255,.14) !important;
+    color: #fff !important;
+    padding-inline: 20px !important;
+    transition: all .3s var(--easing) !important;
+}
+
+.search-bar input:focus {
+    background: rgba(255,255,255,.12) !important;
+    border-color: rgba(201,168,76,.5) !important;
+    box-shadow: 0 0 0 3px rgba(201,168,76,.12) !important;
+    outline: none !important;
+}
+
+.search-bar input::placeholder {
+    color: rgba(255,255,255,.35) !important;
+}
+
+.search-bar, .search-form, .header-search {
+    border-radius: 50px !important;
+    overflow: hidden;
+}
+
+.search-bar button, .search-btn {
+    border-radius: 0 50px 50px 0 !important;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light)) !important;
+    color: var(--deep) !important;
+    font-weight: 700 !important;
+    padding-inline: 20px !important;
+    border: none !important;
+}
+
+/* ══════════════════════════════════════════
+   FIX PACK 2 — 6 More Enhancements
+══════════════════════════════════════════ */
+
+/* 1. Modal — glass داكن */
+.modal-content,
+.modal-body,
+[class*="modal-content"],
+[class*="popup-content"],
+[class*="drawer-content"] {
+    background: rgba(56, 48, 76,.92) !important;
+    backdrop-filter: blur(28px) !important;
+    -webkit-backdrop-filter: blur(28px) !important;
+    border: 1px solid rgba(255,255,255,.1) !important;
+    border-radius: 20px !important;
+    color: rgba(255,255,255,.88) !important;
+    box-shadow: 0 32px 80px rgba(0,0,0,.6) !important;
+}
+
+.modal-content *, .modal-body * {
+    color: rgba(255,255,255,.85);
+}
+
+.modal-content h1,.modal-content h2,.modal-content h3,
+.modal-content h4,.modal-body h1,.modal-body h2,
+.modal-body h3,.modal-body h4 {
+    color: #fff !important;
+}
+
+.modal-content .btn-primary, .modal-body .btn-primary {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light)) !important;
+    color: var(--deep) !important;
+}
+
+/* Modal overlay */
+.modal-overlay, .modal-backdrop, [class*="modal-overlay"] {
+    background: rgba(8,3,20,.75) !important;
+    backdrop-filter: blur(6px) !important;
+}
+
+/* Chat widget — full styling lives in chat-widget.js (#chatWindow scoped) */
+
+/* 3. Add-to-cart button — gold gradient */
+.add-to-cart-btn,
+[class*="add-to-cart"],
+[class*="add-cart"],
+.btn-add-cart {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%) !important;
+    color: var(--deep) !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    border: none !important;
+    border-radius: 50px !important;
+    padding: 10px 18px !important;
+    box-shadow: 0 4px 16px rgba(201,168,76,.35) !important;
+    transition: all .3s var(--easing) !important;
+    letter-spacing: .3px !important;
+}
+
+.add-to-cart-btn:hover,
+[class*="add-to-cart"]:hover {
+    box-shadow: 0 8px 28px rgba(201,168,76,.5) !important;
+    transform: translateY(-2px) scale(1.03) !important;
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%) !important;
+}
+
+/* + icon button — only the small icon-only button */
+.product-card .add-btn,
+.product-card .btn-icon {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light)) !important;
+    color: var(--deep) !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 36px !important; height: 36px !important;
+    box-shadow: 0 4px 14px rgba(201,168,76,.4) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all .3s var(--easing) !important;
+}
+
+/* 4. Brand names — أبيض واضح */
+.brand-name,
+.brand-logo span,
+.brand-logo p,
+[class*="brand-logo"] span {
+    color: rgba(255,255,255,.75) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    letter-spacing: .5px !important;
+}
+
+/* 5. Back-to-top — gold circle */
+.back-to-top,
+[class*="back-to-top"],
+[class*="scroll-top"],
+.scroll-up {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light)) !important;
+    color: var(--deep) !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 46px !important; height: 46px !important;
+    box-shadow: 0 6px 24px rgba(201,168,76,.45),
+                0 0 0 1px rgba(201,168,76,.2) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 18px !important;
+    transition: all .35s var(--easing) !important;
+    animation: backTopPulse 3s ease-in-out infinite !important;
+}
+
+.back-to-top:hover {
+    transform: translateY(-4px) scale(1.1) !important;
+    box-shadow: 0 12px 36px rgba(201,168,76,.6) !important;
+}
+
+@keyframes backTopPulse {
+    0%,100% { box-shadow: 0 6px 24px rgba(201,168,76,.45), 0 0 0 0 rgba(201,168,76,.3); }
+    50%      { box-shadow: 0 6px 24px rgba(201,168,76,.45), 0 0 0 8px rgba(201,168,76,.0); }
+}
+
+/* 6. App section — styled */
+.app-screen,
+[class*="app-screen"] {
+    background: rgba(255,255,255,.05) !important;
+    border: 1px solid rgba(255,255,255,.1) !important;
+    border-radius: 24px !important;
+    backdrop-filter: blur(10px) !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,.3),
+                inset 0 1px 0 rgba(255,255,255,.08) !important;
+    overflow: hidden !important;
+}
+
+.app-offer-btn,
+[class*="app-offer-btn"] {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light)) !important;
+    color: var(--deep) !important;
+    border: none !important;
+    border-radius: 50px !important;
+    font-weight: 700 !important;
+    padding: 10px 24px !important;
+    box-shadow: 0 6px 20px rgba(201,168,76,.4) !important;
+}
+
+.app-banners, [class*="app-banner"] {
+    background: transparent !important;
+}
+
+/* App store buttons */
+[class*="app-store"], [class*="google-play"],
+[class*="store-btn"] {
+    background: rgba(255,255,255,.07) !important;
+    border: 1px solid rgba(255,255,255,.15) !important;
+    border-radius: 14px !important;
+    color: #fff !important;
+    transition: all .3s var(--easing) !important;
+}
+
+[class*="app-store"]:hover, [class*="google-play"]:hover {
+    background: rgba(201,168,76,.12) !important;
+    border-color: rgba(201,168,76,.3) !important;
+    box-shadow: 0 6px 20px rgba(201,168,76,.2) !important;
+}
+
+/* ══════════════════════════════════════════
+   WORLD-CLASS PACK — 7 Refinements
+══════════════════════════════════════════ */
+
+/* 1. Letter-spacing — fix Arabic text */
+h1, h2, h3, h4, h5, h6,
+.section-header h2,
+.hero-video-content h1,
+[lang="ar"] h1, [lang="ar"] h2,
+[lang="ar"] h3, [lang="ar"] h4 {
+    letter-spacing: 0 !important;
+}
+
+/* Latin headings get tight negative spacing */
+.brand-name-latin, .logo-text {
+    letter-spacing: -0.02em;
+}
+
+/* 2. Font correction — Tajawal for small UI text */
+.feature-item h4,
+.product-brand,
+.nav-item a,
+.tab-btn,
+.promo-banner,
+.badge-sale, .badge-new, .badge-best,
+[class*="badge"] {
+    font-family: 'Tajawal', sans-serif !important;
+}
+
+/* Cormorant stays ONLY for large display text */
+.section-header h2,
+.hero-video-content h1,
+.category-card h3 {
+    font-family: 'Cormorant Garamond', serif !important;
+}
+
+/* product-brand — Tajawal, gold, proper size */
+.product-brand {
+    font-family: 'Tajawal', sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: .8px !important;
+    text-transform: uppercase !important;
+    color: var(--gold) !important;
+}
+
+/* 3. Card shadows — real depth */
+.product-card {
+    box-shadow:
+        0 4px 6px rgba(0,0,0,.07),
+        0 10px 30px rgba(45,27,78,.12),
+        0 0 0 1px rgba(255,255,255,.4) !important;
+    transition: transform .45s var(--easing),
+                box-shadow .45s var(--easing),
+                border-color .3s !important;
+}
+
+.product-card:hover {
+    box-shadow:
+        0 20px 25px rgba(0,0,0,.1),
+        0 40px 80px rgba(45,27,78,.25),
+        0 0 0 1px rgba(201,168,76,.25),
+        inset 0 1px 0 rgba(255,255,255,.8) !important;
+    transform: translateY(-12px) scale(1.02) !important;
+}
+
+/* 4. Grid gap — premium breathing room */
+.products-grid,
+[class*="products-grid"],
+.grid {
+    gap: 24px !important;
+}
+
+.categories-grid,
+[class*="categories-grid"] {
+    gap: 20px !important;
+}
+
+/* 5. Section h2 — bigger, editorial */
+.section-header h2 {
+    font-size: clamp(32px, 4.5vw, 48px) !important;
+    font-weight: 300 !important;
+    line-height: 1.1 !important;
+}
+
+/* section subtitle bigger too */
+.section-header p {
+    font-size: 16px !important;
+    line-height: 1.8 !important;
+    max-width: 520px !important;
+}
+
+/* 6. Rewards section — generous padding, don't touch content */
+.rewards-section {
+    padding-top: 80px !important;
+    padding-bottom: 80px !important;
+}
+
+/* 7. Dynamic hover shadow on cards already handled in #3 above */
+/* Extra: category cards get same treatment */
+.category-card {
+    transition: transform .45s var(--easing), box-shadow .45s var(--easing) !important;
+}
+
+.category-card:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+    box-shadow:
+        0 20px 50px rgba(0,0,0,.25),
+        0 0 0 1px rgba(201,168,76,.2) !important;
+}
+
+/* BONUS: Input fields — fix remaining white */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+textarea,
+select {
+    background: rgba(255,255,255,.07) !important;
+    border: 1px solid rgba(255,255,255,.14) !important;
+    color: #fff !important;
+    border-radius: 12px !important;
+}
+
+input::placeholder, textarea::placeholder {
+    color: rgba(255,255,255,.35) !important;
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: rgba(201,168,76,.5) !important;
+    box-shadow: 0 0 0 3px rgba(201,168,76,.12) !important;
+    outline: none !important;
+    background: rgba(255,255,255,.1) !important;
+}
+
+/* BONUS: Wishlist button — glass pill */
+.wishlist-btn, [class*="wishlist-btn"] {
+    background: rgba(255,255,255,.12) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255,255,255,.2) !important;
+    border-radius: 50% !important;
+    width: 36px !important; height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all .3s var(--easing) !important;
+    color: rgba(255,255,255,.7) !important;
+}
+
+.wishlist-btn:hover, [class*="wishlist-btn"]:hover {
+    background: rgba(231,76,60,.15) !important;
+    border-color: rgba(231,76,60,.4) !important;
+    color: #e74c3c !important;
+    transform: scale(1.12) !important;
+    box-shadow: 0 4px 16px rgba(231,76,60,.25) !important;
+}
+
+/* BONUS: Feature-item h4 — bigger */
+.feature-item h4 {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+}
+
+/* BONUS: offers-banner padding */
+.offers-banner {
+    padding: 60px 0 !important;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .hero-video-content h1 { font-size: clamp(32px,10vw,52px); }
+    .feature-item { border-right: none; padding: 8px 0; }
+    .product-card:hover { transform: translateY(-5px) scale(1.01); }
+    @keyframes marqueeRtl {
+        from { transform: translateX(-100%); }
+        to   { transform: translateX(100%); }
+    }
+}
+
+/* ── "Coming soon" placeholder — used by sections that don't have
+   real inventory/content yet (categories, new arrivals, reviews) ── */
+.coming-soon-box {
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 48px 32px;
+    text-align: center;
+    border: 1px dashed rgba(201,168,76,.35);
+    border-radius: 20px;
+    background: rgba(255,255,255,.03);
+}
+.coming-soon-box .csp-icon {
+    width: 56px; height: 56px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: var(--deep);
+    font-size: 22px;
+}
+.coming-soon-box h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--gold-light) !important;
+    margin-bottom: 10px;
+}
+.coming-soon-box p {
+    color: rgba(255,255,255,.6) !important;
+    font-size: 14px;
+}

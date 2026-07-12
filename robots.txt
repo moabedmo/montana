@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /admin-login.html
+Disallow: /owner.html
+Disallow: /owner-login.html
+Disallow: /invoice.html
+Disallow: /checkout.html
+Disallow: /account.html
+Disallow: /login.html
+Disallow: /order-confirmation.html
+Disallow: /crm/
+Disallow: /scripts/
+Disallow: /supabase/
+Disallow: /lib/
+Disallow: /node_modules/
+Disallow: /en/checkout.html
+Disallow: /en/account.html
+Disallow: /en/login.html
+Disallow: /en/order-confirmation.html
+
+Sitemap: https://www.montana.com.eg/sitemap.xml

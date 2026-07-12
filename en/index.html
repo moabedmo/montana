@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#9B6CB8">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="icon" href="../images/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="../images/logo.png">
+    <title>Montana | Acne Cleanser & Brightening Cream — Luxury Skincare Egypt</title>
+    <meta name="description" content="Montana Egypt — acne cleanser, brightening cream, and post-laser care. Premium natural formulas with fast nationwide shipping.">
+    <meta name="keywords" content="Montana, skincare Egypt, acne cleanser, brightening cream, luxury skincare">
+    <link rel="canonical" href="https://www.montana.com.eg/en/">
+    <meta property="og:title" content="Montana | Acne Cleanser & Brightening Cream — Luxury Skincare Egypt">
+    <meta property="og:description" content="Montana Egypt — acne cleanser, brightening cream, and post-laser care. Fast shipping across Egypt.">
+    <meta property="og:url" content="https://www.montana.com.eg/en/">
+    <meta property="og:image" content="https://www.montana.com.eg/images/logo.png">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="en_US">
+    <link rel="alternate" hreflang="ar" href="https://www.montana.com.eg/">
+    <link rel="alternate" hreflang="en" href="https://www.montana.com.eg/en/">
+    <link rel="alternate" hreflang="x-default" href="https://www.montana.com.eg/">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preload" href="../css/home.bundle.css?v=7" as="style">
+    <link rel="preload" href="../images/p1.webp" as="image" type="image/webp" fetchpriority="high">
+    <style>
+      body{margin:0;background:#342f44;color:#f5f0fa;font-family:Tajawal,sans-serif}
+      .hero-showcase{min-height:100svh;background:#453f64}
+      .showcase-img{object-fit:contain;max-width:min(100%,420px);aspect-ratio:1/1}
+      @media (max-width:768px),(hover:none){
+        #aurora-bg,.hero-dust,.hero-bokeh,.hero-cursor,.hero-loader,.hero-grain{display:none!important}
+        .hero-silk{opacity:.4}
+      }
+      /* ===== Hero background video — soft cross-fade ===== */
+      .hero-bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right center;z-index:0;opacity:0;transition:opacity .8s ease;will-change:opacity}
+      .hero-bg-video.is-active{opacity:1}
+      @media (prefers-reduced-motion:reduce){.hero-bg-video{transition:opacity .4s ease}}
+      .hero-has-video .hero-video-overlay{
+        background:
+          linear-gradient(to right, rgba(18,10,36,.86) 0%, rgba(18,10,36,.62) 26%, rgba(18,10,36,.18) 52%, transparent 70%),
+          linear-gradient(to bottom, rgba(18,10,36,.35) 0%, transparent 30%, rgba(18,10,36,.55) 100%);
+      }
+      .hero-has-video .showcase-wrap{direction:ltr;display:flex;justify-content:flex-start;align-items:center;max-width:none;margin:0;padding-left:clamp(14px,2vw,32px)}
+      .hero-has-video .showcase-info{direction:rtl;text-align:right;max-width:min(500px,44vw)}
+      .hero-has-video .showcase-stage,
+      .hero-has-video .sc-dots,
+      .hero-has-video .sc-counter{display:none!important}
+      @media (max-width:768px),(hover:none){
+        .hero-has-video .showcase-wrap{direction:rtl;flex-direction:column-reverse;justify-content:flex-end;text-align:center;padding:0 20px 40px}
+        .hero-has-video .showcase-info{max-width:92vw;text-align:center}
+        .hero-has-video .hero-video-overlay{
+          background:linear-gradient(to bottom, rgba(18,10,36,.25) 0%, transparent 35%, rgba(18,10,36,.82) 100%);
+        }
+        .hero-bg-video{object-position:center 20%}
+      }
+    </style>
+    <script src="../js/analytics-config.js"></script>
+    <script src="../js/analytics.js" defer></script>
+    <script src="../js/perf.js?v=2" defer></script>
+    <script src="../js/seo.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
+    <link rel="stylesheet" href="../css/home.bundle.css?v=7" media="print" onload="this.media='all';this.onload=null;">
+    <noscript><link rel="stylesheet" href="../css/home.bundle.css?v=7"></noscript>
+</head>
+<body class="mnt-home mnt-en">
+<!-- Aurora Background -->
+<div id="aurora-bg">
+    <div class="a1"></div>
+    <div class="a2"></div>
+    <div class="a3"></div>
+    <div class="noise"></div>
+</div>
+
+<!-- Always-visible "enter the store" button — the real header (logo,
+     search, cart) lives below the fullscreen hero, so without this a
+     first-time visitor sees nothing but the hero carousel and has no
+     obvious way to start shopping without scrolling first. -->
+<a href="/en/category.html" class="floating-store-btn">
+    <i class="fas fa-store"></i> Shop
+</a>
+
+<!-- Hero Section — premium product showcase carousel -->
+<!-- hero-has-video starts present so CSS hides the static product-image
+     fallback from the very first paint — JS only needs to remove it in the
+     rare case a video genuinely fails to load, instead of adding it after a
+     network check, which left a visible flash of the fallback image first. -->
+<section class="hero-video-section hero-showcase hero-has-video" id="hero-section">
+    <!-- living background stack -->
+    <div class="hero-bg" id="hero-bg" aria-hidden="true">
+        <div class="hero-aurora"><span class="au1" aria-hidden="true"></span><span class="au2" aria-hidden="true"></span><span class="au3" aria-hidden="true"></span></div>
+        <div class="hero-silk"></div>
+        <div class="hero-bokeh" id="hero-bokeh"><s></s><s></s><s></s><s></s><s></s><s></s></div>
+    </div>
+    <video class="hero-bg-video is-active" id="hero-bg-video" poster="/images/p1.webp" muted playsinline preload="none" aria-hidden="true"></video>
+    <video class="hero-bg-video" id="hero-bg-video-b" muted playsinline preload="none" aria-hidden="true"></video>
+    <div class="hero-video-overlay"></div>
+    <div class="hero-grain" aria-hidden="true"></div>
+    <div class="hero-vignette" aria-hidden="true"></div>
+    <div class="hero-brand-chip">
+        <span class="chip-line">MONTAÑA</span>
+        <span class="chip-sub">Natural luxury skincare</span>
+    </div>
+
+    <!-- gold dust -->
+    <div class="hero-dust" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
+
+    <!-- custom cursor (desktop pointer only) -->
+    <div class="hero-cursor" id="hero-cursor" aria-hidden="true"><span class="hc-dot"></span><span class="hc-ring"></span></div>
+
+    <!-- brand intro loader — draws once, then fades -->
+    <div class="hero-loader" id="hero-loader" aria-hidden="true">
+        <svg class="hl-m" viewBox="0 0 100 60"><path d="M5 55 L5 10 L27 40 L50 10 L50 55 M50 55 L50 10 L72 40 L95 10 L95 55" /></svg>
+    </div>
+
+    <div class="sc-wipe" id="sc-wipe" aria-hidden="true"></div>
+
+    <div class="showcase-wrap">
+        <div class="showcase-info">
+            <span class="sc-en" id="sc-en">ACNE FACIAL CLEANSER</span>
+            <h1 class="sc-hero-title" id="sc-hero-title">Luxury care for <em>your skin</em></h1>
+            <p class="sc-product-name" id="sc-name">Acne Facial Cleanser</p>
+            <p class="sc-tagline" id="sc-tag">Gentle, deep cleansing for breakout-prone skin</p>
+            <p class="sc-concerns" id="sc-concerns">Ideal for: Acne · Oily skin · Clogged pores</p>
+            <div class="sc-trust" id="sc-trust">
+                <span class="sc-trust-pill">★ 4.9</span>
+                <span class="sc-trust-pill">Best seller</span>
+                <span class="sc-trust-pill">Paraben-free</span>
+            </div>
+            <div class="sc-cta-row">
+                <a href="/en/product/acne-facial-cleanser" class="sc-cta-ghost" id="sc-cta">Discover product <span class="cta-arrow">←</span></a>
+                <button type="button" class="sc-cta-solid" id="sc-cart-btn" data-id="1" data-name="Acne Facial Cleanser — 200ml" data-image="../images/p1-premium.webp" data-price="285" data-slug="acne-facial-cleanser"><i class="fas fa-shopping-bag"></i> Add to bag</button>
+                <span class="sc-price-chip sc-price-chip--gold"><span id="sc-price">285</span> <small>EGP</small></span>
+            </div>
+            <div class="sc-dots" id="sc-dots"></div>
+        </div>
+        <div class="showcase-stage" id="sc-stage">
+            <div class="showcase-spot" aria-hidden="true"></div>
+            <div class="showcase-tilt" id="sc-tilt">
+                <div class="showcase-pedestal" aria-hidden="true"></div>
+                <div class="showcase-glow"></div>
+                <img class="showcase-img active" id="sc-img-a" src="../images/p1.webp" alt="Cleanser Montana لعلاج حب الشباب" width="420" height="420" fetchpriority="high" decoding="async">
+                <img class="showcase-img" id="sc-img-b" src="../images/p2.webp" alt="" aria-hidden="true" width="420" height="420" loading="lazy" decoding="async">
+                <img class="showcase-reflection" id="sc-ref-a" src="../images/p1.webp" alt="" aria-hidden="true" width="420" height="120" decoding="async">
+                <div class="showcase-floor-glow" aria-hidden="true"></div>
+                <div class="showcase-shadow"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sc-counter" aria-hidden="true"><span id="sc-cur">01</span><span class="sc-sep">/</span><span class="sc-total">06</span></div>
+
+    <a href="#shop-by-concern" class="hero-video-scroll" id="hero-scroll-cue">
+        <span class="hero-scroll-label">Shop by concern</span>
+        <div class="scroll-arrow"></div>
+    </a>
+</section>
+
+<!-- Premium bridge: cinematic hero → store -->
+<section class="lux-bridge lux-reveal" aria-label="Montana values">
+    <div class="lux-bridge-inner container">
+        <p class="lux-bridge-tagline">Crafted with natural actives — visible results from first use</p>
+        <div class="lux-trust-row">
+            <div class="lux-trust-item"><span class="lux-trust-icon">◆</span><span>Certified manufacturing</span></div>
+            <div class="lux-trust-item"><span class="lux-trust-icon">◆</span><span>Paraben-free</span></div>
+            <div class="lux-trust-item"><span class="lux-trust-icon">◆</span><span>Sensitive-skin friendly</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- Top Promotional Banner -->
+<div class="promo-banner promo-banner--lux">
+    <div class="promo-slider">
+        <span>🎁 Buy 2, get the 3rd free</span>
+        <span>🚚 Free shipping on orders over 500 EGP</span>
+        <span>✨ Exclusive discounts for Montana Rewards members</span>
+    </div>
+</div>
+
+<!-- Header -->
+<header class="header">
+    <div class="header-top">
+        <div class="container">
+            <div class="header-top-links">
+                <a href="/en/account.html"><i class="fas fa-map-marker-alt"></i> Track order</a>
+                <a href="/en/contact.html"><i class="fas fa-headset"></i> Customer care</a>
+                <a href="/" class="lang-switch" data-locale-toggle="1"><i class="fas fa-globe"></i> العربية</a>
+            </div>
+        </div>
+    </div>
+    <div class="header-main">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="/"><img loading="lazy" decoding="async" src="../images/logo.png" alt="Montana" class="logo-img"></a>
+                </div>
+                <div class="search-bar">
+                    <input type="text" placeholder="Search products, brands, and more…" onclick="window.location.href='search.html'" readonly>
+                    <button><i class="fas fa-search"></i></button>
+                </div>
+                <div class="header-actions">
+                    <a href="/en/category.html" class="header-action header-store-btn">
+                        <i class="fas fa-store"></i>
+                        <small>Shop</small>
+                    </a>
+                    <a href="/en/account.html" class="header-action">
+                        <i class="far fa-heart"></i>
+                        <span class="badge">3</span>
+                        <small>Wishlist</small>
+                    </a>
+                    <a href="/en/login.html" class="header-action">
+                        <i class="far fa-user"></i>
+                        <small>Account</small>
+                    </a>
+                    <a href="javascript:void(0)" onclick="switchScreen('cart')" class="header-action cart-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="badge cart-badge" style="display:none">0</span>
+                        <small>Bag</small>
+                    </a>
+                    <a href="/" class="header-action lang-switch-action" data-locale-toggle="1" title="Arabic">
+                        <i class="fas fa-globe"></i>
+                        <small>العربية</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <nav class="main-nav">
+        <div class="container">
+            <ul class="nav-links">
+                <li class="nav-item"><a href="/en/category.html"><i class="fas fa-spa"></i> Skincare</a></li>
+                <li class="nav-item nav-soon" title="Coming soon"><a href="javascript:void(0)"><i class="fas fa-pump-soap"></i> Hair care <small>(Coming soon)</small></a></li>
+                <li class="nav-item nav-soon" title="Coming soon"><a href="javascript:void(0)"><i class="fas fa-heartbeat"></i> Health & wellness <small>(Coming soon)</small></a></li>
+                <li class="nav-item nav-soon" title="Coming soon"><a href="javascript:void(0)"><i class="fas fa-baby"></i> Kids <small>(Coming soon)</small></a></li>
+                <li class="nav-item nav-soon" title="Coming soon"><a href="javascript:void(0)"><i class="fas fa-temperature-low"></i> Therm <small>(Coming soon)</small></a></li>
+                <li class="nav-item"><a href="#offers" class="nav-highlight"><i class="fas fa-fire"></i> Offers</a></li>
+                <li class="nav-item"><a href="#rewards"><i class="fas fa-crown"></i> Montana Rewards</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<!-- Mobile Menu Toggle -->
+<div class="mobile-menu-toggle" id="mobileToggle">
+    <i class="fas fa-bars"></i>
+</div>
+
+<!-- ===== APP-ONLY ELEMENTS (visible only on mobile) ===== -->
+<div class="app-only">
+    <!-- Stories -->
+    <div class="app-stories">
+        <div class="app-story">
+            <div class="app-story-ring"><img loading="lazy" decoding="async" src="../images/p1-premium.webp" alt="Today's deals"></div>
+            <span>Today's deals</span>
+        </div>
+        <div class="app-story">
+            <div class="app-story-ring"><img loading="lazy" decoding="async" src="../images/p2-premium.webp" alt="New"></div>
+            <span>New</span>
+        </div>
+        <div class="app-story">
+            <div class="app-story-ring"><img loading="lazy" decoding="async" src="../images/p3-premium.webp" alt="Skincare"></div>
+            <span>Skincare</span>
+        </div>
+        <div class="app-story">
+            <div class="app-story-ring"><img loading="lazy" decoding="async" src="../images/p4-premium.webp" alt="Best seller"></div>
+            <span>Best seller</span>
+        </div>
+        <div class="app-story">
+            <div class="app-story-ring"><img loading="lazy" decoding="async" src="../images/p5-premium.webp" alt="Tips"></div>
+            <span>Tips</span>
+        </div>
+        <div class="app-story">
+            <div class="app-story-ring"><img loading="lazy" decoding="async" src="../images/p6-premium.webp" alt="Wellness"></div>
+            <span>Wellness</span>
+        </div>
+    </div>
+
+    <!-- Quick Actions Grid -->
+    <div class="app-actions">
+        <a href="/en/category.html" class="app-action">
+            <div class="app-action-icon skin"><i class="fas fa-spa"></i></div>
+            <span>Skin</span>
+        </a>
+        <a href="/en/category.html" class="app-action">
+            <div class="app-action-icon hair"><i class="fas fa-pump-soap"></i></div>
+            <span>Hair</span>
+        </a>
+        <a href="/en/category.html" class="app-action">
+            <div class="app-action-icon health"><i class="fas fa-heartbeat"></i></div>
+            <span>Health</span>
+        </a>
+        <a href="/en/category.html" class="app-action">
+            <div class="app-action-icon kids"><i class="fas fa-baby"></i></div>
+            <span>Kids</span>
+        </a>
+        <a href="/en/category.html" class="app-action">
+            <div class="app-action-icon therm"><i class="fas fa-temperature-low"></i></div>
+            <span>Therm</span>
+        </a>
+        <a href="javascript:void(0)" onclick="switchScreen('offers')" class="app-action">
+            <div class="app-action-icon offers"><i class="fas fa-fire"></i></div>
+            <span>Offers</span>
+        </a>
+        <a href="/en/account.html" class="app-action">
+            <div class="app-action-icon rewards"><i class="fas fa-crown"></i></div>
+            <span>Rewards</span>
+        </a>
+        <a href="/en/category.html" class="app-action">
+            <div class="app-action-icon brands"><i class="fas fa-tags"></i></div>
+            <span>Brands</span>
+        </a>
+    </div>
+
+    <div class="app-divider"></div>
+</div>
+
+<!-- Features Bar -->
+<section class="features-bar">
+    <div class="container">
+        <div class="feature-item">
+            <i class="fas fa-truck-fast"></i>
+            <div>
+                <h4>Fast delivery</h4>
+                <p>24–48 hour shipping</p>
+            </div>
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-shield-halved"></i>
+            <div>
+                <h4>Authentic products</h4>
+                <p>100% genuine guarantee</p>
+            </div>
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-rotate-left"></i>
+            <div>
+                <h4>Easy returns</h4>
+                <p>Within 14 days</p>
+            </div>
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-credit-card"></i>
+            <div>
+                <h4>Secure checkout</h4>
+                <p>Multiple payment options</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Brand Story -->
+<section class="lux-section lux-section--dark lux-reveal" id="brand-story">
+    <div class="container">
+        <div class="lux-brand-grid">
+            <div class="lux-brand-visual">
+                <img loading="lazy" decoding="async" src="../images/p1-premium.webp" alt="Montana products">
+            </div>
+            <div class="lux-brand-copy">
+                <span class="lux-eyebrow">The Montana story</span>
+                <h2>Egypt's first cream-to-foam cleanser — luxury care backed by science</h2>
+                <p>From the start, Montana has crafted formulas that unite potent natural actives with clinically developed compositions — without compromise on quality or elegance.</p>
+                <p>Every product undergoes rigorous testing to deliver tangible results: deep cleansing, even brightening, and barrier repair — in a simple daily ritual.</p>
+                <div class="lux-stats">
+                    <div><span class="lux-stat-num">6</span><span class="lux-stat-label">Specialist formulas</span></div>
+                    <div><span class="lux-stat-num">14</span><span class="lux-stat-label">Days to visible results</span></div>
+                    <div><span class="lux-stat-num">100%</span><span class="lux-stat-label">Authentic products</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Skincare Ritual -->
+<section class="lux-section lux-section--dark lux-reveal" id="ritual">
+    <div class="container">
+        <div class="lux-section-head">
+            <span class="lux-eyebrow">The Montana ritual</span>
+            <h2>Three steps — skin that glows</h2>
+            <p>A complete care system: cleanse, treat, and protect — designed to work in harmony</p>
+        </div>
+        <div class="lux-ritual-steps">
+            <div class="lux-ritual-step lux-reveal lux-reveal-delay-1">
+                <div class="lux-ritual-num">01 — Cleanse</div>
+                <div class="lux-ritual-img"><img src="../images/p1.webp" alt="Facial cleanser"></div>
+                <h3>Facial Cleanser</h3>
+                <p>Gentle, deep cleansing — the foundation of every successful routine</p>
+            </div>
+            <div class="lux-ritual-step lux-reveal lux-reveal-delay-2">
+                <div class="lux-ritual-num">02 — Treat</div>
+                <div class="lux-ritual-img"><img loading="lazy" decoding="async" src="../images/p3.webp" alt="Brightening cream"></div>
+                <h3>Brightening Cream</h3>
+                <p>Even tone and daily radiance for your complexion</p>
+            </div>
+            <div class="lux-ritual-step lux-reveal lux-reveal-delay-3">
+                <div class="lux-ritual-num">03 — Protect</div>
+                <div class="lux-ritual-img"><img loading="lazy" decoding="async" src="../images/p5.webp" alt="Post-laser cream"></div>
+                <h3>Post-Laser Cream</h3>
+                <p>Soothe and restore — protection after professional treatments</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Ingredients Spotlight -->
+<section class="lux-section lux-section--warm lux-reveal" id="ingredients">
+    <div class="container">
+        <div class="lux-section-head">
+            <span class="lux-eyebrow lux-eyebrow--accent">Active ingredients</span>
+            <h2>The science behind every formula</h2>
+            <p>Carefully selected natural actives — supported by proven compositions</p>
+        </div>
+        <div class="lux-ing-grid">
+            <div class="lux-ing-card lux-reveal lux-reveal-delay-1">
+                <div class="lux-ing-body">
+                    <div class="lux-ing-product">Acne Cleanser</div>
+                    <ul class="lux-ing-list">
+                        <li><span class="lux-ing-dot"></span>Salicylic Acid</li>
+                        <li><span class="lux-ing-dot"></span>Niacinamide (B3)</li>
+                        <li><span class="lux-ing-dot"></span>Argan Oil, Jojoba Oil</li>
+                    </ul>
+                    <a href="/en/product/acne-facial-cleanser" class="lux-ing-link">Discover product <i class="fas fa-arrow-left"></i></a>
+                </div>
+                <div class="lux-ing-visual">
+                    <img src="../images/p1.webp" alt="Acne Facial Cleanser">
+                </div>
+            </div>
+            <div class="lux-ing-card lux-reveal lux-reveal-delay-2">
+                <div class="lux-ing-body">
+                    <div class="lux-ing-product">Brightening Cleanser</div>
+                    <ul class="lux-ing-list">
+                        <li><span class="lux-ing-dot"></span>Licorice Extract</li>
+                        <li><span class="lux-ing-dot"></span>Vitamin C</li>
+                        <li><span class="lux-ing-dot"></span>ZN PCA &amp; Niacinamide</li>
+                    </ul>
+                    <a href="/en/product/whitening-cleanser" class="lux-ing-link">Discover product <i class="fas fa-arrow-left"></i></a>
+                </div>
+                <div class="lux-ing-visual">
+                    <img loading="lazy" decoding="async" src="../images/p2.webp" alt="Brightening Cleanser">
+                </div>
+            </div>
+            <div class="lux-ing-card lux-reveal lux-reveal-delay-3">
+                <div class="lux-ing-body">
+                    <div class="lux-ing-product">Brightening Cream</div>
+                    <ul class="lux-ing-list">
+                        <li><span class="lux-ing-dot"></span>Alpha Arbutin</li>
+                        <li><span class="lux-ing-dot"></span>Vitamins C &amp; E</li>
+                        <li><span class="lux-ing-dot"></span>Licorice Extract</li>
+                    </ul>
+                    <a href="/en/product/whitening-cream" class="lux-ing-link">Discover product <i class="fas fa-arrow-left"></i></a>
+                </div>
+                <div class="lux-ing-visual">
+                    <img loading="lazy" decoding="async" src="../images/p3.webp" alt="Brightening cream">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Shop by skin concern (from indications.docx) -->
+<section class="lux-section lux-section--dark lux-reveal" id="shop-by-concern">
+    <div class="container">
+        <div class="lux-section-head">
+            <span class="lux-eyebrow">Care guide</span>
+            <h2>Shop by concern</h2>
+            <p>Select your concern and discover the right Montaña protocol</p>
+        </div>
+        <div class="lux-concerns-grid" id="concernsGrid"></div>
+        <p class="lux-concerns-disclaimer"></p>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories-section" id="categories">
+    <div class="container">
+        <div class="section-header">
+            <h2>Shop by category</h2>
+            <p>Explore our curated care collection</p>
+        </div>
+        <div class="categories-grid" style="max-width:300px;margin:0 auto;grid-template-columns:1fr">
+            <div class="category-card">
+                <div class="category-img">
+                    <img loading="lazy" decoding="async" src="../images/category-skincare.webp" alt="Skincare">
+                    <div class="category-overlay">
+                        <span class="category-count">6 products</span>
+                    </div>
+                </div>
+                <h3>Skincare</h3>
+                <a href="/en/category.html" class="category-link">Shop now <i class="fas fa-arrow-left"></i></a>
+            </div>
+        </div>
+        <div class="coming-soon-box" style="margin-top:24px">
+            <div class="csp-icon"><i class="fas fa-hourglass-half"></i></div>
+            <h3>Coming soon</h3>
+            <p>New Montana categories on the way</p>
+        </div>
+        <div class="lux-roadmap lux-reveal">
+            <p><strong>Coming soon:</strong> Hair care · Health & wellness · Kids · Therm</p>
+        </div>
+    </div>
+</section>
+
+<!-- Trending Products -->
+<section class="products-section lux-reveal" id="trending">
+    <div class="container">
+        <div class="section-header">
+            <h2>Trending now</h2>
+            <p>Our most-loved formulas</p>
+            <div class="section-tabs">
+                <button class="tab-btn active" data-tab="all">All</button>
+                <button class="tab-btn" data-tab="skincare">Skin</button>
+                <button class="tab-btn" data-tab="haircare">Hair</button>
+                <button class="tab-btn" data-tab="health">Health</button>
+                <button class="tab-btn" data-tab="kids">Kids</button>
+                <button class="tab-btn" data-tab="therm">Therm</button>
+            </div>
+        </div>
+        <div class="products-grid" id="trendingGrid">
+            <p class="home-grid-loading" style="grid-column:1/-1;text-align:center;padding:48px 16px;color:rgba(245,240,250,.6);">جارٍ تحميل المنتجات…</p>
+        </div>
+        <div class="section-footer">
+            <a href="/en/category.html" class="btn-outline">View all products <i class="fas fa-arrow-left"></i></a>
+        </div>
+    </div>
+</section>
+
+<!-- New Arrivals -->
+<section class="products-section new-arrivals">
+    <div class="container">
+        <div class="section-header">
+            <h2>New arrivals</h2>
+            <p>The latest additions to our collection</p>
+        </div>
+        <div class="coming-soon-box">
+            <div class="csp-icon"><i class="fas fa-hourglass-half"></i></div>
+            <h3>Coming soon</h3>
+            <p>New Montana launches arriving soon</p>
+        </div>
+    </div>
+</section>
+
+<!-- Before & After Section -->
+<section class="before-after-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Results that speak</h2>
+            <p>See the difference yourself — drag the slider to compare before and after</p>
+        </div>
+        <div class="ba-grid">
+            <!-- Slider 1 - Acne Facial Cleanser -->
+            <div class="ba-card">
+                <div class="ba-slider" data-ba>
+                    <div class="ba-after">
+                        <img loading="lazy" decoding="async" src="../images/ba1-after.webp" alt="After">
+                        <span class="ba-label ba-label-after">After</span>
+                    </div>
+                    <div class="ba-before">
+                        <img loading="lazy" decoding="async" src="../images/ba1-before.webp" alt="Before">
+                        <span class="ba-label ba-label-before">Before</span>
+                    </div>
+                    <div class="ba-handle">
+                        <div class="ba-handle-line"></div>
+                        <div class="ba-handle-circle">
+                            <i class="fas fa-arrows-left-right"></i>
+                        </div>
+                        <div class="ba-handle-line"></div>
+                    </div>
+                </div>
+                <div class="ba-info">
+                    <span class="ba-product-tag">Acne care</span>
+                    <h3>Acne Facial Cleanser</h3>
+                    <p>Clearer, cleaner skin in as little as 14 days</p>
+                    <a href="/en/product/acne-facial-cleanser" class="btn-primary">تسوق المنتج</a>
+                </div>
+            </div>
+            <!-- Slider 2 - Brightening Cleanser -->
+            <div class="ba-card">
+                <div class="ba-slider" data-ba>
+                    <div class="ba-after">
+                        <img loading="lazy" decoding="async" src="../images/ba2-after.webp" alt="After">
+                        <span class="ba-label ba-label-after">After</span>
+                    </div>
+                    <div class="ba-before">
+                        <img loading="lazy" decoding="async" src="../images/ba2-before.webp" alt="Before">
+                        <span class="ba-label ba-label-before">Before</span>
+                    </div>
+                    <div class="ba-handle">
+                        <div class="ba-handle-line"></div>
+                        <div class="ba-handle-circle">
+                            <i class="fas fa-arrows-left-right"></i>
+                        </div>
+                        <div class="ba-handle-line"></div>
+                    </div>
+                </div>
+                <div class="ba-info">
+                    <span class="ba-product-tag">Brightening</span>
+                    <h3>Brightening & Tone-Evening Cleanser</h3>
+                    <p>Even, radiant skin — helps fade dark spots and discoloration</p>
+                    <a href="/en/product/whitening-cleanser" class="btn-primary">تسوق المنتج</a>
+                </div>
+            </div>
+            
+            <div class="ba-card">
+                <div class="ba-slider" data-ba>
+                    <div class="ba-after">
+                        <img loading="lazy" decoding="async" src="../images/ba3-after.webp" alt="After">
+                        <span class="ba-label ba-label-after">After</span>
+                    </div>
+                    <div class="ba-before">
+                        <img loading="lazy" decoding="async" src="../images/ba3-before.webp" alt="Before">
+                        <span class="ba-label ba-label-before">Before</span>
+                    </div>
+                    <div class="ba-handle">
+                        <div class="ba-handle-line"></div>
+                        <div class="ba-handle-circle">
+                            <i class="fas fa-arrows-left-right"></i>
+                        </div>
+                        <div class="ba-handle-line"></div>
+                    </div>
+                </div>
+                <div class="ba-info">
+                    <span class="ba-product-tag">Post-laser</span>
+                    <h3>Post-Laser Cream</h3>
+                    <p>Soothes, repairs, and restores — redness can fade in days</p>
+                    <a href="/en/product/post-laser-cream" class="btn-primary">تسوق المنتج</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="rewards-section" id="rewards">
+    <div class="container">
+        <div class="rewards-content">
+            <div class="rewards-text">
+                <span class="rewards-badge"><i class="fas fa-crown"></i> Montana Rewards</span>
+                <h2>Join our rewards program</h2>
+                <p>Earn points with every purchase and redeem for exclusive discounts and complimentary products</p>
+                <div class="rewards-perks">
+                    <div class="perk">
+                        <i class="fas fa-gift"></i>
+                        <span>Welcome gift</span>
+                    </div>
+                    <div class="perk">
+                        <i class="fas fa-percent"></i>
+                        <span>Member-only savings</span>
+                    </div>
+                    <div class="perk">
+                        <i class="fas fa-star"></i>
+                        <span>Early access to offers</span>
+                    </div>
+                    <div class="perk">
+                        <i class="fas fa-truck"></i>
+                        <span>Free shipping</span>
+                    </div>
+                </div>
+                <a href="/en/account.html" class="btn-primary btn-lg">Join free</a>
+            </div>
+            <div class="rewards-visual">
+                <div class="rewards-card">
+                    <div class="rc-header">
+                        <span>MONTANA</span>
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div class="rc-body">
+                        <div class="rc-name">Gold membership</div>
+                        <div class="rc-points">2,450 points</div>
+                    </div>
+                    <div class="rc-footer">
+                        <span>****  ****  ****  1234</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Reviews Section -->
+<section class="reviews-section lux-section lux-section--light lux-reveal">
+    <div class="container">
+        <div class="section-header">
+            <span class="lux-eyebrow lux-eyebrow--accent">Client voices</span>
+            <h2>What our clients say</h2>
+        </div>
+        <div class="lux-reviews-summary">
+            <div class="lux-reviews-score">4.8<span>/5</span></div>
+            <div class="lux-reviews-count">From 1,200+ verified reviews</div>
+        </div>
+        <div class="lux-reviews-grid">
+            <div class="lux-review-card lux-reveal lux-reveal-delay-1">
+                <div class="lux-review-stars">★★★★★</div>
+                <p class="lux-review-text">"The Acne Cleanser transformed my skin in two weeks — clearer, fewer breakouts. Gentle scent and never drying."</p>
+                <div class="lux-review-author">
+                    <div class="lux-review-avatar">S</div>
+                    <div>
+                        <div class="lux-review-name">Sarah M.</div>
+                        <div class="lux-review-meta">Acne Facial Cleanser</div>
+                    </div>
+                </div>
+            </div>
+            <div class="lux-review-card lux-reveal lux-reveal-delay-2">
+                <div class="lux-review-stars">★★★★★</div>
+                <p class="lux-review-text">"The Brightening Cleanser genuinely evens my tone — three weeks in and spots are fading. The packaging feels so luxe."</p>
+                <div class="lux-review-author">
+                    <div class="lux-review-avatar">N</div>
+                    <div>
+                        <div class="lux-review-name">Norhan A.</div>
+                        <div class="lux-review-meta">Brightening Cleanser</div>
+                    </div>
+                </div>
+            </div>
+            <div class="lux-review-card lux-reveal lux-reveal-delay-3">
+                <div class="lux-review-stars">★★★★☆</div>
+                <p class="lux-review-text">"Post-Laser Cream saved my skin after treatment — redness gone in two days. Montana is a brand I trust now."</p>
+                <div class="lux-review-author">
+                    <div class="lux-review-avatar">M</div>
+                    <div>
+                        <div class="lux-review-name">Mariam K.</div>
+                        <div class="lux-review-meta">Post-Laser Recovery Cream</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter -->
+<section class="newsletter-section">
+    <div class="container">
+        <div class="newsletter-content">
+            <i class="fas fa-envelope-open-text"></i>
+            <h2>Join our newsletter</h2>
+            <p>Receive the latest offers and exclusive savings straight to your inbox</p>
+            <form class="newsletter-form" id="newsletterForm">
+                <input type="email" placeholder="Enter your email address">
+                <button type="submit">Subscribe</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <div class="footer-logo">
+                    <img loading="lazy" decoding="async" src="../images/logo.png" alt="Montana" class="footer-logo-img">
+                </div>
+                <p>Your destination for premium, authentic skincare in Egypt. World-class formulas at accessible prices.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-tiktok"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Quick links</h3>
+                <a href="/en/about.html">About us</a>
+                <a href="/en/contact.html">Contact us</a>
+                <a href="/en/faq.html">FAQ</a>
+                <a href="/en/privacy.html">Privacy policy</a>
+                <a href="/en/terms.html">Terms & conditions</a>
+            </div>
+            <div class="footer-col">
+                <h3>Customer service</h3>
+                <a href="/en/tracking.html">Track order</a>
+                <a href="/en/faq.html">Return policy</a>
+                <a href="/en/faq.html">Shipping & delivery</a>
+                <a href="/en/account.html">My account</a>
+            </div>
+            <div class="footer-col">
+                <h3>Get in touch</h3>
+                <div class="contact-info">
+                    <p><i class="fas fa-phone"></i> 01234567890</p>
+                    <p><i class="fas fa-envelope"></i> info@montana.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Cairo, Egypt</p>
+                    <p><i class="fas fa-clock"></i> 9 AM – 11 PM daily</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="payment-methods">
+                <i class="fab fa-cc-visa"></i>
+                <i class="fab fa-cc-mastercard"></i>
+                <i class="fab fa-cc-amex"></i>
+                <i class="fab fa-cc-apple-pay"></i>
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 20'%3E%3Ctext x='5' y='15' fill='%23999' font-size='10' font-family='Arial'%3ECOD%3C/text%3E%3C/svg%3E" alt="Cash on Delivery" style="height:24px;vertical-align:middle;">
+            </div>
+            <p>&copy; 2026 Montana. All rights reserved. Commercial register no. 12345</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Back to Top -->
+<button class="back-to-top" id="backToTop"><i class="fas fa-chevron-up"></i></button>
+
+<!-- Quick View Modal -->
+<div class="modal-overlay" id="quickViewModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        <div class="modal-body">
+            <div class="modal-img">
+                <img src="" alt="Product" id="modalImg">
+            </div>
+            <div class="modal-info">
+                <span class="product-brand" id="modalBrand"></span>
+                <p class="modal-product-name" id="modalName">Product details</p>
+                <div class="product-rating">
+                    <div class="stars" id="modalStars"></div>
+                    <span id="modalReviewCount"></span>
+                </div>
+                <p class="modal-desc" id="modalDesc"></p>
+                <div class="modal-ingredients" id="modalIngredients"></div>
+                <div class="product-price" id="modalPrice"></div>
+                <div class="modal-quantity">
+                    <button onclick="changeQty(-1)">-</button>
+                    <input type="number" value="1" min="1" id="modalQty">
+                    <button onclick="changeQty(1)">+</button>
+                </div>
+                <button class="btn-primary btn-lg w-full" id="modalAddBtn"><i class="fas fa-shopping-bag"></i> Add to bag</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== APP SCREENS (Mobile Only) ===== -->
+
+<!-- Categories Screen -->
+<div class="app-screen" id="screen-categories">
+    <div class="app-screen-header">
+        <div class="app-screen-title">الأقسام</div>
+    </div>
+    <div class="app-screen-body">
+        <a href="/en/category.html" class="app-cat-item">
+            <div class="app-cat-icon skin"><i class="fas fa-spa"></i></div>
+            <div class="app-cat-text">
+                <h3>Skincare</h3>
+                <span>6 products</span>
+            </div>
+            <i class="fas fa-chevron-left app-cat-arrow"></i>
+        </a>
+
+        <div class="coming-soon-box" style="margin-top:16px">
+            <div class="csp-icon"><i class="fas fa-hourglass-half"></i></div>
+            <h3>Coming soon</h3>
+            <p>New Montana categories on the way</p>
+        </div>
+    </div>
+</div>
+
+<!-- Offers Screen -->
+<div class="app-screen" id="screen-offers">
+    <div class="app-screen-header">
+        <div class="app-screen-title">Offers</div>
+    </div>
+    <div class="app-screen-body">
+        <div class="app-offer-banner" style="background: linear-gradient(135deg, var(--accent), var(--accent-dark));">
+            <div class="app-offer-info">
+                <span class="app-offer-tag">Limited offer</span>
+                <h3>Up to 20% off</h3>
+                <p>On selected Montana formulas</p>
+                <button class="app-offer-btn" onclick="switchScreen('home')">Shop now</button>
+            </div>
+        </div>
+
+        <div class="app-section-title"><h3>Today's deals</h3></div>
+
+        <a href="/en/product/acne-facial-cleanser" class="app-offer-card" style="text-decoration:none;color:inherit">
+            <div class="app-offer-discount">-19%</div>
+            <img loading="lazy" decoding="async" src="../images/p1-premium.webp" alt="Acne Facial Cleanser">
+            <div class="app-offer-details">
+                <span class="app-offer-brand">Montaña</span>
+                <h4>Acne Facial Cleanser</h4>
+                <div class="app-offer-prices">
+                    <span class="app-price-new">285 EGP</span>
+                    <span class="app-price-old">350 EGP</span>
+                </div>
+            </div>
+        </a>
+
+        <a href="/en/product/whitening-cream" class="app-offer-card" style="text-decoration:none;color:inherit">
+            <div class="app-offer-discount">-20%</div>
+            <img loading="lazy" decoding="async" src="../images/p3-premium.webp" alt="Brightening Cream with Alpha Arbutin">
+            <div class="app-offer-details">
+                <span class="app-offer-brand">Montaña</span>
+                <h4>Brightening Cream with Alpha Arbutin</h4>
+                <div class="app-offer-prices">
+                    <span class="app-price-new">240 EGP</span>
+                    <span class="app-price-old">300 EGP</span>
+                </div>
+            </div>
+        </a>
+
+        <a href="/en/product/post-laser-cream" class="app-offer-card" style="text-decoration:none;color:inherit">
+            <div class="app-offer-discount">-17%</div>
+            <img loading="lazy" decoding="async" src="../images/p5-premium.webp" alt="Post-Laser Recovery Cream with Sesame Oil">
+            <div class="app-offer-details">
+                <span class="app-offer-brand">Montaña</span>
+                <h4>Post-Laser Recovery Cream with Sesame Oil</h4>
+                <div class="app-offer-prices">
+                    <span class="app-price-new">265 EGP</span>
+                    <span class="app-price-old">320 EGP</span>
+                </div>
+            </div>
+        </a>
+
+        <a href="/en/product/anti-scar-gel" class="app-offer-card" style="text-decoration:none;color:inherit">
+            <div class="app-offer-discount">-15%</div>
+            <img loading="lazy" decoding="async" src="../images/p6-premium.webp" alt="Anti-Scar Silicone Gel">
+            <div class="app-offer-details">
+                <span class="app-offer-brand">Montaña</span>
+                <h4>Anti-Scar Silicone Gel</h4>
+                <div class="app-offer-prices">
+                    <span class="app-price-new">340 EGP</span>
+                    <span class="app-price-old">400 EGP</span>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Favorites Screen -->
+<div class="app-screen" id="screen-favorites">
+    <div class="app-screen-header">
+        <div class="app-screen-title">المفضلة</div>
+    </div>
+    <div class="app-screen-body">
+        <div class="app-empty-state">
+            <div class="app-empty-icon"><i class="far fa-heart"></i></div>
+            <h3>Your wishlist is empty</h3>
+            <p>Tap ♡ on any product to save it here</p>
+            <button class="app-empty-btn" onclick="switchScreen('home')">Browse products</button>
+        </div>
+    </div>
+</div>
+
+<!-- Cart Screen -->
+<div class="app-screen" id="screen-cart">
+    <div class="app-screen-header">
+        <div class="app-screen-title">سلة التسوق</div>
+    </div>
+    <div class="app-screen-body" id="appCartBody"></div>
+</div>
+<script>
+function renderAppCart() {
+    const body = document.getElementById('appCartBody');
+    if (!body || !window.Cart) return;
+    const items = window.Cart.getItems();
+    if (!items.length) {
+        body.innerHTML = `
+            <div class="app-empty-state">
+                <div class="app-empty-icon"><i class="fas fa-shopping-bag"></i></div>
+                <h3>Your bag is empty</h3>
+                <p>Add your favourites and start shopping</p>
+                <button class="app-empty-btn" onclick="switchScreen('home')">Browse products</button>
+            </div>`;
+        return;
+    }
+    const subtotal = window.Cart.getTotal();
+    body.innerHTML = items.map(it => `
+        <div class="app-cart-item">
+            <img src="${it.image}" alt="">
+            <div class="app-cart-info">
+                <h4>${it.name}</h4>
+                <span class="app-cart-brand">Montaña</span>
+                <div class="app-cart-bottom">
+                    <span class="app-cart-price">${Math.round(it.price * it.qty)} EGP</span>
+                    <div class="app-cart-qty">
+                        <button onclick="Cart.setQty(${it.id}, ${it.qty - 1}); renderAppCart()">-</button>
+                        <span>${it.qty}</span>
+                        <button onclick="Cart.setQty(${it.id}, ${it.qty + 1}); renderAppCart()">+</button>
+                    </div>
+                </div>
+            </div>
+            <button class="app-cart-remove" onclick="Cart.remove(${it.id}); renderAppCart()"><i class="fas fa-trash-alt"></i></button>
+        </div>
+    `).join('') + `
+        <div class="app-cart-summary">
+            <div class="app-cart-row"><span>Subtotal</span><span>${Math.round(subtotal)} EGP</span></div>
+            <div class="app-cart-row"><span>Shipping</span><span class="app-free">Calculated at checkout</span></div>
+            <div class="app-cart-row app-cart-total"><span>Total</span><span>${Math.round(subtotal)} EGP</span></div>
+            <button class="app-checkout-btn" onclick="window.location.href='checkout.html'">
+                <i class="fas fa-lock"></i> Secure checkout
+            </button>
+        </div>`;
+}
+window.renderAppCart = renderAppCart;
+</script>
+
+<!-- Mobile Bottom Navigation -->
+<nav class="mobile-bottom-nav">
+    <a href="#" class="active">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </a>
+    <a href="/en/category.html">
+        <i class="fas fa-store"></i>
+        <span>Shop</span>
+    </a>
+    <a href="#offers">
+        <i class="fas fa-fire"></i>
+        <span>Offers</span>
+    </a>
+    <a href="/en/category.html">
+        <i class="far fa-heart"></i>
+        <span>Wishlist</span>
+        <span class="nav-badge wishlist-badge nav-badge-wishlist" style="display:none">0</span>
+    </a>
+    <a href="#">
+        <i class="fas fa-shopping-bag"></i>
+        <span>Bag</span>
+        <span class="nav-badge cart-badge" style="display:none">0</span>
+    </a>
+</nav>
+
+<script>window.MONTANA_LOCALE="en";</script>
+<script type="module" src="../js/i18n/bootstrap-en.js"></script>
+<script src="../js/lang-switch.js?v=2" defer></script>
+<script src="../js/cart.js" defer></script>
+<script type="module" src="../js/en-render-home.js?v=2"></script>
+<script type="module" src="../js/hero-showcase.js"></script>
+<script src="../js/wishlist.js" defer></script>
+<script src="../js/storefront-ui.js?v=3" defer></script>
+<script src="../script.js" defer></script>
+<script src="../js/home-premium.js" defer></script>
+<script type="module" src="../js/home.js"></script>
+</body>
+</html>

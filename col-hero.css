@@ -1,0 +1,211 @@
+/* ==================== COLUMNS HERO - TRANSFORM REVEAL ==================== */
+.col-hero {
+    position: relative;
+    height: 520px;
+    overflow: hidden;
+    background: #2D1B3D;
+}
+
+/* Before image - bad skin - on TOP, visible first */
+.col-hero-before {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background-size: cover;
+    background-position: center;
+}
+
+/* After image - good skin + product - UNDERNEATH */
+.col-hero-after {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background-size: cover;
+    background-position: center;
+}
+
+/* Colored columns that sweep left to right */
+.col-sweeper {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    pointer-events: none;
+}
+
+.col-bar {
+    flex: 1;
+    transform: translateX(-110%);
+    opacity: 0;
+}
+
+/* Column colors */
+.col-bar:nth-child(1) { background: #2D1B3D; }
+.col-bar:nth-child(2) { background: #3A2550; }
+.col-bar:nth-child(3) { background: #9B6CB8; }
+.col-bar:nth-child(4) { background: #7d53a0; }
+.col-bar:nth-child(5) { background: #b48bcc; }
+.col-bar:nth-child(6) { background: #5e3d7a; }
+.col-bar:nth-child(7) { background: #9B6CB8; }
+
+/* Before image gets cut away column by column */
+.col-hero-before {
+    clip-path: inset(0 0 0 0);
+}
+
+/* ===== ANIMATION KEYFRAMES ===== */
+
+/* Each column: slides in from left, pauses, slides out to right */
+@keyframes colSweep {
+    0% { transform: translateX(-110%); opacity: 1; }
+    40% { transform: translateX(0%); opacity: 1; }
+    60% { transform: translateX(0%); opacity: 1; }
+    100% { transform: translateX(110%); opacity: 0; }
+}
+
+/* Before image clip - shrinks from left to right */
+@keyframes clipReveal {
+    0% { clip-path: inset(0 0 0 0); }
+    100% { clip-path: inset(0 0 0 100%); }
+}
+
+/* RUNNING state */
+.col-hero.running .col-bar {
+    animation: colSweep 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.col-hero.running .col-bar:nth-child(1) { animation-delay: 0s; }
+.col-hero.running .col-bar:nth-child(2) { animation-delay: 0.12s; }
+.col-hero.running .col-bar:nth-child(3) { animation-delay: 0.24s; }
+.col-hero.running .col-bar:nth-child(4) { animation-delay: 0.36s; }
+.col-hero.running .col-bar:nth-child(5) { animation-delay: 0.48s; }
+.col-hero.running .col-bar:nth-child(6) { animation-delay: 0.60s; }
+.col-hero.running .col-bar:nth-child(7) { animation-delay: 0.72s; }
+
+.col-hero.running .col-hero-before {
+    animation: clipReveal 1.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+}
+
+/* Final content overlay - fades in at end */
+.col-hero-final {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+}
+
+.col-hero.done .col-hero-final {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Final layout: product LEFT, text CENTER, beautiful face RIGHT (already in the after image) */
+.col-hero-final-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(90deg, rgba(45,27,61,0.6) 0%, rgba(45,27,61,0.3) 40%, transparent 70%);
+}
+
+.col-hero-final-content {
+    text-align: center;
+    max-width: 450px;
+    padding: 24px;
+}
+
+.col-hero-badge {
+    display: inline-block;
+    background: var(--accent, #9B6CB8);
+    color: #fff;
+    padding: 6px 20px;
+    border-radius: 24px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    box-shadow: 0 3px 12px rgba(155,108,184,0.35);
+}
+
+.col-hero-final-content h2 {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.3;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+}
+
+.col-hero-final-content p {
+    font-size: 15px;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 22px;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.3);
+}
+
+.col-hero-btn {
+    display: inline-flex;
+    background: #fff;
+    color: #2D1B3D;
+    padding: 13px 34px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.col-hero-btn:hover {
+    transform: translateY(-3px);
+    background: var(--accent, #9B6CB8);
+    color: #fff;
+}
+
+/* ===== Navigation ===== */
+.col-hero-nav {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    gap: 10px;
+}
+
+.col-dot {
+    width: 32px; height: 4px; border-radius: 4px;
+    background: rgba(255,255,255,0.25);
+    cursor: pointer; overflow: hidden; position: relative;
+}
+.col-dot.active { width: 48px; background: rgba(255,255,255,0.2); }
+.col-dot-fill {
+    position: absolute; top: 0; right: 0; bottom: 0;
+    width: 0%; background: #fff; border-radius: 4px;
+}
+.col-dot.active .col-dot-fill { width: 100%; transition: width 6s linear; }
+
+.col-hero-counter {
+    position: absolute; bottom: 24px; right: 32px; z-index: 10;
+    display: flex; align-items: baseline; gap: 4px;
+    font-family: 'Playfair Display', serif; color: #fff;
+}
+.col-hero-counter #colCurrent { font-size: 28px; font-weight: 700; }
+.col-sep { font-size: 14px; opacity: 0.4; margin: 0 2px; }
+.col-total { font-size: 14px; opacity: 0.4; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .col-hero { height: auto; aspect-ratio: 16/9; }
+    .col-hero-counter { display: none; }
+    .col-hero-final-content h2 { font-size: 22px; }
+    .col-hero-final-content p { font-size: 12px; }
+    .col-hero-btn { padding: 10px 24px; font-size: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .col-bar, .col-hero-before { animation: none !important; }
+}

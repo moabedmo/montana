@@ -1,0 +1,75 @@
+/* ═══════════════════════════════════════════════════════
+   MONTANA DARK THEME — makes inner pages (checkout, product,
+   account, etc.) match the homepage's dark purple/gold theme.
+   Load AFTER styles.css/pages.css/premium.css.
+═══════════════════════════════════════════════════════ */
+
+:root {
+    --primary: #2D1B4E;
+    --primary-light: #3D2460;
+    --accent: #C9A84C;
+    --accent-light: #E8D48A;
+    --accent-dark: #B8943D;
+    --text: rgba(255,255,255,.92);
+    --text-light: rgba(255,255,255,.68);
+    --text-muted: rgba(255,255,255,.45);
+    --bg: rgba(255,255,255,.06);
+    --bg-light: rgba(255,255,255,.05);
+    --bg-warm: rgba(255,255,255,.05);
+    --border: rgba(255,255,255,.16);
+    --border-light: rgba(255,255,255,.1);
+}
+
+body {
+    background: #342f44 !important;
+}
+
+/* ── pages.css hardcoded light literals ── */
+.page-header,
+.pd-bottom-bar {
+    background: rgba(56, 48, 76,.85) !important;
+    border-color: rgba(255,255,255,.08) !important;
+}
+
+.page-back,
+.page-action-btn {
+    background: rgba(255,255,255,.08) !important;
+}
+
+.cat-product-card,
+.pd-size,
+.auth-tab.active,
+.auth-divider span,
+.auth-social {
+    background: rgba(255,255,255,.06) !important;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    background: rgba(255,255,255,.05) !important;
+    color: var(--text) !important;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: var(--text-muted) !important;
+}
+
+.auth-tabs {
+    background: rgba(255,255,255,.05) !important;
+}
+
+.cat-product-img,
+.pd-gallery {
+    background: rgba(255,255,255,.04) !important;
+}
+
+.cat-wishlist {
+    background: rgba(56, 48, 76,.7) !important;
+}
+
+.srch-bar,
+.faq-search {
+    background: rgba(255,255,255,.05) !important;
+}

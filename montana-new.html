@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MONTAÑA | Premium Skincare</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet"></noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--purple:#9B6CB8;--dark:#2D1B3D;--gold:#C5A55A;--cream:#EDE6F5;--text:#1a1a1a;--muted:#888}
+        body{font-family:'Tajawal',sans-serif;color:var(--text);background:#F3EEF8;overflow-x:hidden}
+        html{scroll-behavior:smooth}
+
+        /* ===== NAV ===== */
+        .mn-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:24px 48px;display:flex;align-items:center;justify-content:space-between;transition:all 0.5s}
+        .mn-nav.scrolled{background:rgba(243,238,248,0.97);backdrop-filter:blur(20px);padding:16px 48px;box-shadow:0 1px 0 rgba(155,108,184,0.08)}
+        .mn-nav-logo img{height:36px;filter:brightness(0) invert(1);transition:all 0.3s}
+        .mn-nav.scrolled .mn-nav-logo img{filter:none;height:30px}
+        .mn-nav-links{display:flex;gap:36px;list-style:none}
+        .mn-nav-links a{text-decoration:none;color:rgba(255,255,255,0.85);font-size:12px;font-weight:500;letter-spacing:2px;text-transform:uppercase;transition:all 0.3s;position:relative}
+        .mn-nav.scrolled .mn-nav-links a{color:var(--dark)}
+        .mn-nav-links a::after{content:'';position:absolute;bottom:-4px;right:0;width:0;height:1px;background:var(--gold);transition:width 0.4s}
+        .mn-nav-links a:hover::after{width:100%}
+        .mn-nav-actions{display:flex;gap:20px}
+        .mn-nav-actions a{color:rgba(255,255,255,0.85);font-size:17px;text-decoration:none;transition:all 0.3s}
+        .mn-nav.scrolled .mn-nav-actions a{color:var(--dark)}
+
+        /* ===== HERO VIDEO ===== */
+        .mn-hero{height:100vh;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+        .mn-hero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+        .mn-hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(45,27,61,0.3) 0%,rgba(45,27,61,0.5) 100%)}
+        .mn-hero-content{position:relative;z-index:2;text-align:center;max-width:650px;padding:0 24px}
+        .mn-hero-label{font-size:11px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:24px;font-weight:500;opacity:0;animation:fadeUp 1s 0.5s forwards}
+        .mn-hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,6vw,68px);font-weight:300;color:#fff;line-height:1.1;margin-bottom:20px;opacity:0;animation:fadeUp 1s 0.8s forwards}
+        .mn-hero-sub{font-size:15px;color:rgba(255,255,255,0.75);margin-bottom:40px;line-height:1.9;opacity:0;animation:fadeUp 1s 1.1s forwards}
+        .mn-hero-btn{display:inline-flex;align-items:center;gap:10px;padding:16px 48px;border:1px solid rgba(255,255,255,0.3);color:#fff;text-decoration:none;font-size:11px;letter-spacing:3px;text-transform:uppercase;transition:all 0.4s;opacity:0;animation:fadeUp 1s 1.4s forwards}
+        .mn-hero-btn:hover{background:#EDE6F5;color:var(--dark);border-color:#EDE6F5}
+
+        .mn-scroll-hint{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px;color:rgba(255,255,255,0.4);font-size:10px;letter-spacing:3px;text-transform:uppercase}
+        .mn-scroll-line{width:1px;height:36px;background:rgba(255,255,255,0.2);position:relative;overflow:hidden}
+        .mn-scroll-line::after{content:'';position:absolute;top:-100%;width:1px;height:100%;background:rgba(255,255,255,0.8);animation:scrollLine 2s ease-in-out infinite}
+
+        @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes scrollLine{0%{top:-100%}50%{top:100%}100%{top:-100%}}
+
+        /* ===== SECTION ===== */
+        .mn-section{padding:100px 48px}
+        .mn-label{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;font-weight:500}
+        .mn-title{font-family:'Cormorant Garamond',serif;font-size:clamp(30px,4vw,46px);font-weight:400;color:var(--dark);line-height:1.2;margin-bottom:16px}
+        .mn-desc{font-size:14px;color:var(--muted);max-width:480px;line-height:1.9;margin-bottom:48px}
+        .mn-center{text-align:center}
+        .mn-center .mn-desc{margin:0 auto 48px}
+
+        /* ===== FEATURED PRODUCT ===== */
+        .mn-featured{padding:100px 48px;background:rgba(155,108,184,0.08)}
+        .mn-featured-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;max-width:1100px;margin:0 auto}
+        .mn-featured-img{overflow:hidden;border-radius:2px}
+        .mn-featured-img img{width:100%;height:520px;object-fit:cover;transition:transform 1.5s cubic-bezier(0.16,1,0.3,1)}
+        .mn-featured-img:hover img{transform:scale(1.04)}
+        .mn-featured-num{font-family:'Cormorant Garamond',serif;font-size:72px;font-weight:300;color:rgba(155,108,184,0.12);line-height:1;margin-bottom:16px}
+        .mn-featured-name{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;margin-bottom:14px;color:var(--dark)}
+        .mn-featured-sub{font-size:14px;color:var(--muted);line-height:1.9;margin-bottom:24px;max-width:400px}
+        .mn-featured-price{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--purple);margin-bottom:28px}
+        .mn-btn{display:inline-flex;align-items:center;gap:8px;padding:13px 32px;background:var(--dark);color:#fff;text-decoration:none;font-size:11px;letter-spacing:2px;text-transform:uppercase;transition:all 0.3s}
+        .mn-btn:hover{background:var(--purple)}
+
+        /* ===== PRODUCTS GRID ===== */
+        .mn-products{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;max-width:1100px;margin:0 auto}
+        .mn-product{text-align:center;transition:transform 0.6s cubic-bezier(0.16,1,0.3,1)}
+        .mn-product:hover{transform:translateY(-10px)}
+        .mn-product-img{position:relative;overflow:hidden;margin-bottom:20px;background:rgba(155,108,184,0.08);aspect-ratio:3/4}
+        .mn-product-img img{width:100%;height:100%;object-fit:cover;transition:transform 1s cubic-bezier(0.16,1,0.3,1)}
+        .mn-product:hover img{transform:scale(1.06)}
+        .mn-product-img .mn-quick{position:absolute;bottom:0;left:0;right:0;background:rgba(45,27,61,0.9);color:#fff;padding:14px;font-size:11px;letter-spacing:2px;text-transform:uppercase;text-align:center;cursor:pointer;transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.16,1,0.3,1)}
+        .mn-product:hover .mn-quick{transform:translateY(0)}
+        .mn-product h3{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:400;margin-bottom:6px}
+        .mn-product .mn-price{font-size:15px;color:var(--purple);font-weight:700}
+
+        /* ===== IMAGE + TEXT SPLIT ===== */
+        .mn-split{display:grid;grid-template-columns:1fr 1fr;min-height:500px}
+        .mn-split-img{overflow:hidden}
+        .mn-split-img img,.mn-split-img video{width:100%;height:100%;object-fit:cover}
+        .mn-split-text{display:flex;flex-direction:column;justify-content:center;padding:60px;background:rgba(155,108,184,0.08)}
+
+        /* ===== TRUST ===== */
+        .mn-trust{padding:80px 48px;background:var(--dark);color:#fff}
+        .mn-trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;max-width:900px;margin:0 auto;text-align:center}
+        .mn-trust-num{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:300;color:var(--gold);margin-bottom:10px}
+        .mn-trust-title{font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+        .mn-trust-desc{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.8}
+
+        /* ===== GALLERY STRIP ===== */
+        .mn-gallery{display:flex;overflow:hidden;height:400px}
+        .mn-gallery img{flex:1;min-width:25%;object-fit:cover;transition:flex 0.6s ease}
+        .mn-gallery img:hover{flex:2}
+
+        /* ===== NEWSLETTER ===== */
+        .mn-newsletter{padding:100px 48px;background:linear-gradient(135deg,var(--dark),#1a0e24);text-align:center;color:#fff}
+        .mn-newsletter .mn-title{color:#fff}
+        .mn-nl-form{display:flex;gap:0;max-width:460px;margin:0 auto;border:1px solid rgba(255,255,255,0.15)}
+        .mn-nl-form input{flex:1;padding:16px 20px;background:none;border:none;color:#fff;font-size:14px;font-family:'Tajawal';outline:none}
+        .mn-nl-form input::placeholder{color:rgba(255,255,255,0.3)}
+        .mn-nl-form button{padding:16px 28px;background:var(--gold);border:none;color:var(--dark);font-size:11px;letter-spacing:2px;text-transform:uppercase;font-family:'Tajawal';font-weight:700;cursor:pointer;transition:background 0.3s}
+        .mn-nl-form button:hover{background:#EDE6F5}
+
+        /* ===== FOOTER ===== */
+        .mn-footer{padding:60px 48px 20px;border-top:1px solid rgba(0,0,0,0.05)}
+        .mn-footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;max-width:1100px;margin:0 auto 36px}
+        .mn-footer img{height:28px;margin-bottom:14px}
+        .mn-footer p{font-size:12px;color:var(--muted);line-height:1.9}
+        .mn-footer h4{font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;color:var(--dark)}
+        .mn-footer a{display:block;font-size:12px;color:var(--muted);text-decoration:none;padding:3px 0;transition:color 0.3s}
+        .mn-footer a:hover{color:var(--purple)}
+        .mn-footer-bottom{text-align:center;padding-top:20px;border-top:1px solid rgba(0,0,0,0.05);font-size:10px;color:var(--muted);letter-spacing:1px}
+
+        /* ===== REVEAL ===== */
+        .rv{opacity:0;transform:translateY(50px);transition:opacity 0.9s ease,transform 0.9s cubic-bezier(0.16,1,0.3,1)}
+        .rv.show{opacity:1;transform:translateY(0)}
+        .rv-d1{transition-delay:0.1s}.rv-d2{transition-delay:0.2s}.rv-d3{transition-delay:0.3s}.rv-d4{transition-delay:0.4s}.rv-d5{transition-delay:0.5s}.rv-d6{transition-delay:0.6s}
+
+        /* ===== PROGRESS BAR ===== */
+        .mn-progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--purple),var(--gold));z-index:200;width:0%}
+
+        /* ===== RESPONSIVE ===== */
+        @media(max-width:768px){
+            .mn-nav{padding:16px 20px}
+            .mn-nav-links{display:none}
+            .mn-section{padding:60px 20px}
+            .mn-featured-grid,.mn-split{grid-template-columns:1fr}
+            .mn-featured-img img{height:300px}
+            .mn-products{grid-template-columns:1fr 1fr;gap:14px}
+            .mn-trust-grid{grid-template-columns:1fr;gap:24px}
+            .mn-gallery{height:200px}
+            .mn-footer-grid{grid-template-columns:1fr 1fr;gap:20px}
+            .mn-hero-title{font-size:32px}
+        }
+    </style>
+</head>
+<body>
+
+<!-- Progress Bar -->
+<div class="mn-progress" id="progressBar"></div>
+
+<!-- Nav -->
+<nav class="mn-nav" id="mainNav">
+    <div class="mn-nav-logo"><img src="images/logo.png" alt="Montana"></div>
+    <ul class="mn-nav-links">
+        <li><a href="#products">المنتجات</a></li>
+        <li><a href="#story">قصتنا</a></li>
+        <li><a href="#results">النتائج</a></li>
+        <li><a href="contact.html">تواصل</a></li>
+    </ul>
+    <div class="mn-nav-actions">
+        <a href="search.html"><i class="fas fa-search"></i></a>
+        <a href="login.html"><i class="far fa-user"></i></a>
+        <a href="#"><i class="fas fa-shopping-bag"></i></a>
+    </div>
+</nav>
+
+<!-- Hero with Video -->
+<section class="mn-hero">
+    <video autoplay muted loop playsinline>
+        <source src="images/hero-video1.mp4" type="video/mp4">
+    </video>
+    <div class="mn-hero-overlay"></div>
+    <div class="mn-hero-content">
+        <div class="mn-hero-label">Montana Premium Skincare</div>
+        <h1 class="mn-hero-title">اكتشفي إشراقتك الحقيقية</h1>
+        <p class="mn-hero-sub">منتجات عناية فاخرة بمكونات طبيعية مختارة بعناية<br>صُنعت لتمنحك بشرة مشرقة وصحية</p>
+        <a href="#products" class="mn-hero-btn">اكتشفي المجموعة</a>
+    </div>
+    <div class="mn-scroll-hint">
+        <span>scroll</span>
+        <div class="mn-scroll-line"></div>
+    </div>
+</section>
+
+<!-- Featured Product -->
+<section class="mn-featured" id="products">
+    <div class="mn-featured-grid">
+        <div class="mn-featured-img rv">
+            <img src="images/model-cream1.jpeg" alt="">
+        </div>
+        <div class="rv rv-d2">
+            <div class="mn-featured-num">01</div>
+            <h2 class="mn-featured-name">غسول الوجه لعلاج حب الشباب</h2>
+            <p class="mn-featured-sub">أول تركيبة غسول كريمي في مصر تمنع الجفاف والالتهاب. بحمض الساليسيليك وزيت الأرجان. نتيجة في 14 يوم.</p>
+            <div class="mn-featured-price">285 ج.م</div>
+            <a href="product.html" class="mn-btn">اكتشفي المنتج <i class="fas fa-arrow-left"></i></a>
+        </div>
+    </div>
+</section>
+
+<!-- Gallery Strip -->
+<div class="mn-gallery rv">
+    <img src="images/model1.jpeg" alt="">
+    <img src="images/model2.jpeg" alt="">
+    <img src="images/model-cream2.jpeg" alt="">
+    <img src="images/model3.jpeg" alt="">
+</div>
+
+<!-- Products Grid -->
+<section class="mn-section mn-center" id="collection">
+    <div class="mn-label rv">المجموعة الكاملة</div>
+    <h2 class="mn-title rv">منتجات Montana</h2>
+    <p class="mn-desc rv">ستة منتجات مصممة بعناية لتلبية احتياجات بشرتك المختلفة</p>
+
+    <div class="mn-products">
+        <div class="mn-product rv rv-d1">
+            <div class="mn-product-img"><img src="images/p1-premium.png" alt=""><div class="mn-quick">أضف للسلة</div></div>
+            <h3>غسول حب الشباب</h3><span class="mn-price">285 ج.م</span>
+        </div>
+        <div class="mn-product rv rv-d2">
+            <div class="mn-product-img"><img src="images/p2-premium.png" alt=""><div class="mn-quick">أضف للسلة</div></div>
+            <h3>غسول التفتيح</h3><span class="mn-price">310 ج.م</span>
+        </div>
+        <div class="mn-product rv rv-d3">
+            <div class="mn-product-img"><img src="images/p3-premium.png" alt=""><div class="mn-quick">أضف للسلة</div></div>
+            <h3>كريم التفتيح</h3><span class="mn-price">240 ج.م</span>
+        </div>
+        <div class="mn-product rv rv-d4">
+            <div class="mn-product-img"><img src="images/p4-premium.png" alt=""><div class="mn-quick">أضف للسلة</div></div>
+            <h3>لوشن الجسم</h3><span class="mn-price">195 ج.م</span>
+        </div>
+        <div class="mn-product rv rv-d5">
+            <div class="mn-product-img"><img src="images/p5-premium.png" alt=""><div class="mn-quick">أضف للسلة</div></div>
+            <h3>كريم ما بعد الليزر</h3><span class="mn-price">265 ج.م</span>
+        </div>
+        <div class="mn-product rv rv-d6">
+            <div class="mn-product-img"><img src="images/p6-premium.png" alt=""><div class="mn-quick">أضف للسلة</div></div>
+            <h3>جل علاج الندبات</h3><span class="mn-price">340 ج.م</span>
+        </div>
+    </div>
+</section>
+
+<!-- Split Section - Video + Text -->
+<section class="mn-split rv" id="results">
+    <div class="mn-split-img">
+        <video autoplay muted loop playsinline>
+            <source src="images/hero-video2.mp4" type="video/mp4">
+        </video>
+    </div>
+    <div class="mn-split-text">
+        <div class="mn-label">النتائج تتحدث</div>
+        <h2 class="mn-title" style="font-size:28px">بشرة مشرقة من أول استخدام</h2>
+        <p class="mn-desc">منتجاتنا مصممة بتركيبات متقدمة تجمع بين قوة الطبيعة وأحدث تقنيات العناية بالبشرة. نتائج ملحوظة خلال 14 يوم.</p>
+        <a href="category.html" class="mn-btn">تسوق المجموعة <i class="fas fa-arrow-left"></i></a>
+    </div>
+</section>
+
+<!-- Trust -->
+<section class="mn-trust" id="story">
+    <div class="mn-trust-grid">
+        <div class="rv rv-d1">
+            <div class="mn-trust-num">01</div>
+            <div class="mn-trust-title">مكونات طبيعية</div>
+            <div class="mn-trust-desc">زيت الأرجان، الجوجوبا، خلاصة العرقسوس، وزبدة الشيا. مكونات مختارة بعناية.</div>
+        </div>
+        <div class="rv rv-d2">
+            <div class="mn-trust-num">02</div>
+            <div class="mn-trust-title">نتائج مثبتة</div>
+            <div class="mn-trust-desc">نتائج ملحوظة خلال 14 يوم. بشرة أكثر نضارة وإشراقة من أول استخدام.</div>
+        </div>
+        <div class="rv rv-d3">
+            <div class="mn-trust-num">03</div>
+            <div class="mn-trust-title">صنع في مصر</div>
+            <div class="mn-trust-desc">فخورون بأننا علامة تجارية مصرية تقدم منتجات بمعايير عالمية.</div>
+        </div>
+    </div>
+</section>
+
+<!-- Split 2 - Image + Text -->
+<section class="mn-split rv" style="direction:ltr">
+    <div class="mn-split-text" style="direction:rtl">
+        <div class="mn-label">العناية المتكاملة</div>
+        <h2 class="mn-title" style="font-size:28px">روتين يومي لبشرة مثالية</h2>
+        <p class="mn-desc">اكتشفي مجموعة Montana الكاملة للعناية بالبشرة. من التنظيف للترطيب للحماية - كل اللي بشرتك محتاجاه.</p>
+        <a href="category.html" class="mn-btn">تعرفي أكثر <i class="fas fa-arrow-left"></i></a>
+    </div>
+    <div class="mn-split-img">
+        <img src="images/model4.jpeg" alt="">
+    </div>
+</section>
+
+<!-- Gallery Strip 2 -->
+<div class="mn-gallery rv">
+    <img src="images/p1-premium.png" alt="">
+    <img src="images/model-cream3.jpeg" alt="">
+    <img src="images/p3-premium.png" alt="">
+    <img src="images/model-cream1.jpeg" alt="">
+</div>
+
+<!-- Newsletter -->
+<section class="mn-newsletter">
+    <div class="mn-label rv" style="color:var(--gold)">انضمي لعائلة Montana</div>
+    <h2 class="mn-title rv">احصلي على عروض حصرية</h2>
+    <p class="mn-desc rv" style="color:rgba(255,255,255,0.5);margin:0 auto 36px">اشتركي في نشرتنا واحصلي على خصم 10% على أول طلب</p>
+    <form class="mn-nl-form rv" onsubmit="event.preventDefault();alert('شكراً لاشتراكك! 💜')">
+        <input type="email" placeholder="البريد الإلكتروني" required>
+        <button type="submit">اشتركي</button>
+    </form>
+</section>
+
+<!-- Footer -->
+<footer class="mn-footer">
+    <div class="mn-footer-grid">
+        <div><img src="images/logo.png" alt="Montana"><p>منتجات عناية فاخرة بمكونات طبيعية. صنعت لتمنحك بشرة مشرقة وصحية.</p></div>
+        <div><h4>المنتجات</h4><a href="product.html">غسول حب الشباب</a><a href="product.html">غسول التفتيح</a><a href="product.html">كريم التفتيح</a><a href="product.html">لوشن الجسم</a></div>
+        <div><h4>المساعدة</h4><a href="contact.html">تواصل معنا</a><a href="faq.html">الأسئلة الشائعة</a><a href="privacy.html">سياسة الخصوصية</a><a href="account.html">حسابي</a></div>
+        <div><h4>تواصل</h4><a href="tel:01234567890">01234567890</a><a href="mailto:info@montana.com">info@montana.com</a><a>القاهرة، مصر</a></div>
+    </div>
+    <div class="mn-footer-bottom">© 2026 MONTAÑA. ALL RIGHTS RESERVED.</div>
+</footer>
+
+<script>
+// Scroll reveal
+var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('show');obs.unobserve(e.target)}});
+},{threshold:0.1});
+document.querySelectorAll('.rv').forEach(function(el){obs.observe(el)});
+
+// Nav scroll
+window.addEventListener('scroll',function(){
+    document.getElementById('mainNav').classList.toggle('scrolled',window.scrollY>60);
+    var pct=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100;
+    document.getElementById('progressBar').style.width=pct+'%';
+},{passive:true});
+</script>
+<script src="luxury-animations.js"></script>
+<script src="chat-widget.js"></script>
+</body>
+</html>

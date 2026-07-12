@@ -1,0 +1,118 @@
+/* Montana English site — LTR layout overrides */
+html[lang="en"],
+html[dir="ltr"],
+body.mnt-en {
+    direction: ltr;
+    text-align: left;
+}
+
+body.mnt-en .showcase-info .sc-en::after {
+    right: auto;
+    left: 0;
+    background: linear-gradient(to right, var(--mnt-gold-light, #E8D48A), rgba(201, 168, 76, .15), transparent);
+}
+
+body.mnt-en .sc-cta-ghost .cta-arrow,
+body.mnt-en .lux-ing-link i,
+body.mnt-en .category-link i {
+    transform: scaleX(-1);
+}
+
+body.mnt-en .page-back i,
+body.mnt-en .sc-cta-ghost:hover .cta-arrow {
+    transform: scaleX(-1) translateX(6px);
+}
+
+body.mnt-en .floating-lang-btn {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+}
+@media (max-width: 768px) {
+    body.mnt-en .floating-lang-btn {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+/* Inner pages already have a sticky .page-header — anchor below it instead
+   of dead-center, matching the AR-side rule in styles.css. */
+body.mnt-en .page-header ~ .floating-lang-btn {
+    top: 75px;
+    left: 14px;
+    right: auto;
+    transform: none;
+}
+body.mnt-en .page-header ~ .floating-lang-btn:hover {
+    transform: translateY(-2px);
+}
+
+/* EN: shop CTA mirrors AR — fixed top-right */
+body.mnt-en .floating-store-btn {
+    left: auto;
+    right: 20px;
+}
+@media (max-width: 768px) {
+    body.mnt-en .floating-store-btn {
+        left: auto;
+        right: 14px;
+    }
+}
+
+body.mnt-en .sc-counter {
+    right: auto;
+    left: 38px;
+}
+
+/* EN: brand chip above the left copy column (mirror of AR top-right) */
+body.mnt-en .hero-brand-chip {
+    right: auto;
+    left: 4%;
+    top: 4.5%;
+}
+
+body.mnt-en .mnt-home .showcase-info {
+    padding-top: clamp(92px, 12vh, 122px);
+}
+
+@media (max-width: 820px) {
+    body.mnt-en .mnt-home .showcase-info {
+        padding-top: 0;
+    }
+}
+
+body.mnt-en .header-top-links {
+    flex-direction: row;
+}
+
+body.mnt-en .search-bar input {
+    text-align: left;
+}
+
+body.mnt-en .pd-indication-story,
+body.mnt-en blockquote.pd-indication-story {
+    border-right: none;
+    border-left: 3px solid var(--accent, #9B6CB8);
+    border-radius: 12px 0 0 12px;
+}
+
+body.mnt-en .lux-ing-card {
+    grid-template-columns: minmax(120px, 42%) 1fr;
+}
+
+body.mnt-en .lux-ing-visual {
+    order: -1;
+}
+
+@media (max-width: 900px) {
+    body.mnt-en .lux-ing-card {
+        grid-template-columns: 1fr;
+    }
+    body.mnt-en .lux-ing-visual {
+        order: 0;
+    }
+}
+
+body.mnt-en .lang-switch {
+    font-weight: 700;
+    color: var(--mnt-gold-light, #E8D48A);
+}

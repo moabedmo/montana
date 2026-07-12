@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#9B6CB8">
+    <title>Montana | المكونات</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="app.css">
+    <link rel="stylesheet" href="pages.css">
+    <link rel="stylesheet" href="premium.css">
+    <link rel="stylesheet" href="dark-theme.css">
+    <style>
+        .pd-loading, .pd-error { padding: 60px 20px; text-align: center; color: var(--text-muted); }
+        .ing-page { padding: 20px 16px 40px; max-width: 700px; margin: 0 auto; }
+        .ing-icon { width: 56px; height: 56px; border-radius: 16px; background: rgba(201,168,76,.12); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 14px; }
+        .ing-name { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 16px; }
+        .ing-desc { font-size: 15px; color: var(--text-light); line-height: 1.9; }
+    </style>
+</head>
+<body>
+
+<div class="page-header">
+    <a href="category.html" class="page-back"><i class="fas fa-arrow-right"></i></a>
+    <h2 id="ingPageTitle">المكون</h2>
+    <div class="page-header-actions"></div>
+</div>
+
+<div id="ingRoot" class="ing-page"><div class="pd-loading"><i class="fas fa-spinner fa-spin"></i> <span id="ingLoading">جارٍ التحميل…</span></div></div>
+
+<script src="components.js"></script>
+<script src="js/cart.js"></script>
+<script type="module">
+import { ingredients as ingredientsApi, products as productsApi } from '/js/store-api.js';
+import { getLocale, localizeProduct, resolveAssetUrl, formatPrice, productUrl } from '/js/i18n/locale.js?v=3';
+import { UI_STRINGS } from '/js/i18n/en.js';
+
+const isEn = getLocale() === 'en';
+const L = isEn ? UI_STRINGS.ingredients : {
+  pageTitle: 'المكون',
+  loading: 'جارٍ التحميل…',
+  foundIn: 'موجود في منتجات',
+  noSlug: 'لم يتم تحديد مكوّن',
+  browse: 'تصفّح المنتجات',
+  notFound: 'تعذّر العثور على هذا المكوّن',
+};
+
+document.getElementById('ingPageTitle').textContent = L.pageTitle;
+document.getElementById('ingLoading').textContent = L.loading;
+if (isEn) document.title = `Montana | ${L.pageTitle}`;
+
+const params = new URLSearchParams(location.search);
+const slug = params.get('slug');
+const root = document.getElementById('ingRoot');
+
+function render(ing, usedIn) {
+  root.innerHTML = `
+    <div class="ing-icon"><i class="fas fa-flask"></i></div>
+    <h1 class="ing-name">${ing.name}</h1>
+    <p class="ing-desc">${ing.description}</p>
+
+    ${usedIn.length ? `
+    <div class="pd-divider"></div>
+    <div class="pd-section">
+        <h3>${L.foundIn}</h3>
+        <div class="pd-related">
+            ${usedIn.map(p => {
+              const lp = localizeProduct(p) || p;
+              return `
+                <a href="${productUrl(p.slug)}" class="pd-related-card" style="text-decoration:none;color:inherit">
+                    <img src="${resolveAssetUrl(lp.image_url)}" alt="${lp.name}">
+                    <span class="pd-related-brand">Montaña</span>
+                    <span class="pd-related-name">${lp.name}</span>
+                    <span class="pd-related-price">${formatPrice(p.price)}</span>
+                </a>`;
+            }).join('')}
+        </div>
+    </div>` : ''}`;
+}
+
+(async () => {
+  if (!slug) {
+    root.innerHTML = `<div class="pd-error">${L.noSlug}<br><a href="category.html">${L.browse}</a></div>`;
+    return;
+  }
+  try {
+    const [ing, allProducts] = await Promise.all([ingredientsApi.get(slug), productsApi.list()]);
+    const usedIn = ingredientsApi.usedInProducts(ing.name, allProducts);
+    render(ing, usedIn);
+  } catch (e) {
+    root.innerHTML = `<div class="pd-error">${L.notFound}<br><a href="category.html">${L.browse}</a></div>`;
+  }
+})();
+</script>
+</body>
+</html>

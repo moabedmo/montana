@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#9B6CB8">
+    <title>Montana | إتمام الطلب</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="app.css">
+    <link rel="stylesheet" href="pages.css">
+    <link rel="stylesheet" href="premium.css">
+    <link rel="stylesheet" href="dark-theme.css">
+    <style>
+        .ck-payment-option.disabled { opacity:.55; cursor:not-allowed; }
+        .ck-soon-tag { margin-inline-start:auto; font-size:10px; font-weight:700; color:#9B6CB8; background:rgba(155,108,184,.1); padding:3px 9px; border-radius:20px; }
+        .ck-empty { text-align:center; padding:40px 20px; color:var(--text-muted); }
+        .ck-empty a { color:#9B6CB8; font-weight:700; }
+        .ck-coupon-msg { font-size:12px; margin-top:6px; }
+        .ck-coupon-msg.ok { color:#27ae60; }
+        .ck-coupon-msg.err { color:#EF5350; }
+        .ck-submit-err { color:#EF5350; font-size:12px; text-align:center; margin-top:8px; display:none; }
+        .ck-gov-row { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+        .ck-gov-row select { flex:1; padding:12px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; font-family:'Tajawal',sans-serif; background:var(--bg-light,#fff); color:var(--text); }
+        .ck-gov-cost { font-size:13px; font-weight:800; color:var(--accent); white-space:nowrap; }
+        .ck-deposit-box { border:1.5px dashed var(--accent); border-radius:14px; padding:14px; margin-top:10px; }
+        .ck-deposit-box p { font-size:13px; color:var(--text-light); line-height:1.8; margin-bottom:8px; }
+        .ck-deposit-num { font-size:16px; font-weight:800; color:var(--text); direction:ltr; text-align:center; padding:8px; background:var(--bg-light,rgba(0,0,0,.03)); border-radius:10px; margin-bottom:10px; }
+        .ck-deposit-box input[type="file"] { width:100%; font-size:12px; color:var(--text-light); }
+        .ck-proof-preview { max-width:140px; border-radius:10px; margin-top:10px; display:none; }
+    </style>
+</head>
+<body>
+
+<div class="page-header">
+    <a href="index.html" class="page-back"><i class="fas fa-arrow-right"></i></a>
+    <h2>إتمام الطلب</h2>
+    <div class="page-header-actions"></div>
+</div>
+
+<div class="checkout-page" id="checkoutPage">
+    <!-- Steps -->
+    <div class="ck-steps">
+        <div class="ck-step active"><span>1</span> العنوان</div>
+        <div class="ck-step-line"></div>
+        <div class="ck-step"><span>2</span> الدفع</div>
+        <div class="ck-step-line"></div>
+        <div class="ck-step"><span>3</span> التأكيد</div>
+    </div>
+
+    <!-- Address Section -->
+    <div class="ck-section">
+        <h3><i class="fas fa-map-marker-alt"></i> بيانات التوصيل</h3>
+        <div class="form-group"><label>الاسم بالكامل</label><input type="text" id="custName" placeholder="اسمك"></div>
+        <div class="form-group"><label>رقم الهاتف</label><input type="tel" id="custPhone" dir="ltr" placeholder="01xxxxxxxxx"></div>
+        <div class="form-group"><label>البريد الإلكتروني (اختياري)</label><input type="email" id="custEmail" dir="ltr" placeholder="example@email.com"></div>
+        <div class="form-group"><label>العنوان بالتفصيل</label><textarea id="custAddress" placeholder="الشارع، الحي، رقم العقار"></textarea></div>
+        <div class="form-group"><label>المدينة</label><input type="text" id="custCity" placeholder="القاهرة"></div>
+        <!-- honeypot: hidden from real users, a filled value marks the submission as spam -->
+        <div style="position:absolute;left:-9999px" aria-hidden="true">
+            <input type="text" id="hp_field" name="hp_field" tabindex="-1" autocomplete="off">
+        </div>
+    </div>
+
+    <!-- Delivery -->
+    <div class="ck-section">
+        <h3><i class="fas fa-truck"></i> طريقة التوصيل</h3>
+        <div class="ck-gov-row">
+            <select id="governorateSelect"><option value="">جارٍ تحميل المحافظات…</option></select>
+            <span class="ck-gov-cost" id="govCost"></span>
+        </div>
+    </div>
+
+    <!-- Payment -->
+    <div class="ck-section">
+        <h3><i class="fas fa-credit-card"></i> طريقة الدفع</h3>
+        <div class="ck-payment-option selected" data-method="cod">
+            <div class="ck-address-radio"><i class="fas fa-check-circle"></i></div>
+            <div class="ck-payment-icon"><i class="fas fa-money-bill-wave"></i></div>
+            <span>الدفع عند الاستلام <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:500">200 ج.م مقدم + الباقي كاش عند الاستلام</small></span>
+        </div>
+        <div class="ck-payment-option" data-method="wallet">
+            <div class="ck-address-radio"><i class="far fa-circle"></i></div>
+            <div class="ck-payment-icon"><i class="fas fa-wallet"></i></div>
+            <span>محفظة إلكترونية / إنستاباي <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:500">تحويل قيمة الأوردر كاملة</small></span>
+        </div>
+        <div class="ck-payment-option" id="cardPaymentOption" data-method="card" style="display:none">
+            <div class="ck-address-radio"><i class="far fa-circle"></i></div>
+            <div class="ck-payment-icon"><i class="fab fa-cc-visa"></i></div>
+            <span>بطاقة ائتمان / Meeza <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:500">دفع آمن عبر Paymob</small></span>
+        </div>
+        <div class="ck-payment-option disabled" id="cardSoonOption">
+            <div class="ck-address-radio"><i class="far fa-circle"></i></div>
+            <div class="ck-payment-icon"><i class="fab fa-cc-visa"></i></div>
+            <span>بطاقة ائتمان</span>
+            <span class="ck-soon-tag">قريباً</span>
+        </div>
+
+        <div class="ck-deposit-box" id="depositBox">
+            <p id="depositMsg"></p>
+            <div class="ck-deposit-num" id="depositNumber"></div>
+            <input type="file" id="proofFile" accept="image/*">
+            <img id="proofPreview" class="ck-proof-preview">
+        </div>
+    </div>
+
+    <!-- Coupon -->
+    <div class="ck-section">
+        <h3><i class="fas fa-ticket-alt"></i> كود خصم</h3>
+        <div class="ck-coupon">
+            <input type="text" id="couponInput" placeholder="أدخل كود الخصم" dir="ltr">
+            <button id="applyCouponBtn">تطبيق</button>
+        </div>
+        <p class="ck-coupon-msg" id="couponMsg"></p>
+    </div>
+
+    <!-- Rewards points -->
+    <div class="ck-section" id="pointsSection" style="display:none">
+        <h3><i class="fas fa-crown"></i> Montana Rewards</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px">رصيدك: <strong id="pointsBalance">0</strong> نقطة — كل 10 نقاط = 1 ج.م خصم</p>
+        <div class="ck-coupon">
+            <input type="number" id="pointsInput" placeholder="10, 20, 30…" min="0" step="10" dir="ltr">
+            <button type="button" id="applyPointsBtn">تطبيق</button>
+        </div>
+        <p class="ck-coupon-msg" id="pointsMsg"></p>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="ck-section">
+        <h3><i class="fas fa-receipt"></i> ملخص الطلب</h3>
+        <div id="ckItems"></div>
+        <div class="ck-summary">
+            <div class="ck-row"><span id="ckSubtotalLabel">المجموع الفرعي</span><span id="ckSubtotal">0 ج.م</span></div>
+            <div class="ck-row"><span>الشحن</span><span id="ckShipping" class="ck-free">مجاني</span></div>
+            <div class="ck-row"><span>الخصم</span><span class="ck-discount" id="ckDiscount">- 0 ج.م</span></div>
+            <div class="ck-row" id="ckPointsRow" style="display:none"><span>خصم النقاط</span><span class="ck-discount" id="ckPointsDiscount">- 0 ج.م</span></div>
+            <div class="ck-row ck-total"><span>الإجمالي</span><span id="ckTotal">0 ج.م</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Bar -->
+<div class="pd-bottom-bar" id="ckBottomBar">
+    <div class="ck-bottom-total">
+        <span>الإجمالي</span>
+        <strong id="ckBottomTotal">0 ج.م</strong>
+    </div>
+    <button class="pd-add-cart" id="confirmBtn">
+        <i class="fas fa-check"></i> تأكيد الطلب
+    </button>
+</div>
+<p class="ck-submit-err" id="submitErr"></p>
+
+<script src="components.js"></script>
+<script src="js/cart.js"></script>
+<script type="module">
+import { orders, coupons, shipping as shippingApi, settings as settingsApi, uploadPaymentProof, sb, auth as authApi } from '/js/store-api.js';
+import { getCheckoutStrings, formatMoney, fmt } from '/js/i18n/checkout-i18n.js';
+import { resolveAssetUrl } from '/js/i18n/locale.js?v=3';
+
+const S = getCheckoutStrings();
+function money(n) { return formatMoney(n); }
+
+document.querySelectorAll('.ck-payment-option:not(.disabled)').forEach(card => {
+    card.addEventListener('click', () => {
+        const group = card.parentElement;
+        group.querySelectorAll('.ck-payment-option.selected').forEach(s => {
+            s.classList.remove('selected');
+            const icon = s.querySelector('.ck-address-radio i');
+            if (icon) icon.className = 'far fa-circle';
+        });
+        card.classList.add('selected');
+        const icon = card.querySelector('.ck-address-radio i');
+        if (icon) icon.className = 'fas fa-check-circle';
+        renderDepositBox();
+        renderSummary();
+    });
+});
+
+let appliedCoupon = null;
+let appliedPoints = 0;
+let userPointsBalance = 0;
+let shippingRates = [];
+let transferNumber = '';
+let transferName = '';
+
+// Both real payment methods (COD, wallet/InstaPay) require a transfer
+// proof — COD as a fixed 200 ج.م booking deposit, wallet as the full
+// order total. The order only ever ships/gets marked "confirmed"
+// after an admin reviews the screenshot (via Telegram or the admin
+// dashboard) — see get_order_status()/admin.js.
+function depositAmount() {
+    const method = document.querySelector('.ck-payment-option.selected')?.dataset.method;
+    if (method === 'wallet') return computeTotals().total;
+    return 200; // cod
+}
+
+function renderDepositBox() {
+    const method = document.querySelector('.ck-payment-option.selected')?.dataset.method;
+    const box = document.getElementById('depositBox');
+    if (method === 'card') { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+    const amount = depositAmount();
+    document.getElementById('depositMsg').textContent = method === 'wallet'
+        ? fmt(S.depositWallet, { amount: money(amount) })
+        : fmt(S.depositCod, { amount: Math.round(amount) });
+    document.getElementById('depositNumber').textContent = `${transferNumber} — ${transferName}`;
+}
+
+function computeTotals() {
+    const items = window.Cart.getItems();
+    const subtotal = window.Cart.getTotal();
+    const govOpt = document.getElementById('governorateSelect').selectedOptions[0];
+    const shippingCost = govOpt ? parseFloat(govOpt.dataset.cost || 0) : 0;
+    let couponDiscount = 0;
+    if (appliedCoupon) {
+        couponDiscount = appliedCoupon.discount_type === 'percent'
+            ? subtotal * (appliedCoupon.discount_value / 100)
+            : appliedCoupon.discount_value;
+        couponDiscount = Math.min(couponDiscount, subtotal);
+    }
+    const pointsDiscount = appliedPoints / 10;
+    const totalDiscount = couponDiscount + pointsDiscount;
+    const total = Math.max(0, subtotal - totalDiscount + shippingCost);
+    return { items, subtotal, shipping: shippingCost, discount: couponDiscount, pointsDiscount, pointsRedeemed: appliedPoints, total };
+}
+
+function renderSummary() {
+    const { items, subtotal, shipping, discount, pointsDiscount, total } = computeTotals();
+    const itemsEl = document.getElementById('ckItems');
+    const bottomBar = document.getElementById('ckBottomBar');
+    const page = document.getElementById('checkoutPage');
+
+    if (!items.length) {
+        page.innerHTML = `<div class="ck-empty"><i class="fas fa-shopping-bag" style="font-size:32px;color:#ddd;margin-bottom:12px;display:block"></i>${S.emptyCart}<br><a href="index.html">${S.browseProducts}</a></div>`;
+        bottomBar.style.display = 'none';
+        return;
+    }
+
+    itemsEl.innerHTML = items.map(it => `
+        <div class="ck-item">
+            <img src="${resolveAssetUrl(it.image)}" alt="">
+            <div class="ck-item-info">
+                <span class="ck-item-name">${it.name}</span>
+                <span class="ck-item-qty">${fmt(S.qty, { n: it.qty })}</span>
+            </div>
+            <span class="ck-item-price">${money(it.price * it.qty)}</span>
+        </div>
+    `).join('');
+
+    document.getElementById('ckSubtotalLabel').textContent = fmt(S.subtotalItems, { count: items.reduce((s,i)=>s+i.qty,0) });
+    document.getElementById('ckSubtotal').textContent = money(subtotal);
+    document.getElementById('ckShipping').textContent = shipping > 0 ? money(shipping) : S.free;
+    document.getElementById('ckDiscount').textContent = `- ${money(discount)}`;
+    const pr = document.getElementById('ckPointsRow');
+    if (pointsDiscount > 0) {
+        pr.style.display = '';
+        document.getElementById('ckPointsDiscount').textContent = `- ${money(pointsDiscount)}`;
+    } else pr.style.display = 'none';
+    document.getElementById('ckTotal').textContent = money(total);
+    document.getElementById('ckBottomTotal').textContent = money(total);
+}
+
+document.getElementById('applyCouponBtn').addEventListener('click', async () => {
+    const code = document.getElementById('couponInput').value.trim();
+    const msgEl = document.getElementById('couponMsg');
+    if (!code) return;
+    const { subtotal } = computeTotals();
+    try {
+        const result = await coupons.validate(code, subtotal);
+        if (!result.valid) {
+            appliedCoupon = null;
+            msgEl.textContent = result.message;
+            msgEl.className = 'ck-coupon-msg err';
+        } else {
+            appliedCoupon = result;
+            msgEl.textContent = S.couponApplied;
+            msgEl.className = 'ck-coupon-msg ok';
+        }
+    } catch (e) {
+        msgEl.textContent = S.couponVerifyError;
+        msgEl.className = 'ck-coupon-msg err';
+    }
+    renderSummary();
+    renderDepositBox();
+});
+
+document.getElementById('applyPointsBtn')?.addEventListener('click', () => {
+    const raw = parseInt(document.getElementById('pointsInput').value, 10) || 0;
+    const msgEl = document.getElementById('pointsMsg');
+    if (raw <= 0) { appliedPoints = 0; msgEl.textContent = ''; msgEl.className = 'ck-coupon-msg'; renderSummary(); return; }
+    if (raw % 10 !== 0) { msgEl.textContent = S.pointsMultiples; msgEl.className = 'ck-coupon-msg err'; return; }
+    if (raw > userPointsBalance) { msgEl.textContent = S.pointsInsufficient; msgEl.className = 'ck-coupon-msg err'; return; }
+    const maxPoints = Math.floor(computeTotals().subtotal * 10);
+    appliedPoints = Math.min(raw, userPointsBalance, maxPoints);
+    msgEl.textContent = appliedPoints ? fmt(S.pointsApplied, { amount: appliedPoints / 10 }) : S.pointsNone;
+    msgEl.className = appliedPoints ? 'ck-coupon-msg ok' : 'ck-coupon-msg err';
+    renderSummary();
+});
+
+document.getElementById('governorateSelect').addEventListener('change', () => {
+    const opt = document.getElementById('governorateSelect').selectedOptions[0];
+    document.getElementById('govCost').textContent = opt && opt.dataset.cost ? money(parseFloat(opt.dataset.cost)) : '';
+    renderSummary();
+    renderDepositBox();
+});
+
+document.getElementById('proofFile').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    const preview = document.getElementById('proofPreview');
+    if (!file) { preview.style.display = 'none'; return; }
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = 'block';
+});
+
+document.getElementById('confirmBtn').addEventListener('click', async () => {
+    const errEl = document.getElementById('submitErr');
+    errEl.style.display = 'none';
+
+    if (document.getElementById('hp_field').value) return; // honeypot tripped — silently drop
+
+    const name = document.getElementById('custName').value.trim();
+    const phone = document.getElementById('custPhone').value.trim();
+    const address = document.getElementById('custAddress').value.trim();
+    const city = document.getElementById('custCity').value.trim();
+    const email = document.getElementById('custEmail').value.trim();
+
+    const govOpt = document.getElementById('governorateSelect').selectedOptions[0];
+    if (!name || !phone || !address || !city || !govOpt || !govOpt.value) {
+        errEl.textContent = S.fillRequired;
+        errEl.style.display = 'block';
+        return;
+    }
+
+    const paymentEl = document.querySelector('.ck-payment-option.selected');
+    const paymentMethod = paymentEl ? paymentEl.dataset.method : 'cod';
+    const proofFile = document.getElementById('proofFile').files[0];
+
+    if (paymentMethod !== 'card' && !proofFile) {
+        errEl.textContent = S.uploadProof;
+        errEl.style.display = 'block';
+        return;
+    }
+
+    const { items, subtotal, shipping, discount, pointsRedeemed, total } = computeTotals();
+    const deposit = depositAmount();
+
+    const btn = document.getElementById('confirmBtn');
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${S.confirming}`;
+
+    try {
+        let proofUrl = null;
+        if (proofFile) {
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${S.uploading}`;
+            proofUrl = await uploadPaymentProof(proofFile, phone);
+        }
+
+        const { products: productsApi } = await import('/js/store-api.js');
+        const catalog = await productsApi.list();
+        for (const it of items) {
+            const p = catalog.find(x => x.id === it.id);
+            if (!p) {
+                errEl.textContent = fmt(S.productUnavailable, { name: it.name });
+                errEl.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fas fa-check"></i> ${S.confirm}`;
+                return;
+            }
+            if ((p.stock ?? 0) < it.qty) {
+                errEl.textContent = fmt(S.stockInsufficient, { name: p.name, stock: p.stock });
+                errEl.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fas fa-check"></i> ${S.confirm}`;
+                return;
+            }
+        }
+
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${S.confirming}`;
+        const result = await orders.create({
+            customer: { name, phone, email: email || null, address, city },
+            items: items.map(it => ({ id: it.id, name: it.name, image: it.image, price: it.price, qty: it.qty })),
+            payment_method: paymentMethod,
+            delivery_method: 'standard',
+            coupon_code: appliedCoupon ? appliedCoupon.code : null,
+            subtotal, shipping_cost: shipping, discount, total,
+            governorate: govOpt.value,
+            payment_proof_url: proofUrl,
+            deposit_amount: proofUrl ? deposit : 0,
+            points_redeemed: pointsRedeemed
+        });
+
+        fetch('/api/send-telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                order_number: result.order.order_number,
+                total: result.order.total,
+                customer_name: name,
+                customer_phone: phone,
+                payment_method: paymentMethod,
+                payment_proof_url: proofUrl,
+                deposit_amount: proofUrl ? deposit : 0,
+                points_redeemed: pointsRedeemed
+            })
+        }).catch(() => {});
+
+        if (paymentMethod === 'card') {
+            const payRes = await fetch('/api/paymob-create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: total,
+                    order_number: result.order.order_number,
+                    customer: { name, phone, email, city }
+                })
+            });
+            const payData = await payRes.json();
+            if (payData.ok && payData.iframe_url) {
+                sessionStorage.setItem('montana_last_order', JSON.stringify(result));
+                window.Cart.clear();
+                window.location.href = payData.iframe_url;
+                return;
+            }
+            errEl.textContent = payData.error || S.paymobError;
+            errEl.style.display = 'block';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> تأكيد الطلب';
+            return;
+        }
+
+        sessionStorage.setItem('montana_last_order', JSON.stringify(result));
+        window.Cart.clear();
+        window.location.href = 'order-confirmation.html';
+    } catch (e) {
+        const msg = e?.message || '';
+        if (msg.includes('Insufficient stock')) errEl.textContent = S.stockError;
+        else if (msg.includes('not available')) errEl.textContent = S.itemUnavailable;
+        else if (msg.includes('points') || msg.includes('Points')) errEl.textContent = S.pointsError;
+        else if (msg.includes('total mismatch')) errEl.textContent = S.priceChanged;
+        else errEl.textContent = S.submitError;
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i> تأكيد الطلب';
+    }
+});
+
+(async () => {
+    try {
+        shippingRates = await shippingApi.list();
+        const sel = document.getElementById('governorateSelect');
+        sel.innerHTML = shippingRates.map(r => `<option value="${r.governorate}" data-cost="${r.cost}">${r.governorate} — ${money(r.cost)}</option>`).join('');
+        sel.dispatchEvent(new Event('change'));
+    } catch (e) {
+        document.getElementById('governorateSelect').innerHTML = `<option value="">${S.govLoadError}</option>`;
+    }
+    try {
+        transferNumber = await settingsApi.get('instapay_wallet_number');
+        transferName = await settingsApi.get('instapay_wallet_name');
+    } catch (e) { /* optional */ }
+
+    try {
+        const [payCfg, paymobSetting] = await Promise.all([
+            fetch('/api/paymob-create').then(r => r.json()).catch(() => ({ configured: false })),
+            settingsApi.get('paymob_card_enabled').catch(() => 'false')
+        ]);
+        if (payCfg.configured && paymobSetting === 'true') {
+            document.getElementById('cardSoonOption')?.remove();
+            const cardOpt = document.getElementById('cardPaymentOption');
+            if (cardOpt) cardOpt.style.display = '';
+        }
+    } catch { /* Paymob not configured */ }
+
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+        document.getElementById('custName').value = session.user.user_metadata?.full_name || '';
+        document.getElementById('custPhone').value = session.user.user_metadata?.phone || '';
+        document.getElementById('custEmail').value = session.user.email || '';
+        try {
+            const bal = await authApi.rewardsBalance();
+            userPointsBalance = bal.points || 0;
+            if (userPointsBalance >= 10) {
+                document.getElementById('pointsSection').style.display = '';
+                document.getElementById('pointsBalance').textContent = userPointsBalance;
+            }
+        } catch { /* migration 014 */ }
+    }
+
+    renderDepositBox();
+})();
+
+renderSummary();
+</script>
+<script type="module" src="js/site-settings.js"></script>
+</body>
+</html>

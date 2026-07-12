@@ -1,0 +1,14 @@
+{
+  "name": "Montana CRM",
+  "short_name": "Montana",
+  "description": "Montana Naturals Field CRM for sales reps",
+  "start_url": "/crm/rep/",
+  "display": "standalone",
+  "background_color": "#231840",
+  "theme_color": "#231840",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/images/logo.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/images/logo.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

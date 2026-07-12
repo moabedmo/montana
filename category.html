@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#342f44">
+    <title>Montana | المتجر — غسول وكريمات عناية بالبشرة</title>
+    <meta name="description" content="تسوق Montana — غسول حب الشباب، كريم تفتيح، ومنتجات عناية بالبشرة الطبيعية. شحن لكل مصر.">
+    <link rel="canonical" href="https://www.montana.com.eg/category.html">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
+    <link rel="stylesheet" href="css/shop.bundle.css?v=2">
+    <script src="js/seo.js" defer></script>
+    <script src="js/analytics-config.js"></script>
+    <script src="js/analytics.js" defer></script>
+    <script src="js/perf.js?v=2" defer></script>
+</head>
+<body class="mnt-shop">
+
+<div class="page-header">
+    <a href="index.html" class="page-back"><i class="fas fa-arrow-right"></i></a>
+    <h2 id="shopPageTitle">العناية بالبشرة</h2>
+    <div class="page-header-actions">
+        <a href="search.html" class="page-action" title="بحث"><i class="fas fa-search"></i></a>
+    </div>
+</div>
+
+<section class="shop-hero" id="shopHero">
+    <div class="shop-hero-inner">
+        <p class="shop-eyebrow">MONTAÑA · SKINCARE</p>
+        <h1 class="shop-title" id="shopHeroTitle">العناية بالبشرة</h1>
+        <p class="shop-sub">تركيبات طبية فاخرة — معايير عالمية، صُنعت بعناية في مصر</p>
+    </div>
+</section>
+
+<div class="shop-trust">
+    <div class="shop-trust-item"><i class="fas fa-truck"></i><span>شحن مجاني فوق 500 ج.م</span></div>
+    <div class="shop-trust-item"><i class="fas fa-shield-alt"></i><span>منتجات أصلية 100%</span></div>
+    <div class="shop-trust-item"><i class="fas fa-flask"></i><span>تركيبات dermatologically tested</span></div>
+    <div class="shop-trust-item"><i class="fas fa-globe-africa"></i><span>Made in Egypt · Global quality</span></div>
+</div>
+
+<div class="cat-sub-scroll" id="catFilters">
+    <button type="button" class="cat-sub active" data-filter="all">الكل</button>
+    <button type="button" class="cat-sub" data-filter="cleanser">غسول</button>
+    <button type="button" class="cat-sub" data-filter="cream">كريم</button>
+    <button type="button" class="cat-sub" data-filter="serum">سيروم</button>
+    <button type="button" class="cat-sub" data-filter="lotion">لوشن</button>
+</div>
+
+<div class="cat-toolbar">
+    <span class="cat-count" id="catCount">جارٍ التحميل…</span>
+    <div class="cat-sort">
+        <select id="catSort" aria-label="ترتيب المنتجات">
+            <option value="default">الترتيب الافتراضي</option>
+            <option value="price-asc">السعر: من الأقل</option>
+            <option value="price-desc">السعر: من الأعلى</option>
+            <option value="rating">الأعلى تقييماً</option>
+        </select>
+    </div>
+</div>
+
+<div class="cat-products products-grid" id="catProducts"></div>
+
+<script src="components.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/lang-switch.js?v=2"></script>
+<script src="js/wishlist.js"></script>
+<script src="js/shop-premium.js"></script>
+<script src="js/storefront-ui.js"></script>
+<script type="module">
+import { products as productsApi } from '/js/store-api.js';
+import { localizeProduct, getLocale, formatPrice, productUrl } from '/js/i18n/locale.js?v=3';
+import { UI_STRINGS } from '/js/i18n/en.js';
+
+const params = new URLSearchParams(location.search);
+const wishlistMode = params.get('wishlist') === '1';
+const BADGE_LABEL_AR = { 'best-seller': 'الأكثر مبيعاً', 'new': 'جديد', 'sale': 'خصم' };
+const BADGE_CLASS = { 'best-seller': 'best', 'new': 'new', 'sale': 'sale' };
+
+function shopCopy() {
+  return getLocale() === 'en' ? UI_STRINGS.shop : {
+    wishlist: 'المفضلة',
+    wishlistSub: 'منتجاتك المحفوظة — جاهزة للطلب',
+    emptyWishlist: 'المفضلة فارغة — ابدأ بإضافة منتجات تحبها',
+    browseShop: 'تصفح المتجر',
+    emptyCategory: 'لا توجد منتجات في هذا التصنيف حالياً',
+    viewAll: 'عرض الكل',
+    loadError: 'تعذّر تحميل المنتجات — حاول مرة أخرى',
+    retry: 'إعادة المحاولة',
+    products: 'منتجات',
+  };
+}
+
+function badgeLabels() {
+  return getLocale() === 'en' ? UI_STRINGS.badges : BADGE_LABEL_AR;
+}
+
+let ALL_PRODUCTS = [];
+let ACTIVE_FILTER = 'all';
+
+function countLabel(n) {
+  const s = shopCopy();
+  return getLocale() === 'en' ? `${n} products` : `${n} ${s.products}`;
+}
+
+function emptyStateHtml(message, linkHref, linkText) {
+  return `<div class="shop-empty">
+    <i class="fas fa-spa"></i>
+    <p>${message}</p>
+    ${linkHref ? `<a href="${linkHref}">${linkText}</a>` : ''}
+  </div>`;
+}
+
+if (wishlistMode) {
+  const s = shopCopy();
+  document.getElementById('shopPageTitle').textContent = s.wishlist;
+  document.getElementById('shopHeroTitle').textContent = s.wishlist;
+  document.querySelector('.shop-sub').textContent = s.wishlistSub;
+  document.querySelector('.shop-eyebrow').textContent = 'MONTAÑA · WISHLIST';
+  document.querySelector('.page-back').href = 'account.html';
+  document.getElementById('catFilters')?.remove();
+  document.querySelector('.shop-trust')?.remove();
+}
+
+function filteredList() {
+  const match = window.MontanaShopFilter?.match || (() => true);
+  return ALL_PRODUCTS.filter((p) => match(ACTIVE_FILTER, p));
+}
+
+function renderProducts(list) {
+  const el = document.getElementById('catProducts');
+  if (!list.length) {
+    const s = shopCopy();
+    el.innerHTML = wishlistMode
+      ? emptyStateHtml(s.emptyWishlist, 'category.html', s.browseShop)
+      : emptyStateHtml(s.emptyCategory, 'category.html', s.viewAll);
+    return;
+  }
+  if (window.MontanaUI) {
+    el.className = 'cat-products products-grid';
+    el.innerHTML = list.map((p) => window.MontanaUI.renderProductCard(localizeProduct(p) || p)).join('');
+    window.MontanaUI.initProductCards(el);
+    return;
+  }
+  el.innerHTML = list.map((p) => {
+    const lp = localizeProduct(p) || p;
+    const discountPct = lp.old_price ? Math.round((1 - lp.price / lp.old_price) * 100) : null;
+    const badgeText = discountPct ? `-${discountPct}%` : (badgeLabels()[lp.badge] || '');
+    const badgeClass = BADGE_CLASS[lp.badge] || 'sale';
+    const liked = window.Wishlist?.has(lp.id);
+    return `
+    <a href="${productUrl(lp.slug)}" class="cat-product-card">
+      <div class="cat-product-img">
+        ${badgeText ? `<span class="cat-badge ${badgeClass}">${badgeText}</span>` : ''}
+        <button class="cat-wishlist" data-product-id="${lp.id}" onclick="event.preventDefault();Wishlist.toggle(${lp.id})"><i class="${liked ? 'fas' : 'far'} fa-heart"></i></button>
+        <img src="${lp.image_url}" alt="${lp.name}">
+      </div>
+      <div class="cat-product-info">
+        <span class="cat-brand">Montaña</span>
+        <h3>${lp.name}</h3>
+        <div class="cat-rating"><i class="fas fa-star"></i> ${lp.rating} <span>(${lp.review_count})</span></div>
+        <div class="cat-prices">
+          <span class="cat-price-new">${formatPrice(lp.price)}</span>
+          ${lp.old_price ? `<span class="cat-price-old">${formatPrice(lp.old_price)}</span>` : ''}
+        </div>
+      </div>
+    </a>`;
+  }).join('');
+}
+
+function applySort(list, mode) {
+  const sorted = [...list];
+  if (mode === 'price-asc') sorted.sort((a, b) => a.price - b.price);
+  else if (mode === 'price-desc') sorted.sort((a, b) => b.price - a.price);
+  else if (mode === 'rating') sorted.sort((a, b) => b.rating - a.rating);
+  return sorted;
+}
+
+function refreshGrid() {
+  const sorted = applySort(filteredList(), document.getElementById('catSort').value);
+  document.getElementById('catCount').textContent = countLabel(sorted.length);
+  renderProducts(sorted);
+}
+
+document.getElementById('catSort').addEventListener('change', refreshGrid);
+
+document.querySelectorAll('.cat-sub').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cat-sub').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+    ACTIVE_FILTER = btn.dataset.filter || 'all';
+    refreshGrid();
+  });
+});
+
+(async () => {
+  try {
+    const all = await productsApi.list();
+    if (wishlistMode) {
+      const ids = window.Wishlist?.getIds() || [];
+      ALL_PRODUCTS = all.filter((p) => ids.includes(p.id)).map((p) => localizeProduct(p) || p);
+    } else {
+      ALL_PRODUCTS = all.map((p) => localizeProduct(p) || p);
+    }
+    refreshGrid();
+  } catch (e) {
+    const s = shopCopy();
+    document.getElementById('catCount').textContent = '—';
+    document.getElementById('catProducts').innerHTML = emptyStateHtml(s.loadError, 'category.html', s.retry);
+  }
+})();
+</script>
+<script type="module" src="js/site-settings.js"></script>
+</body>
+</html>

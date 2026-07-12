@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#9B6CB8">
+    <title>Montana | Contact us</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../app.css">
+    <link rel="stylesheet" href="../pages.css">
+    <link rel="stylesheet" href="../premium.css">
+    <link rel="stylesheet" href="../css/ltr-en.css?v=1">
+    <link rel="stylesheet" href="../dark-theme.css">
+    <script src="../js/seo.js" defer></script>
+</head>
+<body class="mnt-en">
+
+<div class="page-header">
+    <a href="/en/index.html" class="page-back"><i class="fas fa-arrow-left"></i></a>
+    <h2>Contact us</h2>
+    <div class="page-header-actions"></div>
+</div>
+
+<div class="contact-content">
+    <!-- Quick Contact Cards -->
+    <div class="contact-quick">
+        <a href="tel:01234567890" class="contact-card">
+            <div class="contact-card-icon call"><i class="fas fa-phone"></i></div>
+            <h4>Call us</h4>
+            <span>01234567890</span>
+        </a>
+        <a href="https://wa.me/201234567890" class="contact-card">
+            <div class="contact-card-icon whatsapp"><i class="fab fa-whatsapp"></i></div>
+            <h4>WhatsApp</h4>
+            <span>Instant chat</span>
+        </a>
+        <a href="mailto:info@montana.com" class="contact-card">
+            <div class="contact-card-icon email"><i class="fas fa-envelope"></i></div>
+            <h4>Email</h4>
+            <span>info@montana.com</span>
+        </a>
+    </div>
+
+    <!-- Working Hours -->
+    <div class="contact-hours">
+        <i class="fas fa-clock"></i>
+        <div>
+            <h4>Working hours</h4>
+            <span>Daily 9 AM – 11 PM</span>
+        </div>
+    </div>
+
+    <!-- Contact Form -->
+    <div class="contact-form-section">
+        <h3>Send us a message</h3>
+        <form class="contact-form" id="contactForm">
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="contactName" placeholder="Your full name" required>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="contactEmail" placeholder="example@email.com" dir="ltr" required>
+            </div>
+            <div class="form-group">
+                <label>Order number (optional)</label>
+                <input type="text" id="contactOrder" placeholder="MON-XXXXX" dir="ltr">
+            </div>
+            <div class="form-group">
+                <label>Subject</label>
+                <select id="contactSubject">
+                    <option>General inquiry</option>
+                    <option>Order issue</option>
+                    <option>Return or exchange</option>
+                    <option>Suggestion or complaint</option>
+                    <option>Business partnership</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Message</label>
+                <textarea rows="4" id="contactMessage" placeholder="Write your message here…" required></textarea>
+            </div>
+            <p id="contactMsg" style="font-size:13px;text-align:center;display:none"></p>
+            <button type="submit" class="contact-submit" id="contactSubmit">
+                <i class="fas fa-paper-plane"></i> Send message
+            </button>
+        </form>
+    </div>
+
+    <!-- Location -->
+    <div class="contact-location">
+        <h3><i class="fas fa-map-marker-alt"></i> Our location</h3>
+        <p>Cairo, Egypt</p>
+    </div>
+
+    <!-- Social -->
+    <div class="contact-social">
+        <h3>Follow us</h3>
+        <div class="contact-social-links">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-tiktok"></i></a>
+            <a href="#"><i class="fab fa-whatsapp"></i></a>
+        </div>
+    </div>
+</div>
+
+
+<script>window.MONTANA_LOCALE="en";</script>
+<script type="module" src="../js/i18n/bootstrap-en.js"></script>
+<script type="module" src="../js/en-apply-ui.js"></script>
+<script src="../components.js"></script>
+<script src="../js/lang-switch.js?v=2"></script>
+<script src="../js/cart.js"></script>
+<script type="module">
+import { contact as contactApi, settings as settingsApi } from '/js/store-api.js';
+import { getLocale } from '/js/i18n/locale.js?v=3';
+import { UI_STRINGS } from '/js/i18n/en.js';
+
+const CONTACT_MSG = UI_STRINGS.contact;
+
+document.getElementById('contactForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('contactSubmit');
+  const msgEl = document.getElementById('contactMsg');
+  const msgs = CONTACT_MSG;
+  btn.disabled = true;
+  try {
+    await contactApi.submit({
+      name: document.getElementById('contactName').value.trim(),
+      email: document.getElementById('contactEmail').value.trim(),
+      subject: document.getElementById('contactSubject').value,
+      message: document.getElementById('contactMessage').value.trim(),
+      order_number: document.getElementById('contactOrder').value.trim() || null
+    });
+    msgEl.textContent = msgs.success;
+    msgEl.style.color = '#27ae60';
+    msgEl.style.display = 'block';
+    e.target.reset();
+  } catch {
+    msgEl.textContent = msgs.error;
+    msgEl.style.color = '#EF5350';
+    msgEl.style.display = 'block';
+  }
+  btn.disabled = false;
+});
+
+(async () => {
+  try {
+    const s = await settingsApi.getMany(['phone', 'email', 'whatsapp', 'address', 'working_hours', 'facebook_url', 'instagram_url', 'tiktok_url']);
+    if (s.phone) document.querySelector('.contact-card[href^="tel"] span').textContent = s.phone;
+    if (s.phone) document.querySelector('.contact-card[href^="tel"]').href = 'tel:' + s.phone.replace(/\s/g, '');
+    if (s.whatsapp) document.querySelector('.contact-card[href*="wa.me"]').href = 'https://wa.me/' + s.whatsapp.replace(/\D/g, '');
+    if (s.email) document.querySelector('.contact-card[href^="mailto"] span').textContent = s.email;
+    if (s.email) document.querySelector('.contact-card[href^="mailto"]').href = 'mailto:' + s.email;
+    if (s.working_hours) document.querySelector('.contact-hours span').textContent = s.working_hours;
+    if (s.address) document.querySelector('.contact-location p').textContent = s.address;
+    const social = document.querySelectorAll('.contact-social-links a');
+    const urls = [s.facebook_url, s.instagram_url, s.tiktok_url, s.whatsapp ? 'https://wa.me/' + s.whatsapp.replace(/\D/g, '') : ''];
+    social.forEach((a, i) => { if (urls[i]) a.href = urls[i]; });
+  } catch { /* keep placeholders */ }
+})();
+</script>
+<script type="module" src="../js/site-settings.js"></script>
+</body>
+</html>

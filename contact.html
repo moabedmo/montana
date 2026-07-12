@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#9B6CB8">
+    <title>Montana | تواصل معنا</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="app.css">
+    <link rel="stylesheet" href="pages.css">
+    <link rel="stylesheet" href="premium.css">
+    <link rel="stylesheet" href="dark-theme.css">
+</head>
+<body>
+
+<div class="page-header">
+    <a href="index.html" class="page-back"><i class="fas fa-arrow-right"></i></a>
+    <h2>تواصل معنا</h2>
+    <div class="page-header-actions"></div>
+</div>
+
+<div class="contact-content">
+    <!-- Quick Contact Cards -->
+    <div class="contact-quick">
+        <a href="tel:01234567890" class="contact-card">
+            <div class="contact-card-icon call"><i class="fas fa-phone"></i></div>
+            <h4>اتصل بنا</h4>
+            <span>01234567890</span>
+        </a>
+        <a href="https://wa.me/201234567890" class="contact-card">
+            <div class="contact-card-icon whatsapp"><i class="fab fa-whatsapp"></i></div>
+            <h4>واتساب</h4>
+            <span>محادثة فورية</span>
+        </a>
+        <a href="mailto:info@montana.com" class="contact-card">
+            <div class="contact-card-icon email"><i class="fas fa-envelope"></i></div>
+            <h4>البريد</h4>
+            <span>info@montana.com</span>
+        </a>
+    </div>
+
+    <!-- Working Hours -->
+    <div class="contact-hours">
+        <i class="fas fa-clock"></i>
+        <div>
+            <h4>ساعات العمل</h4>
+            <span>يومياً من 9 صباحاً حتى 11 مساءً</span>
+        </div>
+    </div>
+
+    <!-- Contact Form -->
+    <div class="contact-form-section">
+        <h3>أرسل لنا رسالة</h3>
+        <form class="contact-form" id="contactForm">
+            <div class="form-group">
+                <label>الاسم</label>
+                <input type="text" id="contactName" placeholder="أدخل اسمك الكامل" required>
+            </div>
+            <div class="form-group">
+                <label>البريد الإلكتروني</label>
+                <input type="email" id="contactEmail" placeholder="example@email.com" dir="ltr" required>
+            </div>
+            <div class="form-group">
+                <label>رقم الطلب (اختياري)</label>
+                <input type="text" id="contactOrder" placeholder="MON-XXXXX" dir="ltr">
+            </div>
+            <div class="form-group">
+                <label>الموضوع</label>
+                <select id="contactSubject">
+                    <option>استفسار عام</option>
+                    <option>مشكلة في الطلب</option>
+                    <option>إرجاع أو استبدال</option>
+                    <option>اقتراح أو شكوى</option>
+                    <option>شراكات تجارية</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>الرسالة</label>
+                <textarea rows="4" id="contactMessage" placeholder="اكتب رسالتك هنا..." required></textarea>
+            </div>
+            <p id="contactMsg" style="font-size:13px;text-align:center;display:none"></p>
+            <button type="submit" class="contact-submit" id="contactSubmit">
+                <i class="fas fa-paper-plane"></i> إرسال الرسالة
+            </button>
+        </form>
+    </div>
+
+    <!-- Location -->
+    <div class="contact-location">
+        <h3><i class="fas fa-map-marker-alt"></i> موقعنا</h3>
+        <p>القاهرة، مصر</p>
+    </div>
+
+    <!-- Social -->
+    <div class="contact-social">
+        <h3>تابعنا</h3>
+        <div class="contact-social-links">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-tiktok"></i></a>
+            <a href="#"><i class="fab fa-whatsapp"></i></a>
+        </div>
+    </div>
+</div>
+
+<script src="components.js"></script>
+<script src="js/cart.js"></script>
+<script type="module">
+import { contact as contactApi, settings as settingsApi } from '/js/store-api.js';
+import { getLocale } from '/js/i18n/locale.js?v=3';
+import { UI_STRINGS } from '/js/i18n/en.js';
+
+const CONTACT_MSG = {
+  ar: {
+    success: 'تم إرسال رسالتك بنجاح — سنتواصل معك قريباً ✓',
+    error: 'تعذّر الإرسال، حاول مرة أخرى',
+  },
+  en: {
+    success: UI_STRINGS.contact.success,
+    error: UI_STRINGS.contact.error,
+  },
+};
+
+document.getElementById('contactForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('contactSubmit');
+  const msgEl = document.getElementById('contactMsg');
+  const msgs = getLocale() === 'en' ? CONTACT_MSG.en : CONTACT_MSG.ar;
+  btn.disabled = true;
+  try {
+    await contactApi.submit({
+      name: document.getElementById('contactName').value.trim(),
+      email: document.getElementById('contactEmail').value.trim(),
+      subject: document.getElementById('contactSubject').value,
+      message: document.getElementById('contactMessage').value.trim(),
+      order_number: document.getElementById('contactOrder').value.trim() || null
+    });
+    msgEl.textContent = msgs.success;
+    msgEl.style.color = '#27ae60';
+    msgEl.style.display = 'block';
+    e.target.reset();
+  } catch {
+    msgEl.textContent = msgs.error;
+    msgEl.style.color = '#EF5350';
+    msgEl.style.display = 'block';
+  }
+  btn.disabled = false;
+});
+
+(async () => {
+  try {
+    const s = await settingsApi.getMany(['phone', 'email', 'whatsapp', 'address', 'working_hours', 'facebook_url', 'instagram_url', 'tiktok_url']);
+    if (s.phone) document.querySelector('.contact-card[href^="tel"] span').textContent = s.phone;
+    if (s.phone) document.querySelector('.contact-card[href^="tel"]').href = 'tel:' + s.phone.replace(/\s/g, '');
+    if (s.whatsapp) document.querySelector('.contact-card[href*="wa.me"]').href = 'https://wa.me/' + s.whatsapp.replace(/\D/g, '');
+    if (s.email) document.querySelector('.contact-card[href^="mailto"] span').textContent = s.email;
+    if (s.email) document.querySelector('.contact-card[href^="mailto"]').href = 'mailto:' + s.email;
+    if (s.working_hours) document.querySelector('.contact-hours span').textContent = s.working_hours;
+    if (s.address) document.querySelector('.contact-location p').textContent = s.address;
+    const social = document.querySelectorAll('.contact-social-links a');
+    const urls = [s.facebook_url, s.instagram_url, s.tiktok_url, s.whatsapp ? 'https://wa.me/' + s.whatsapp.replace(/\D/g, '') : ''];
+    social.forEach((a, i) => { if (urls[i]) a.href = urls[i]; });
+  } catch { /* keep placeholders */ }
+})();
+</script>
+<script type="module" src="js/site-settings.js"></script>
+</body>
+</html>

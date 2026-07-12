@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#9B6CB8">
+    <title>Montana | Order confirmed</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../app.css">
+    <link rel="stylesheet" href="../pages.css">
+    <link rel="stylesheet" href="../premium.css">
+    <link rel="stylesheet" href="../css/ltr-en.css?v=1">
+    <link rel="stylesheet" href="../dark-theme.css">
+    <script src="../js/seo.js" defer></script>
+</head>
+<body class="mnt-en">
+
+<div class="page-header">
+    <a href="/en/index.html" class="page-back"><i class="fas fa-arrow-left"></i></a>
+    <h2 id="confPageTitle">Order confirmation</h2>
+    <div class="page-header-actions"></div>
+</div>
+
+<div class="confirmation-page" id="confPage"></div>
+
+
+<script>window.MONTANA_LOCALE="en";</script>
+<script type="module" src="../js/i18n/bootstrap-en.js"></script>
+<script type="module" src="../js/en-apply-ui.js"></script>
+<script src="../components.js"></script>
+<script src="../js/lang-switch.js?v=2"></script>
+<script src="../js/cart.js"></script>
+<script type="module">
+import { orders as ordersApi } from '/js/store-api.js';
+import { getLocale, resolveAssetUrl, formatPrice } from '/js/i18n/locale.js?v=3';
+import { UI_STRINGS } from '/js/i18n/en.js';
+
+const isEn = getLocale() === 'en';
+const L = isEn ? UI_STRINGS.confirmation : {
+  pageTitle: 'تأكيد الطلب',
+  noOrderTitle: 'لا يوجد طلب حالي',
+  noOrderDesc: 'لم نجد أي طلب حديث لعرضه في هذه الجلسة.',
+  home: 'العودة للرئيسية',
+  successTitle: 'تم تأكيد طلبك بنجاح!',
+  successDesc: 'شكراً لك على طلبك. سنرسل لك تحديثات عن حالة الطلب.',
+  bookingConfirmed: 'تم تأكيد الحجز',
+  awaitingBooking: 'بانتظار تأكيد الحجز',
+  awaitingDesc: 'هنراجع إيصال التحويل ونأكد طلبك، عادةً خلال وقت قصير.',
+  refreshStatus: 'تحديث الحالة',
+  refreshing: 'جارٍ التحديث…',
+  orderNumber: 'رقم الطلب',
+  orderDate: 'تاريخ الطلب',
+  paymentMethod: 'Payment method',
+  deliveryMethod: 'Delivery method',
+  deliveryExpress: 'توصيل سريع (24 ساعة)',
+  deliveryStandard: 'توصيل عادي (2-3 أيام)',
+  total: 'الإجمالي',
+  products: 'المنتجات ({count})',
+  qty: 'الكمية: {n}',
+  deliveryAddress: 'عنوان التوصيل',
+  trackOrder: 'Track order',
+  rewardsEarned: 'لقد كسبت <strong>{points} نقطة</strong> من Montana Rewards!',
+  paymentLabels: { cod: 'Cash on delivery', card: 'Credit card', wallet: 'محفظة إلكترونية' },
+};
+
+document.getElementById('confPageTitle').textContent = L.pageTitle;
+if (isEn) document.title = `Montana | ${L.pageTitle}`;
+
+const money = (n) => (isEn ? formatPrice(n) : `${Math.round(n)} EGP`);
+const fmt = (t, vars = {}) => String(t).replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
+
+function depositBannerHtml(order) {
+  if (order.payment_status === 'confirmed') {
+    return `<div class="conf-order-row total" style="border:1px solid #27ae60;border-radius:12px;padding:12px;margin-bottom:16px"><span style="color:#27ae60"><i class="fas fa-check-circle"></i> ${L.bookingConfirmed}</span></div>`;
+  }
+  return `
+        <div class="conf-order-row" style="flex-direction:column;align-items:flex-start;gap:8px;border:1.5px dashed var(--accent);border-radius:12px;padding:14px;margin-bottom:16px">
+            <strong style="color:var(--accent)"><i class="fas fa-clock"></i> ${L.awaitingBooking}</strong>
+            <span style="font-size:12px;color:var(--text-muted)">${L.awaitingDesc}</span>
+            <button id="refreshStatusBtn" style="font-size:12px;font-weight:700;color:var(--accent);background:none;border:1.5px solid var(--accent);border-radius:20px;padding:6px 14px">${L.refreshStatus}</button>
+        </div>`;
+}
+
+function renderConfirmation() {
+  const page = document.getElementById('confPage');
+  let saved;
+  try { saved = JSON.parse(sessionStorage.getItem('montana_last_order')); } catch { saved = null; }
+
+  if (!saved || !saved.order) {
+    page.innerHTML = `
+            <div class="conf-success">
+                <div class="conf-check" style="background:#f5f3f8;color:#9B6CB8"><i class="fas fa-receipt"></i></div>
+                <h2>${L.noOrderTitle}</h2>
+                <p>${L.noOrderDesc}</p>
+            </div>
+            <div class="conf-actions">
+                <a href="/en/index.html" class="conf-btn primary"><i class="fas fa-home"></i> ${L.home}</a>
+            </div>`;
+    return;
+  }
+
+  const { order, items } = saved;
+  const dateStr = new Date(order.created_at).toLocaleDateString(isEn ? 'en-GB' : 'ar-EG', { day: 'numeric', month: 'long', year: 'numeric' });
+  const points = Math.round((order.total || 0) / 10);
+  const addrSep = isEn ? ', ' : '، ';
+
+  page.innerHTML = `
+        <div class="conf-success">
+            <div class="conf-check"><i class="fas fa-check"></i></div>
+            <h2>${L.successTitle}</h2>
+            <p>${L.successDesc}</p>
+        </div>
+
+        ${order.payment_status !== undefined ? depositBannerHtml(order) : ''}
+
+        <div class="conf-order-card">
+            <div class="conf-order-row"><span>${L.orderNumber}</span><strong dir="ltr">${order.order_number}</strong></div>
+            <div class="conf-order-row"><span>${L.orderDate}</span><strong>${dateStr}</strong></div>
+            <div class="conf-order-row"><span>${L.paymentMethod}</span><strong>${L.paymentLabels[order.payment_method] || order.payment_method}</strong></div>
+            <div class="conf-order-row"><span>${L.deliveryMethod}</span><strong>${order.delivery_method === 'express' ? L.deliveryExpress : L.deliveryStandard}</strong></div>
+            <div class="conf-order-row total"><span>${L.total}</span><strong>${money(order.total)}</strong></div>
+        </div>
+
+        <div class="conf-items">
+            <h3>${fmt(L.products, { count: items.length })}</h3>
+            ${items.map(it => `
+                <div class="conf-item">
+                    <img src="${resolveAssetUrl(it.product_image || '')}" alt="">
+                    <div>
+                        <h4>${it.product_name}</h4>
+                        <span>${fmt(L.qty, { n: it.quantity })}</span>
+                    </div>
+                    <span class="conf-item-price">${money(it.total)}</span>
+                </div>
+            `).join('')}
+        </div>
+
+        <div class="conf-address">
+            <h3><i class="fas fa-map-marker-alt"></i> ${L.deliveryAddress}</h3>
+            <p>${order.address}${order.city ? addrSep + order.city : ''}</p>
+            <span dir="ltr">${order.customer_phone}</span>
+        </div>
+
+        <div class="conf-actions">
+            <a href="/en/tracking.html?order=${encodeURIComponent(order.order_number)}&phone=${encodeURIComponent(order.customer_phone || '')}" class="conf-btn primary"><i class="fas fa-truck"></i> ${L.trackOrder}</a>
+            <a href="/en/index.html" class="conf-btn secondary"><i class="fas fa-home"></i> ${L.home}</a>
+        </div>
+
+        <div class="conf-earned">
+            <i class="fas fa-crown"></i>
+            <span>${fmt(L.rewardsEarned, { points })}</span>
+        </div>`;
+
+  const refreshBtn = document.getElementById('refreshStatusBtn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', async () => {
+      refreshBtn.textContent = L.refreshing;
+      refreshBtn.disabled = true;
+      try {
+        const status = await ordersApi.getStatus(order.order_number, order.customer_phone);
+        if (status.found) {
+          order.payment_status = status.payment_status;
+          order.status = status.status;
+          saved.order = order;
+          sessionStorage.setItem('montana_last_order', JSON.stringify(saved));
+          renderConfirmation();
+        } else {
+          refreshBtn.textContent = L.refreshStatus;
+          refreshBtn.disabled = false;
+        }
+      } catch (e) {
+        refreshBtn.textContent = L.refreshStatus;
+        refreshBtn.disabled = false;
+      }
+    });
+  }
+}
+
+renderConfirmation();
+</script>
+</body>
+</html>

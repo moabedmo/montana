@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Montana | فاتورة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet"></noscript>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --purple: #9B6CB8;
+            --dark: #2D1B3D;
+            --light-purple: #F8F5FB;
+            --gold: #D4AF37;
+            --text: #2D1B3D;
+            --muted: #8888a0;
+            --border: #E8DFF0;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: #f0ecf5;
+            color: var(--text);
+            padding: 24px;
+        }
+
+        .invoice {
+            max-width: 800px;
+            flex: 1;
+            min-width: 0;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(45,27,61,0.08);
+        }
+
+        /* Header */
+        .inv-header {
+            background: linear-gradient(135deg, var(--dark), var(--purple));
+            color: #fff;
+            padding: 32px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .inv-logo img {
+            height: 40px;
+            filter: brightness(0) invert(1);
+        }
+
+        .inv-logo h1 {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            margin-bottom: 4px;
+        }
+
+        .inv-logo span {
+            font-size: 11px;
+            opacity: 0.7;
+            letter-spacing: 2px;
+        }
+
+        .inv-title {
+            text-align: left;
+        }
+
+        .inv-title h2 {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+
+        .inv-title span {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        /* Company + Client Info */
+        .inv-info {
+            display: flex;
+            justify-content: space-between;
+            padding: 28px 40px;
+            gap: 40px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .inv-info-block h3 {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--purple);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .inv-info-block p {
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.8;
+        }
+
+        .inv-info-block .label {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        /* Invoice Meta */
+        .inv-meta {
+            display: flex;
+            gap: 24px;
+            padding: 20px 40px;
+            background: var(--light-purple);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .inv-meta-item {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+        }
+
+        .inv-meta-item:not(:last-child) {
+            border-left: 1px solid var(--border);
+        }
+
+        .inv-meta-item .label {
+            font-size: 10px;
+            color: var(--muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .inv-meta-item .value {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--dark);
+        }
+
+        /* Products Table */
+        .inv-table {
+            padding: 0 40px;
+        }
+
+        .inv-table table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .inv-table th {
+            background: var(--dark);
+            color: #fff;
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: right;
+            letter-spacing: 0.5px;
+        }
+
+        .inv-table th:first-child { border-radius: 0 8px 0 0; }
+        .inv-table th:last-child { border-radius: 8px 0 0 0; }
+
+        .inv-table td {
+            padding: 14px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .inv-table tr:hover { background: rgba(155,108,184,0.03); }
+
+        .inv-table .product-name {
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .inv-table .discount {
+            background: rgba(155,108,184,0.1);
+            color: var(--purple);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .inv-table .row-total {
+            font-weight: 800;
+            color: var(--purple);
+        }
+
+        /* Totals */
+        .inv-totals {
+            padding: 0 40px 24px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .inv-totals-box {
+            width: 280px;
+        }
+
+        .inv-totals-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .inv-totals-row.total {
+            border-top: 2px solid var(--dark);
+            margin-top: 8px;
+            padding-top: 12px;
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--dark);
+        }
+
+        .inv-totals-row.total span:last-child {
+            color: var(--purple);
+        }
+
+        /* Footer */
+        .inv-footer {
+            background: var(--light-purple);
+            padding: 24px 40px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .inv-footer-info {
+            font-size: 11px;
+            color: var(--muted);
+            line-height: 1.8;
+        }
+
+        .inv-footer-info strong {
+            color: var(--dark);
+        }
+
+        .inv-stamp {
+            text-align: center;
+        }
+
+        .inv-stamp-circle {
+            width: 80px;
+            height: 80px;
+            border: 3px solid var(--purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--purple);
+            transform: rotate(-15deg);
+            opacity: 0.6;
+        }
+
+        /* Watermark */
+        .inv-watermark {
+            text-align: center;
+            padding: 16px;
+            font-size: 10px;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+        }
+
+        .inv-watermark strong { color: var(--purple); }
+
+        /* Toolbar */
+        .inv-toolbar { margin: 0 auto 16px; max-width: 1100px; }
+        .inv-toolbar-btns { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+
+        /* Layout with sidebar */
+        .inv-layout { display: flex; gap: 16px; max-width: 1100px; margin: 0 auto; }
+
+        .inv-sidebar {
+            width: 260px;
+            flex-shrink: 0;
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 2px 12px rgba(45,27,61,0.06);
+            max-height: 80vh;
+            overflow-y: auto;
+            position: sticky;
+            top: 24px;
+        }
+
+        .inv-sidebar h3 {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .inv-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+            border: 1px solid transparent;
+        }
+
+        .inv-item:hover { background: var(--light-purple); }
+        .inv-item.active { background: var(--light-purple); border-color: var(--purple); }
+
+        .inv-item-info h4 { font-size: 12px; font-weight: 700; color: var(--dark); }
+        .inv-item-info span { font-size: 10px; color: var(--muted); }
+        .inv-item-total { font-size: 13px; font-weight: 800; color: var(--purple); }
+
+        .inv-empty { text-align: center; color: var(--muted); font-size: 12px; padding: 24px 0; }
+
+        /* Picker modal */
+        .picker-overlay {
+            position: fixed; inset: 0; background: rgba(45,27,61,.55); z-index: 500;
+            display: flex; align-items: center; justify-content: center; padding: 16px;
+        }
+        .picker-overlay.hidden { display: none !important; }
+        .picker-box {
+            background: #fff; border-radius: 16px; width: 520px; max-width: 100%;
+            max-height: 85vh; display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 20px 60px rgba(45,27,61,.2);
+        }
+        .picker-head { padding: 16px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .picker-head h3 { font-size: 16px; font-weight: 800; }
+        .picker-tabs { display: flex; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+        .picker-tab {
+            padding: 7px 12px; border-radius: 8px; border: 1px solid var(--border);
+            background: #fff; font-family: inherit; font-size: 12px; cursor: pointer;
+        }
+        .picker-tab.active { background: var(--light-purple); border-color: var(--purple); color: var(--purple); font-weight: 700; }
+        .picker-search { margin: 12px 14px 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; width: calc(100% - 28px); }
+        .picker-list { overflow-y: auto; padding: 10px 14px 16px; flex: 1; }
+        .picker-item {
+            padding: 11px 12px; border-radius: 10px; border: 1px solid var(--border);
+            margin-bottom: 8px; cursor: pointer; transition: .15s;
+        }
+        .picker-item:hover { background: var(--light-purple); border-color: var(--purple); }
+        .picker-item h4 { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+        .picker-item p { font-size: 11px; color: var(--muted); line-height: 1.5; }
+        .picker-badge { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 5px; background: var(--light-purple); color: var(--purple); margin-left: 6px; }
+        .picker-item-stock { display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: default; }
+        .picker-item-stock:hover { background: #fff; border-color: var(--border); }
+        .picker-item-stock .picker-item-main { flex: 1; min-width: 0; }
+        .picker-item-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .picker-item-actions input[type=number] {
+            width: 58px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px;
+            font-family: inherit; font-size: 13px; text-align: center;
+        }
+        .picker-add-btn {
+            padding: 7px 12px; border-radius: 8px; border: none; background: var(--purple);
+            color: #fff; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer;
+        }
+        .picker-add-btn:hover { opacity: .9; }
+        .picker-stock-hint {
+            padding: 8px 14px; font-size: 11px; color: #c0392b; background: #fdecea;
+            border-bottom: 1px solid #f5c6cb;
+        }
+        .picker-stock-hint.hidden { display: none; }
+        .inv-source-tag { font-size: 11px; color: var(--purple); margin-top: 6px; }
+        .inv-deduct { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); margin-right: 12px; }
+
+        /* Delete button */
+        .del-btn {
+            background: #EF5350;
+            color: #fff;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: 'Tajawal';
+        }
+        .del-btn:hover { background: #c62828; }
+
+        /* Print */
+        .no-print { margin: 20px auto; text-align: center; }
+        .print-btn {
+            background: var(--purple);
+            color: #fff;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Tajawal';
+            cursor: pointer;
+            margin: 0 8px;
+        }
+        .print-btn:hover { background: var(--dark); }
+        .print-btn.outline {
+            background: none;
+            border: 2px solid var(--purple);
+            color: var(--purple);
+        }
+
+        @media print {
+            body { background: #fff; padding: 0; margin: 0; }
+            .invoice { box-shadow: none; border-radius: 0; max-width: 100%; }
+            .no-print { display: none !important; }
+            .del-btn { display: none !important; }
+            .inv-header {
+                padding: 16px 24px;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                background: linear-gradient(135deg, var(--dark), var(--purple)) !important;
+                color: #fff !important;
+            }
+            .inv-meta {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                background: var(--light-purple) !important;
+                padding: 10px 24px;
+            }
+            .inv-table th {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                background: var(--dark) !important;
+                color: #fff !important;
+                padding: 8px 10px;
+                font-size: 10px;
+            }
+            .inv-footer {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                background: var(--light-purple) !important;
+                padding: 14px 24px;
+            }
+            .discount {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .inv-info { padding: 14px 24px; }
+            .inv-meta-item { padding: 6px; }
+            .inv-table { padding: 0 24px; }
+            .inv-table td { padding: 7px 10px; font-size: 11px; }
+            .inv-table table { margin: 12px 0; }
+            .inv-totals { padding: 0 24px 12px; }
+            .inv-title h2 { font-size: 22px; }
+            .inv-logo img { height: 30px; }
+            .inv-info-block p { font-size: 10px; line-height: 1.6; }
+            .inv-stamp-circle { width: 60px; height: 60px; font-size: 8px; }
+            .inv-watermark { padding: 10px; font-size: 9px; }
+            @page { size: A4; margin: 8mm; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="no-print inv-toolbar">
+    <div class="inv-toolbar-btns">
+        <button class="print-btn" onclick="window.print()">🖨️ طباعة</button>
+        <button class="print-btn outline" onclick="openClientPicker()">👤 بيانات العميل</button>
+        <button class="print-btn outline" onclick="openStockPicker()">📦 من المخزون</button>
+        <button class="print-btn outline" onclick="toggleEdit()">✏️ تعديل</button>
+        <button class="print-btn outline" onclick="addRow()">➕ صنف يدوي</button>
+        <button class="print-btn outline" onclick="newInvoice()">📄 فاتورة جديدة</button>
+        <label class="inv-deduct"><input type="checkbox" id="deductStock" checked> خصم من المخزون</label>
+        <button class="print-btn outline" onclick="saveInvoice()">💾 حفظ</button>
+        <button class="print-btn outline" id="btn-return-invoice" onclick="returnInvoiceAsCredit()" style="display:none;color:#c0392b;border-color:#c0392b">↩️ إلغاء كمرتجع</button>
+        <button class="print-btn outline" onclick="deleteInvoice()">🗑️ حذف</button>
+    </div>
+</div>
+
+<!-- Client / stock picker -->
+<div class="picker-overlay hidden" id="pickerOverlay" onclick="if(event.target===this)closePicker()">
+    <div class="picker-box">
+        <div class="picker-head">
+            <h3 id="pickerTitle">اختيار</h3>
+            <button type="button" onclick="closePicker()" style="border:none;background:none;font-size:20px;cursor:pointer">✕</button>
+        </div>
+        <div class="picker-tabs" id="pickerTabs"></div>
+        <input type="search" class="picker-search" id="pickerSearch" placeholder="بحث بالاسم أو الهاتف…" oninput="runPickerSearch()">
+        <div class="picker-stock-hint hidden" id="pickerStockHint">⚠️ تنبيه: المنتجات المعلّمة «مخزون منخفض» — 50 وحدة أو أقل</div>
+        <div class="picker-list" id="pickerList"></div>
+    </div>
+</div>
+
+<div class="inv-layout">
+    <!-- Sidebar: saved invoices -->
+    <div class="no-print inv-sidebar" id="invSidebar">
+        <h3>📋 الفواتير المحفوظة</h3>
+        <div id="invList"></div>
+    </div>
+
+<div class="invoice">
+    <!-- Header -->
+    <div class="inv-header">
+        <div class="inv-logo">
+            <img src="images/logo.png" alt="Montana" onerror="this.outerHTML='<h1>MONTAÑA</h1>'">
+            <span>PREMIUM CARE</span>
+        </div>
+        <div class="inv-title">
+            <h2>INVOICE</h2>
+        </div>
+    </div>
+
+    <!-- Company & Client Info -->
+    <div class="inv-info">
+        <div class="inv-info-block">
+            <h3>بيانات الشركة</h3>
+            <p>
+                <strong>Montana Cosmetics - مونتانيا مستحضرات التجميل</strong><br>
+                العنوان: 1268 مجاورة 6 الحي الأول - 6 أكتوبر - الجيزة<br>
+                <span class="label">رقم ضريبي:</span> 754-091-953<br>
+                <span class="label">سجل تجاري:</span> 31096
+            </p>
+        </div>
+        <div class="inv-info-block">
+            <h3>بيانات العميل</h3>
+            <p>
+                <strong id="clientName">—</strong><br>
+                <span id="clientAddress"></span>
+                <span class="label">الهاتف:</span> <span id="clientPhone">—</span>
+            </p>
+            <div class="inv-source-tag" id="clientSource"></div>
+        </div>
+    </div>
+
+    <!-- Invoice Meta -->
+    <div class="inv-meta">
+        <div class="inv-meta-item">
+            <div class="label">رقم الفاتورة</div>
+            <div class="value" id="invoiceNum">202509301</div>
+        </div>
+        <div class="inv-meta-item">
+            <div class="label">التاريخ</div>
+            <div class="value" id="invoiceDate">2026/04/29</div>
+        </div>
+        <div class="inv-meta-item">
+            <div class="label">طريقة الدفع</div>
+            <div class="value" id="paymentMethod">—</div>
+        </div>
+        <div class="inv-meta-item">
+            <div class="label">الحالة</div>
+            <div class="value" id="paymentStatus">—</div>
+        </div>
+        <div class="inv-meta-item" id="orderNumMeta" style="display:none">
+            <div class="label">رقم الطلب</div>
+            <div class="value" id="orderNumber">—</div>
+        </div>
+    </div>
+    <div id="discount-warn" class="no-print" style="display:none;margin:0 40px 12px;padding:10px 14px;border-radius:10px;background:#fff3cd;color:#856404;font-size:13px"></div>
+
+    <!-- Products Table -->
+    <div class="inv-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>الصنف</th>
+                    <th>سعر الجمهور</th>
+                    <th>الكمية</th>
+                    <th>الخصم</th>
+                    <th>سعر الصيدلي</th>
+                    <th>الإجمالي</th>
+                    <th class="no-print">حذف</th>
+                </tr>
+            </thead>
+            <tbody id="invTableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Totals -->
+    <div class="inv-totals">
+        <div class="inv-totals-box">
+            <div class="inv-totals-row">
+                <span>المجموع الفرعي</span>
+                <span id="subtotalAmount">0.00 ج.م</span>
+            </div>
+            <div class="inv-totals-row">
+                <span>الضريبة (0%)</span>
+                <span id="taxAmount">0.00 ج.م</span>
+            </div>
+            <div class="inv-totals-row" id="depositRow" style="display:none">
+                <span>مقدّم الحجز (مدفوع)</span>
+                <span id="depositAmount">0.00 ج.م</span>
+            </div>
+            <div class="inv-totals-row" id="balanceRow" style="display:none">
+                <span>المتبقي عند الاستلام</span>
+                <span id="balanceDue">0.00 ج.م</span>
+            </div>
+            <div class="inv-totals-row total">
+                <span>إجمالي الفاتورة</span>
+                <span id="grandTotalAmount">0.00 ج.م</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="inv-footer">
+        <div class="inv-footer-info">
+            <strong>Montana Cosmetics</strong><br>
+            6 أكتوبر - الجيزة - مصر<br>
+            هاتف: 01234567890 | info@montana.com
+        </div>
+        <div class="inv-stamp">
+            <div class="inv-stamp-circle">
+                MONTAÑA<br>مونتانيا<br>✓
+            </div>
+        </div>
+    </div>
+
+    <!-- Watermark -->
+    <div class="inv-watermark">
+        شكراً لتعاملكم معنا | <strong>Montana Premium Care</strong> | www.montana.com.eg
+    </div>
+</div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://ikryeyqrithikabwidov.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrcnlleXFyaXRoaWthYndpZG92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MzY1ODcsImV4cCI6MjA5NzMxMjU4N30.kNfHPxV4fq67cOF8uFsTrLOxPYcLcmmDO3ScIHzI9Uo';
+
+let editMode = false;
+let allInvoices = JSON.parse(localStorage.getItem('montana_invoices') || '{}');
+let currentInvId = null;
+let linkedOrderId = null;
+let linkedDoctorId = null;
+let linkedCustomerId = null;
+let sourceType = 'manual';
+let savedInvoiceDbId = null;
+let stockDeducted = false;
+let linkedVisitId = null;
+let visitInvoiceDueDate = null;
+let visitInvoiceAmountPaid = 0;
+let visitInvoicePaymentType = 'cash';
+let discountApproved = false;
+const MAX_DISCOUNT_PCT = 40;
+function resolveAdminToken() {
+    const params = new URLSearchParams(location.search);
+    const fromUrl = params.get('at');
+    if (fromUrl) {
+        try { localStorage.setItem('__ADMIN_TOKEN__', fromUrl); } catch { /* ignore */ }
+        return fromUrl;
+    }
+    try {
+        return localStorage.getItem('__ADMIN_TOKEN__') || sessionStorage.getItem('__ADMIN_TOKEN__') || '';
+    } catch {
+        return sessionStorage.getItem('__ADMIN_TOKEN__') || '';
+    }
+}
+
+let adminToken = resolveAdminToken();
+let orderDeposit = 0;
+let orderGrandTotal = 0;
+let currentPaymentMethod = 'cod';
+let pickerMode = 'client';
+let pickerTab = 'crm';
+let productCatalog = [];
+let pickerCache = null;
+const LOW_STOCK_THRESHOLD = 50;
+
+const PAY_METHOD = { cod: 'كاش عند الاستلام', wallet: 'محفظة / Instapay', card: 'بطاقة' };
+const PAY_STATUS = { pending: 'بانتظار الدفع', awaiting_review: 'بانتظار الإيصال', confirmed: '✓ مدفوعة' };
+
+function adminHeaders() {
+    return { apikey: SUPABASE_KEY, Authorization: `Bearer ${adminToken || SUPABASE_KEY}`, 'Content-Type': 'application/json', Prefer: 'return=representation' };
+}
+
+async function refreshInvoiceNumberPreview() {
+    const el = document.getElementById('invoiceNum');
+    if (savedInvoiceDbId) return;
+    if (!adminToken) {
+        el.textContent = 'يُولَّد عند الحفظ';
+        return;
+    }
+    try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/peek_invoice_number`, {
+            method: 'POST', headers: adminHeaders(), body: '{}'
+        });
+        const num = await res.json();
+        if (!res.ok) throw new Error(num.message);
+        el.textContent = (typeof num === 'string' ? num : String(num)) + ' (تقديري)';
+    } catch {
+        el.textContent = 'يُولَّد تلقائياً عند الحفظ';
+    }
+}
+
+function setClient(name, phone, address, sourceLabel) {
+    document.getElementById('clientName').textContent = name || 'اسم العميل';
+    document.getElementById('clientPhone').textContent = phone || '-';
+    document.getElementById('clientAddress').innerHTML = address ? address + '<br>' : '';
+    document.getElementById('clientSource').textContent = sourceLabel || '';
+}
+
+function setOrderPaymentSummary(deposit, grandTotal, orderNumber) {
+    orderDeposit = Math.max(0, parseFloat(deposit) || 0);
+    orderGrandTotal = Math.max(0, parseFloat(grandTotal) || 0);
+    const meta = document.getElementById('orderNumMeta');
+    const numEl = document.getElementById('orderNumber');
+    if (orderNumber && meta && numEl) {
+        meta.style.display = '';
+        numEl.textContent = orderNumber;
+    } else if (meta) {
+        meta.style.display = 'none';
+    }
+}
+
+function applyDepositTotals(subtotal) {
+    const depositRow = document.getElementById('depositRow');
+    const balanceRow = document.getElementById('balanceRow');
+    const depositEl = document.getElementById('depositAmount');
+    const balanceEl = document.getElementById('balanceDue');
+    const subEl = document.getElementById('subtotalAmount');
+    const taxEl = document.getElementById('taxAmount');
+    const grandEl = document.getElementById('grandTotalAmount');
+    const grand = orderGrandTotal > 0 ? orderGrandTotal : subtotal;
+    if (subEl) subEl.textContent = subtotal.toFixed(2) + ' ج.م';
+    if (taxEl) taxEl.textContent = '0.00 ج.م';
+    if (orderDeposit > 0 && depositRow && balanceRow && depositEl && balanceEl) {
+        depositRow.style.display = '';
+        balanceRow.style.display = '';
+        depositEl.textContent = orderDeposit.toFixed(2) + ' ج.م';
+        balanceEl.textContent = Math.max(0, grand - orderDeposit).toFixed(2) + ' ج.م';
+    } else if (depositRow && balanceRow) {
+        depositRow.style.display = 'none';
+        balanceRow.style.display = 'none';
+    }
+    if (grandEl) grandEl.textContent = grand.toFixed(2) + ' ج.م';
+}
+
+function setMeta(paymentMethod, paymentStatus) {
+    currentPaymentMethod = paymentMethod || 'cod';
+    document.getElementById('paymentMethod').textContent = PAY_METHOD[currentPaymentMethod] || currentPaymentMethod || '—';
+    const st = document.getElementById('paymentStatus');
+    st.textContent = PAY_STATUS[paymentStatus] || paymentStatus || '—';
+    st.style.color = paymentStatus === 'confirmed' ? '#27ae60' : '';
+}
+
+function clearTable() {
+    document.getElementById('invTableBody').innerHTML = '';
+}
+
+function addRowFromData(name, price, qty, discountPct, pharmacyPrice, rowTotal, productId) {
+    const tbody = document.getElementById('invTableBody');
+    const rowNum = tbody.children.length + 1;
+    const row = document.createElement('tr');
+    if (productId) row.dataset.productId = productId;
+    row.innerHTML = `<td>${rowNum}</td><td class="product-name">${name}</td><td>${Number(price).toFixed(2)}</td><td>${qty}</td><td><span class="discount">${discountPct}%</span></td><td>${Number(pharmacyPrice).toFixed(1)}</td><td class="row-total">${Number(rowTotal).toFixed(1)}</td><td class="no-print"><button type="button" class="del-btn">✕</button></td>`;
+    row.querySelector('.del-btn').addEventListener('click', () => { row.remove(); calcTotal(); });
+    tbody.appendChild(row);
+}
+
+function addBlankRow() {
+    const tbody = document.getElementById('invTableBody');
+    const rowNum = tbody.children.length + 1;
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${rowNum}</td><td class="product-name" contenteditable="true" style="outline:1px dashed #9B6CB8">اسم المنتج</td><td contenteditable="true" style="outline:1px dashed #9B6CB8">0.00</td><td contenteditable="true" style="outline:1px dashed #9B6CB8">1</td><td><span class="discount" contenteditable="true" style="outline:1px dashed #9B6CB8">0%</span></td><td contenteditable="true" style="outline:1px dashed #9B6CB8">0.00</td><td class="row-total">0.00</td><td class="no-print"><button type="button" class="del-btn">✕</button></td>`;
+    row.querySelector('.del-btn').addEventListener('click', () => { row.remove(); calcTotal(); });
+    tbody.appendChild(row);
+}
+
+document.getElementById('invoiceDate').textContent = new Date().toLocaleDateString('en-CA');
+setMeta('cod', 'confirmed');
+
+function toggleEdit() {
+    editMode = !editMode;
+    const cells = document.querySelectorAll('.inv-table td:not(:last-child), #clientName, #clientPhone, #clientAddress, #invoiceDate, #paymentMethod, #paymentStatus');
+    cells.forEach(cell => {
+        cell.contentEditable = editMode;
+        cell.style.outline = editMode ? '1px dashed #9B6CB8' : 'none';
+        cell.style.borderRadius = editMode ? '4px' : '';
+    });
+    event.target.textContent = editMode ? '✅ تم التعديل' : '✏️ تعديل البيانات';
+}
+
+function addRow() { addBlankRow(); calcTotal(); }
+
+function updateReturnButton() {
+    const btn = document.getElementById('btn-return-invoice');
+    if (!btn) return;
+    btn.style.display = (savedInvoiceDbId && adminToken) ? '' : 'none';
+}
+
+async function returnInvoiceAsCredit() {
+    if (!savedInvoiceDbId || !adminToken) return;
+    const reason = prompt('سبب الإرجاع / المرتجع:', 'مرتجع — استرجاع مخزون');
+    if (reason === null) return;
+    if (!confirm('إلغاء الفاتورة كمرتجع؟\nسيتم استرجاع المخزون إن وُجد.')) return;
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/cancel_invoice_as_return`, {
+        method: 'POST', headers: adminHeaders(),
+        body: JSON.stringify({ p_invoice_id: savedInvoiceDbId, p_reason: reason })
+    });
+    const data = await res.json();
+    if (!res.ok || data?.ok === false) {
+        alert(data?.message || data?.reason || 'تعذّر الإلغاء');
+        return;
+    }
+    alert('✅ تم تسجيل الفاتورة كمرتجع');
+    setMeta(currentPaymentMethod, 'returned');
+    document.getElementById('paymentStatus').textContent = '↩️ مرتجع';
+    stockDeducted = false;
+    updateReturnButton();
+}
+
+function newInvoice() {
+    linkedOrderId = null;
+    linkedDoctorId = null;
+    linkedCustomerId = null;
+    linkedVisitId = null;
+    sourceType = 'manual';
+    savedInvoiceDbId = null;
+    stockDeducted = false;
+    discountApproved = false;
+    refreshInvoiceNumberPreview();
+    document.getElementById('invoiceDate').textContent = new Date().toLocaleDateString('en-CA');
+    setClient('اسم العميل', '-', '', '');
+    setMeta('cod', 'confirmed');
+    setOrderPaymentSummary(0, 0, null);
+    clearTable();
+    addBlankRow();
+    calcTotal();
+    updateReturnButton();
+    if (editMode) toggleEdit();
+}
+
+function getMaxRowDiscount() {
+    let max = 0;
+    document.querySelectorAll('#invTableBody tr').forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length < 5) return;
+        const d = parseFloat(String(cells[4].textContent).replace('%', '').trim()) || 0;
+        if (d > max) max = d;
+    });
+    return max;
+}
+
+function calcTotal() {
+    let subtotal = 0;
+    document.querySelectorAll('#invTableBody tr').forEach((row, i) => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length < 7) return;
+        const price = parseFloat(cells[2].textContent) || 0;
+        const qty = parseInt(cells[3].textContent, 10) || 0;
+        const discountText = cells[4].textContent.replace('%', '').trim();
+        let discount = parseFloat(discountText) || 0;
+        if (discount > MAX_DISCOUNT_PCT && !discountApproved) {
+            discount = MAX_DISCOUNT_PCT;
+            cells[4].textContent = MAX_DISCOUNT_PCT + '%';
+        }
+        const pharmacyPrice = price * (1 - discount / 100);
+        const rowTotal = pharmacyPrice * qty;
+        cells[5].textContent = pharmacyPrice.toFixed(1);
+        cells[6].textContent = rowTotal.toFixed(1);
+        cells[0].textContent = i + 1;
+        subtotal += rowTotal;
+    });
+    const maxD = getMaxRowDiscount();
+    const warn = document.getElementById('discount-warn');
+    if (warn) {
+        warn.style.display = maxD > MAX_DISCOUNT_PCT ? 'block' : 'none';
+        if (maxD > MAX_DISCOUNT_PCT) warn.textContent = `⚠️ خصم ${maxD}% — يتطلب موافقة المدير (الحد ${MAX_DISCOUNT_PCT}%)`;
+    }
+    applyDepositTotals(subtotal);
+}
+
+document.querySelector('.inv-table').addEventListener('input', calcTotal);
+
+function collectRows() {
+    const rows = [];
+    document.querySelectorAll('#invTableBody tr').forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length < 7) return;
+        const item = {
+            name: cells[1].textContent,
+            price: cells[2].textContent,
+            qty: cells[3].textContent,
+            discount: cells[4].textContent.replace('%', '').trim(),
+            pharmacyPrice: cells[5].textContent,
+            total: cells[6].textContent
+        };
+        if (row.dataset.productId) item.product_id = parseInt(row.dataset.productId, 10);
+        rows.push(item);
+    });
+    return rows;
+}
+
+async function saveInvoice() {
+    const idEl = document.getElementById('invoiceNum');
+    const id = idEl.textContent.replace(/\s*\(تقديري\)\s*$/, '').trim();
+    const rows = collectRows();
+    const subtotalText = document.getElementById('grandTotalAmount')?.textContent || '0';
+    const subtotalNum = parseFloat(subtotalText) || 0;
+    const maxDisc = getMaxRowDiscount();
+    if (maxDisc > MAX_DISCOUNT_PCT && !discountApproved) {
+        const ok = confirm(`الخصم ${maxDisc}% أعلى من ${MAX_DISCOUNT_PCT}%\n\nموافقة المدير مطلوبة — هل أنت مدير وتُقرّ بالخصم؟`);
+        if (!ok) { alert(`لا يمكن الحفظ — الخصم الأقصى بدون موافقة ${MAX_DISCOUNT_PCT}%`); return; }
+        discountApproved = true;
+    }
+
+    if (adminToken) {
+        const dv = await fetch(`${SUPABASE_URL}/rest/v1/rpc/validate_invoice_discount`, {
+            method: 'POST', headers: adminHeaders(),
+            body: JSON.stringify({ p_line_items: rows, p_discount_approved: discountApproved })
+        });
+        const dvData = await dv.json();
+        if (dv.ok && dvData?.ok === false) {
+            alert(dvData.message || 'Discount requires admin approval');
+            return;
+        }
+    }
+
+    const payload = {
+        order_id: linkedOrderId,
+        doctor_id: linkedDoctorId,
+        customer_id: linkedCustomerId,
+        visit_id: linkedVisitId,
+        source_type: sourceType,
+        customer_name: document.getElementById('clientName').textContent,
+        customer_phone: document.getElementById('clientPhone').textContent,
+        customer_address: (document.getElementById('clientAddress').innerText || '').trim(),
+        invoice_date: document.getElementById('invoiceDate').textContent,
+        payment_method: currentPaymentMethod === 'manual' ? 'manual' : currentPaymentMethod,
+        status: document.getElementById('paymentStatus').textContent.includes('مدفو') ? 'paid' : 'pending',
+        line_items: rows,
+        subtotal: subtotalNum,
+        tax: 0,
+        total: orderGrandTotal > 0 ? orderGrandTotal : subtotalNum,
+        deposit_amount: orderDeposit,
+        balance_due: Math.max(0, (orderGrandTotal > 0 ? orderGrandTotal : subtotalNum) - orderDeposit),
+        due_date: visitInvoiceDueDate || null,
+        amount_paid: visitInvoiceAmountPaid || 0,
+        payment_type: visitInvoicePaymentType || 'cash',
+        discount_approved: discountApproved || maxDisc <= MAX_DISCOUNT_PCT,
+        order_number: document.getElementById('orderNumber')?.textContent || null,
+        updated_at: new Date().toISOString()
+    };
+    if (savedInvoiceDbId) {
+        payload.invoice_number = id;
+    }
+
+    const shouldDeduct = document.getElementById('deductStock')?.checked && !stockDeducted;
+    const stockItems = rows.filter(r => r.product_id && parseInt(r.qty, 10) > 0);
+
+    if (adminToken) {
+        try {
+            if (linkedDoctorId && ['credit', 'partial'].includes(visitInvoicePaymentType)) {
+                const crRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/validate_pharmacy_credit_for_invoice`, {
+                    method: 'POST', headers: adminHeaders(),
+                    body: JSON.stringify({
+                        p_doctor_id: linkedDoctorId,
+                        p_total: orderGrandTotal > 0 ? orderGrandTotal : subtotalNum,
+                        p_amount_paid: visitInvoiceAmountPaid || 0,
+                        p_payment_type: visitInvoicePaymentType
+                    })
+                });
+                const cr = await crRes.json();
+                if (crRes.ok && cr.found && cr.ok === false) {
+                    alert(`⚠️ تجاوز حد الائتمان للصيدلية\nالحد: ${cr.credit_limit} ج.م\nالمستحق: ${cr.outstanding} ج.م\nالمتاح: ${cr.available} ج.م`);
+                    return;
+                }
+            }
+
+            if (savedInvoiceDbId) {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/invoices?id=eq.${savedInvoiceDbId}`, {
+                    method: 'PATCH', headers: adminHeaders(), body: JSON.stringify(payload)
+                });
+                if (!res.ok) {
+                    const data = await res.json();
+                    alert(data.message || data.details || 'تعذّر تحديث الفاتورة');
+                    return;
+                }
+            } else {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/invoices`, {
+                    method: 'POST', headers: adminHeaders(), body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.message || data.details || 'تعذّر الحفظ — قد يكون رقم الفاتورة مكرراً');
+                    return;
+                }
+                if (data[0]?.id) {
+                    savedInvoiceDbId = data[0].id;
+                    if (data[0].invoice_number) {
+                        idEl.textContent = data[0].invoice_number;
+                        currentInvId = data[0].invoice_number;
+                    }
+                }
+            }
+
+            if (shouldDeduct && stockItems.length && savedInvoiceDbId) {
+                const sr = await fetch(`${SUPABASE_URL}/rest/v1/rpc/apply_invoice_stock`, {
+                    method: 'POST', headers: adminHeaders(),
+                    body: JSON.stringify({
+                        p_items: stockItems.map(r => ({ product_id: r.product_id, qty: parseInt(r.qty, 10) })),
+                        p_invoice_id: savedInvoiceDbId
+                    })
+                });
+                const sd = await sr.json();
+                if (!sr.ok) {
+                    alert(sd.message || sd.error || 'المخزون غير كافٍ — تم حفظ الفاتورة بدون خصم');
+                } else {
+                    await fetch(`${SUPABASE_URL}/rest/v1/invoices?id=eq.${savedInvoiceDbId}`, {
+                        method: 'PATCH', headers: adminHeaders(), body: JSON.stringify({ stock_deducted: true })
+                    });
+                    stockDeducted = true;
+                }
+            }
+
+            if (linkedVisitId && savedInvoiceDbId) {
+                await fetch(`${SUPABASE_URL}/rest/v1/rpc/mark_visit_invoiced`, {
+                    method: 'POST', headers: adminHeaders(),
+                    body: JSON.stringify({ p_visit_id: linkedVisitId, p_invoice_id: savedInvoiceDbId })
+                });
+            }
+        } catch (e) {
+            alert('تعذّر الحفظ في النظام — تأكد من migration 016 وتسجيل الدخول كأدمن');
+            return;
+        }
+    }
+
+    const finalNum = idEl.textContent.replace(/\s*\(تقديري\)\s*$/, '').trim();
+    allInvoices[finalNum] = { id: finalNum, date: payload.invoice_date, client: payload.customer_name, phone: payload.customer_phone, rows, subtotal: subtotalText };
+    localStorage.setItem('montana_invoices', JSON.stringify(allInvoices));
+    currentInvId = finalNum;
+    await loadDbInvoiceList();
+    renderInvList();
+    if (shouldDeduct) stockDeducted = true;
+    alert('✅ تم حفظ الفاتورة #' + finalNum);
+}
+
+function loadInvoiceLocal(id) {
+    const inv = allInvoices[id];
+    if (!inv) return;
+    currentInvId = id;
+    savedInvoiceDbId = null;
+    linkedOrderId = null;
+    document.getElementById('invoiceNum').textContent = inv.id;
+    document.getElementById('invoiceDate').textContent = inv.date;
+    setClient(inv.client, inv.phone, '');
+    clearTable();
+    inv.rows.forEach(r => addRowFromData(r.name, r.price, r.qty, r.discount, r.pharmacyPrice, r.total, r.product_id));
+    calcTotal();
+    renderInvList();
+}
+
+async function loadInvoiceFromDb(id) {
+    adminToken = resolveAdminToken();
+    if (!adminToken) return;
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/invoices?id=eq.${id}&select=*`, { headers: adminHeaders() });
+    const data = await res.json();
+    const inv = data[0];
+    if (!inv) return;
+    savedInvoiceDbId = inv.id;
+    linkedOrderId = inv.order_id;
+    linkedDoctorId = inv.doctor_id || null;
+    linkedCustomerId = inv.customer_id || null;
+    linkedVisitId = inv.visit_id || null;
+    sourceType = inv.source_type || (inv.order_id ? 'order' : 'manual');
+    stockDeducted = !!inv.stock_deducted;
+    discountApproved = !!inv.discount_approved;
+    visitInvoiceDueDate = inv.due_date || null;
+    visitInvoiceAmountPaid = inv.amount_paid || 0;
+    visitInvoicePaymentType = inv.payment_type || 'cash';
+    currentInvId = inv.invoice_number;
+    document.getElementById('invoiceNum').textContent = inv.invoice_number;
+    document.getElementById('invoiceDate').textContent = inv.invoice_date || new Date(inv.created_at).toLocaleDateString('en-CA');
+    const srcLabels = { order: '🛒 طلب', doctor: '🩺 CRM', customer: '👥 عميل', manual: '✏️ يدوي' };
+    setClient(inv.customer_name, inv.customer_phone, inv.customer_address, srcLabels[sourceType] || '');
+    setMeta(inv.payment_method, inv.status === 'paid' ? 'confirmed' : 'pending');
+    setOrderPaymentSummary(inv.deposit_amount, inv.total, inv.order_number);
+    clearTable();
+    (inv.line_items || []).forEach(r => addRowFromData(r.name, r.price, r.qty, r.discount, r.pharmacyPrice, r.total, r.product_id));
+    calcTotal();
+    renderInvList();
+    updateReturnButton();
+}
+
+function loadInvoice(id) {
+    if (String(id).startsWith('db:')) return loadInvoiceFromDb(id.slice(3));
+    loadInvoiceLocal(id);
+}
+
+async function deleteInvoice() {
+    const id = document.getElementById('invoiceNum').textContent.replace(/\s*\(تقديري\)\s*$/, '').trim();
+    const restoreMsg = stockDeducted ? '\n\nسيتم استرجاع كميات المخزون المخصومة.' : '';
+    if (savedInvoiceDbId && adminToken) {
+        if (!confirm('حذف الفاتورة #' + id + ' من النظام؟' + restoreMsg)) return;
+        await fetch(`${SUPABASE_URL}/rest/v1/invoices?id=eq.${savedInvoiceDbId}`, { method: 'DELETE', headers: adminHeaders() });
+        savedInvoiceDbId = null;
+        stockDeducted = false;
+    } else if (!allInvoices[id]) { alert('الفاتورة مش محفوظة'); return; }
+    else if (!confirm('حذف الفاتورة #' + id + '؟')) return;
+    delete allInvoices[id];
+    localStorage.setItem('montana_invoices', JSON.stringify(allInvoices));
+    currentInvId = null;
+    await loadDbInvoiceList();
+    renderInvList();
+    newInvoice();
+}
+
+let dbInvoiceList = [];
+
+async function loadDbInvoiceList() {
+    if (!adminToken) { dbInvoiceList = []; return; }
+    try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/invoices?select=id,invoice_number,customer_name,invoice_date,total,created_at&order=created_at.desc&limit=50`, { headers: adminHeaders() });
+        dbInvoiceList = await res.json();
+        if (!Array.isArray(dbInvoiceList)) dbInvoiceList = [];
+    } catch { dbInvoiceList = []; }
+}
+
+function renderInvList() {
+    const list = document.getElementById('invList');
+    const localKeys = Object.keys(allInvoices).sort().reverse();
+    let html = '';
+
+    if (dbInvoiceList.length) {
+        html += '<div style="font-size:10px;color:#888;margin-bottom:6px">من النظام</div>';
+        html += dbInvoiceList.map(inv => {
+            const isActive = inv.invoice_number === currentInvId ? 'active' : '';
+            return `<div class="inv-item ${isActive}" onclick="loadInvoice('db:${inv.id}')"><div class="inv-item-info"><h4>#${inv.invoice_number}</h4><span>${inv.customer_name} · ${inv.invoice_date || ''}</span></div><div class="inv-item-total">${inv.total} ج.م</div></div>`;
+        }).join('');
+    }
+
+    if (localKeys.length) {
+        html += '<div style="font-size:10px;color:#888;margin:12px 0 6px">محلي</div>';
+        html += localKeys.map(id => {
+            const inv = allInvoices[id];
+            const isActive = id === currentInvId ? 'active' : '';
+            return `<div class="inv-item ${isActive}" onclick="loadInvoice('${id}')"><div class="inv-item-info"><h4>#${id}</h4><span>${inv.client} · ${inv.date}</span></div><div class="inv-item-total">${inv.subtotal}</div></div>`;
+        }).join('');
+    }
+
+    list.innerHTML = html || '<div class="inv-empty">لا توجد فواتير محفوظة</div>';
+}
+
+async function loadFromOrder(orderId) {
+    adminToken = resolveAdminToken();
+    if (!adminToken) {
+        alert('افتح الفاتورة من لوحة التحكم (Admin) بعد تسجيل الدخول');
+        return;
+    }
+    setClient('جارٍ تحميل بيانات الطلب…', '…', '', '');
+    clearTable();
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_order_for_invoice`, {
+        method: 'POST', headers: adminHeaders(), body: JSON.stringify({ p_order_id: parseInt(orderId, 10) })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data?.message) {
+        alert(data?.message || data?.hint || 'تعذّر تحميل الطلب — سجّل دخول Admin وجرب تاني');
+        return;
+    }
+    if (!data.found) { alert('الطلب غير موجود'); return; }
+
+    const o = data.order;
+    if (data.existing_invoice?.invoice_number) {
+        await loadInvoiceFromDb(data.existing_invoice.id);
+        setOrderPaymentSummary(o.deposit_amount, o.total, o.order_number);
+        calcTotal();
+        return;
+    }
+    linkedOrderId = o.id;
+    savedInvoiceDbId = null;
+    await refreshInvoiceNumberPreview();
+    document.getElementById('invoiceDate').textContent = new Date(o.created_at).toLocaleDateString('en-CA');
+    const addr = [o.address, o.city, o.governorate].filter(Boolean).join(' — ');
+    sourceType = 'order';
+    linkedDoctorId = null;
+    linkedCustomerId = null;
+    setClient(o.customer_name, o.customer_phone, addr, '🛒 من طلب #' + o.order_number);
+    setMeta(o.payment_method, o.payment_status);
+    setOrderPaymentSummary(o.deposit_amount, o.total, o.order_number);
+
+    clearTable();
+    (data.items || []).forEach(it => {
+        const pub = parseFloat(it.old_price) || parseFloat(it.price);
+        const ph = parseFloat(it.price);
+        const disc = pub > ph ? Math.round((1 - ph / pub) * 100) : 0;
+        addRowFromData(it.product_name, pub, it.quantity, disc, ph, it.total, it.product_id);
+    });
+    if (parseFloat(o.shipping_cost) > 0) {
+        addRowFromData('رسوم الشحن', o.shipping_cost, 1, 0, o.shipping_cost, o.shipping_cost);
+    }
+    calcTotal();
+    currentInvId = o.order_number;
+    renderInvList();
+}
+
+async function applyVisitInvoiceData(data) {
+    const visit = data.visit;
+    const d = data.doctor;
+    linkedDoctorId = d.id;
+    linkedVisitId = visit.id;
+    linkedOrderId = null;
+    linkedCustomerId = null;
+    savedInvoiceDbId = null;
+    stockDeducted = false;
+    sourceType = 'doctor';
+    visitInvoiceDueDate = null;
+    visitInvoiceAmountPaid = 0;
+    visitInvoicePaymentType = 'cash';
+    orderDeposit = 0;
+    orderGrandTotal = 0;
+
+    await refreshInvoiceNumberPreview();
+    document.getElementById('invoiceDate').textContent = new Date(visit.visited_at || Date.now()).toLocaleDateString('en-CA');
+    const typeLabel = d.doctor_type === 'pharmacy' ? '💊 صيدلية CRM' : '🩺 CRM';
+    setClient(d.name, d.phone, d.address, typeLabel + (d.class ? ' · ' + d.class : '') + ' · من زيارة');
+
+    clearTable();
+    const fin = Array.isArray(visit.financial_requests) ? visit.financial_requests : [];
+    let hasLines = false;
+
+    if (fin.some(r => r.enabled !== false && r.type === 'sample_invoice')) {
+        (data.samples || []).forEach(s => {
+            const price = parseFloat(s.store_price) || 0;
+            const total = price * s.quantity;
+            addRowFromData(
+                'عينة — ' + (s.product_name || s.store_name || 'منتج'),
+                price || 0, s.quantity, 0, price || 0, total,
+                s.store_product_id || null
+            );
+            hasLines = true;
+        });
+    }
+
+    fin.filter(r => r.enabled !== false).forEach(r => {
+        if (r.type === 'leaflet_deal') {
+            const amt = parseFloat(r.amount) || 0;
+            const qty = parseInt(r.leaflet_count, 10) || 1;
+            addRowFromData(
+                'روشيتات — ' + (r.pharmacy_name || 'صيدلية'),
+                amt, qty, 0, amt / qty, amt
+            );
+            visitInvoiceDueDate = r.due_date || visitInvoiceDueDate;
+            visitInvoicePaymentType = 'credit';
+            hasLines = true;
+        }
+        if (r.type === 'pharmacy_delivery') {
+            (r.lines || []).forEach(l => {
+                if (!l.qty || l.qty <= 0) return;
+                const up = parseFloat(l.unit_price) || 0;
+                addRowFromData(l.product_name || 'منتج', up, l.qty, 0, up, up * l.qty);
+                hasLines = true;
+            });
+            visitInvoicePaymentType = r.payment_mode || 'credit';
+            visitInvoiceAmountPaid = parseFloat(r.amount_paid) || 0;
+            visitInvoiceDueDate = r.due_date || visitInvoiceDueDate;
+            if (visitInvoicePaymentType === 'cash') visitInvoiceAmountPaid = 0;
+        }
+    });
+
+    if (!hasLines && (data.samples || []).length) {
+        data.samples.forEach(s => {
+            const price = parseFloat(s.store_price) || 0;
+            addRowFromData('عينة — ' + (s.product_name || 'منتج'), price, s.quantity, 0, price, price * s.quantity, s.store_product_id || null);
+        });
+        hasLines = true;
+    }
+    if (!hasLines) addBlankRow();
+
+    const isPaid = visitInvoicePaymentType === 'cash';
+    setMeta(visitInvoicePaymentType === 'credit' ? 'cod' : 'wallet', isPaid ? 'confirmed' : 'pending');
+    if (visitInvoiceAmountPaid > 0) {
+        orderDeposit = visitInvoiceAmountPaid;
+        orderGrandTotal = 0;
+    }
+    calcTotal();
+
+    if (data.credit_status?.found && d.doctor_type === 'pharmacy') {
+        const cs = data.credit_status;
+        alert(`💳 ائتمان الصيدلية\nالحد: ${cs.credit_limit || 0} ج.م · المستحق: ${cs.outstanding || 0} ج.م · المتاح: ${cs.available || 0} ج.م`);
+    }
+}
+
+async function loadFromDoctor(doctorId, visitId) {
+    if (!adminToken) { alert('افتح الفاتورة من لوحة التحكم (Admin) — سجّل دخول أولاً'); return; }
+
+    if (visitId) {
+        const vres = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_visit_for_invoice`, {
+            method: 'POST', headers: adminHeaders(), body: JSON.stringify({ p_visit_id: visitId })
+        });
+        const vdata = await vres.json();
+        if (vres.ok && vdata?.found) {
+            await applyVisitInvoiceData(vdata);
+            renderInvList();
+            return;
+        }
+        if (!vres.ok) {
+            const msg = vdata?.message || vdata?.hint || vdata?.code || '';
+            if (String(msg).includes('does not exist') || vdata?.code === 'PGRST202') {
+                alert('دالة get_visit_for_invoice غير موجودة — شغّل migrations 057-059 على Supabase');
+            } else if (String(msg).includes('Admin only')) {
+                alert('صلاحية منتهية — ارجع للوحة الإدارة وافتح الفاتورة من جديد');
+            } else if (msg) {
+                alert('خطأ تحميل الزيارة: ' + msg);
+            }
+        }
+    }
+
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_doctor_for_invoice`, {
+        method: 'POST', headers: adminHeaders(), body: JSON.stringify({ p_doctor_id: doctorId })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+        const msg = data?.message || 'خطأ في الصلاحيات';
+        if (String(msg).includes('Admin only')) {
+            alert('صلاحية منتهية — سجّل دخول من لوحة الإدارة ثم أعد فتح الفاتورة');
+        } else {
+            alert(msg);
+        }
+        return;
+    }
+    if (!data.found) {
+        alert('الطبيب / العميل غير موجود في قاعدة البيانات — تأكد من الـ doctor_id');
+        return;
+    }
+
+    const d = data.doctor;
+    linkedDoctorId = d.id;
+    linkedCustomerId = null;
+    linkedOrderId = null;
+    linkedVisitId = visitId || null;
+    savedInvoiceDbId = null;
+    stockDeducted = false;
+    sourceType = 'doctor';
+    visitInvoiceDueDate = null;
+    visitInvoiceAmountPaid = 0;
+    visitInvoicePaymentType = 'cash';
+    await refreshInvoiceNumberPreview();
+    document.getElementById('invoiceDate').textContent = new Date().toLocaleDateString('en-CA');
+    const typeLabel = d.doctor_type === 'pharmacy' ? '💊 صيدلية CRM' : '🩺 CRM';
+    setClient(d.name, d.phone, d.address, typeLabel + (d.class ? ' · ' + d.class : '') + (linkedVisitId ? ' · من زيارة' : ''));
+    setMeta('cod', 'pending');
+    clearTable();
+    addBlankRow();
+    calcTotal();
+    renderInvList();
+}
+
+function openClientPicker() {
+    if (!adminToken) { alert('افتح الفاتورة من لوحة التحكم (Admin)'); return; }
+    pickerMode = 'client';
+    pickerTab = 'crm';
+    document.getElementById('pickerTitle').textContent = 'اختر بيانات العميل';
+    document.getElementById('pickerTabs').innerHTML = `
+        <button type="button" class="picker-tab active" onclick="setPickerTab('crm',this)">🩺 CRM</button>
+        <button type="button" class="picker-tab" onclick="setPickerTab('customers',this)">👥 عملاء المتجر</button>
+        <button type="button" class="picker-tab" onclick="setPickerTab('orders',this)">🛒 طلبات</button>
+        <button type="button" class="picker-tab" onclick="setPickerTab('manual',this)">✏️ يدوي</button>`;
+    document.getElementById('pickerSearch').value = '';
+    document.getElementById('pickerOverlay').classList.remove('hidden');
+    runPickerSearch();
+}
+
+async function openStockPicker() {
+    if (!adminToken) { alert('افتح الفاتورة من لوحة التحكم (Admin)'); return; }
+    pickerMode = 'stock';
+    document.getElementById('pickerTitle').textContent = 'إضافة من المخزون';
+    document.getElementById('pickerTabs').innerHTML = '';
+    document.getElementById('pickerSearch').placeholder = 'بحث باسم المنتج…';
+    document.getElementById('pickerSearch').value = '';
+    document.getElementById('pickerStockHint').classList.remove('hidden');
+    document.getElementById('pickerOverlay').classList.remove('hidden');
+    if (!productCatalog.length) await loadProductCatalog();
+    renderStockPicker('');
+}
+
+function closePicker() {
+    document.getElementById('pickerOverlay').classList.add('hidden');
+    document.getElementById('pickerStockHint').classList.add('hidden');
+    document.getElementById('pickerSearch').placeholder = 'بحث بالاسم أو الهاتف…';
+}
+
+function setPickerTab(tab, el) {
+    pickerTab = tab;
+    document.querySelectorAll('.picker-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    if (tab === 'manual') {
+        document.getElementById('pickerList').innerHTML = '<p style="font-size:13px;color:#888;padding:12px">أغلق النافذة وعدّل بيانات العميل مباشرة في الفاتورة (✏️ تعديل).</p>';
+        sourceType = 'manual';
+        linkedOrderId = linkedDoctorId = linkedCustomerId = null;
+        setClient('اسم العميل', '-', '', '✏️ إدخال يدوي');
+        return;
+    }
+    runPickerSearch();
+}
+
+async function runPickerSearch() {
+    if (pickerMode === 'stock') {
+        renderStockPicker(document.getElementById('pickerSearch').value.trim());
+        return;
+    }
+    const q = document.getElementById('pickerSearch').value.trim();
+    const list = document.getElementById('pickerList');
+    list.innerHTML = '<p style="padding:12px;color:#888">جاري التحميل…</p>';
+    try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/search_invoice_clients`, {
+            method: 'POST', headers: adminHeaders(),
+            body: JSON.stringify({ p_query: q, p_limit: 40 })
+        });
+        pickerCache = await res.json();
+        if (!res.ok) throw new Error(pickerCache.message || 'خطأ');
+        renderClientPicker();
+    } catch (e) {
+        list.innerHTML = `<p style="padding:12px;color:#c0392b">${e.message}</p>`;
+    }
+}
+
+function renderClientPicker() {
+    const list = document.getElementById('pickerList');
+    if (pickerTab === 'crm') {
+        const docs = pickerCache?.doctors || [];
+        list.innerHTML = docs.length ? docs.map(d => `
+            <div class="picker-item" onclick="pickDoctor('${d.id}')">
+                <h4>${escHtml(d.name)} <span class="picker-badge">${escHtml(d.type || 'doctor')}</span></h4>
+                <p>${escHtml(d.class || '')} ${d.specialty ? '· ' + escHtml(d.specialty) : ''}<br>
+                ${d.brick ? escHtml(d.brick) + '<br>' : ''}${d.phone || '—'} · ${escHtml(d.address || '')}</p>
+            </div>`).join('') : '<p style="color:#888;padding:12px">لا نتائج — جرّب بحثاً آخر</p>';
+    } else if (pickerTab === 'customers') {
+        const cs = pickerCache?.customers || [];
+        list.innerHTML = cs.length ? cs.map(c => `
+            <div class="picker-item" onclick="pickCustomer('${c.id}')">
+                <h4>${escHtml(c.name)}</h4>
+                <p>${c.phone || '—'}${c.email ? ' · ' + escHtml(c.email) : ''}<br>${escHtml(c.address || '')}</p>
+            </div>`).join('') : '<p style="color:#888;padding:12px">لا عملاء</p>';
+    } else if (pickerTab === 'orders') {
+        const os = pickerCache?.orders || [];
+        list.innerHTML = os.length ? os.map(o => `
+            <div class="picker-item" onclick="pickOrder(${o.id})">
+                <h4>طلب ${escHtml(o.order_number)}</h4>
+                <p>${escHtml(o.customer_name || '')} · ${o.customer_phone || ''}<br>${o.total} ج.م · ${new Date(o.created_at).toLocaleDateString('ar')}</p>
+            </div>`).join('') : '<p style="color:#888;padding:12px">لا طلبات</p>';
+    }
+}
+
+function escHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+}
+
+function pickDoctor(id) {
+    const d = (pickerCache?.doctors || []).find(x => x.id === id);
+    if (!d) return;
+    linkedDoctorId = id;
+    linkedCustomerId = null;
+    linkedOrderId = null;
+    sourceType = 'doctor';
+    const label = (d.type === 'pharmacy' ? '💊 صيدلية CRM' : '🩺 CRM') + (d.class ? ' · ' + d.class : '');
+    setClient(d.name, d.phone, d.address, label);
+    closePicker();
+}
+
+function pickCustomer(id) {
+    const c = (pickerCache?.customers || []).find(x => x.id === id);
+    if (!c) return;
+    linkedCustomerId = id;
+    linkedDoctorId = null;
+    linkedOrderId = null;
+    sourceType = 'customer';
+    setClient(c.name, c.phone, c.address, '👥 عميل متجر');
+    closePicker();
+}
+
+async function pickOrder(id) {
+    closePicker();
+    await loadFromOrder(id);
+}
+
+async function loadProductCatalog() {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/products?select=id,name,price,old_price,stock&is_active=eq.true&order=name.asc`, { headers: adminHeaders() });
+    productCatalog = await res.json();
+    if (!Array.isArray(productCatalog)) productCatalog = [];
+}
+
+function renderStockPicker(q) {
+    const list = document.getElementById('pickerList');
+    const ql = q.toLowerCase();
+    const items = productCatalog.filter(p => !ql || p.name.toLowerCase().includes(ql));
+    list.innerHTML = items.length ? items.map(p => {
+        const st = parseInt(p.stock, 10) || 0;
+        const low = st <= LOW_STOCK_THRESHOLD;
+        const out = st < 1;
+        return `<div class="picker-item picker-item-stock">
+            <div class="picker-item-main">
+                <h4>${escHtml(p.name)} ${low && !out ? '<span class="picker-badge" style="background:#fdecea;color:#c0392b">مخزون منخفض</span>' : ''} ${out ? '<span class="picker-badge" style="background:#333;color:#fff">نفد</span>' : ''}</h4>
+                <p>المخزون: <strong>${st}</strong> · سعر: ${p.price} ج.م</p>
+            </div>
+            <div class="picker-item-actions">
+                <input type="number" id="stock-qty-${p.id}" min="1" max="${Math.max(st, 1)}" value="1" ${out ? 'disabled' : ''} onclick="event.stopPropagation()">
+                <button type="button" class="picker-add-btn" ${out ? 'disabled style="opacity:.4"' : ''} onclick="addProductFromStock(${p.id}, document.getElementById('stock-qty-${p.id}').value)">إضافة</button>
+            </div>
+        </div>`;
+    }).join('') : '<p style="color:#888;padding:12px">لا منتجات</p>';
+}
+
+function addProductFromStock(productId, qtyRaw) {
+    const p = productCatalog.find(x => x.id === productId);
+    if (!p) return;
+    const st = parseInt(p.stock, 10) || 0;
+    if (st < 1) { alert('المخزون نفد'); return; }
+    const qty = parseInt(qtyRaw, 10);
+    if (isNaN(qty) || qty < 1) { alert('أدخل كمية صحيحة (1 أو أكثر)'); return; }
+    if (qty > st) { alert('الكمية أكبر من المخزون المتاح (' + st + ')'); return; }
+
+    const existing = document.querySelector(`#invTableBody tr[data-product-id="${productId}"]`);
+    if (existing) {
+        const cells = existing.querySelectorAll('td');
+        const cur = parseInt(cells[3].textContent, 10) || 0;
+        const newQty = cur + qty;
+        if (newQty > st) { alert('المجموع ' + newQty + ' أكبر من المخزون (' + st + ')'); return; }
+        cells[3].textContent = newQty;
+        calcTotal();
+        warnLowStockAfterSale(p.name, st - newQty);
+        return;
+    }
+
+    const pub = parseFloat(p.old_price) || parseFloat(p.price);
+    const ph = parseFloat(p.price);
+    const disc = pub > ph ? Math.round((1 - ph / pub) * 100) : 0;
+    addRowFromData(p.name, pub, qty, disc, ph, ph * qty, p.id);
+    calcTotal();
+    warnLowStockAfterSale(p.name, st - qty);
+}
+
+function warnLowStockAfterSale(name, remaining) {
+    if (remaining < LOW_STOCK_THRESHOLD) {
+        alert('⚠️ تنبيه: مخزون «' + name + '» بعد الفاتورة = ' + remaining + ' (أقل من ' + LOW_STOCK_THRESHOLD + ')');
+    }
+}
+
+(async () => {
+    await loadDbInvoiceList();
+    const params = new URLSearchParams(location.search);
+    const orderId = params.get('order_id');
+    const invoiceId = params.get('invoice_id');
+    const doctorId = params.get('doctor_id');
+    const visitId = params.get('visit_id');
+    if (orderId) await loadFromOrder(orderId);
+    else if (doctorId) await loadFromDoctor(doctorId, visitId);
+    else if (invoiceId) await loadInvoiceFromDb(invoiceId);
+    else {
+        addBlankRow();
+        calcTotal();
+        await refreshInvoiceNumberPreview();
+    }
+    renderInvList();
+})();
+</script>
+</body>
+</html>

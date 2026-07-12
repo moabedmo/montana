@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Montana CRM — Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="preconnect" href="https://ikryeyqrithikabwidov.supabase.co">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;1,300&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{
+  min-height:100vh;background:#FAF8F4;color:rgba(35,24,64,.95);
+  font-family:'Jost',sans-serif;font-weight:300;
+  display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(circle at 20% 20%,rgba(167,139,250,.10),transparent 45%),
+    radial-gradient(circle at 80% 80%,rgba(201,168,76,.10),transparent 40%),
+    #FAF8F4;
+}
+.login-wrap{width:400px;max-width:95vw;}
+.logo{text-align:center;margin-bottom:40px;}
+.logo h1{font-family:'Playfair Display',serif;font-weight:400;font-size:32px;letter-spacing:.06em;color:#231840;}
+.logo h1 span{color:#B8933A;}
+.logo p{font-size:12px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:rgba(35,24,64,.65);margin-top:8px;}
+.card{
+  background:#fff;border:1px solid rgba(35,24,64,.1);
+  border-radius:20px;padding:36px 32px;box-shadow:0 4px 24px rgba(35,24,64,.06);
+}
+.card h2{font-family:'Playfair Display',serif;font-weight:400;font-size:20px;margin-bottom:6px;color:#231840;}
+.card p{font-size:13px;font-weight:700;color:rgba(35,24,64,.7);margin-bottom:28px;}
+.form-group{margin-bottom:16px;}
+label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
+  color:rgba(35,24,64,.7);margin-bottom:7px;}
+input{
+  width:100%;background:rgba(35,24,64,.03);border:1px solid rgba(35,24,64,.14);
+  border-radius:10px;padding:13px 16px;color:rgba(35,24,64,.95);
+  font-family:'Jost',sans-serif;font-size:14px;transition:border-color .2s;
+}
+input:focus{outline:none;border-color:#A78BFA;}
+.role-tabs{display:flex;gap:8px;margin-bottom:24px;}
+.role-tab{
+  flex:1;padding:10px;border-radius:9px;border:1px solid rgba(35,24,64,.14);
+  background:transparent;outline:none;-webkit-appearance:none;appearance:none;
+  font-family:'Jost',sans-serif;
+  text-align:center;font-size:13px;font-weight:700;color:rgba(35,24,64,.7);cursor:pointer;transition:all .2s;
+}
+.role-tab.active{
+  background:rgba(167,139,250,.14);border-color:rgba(167,139,250,.5);color:#231840;
+}
+.btn-login{
+  width:100%;padding:14px;border-radius:10px;border:none;
+  background:linear-gradient(135deg,#C9A84C 0%,#E8D48A 50%,#C9A84C 100%);
+  color:#1a1030;font-weight:500;font-size:14px;letter-spacing:.06em;cursor:pointer;
+  margin-top:8px;font-family:'Jost',sans-serif;
+  box-shadow:0 6px 20px rgba(201,168,76,.3);transition:all .2s;
+}
+.btn-login:hover{box-shadow:0 8px 28px rgba(201,168,76,.45);}
+.btn-login:disabled{opacity:.5;cursor:default;}
+.error{
+  background:rgba(240,153,123,.12);border:1px solid rgba(240,153,123,.35);
+  border-radius:9px;padding:11px 14px;font-size:13px;color:#C9502F;
+  margin-top:14px;display:none;
+}
+.foot{text-align:center;margin-top:22px;font-size:12px;font-weight:700;color:rgba(35,24,64,.5);}
+.old-browser-warning{
+  background:rgba(240,153,123,.15);border:1px solid rgba(240,153,123,.4);
+  border-radius:12px;padding:16px 18px;font-size:13px;font-weight:700;
+  color:#8a3a1f;line-height:1.8;text-align:center;
+}
+</style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="logo">
+    <h1>MONTANA<span>.</span></h1>
+    <p>CRM Suite</p>
+  </div>
+  <div id="oldBrowserWarning" class="card old-browser-warning" style="display:none">
+    متصفحك قديم أوي ومش بيدعم صفحة الدخول دي، عشان كده الأزرار مش بترد. من فضلك افتحي الصفحة من Chrome أو Edge بأحدث نسخة عشان تقدري تسجلي دخولك.
+  </div>
+  <div class="card" id="loginCard">
+    <h2>Welcome back</h2>
+    <p>Sign in to access your CRM dashboard</p>
+
+    <div class="role-tabs">
+      <button type="button" class="role-tab active" data-role="rep">Sales Rep</button>
+      <button type="button" class="role-tab" data-role="admin">Admin</button>
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="you@montana.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <button class="btn-login" id="login-btn" type="button">Sign in</button>
+    <div class="error" id="err"></div>
+  </div>
+  <div class="foot">Montana Naturals · Field CRM<br>
+    <a href="/crm/guide.html" style="color:#A78BFA;text-decoration:none;font-size:12px">📖 دليل الاستخدام</a>
+  </div>
+</div>
+
+<script>
+// Plain (non-module) script — runs on every browser, even ones too old to
+// execute the type="module" block below at all. 'noModule' on the script
+// element prototype only exists in browsers that also support type="module"
+// and ES2020 syntax (optional chaining etc.) used further down, so its
+// absence is a reliable proxy for "this browser can't run this page" —
+// show a clear message instead of a silently unresponsive login form.
+if (!('noModule' in document.createElement('script'))) {
+  document.getElementById('oldBrowserWarning').style.display = '';
+  document.getElementById('loginCard').style.display = 'none';
+}
+</script>
+<script type="module">
+import { auth, isCrmAdminAccess } from './js/crm-api.js';
+
+window.currentRole = 'rep';
+
+function setRole(role, el) {
+  window.currentRole = role;
+  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+document.querySelectorAll('.role-tab').forEach((tab) => {
+  tab.addEventListener('click', () => setRole(tab.dataset.role, tab));
+});
+
+document.getElementById('login-btn').addEventListener('click', () => window.doLogin());
+
+window.doLogin = async () => {
+  const email = document.getElementById('email').value.trim();
+  const pass  = document.getElementById('password').value;
+  const btn   = document.getElementById('login-btn');
+  const err   = document.getElementById('err');
+
+  if (!email || !pass) { showErr('Please enter your email and password.'); return; }
+  btn.disabled = true; btn.textContent = 'Signing in…';
+
+  try {
+    const me = await auth.login(email, pass, { role: window.currentRole });
+    if (window.currentRole === 'admin') {
+      location.href = '/crm/admin/';
+      return;
+    }
+    location.href = me.rep?.role === 'admin' ? '/crm/admin/' : '/crm/rep/';
+  } catch (e) {
+    showErr(e.message || 'Invalid credentials. Please try again.');
+    btn.disabled = false; btn.textContent = 'Sign in';
+  }
+};
+
+function showErr(msg) {
+  const el = document.getElementById('err');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+// Enter key submits
+document.addEventListener('keydown', e => { if (e.key === 'Enter') window.doLogin(); });
+
+// Check if already logged in
+(async () => {
+  try {
+    const me = await auth.me();
+    if (!me?.user) return;
+    if (me.rep?.role === 'admin') { location.href = '/crm/admin/'; return; }
+    if (me.rep?.role === 'rep') { location.href = '/crm/rep/'; return; }
+    if (await isCrmAdminAccess()) location.href = '/crm/admin/';
+  } catch {}
+})();
+</script>
+</body>
+</html>

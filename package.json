@@ -1,0 +1,33 @@
+{
+  "name": "montana2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "components.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build:css": "node scripts/build-css-bundle.mjs",
+    "build:images": "node scripts/optimize-images.mjs",
+    "build:slim": "node scripts/slim-index.mjs",
+    "build:en": "node scripts/build-en-site.mjs",
+    "build": "node scripts/build-css-bundle.mjs && node scripts/optimize-images.mjs && node scripts/slim-index.mjs && node scripts/build-en-site.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@supabase/supabase-js": "^2.110.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "puppeteer": "^25.2.1",
+    "qrcode": "^1.5.4",
+    "sharp": "^0.35.2",
+    "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "clean-css": "^5.3.3"
+  }
+}

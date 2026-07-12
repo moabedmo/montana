@@ -1,0 +1,12 @@
+node_modules
+gen-*.js
+database.sql
+banners.sql
+*.output
+setup_admin.js
+setup_owner.js
+scripts/
+supabase/
+.env*
+# lib/ must NOT be ignored — api/chat and webhooks require ../lib/* at runtime.
+# Public HTTP access to /lib/ is blocked in vercel.json (404), not via .vercelignore.

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MONTAÑA | Brochure</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet"></noscript>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Tajawal',sans-serif;background:#1a1a1a}
+
+        .page{
+            width:210mm;height:297mm;
+            margin:20px auto;
+            position:relative;overflow:hidden;
+            background:#9B6CB8;
+            box-shadow:0 20px 60px rgba(0,0,0,0.4);
+        }
+        .silk{position:absolute;inset:0;background:url('images/silk-bg.jpg') center/cover no-repeat}
+        .dim{position:absolute;inset:0;background:rgba(140,90,180,0.25)}
+
+        /* Water drops */
+        .drop{
+            position:absolute;border-radius:50%;z-index:2;pointer-events:none;
+            background:radial-gradient(circle at 35% 35%,rgba(255,255,255,0.5),rgba(255,255,255,0.1) 50%,transparent 70%);
+            box-shadow:inset 0 -2px 4px rgba(255,255,255,0.1),0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Header */
+        .header{
+            position:relative;z-index:5;
+            text-align:center;padding:14px 30px 14px;
+        }
+        .header .logo{height:60px;margin-bottom:10px;filter:brightness(0) invert(1)}
+        .header .quote{
+            font-family:'Cormorant Garamond',serif;
+            font-size:36px;font-weight:700;color:#fff;
+            line-height:1.2;margin-bottom:0;
+            text-shadow:0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Gold divider */
+        .gold-divider{
+            position:relative;z-index:5;
+            width:50%;margin:4px auto;height:1px;
+            background:linear-gradient(90deg,transparent,rgba(197,165,90,0.5),transparent);
+        }
+
+        /* Product Section */
+        .product-section{
+            position:relative;z-index:5;
+            display:flex;align-items:center;
+            margin:2px 24px;
+            background:linear-gradient(135deg,rgba(90,50,130,0.55) 0%,rgba(60,30,90,0.45) 100%);
+            backdrop-filter:blur(35px);-webkit-backdrop-filter:blur(35px);
+            border:1px solid rgba(255,255,255,0.1);
+            border-radius:18px;
+            padding:12px 16px;
+            gap:12px;
+        }
+        .product-section .prod-img{
+            flex-shrink:0;width:40%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+            position:relative;
+            border-radius:16px;padding:4px;
+        }
+        .product-section .prod-img img{
+            height:250px;object-fit:contain;
+            filter:drop-shadow(0 8px 16px rgba(80,30,120,0.2));
+            position:relative;z-index:1;
+        }
+
+        .shine-wrap{position:relative;display:inline-block}
+        .prod-size{
+            display:block;text-align:center;margin-top:6px;
+            font-size:10px;color:#C5A55A;letter-spacing:3px;font-weight:700;
+            background:rgba(255,255,255,0.12);
+            border:1px solid rgba(197,165,90,0.3);
+            border-radius:20px;padding:3px 14px;
+        }
+
+        /* Static sparkles */
+        .sparkles{position:absolute;inset:0;pointer-events:none;z-index:2}
+        .sparkle-dot{
+            position:absolute;color:rgba(255,255,255,0.6);font-size:8px;
+        }
+        .sparkle-dot.big{font-size:12px;color:rgba(255,255,255,0.4)}
+
+        /* Product reflection */
+        .prod-reflection{
+            width:80%;height:30px;margin:-5px auto 0;
+            background:linear-gradient(180deg,rgba(255,255,255,0.08),transparent);
+            border-radius:50%;
+            filter:blur(4px);
+        }
+        .product-section .prod-info{flex:1;color:#fff;padding-left:10px}
+
+        .gold{color:#fff;font-size:34px;font-weight:900}
+        .prod-name{
+            font-family:'Cormorant Garamond',serif;
+            font-size:28px;font-weight:700;
+            color:#fff;
+            margin-bottom:3px;
+            padding-bottom:4px;
+        }
+
+        .section-title{
+            font-size:18px;font-weight:700;color:#C5A55A;
+            margin-top:10px;margin-bottom:5px;
+            border-bottom:1px solid rgba(197,165,90,0.3);
+            padding-bottom:4px;
+            text-shadow:0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .bullet-list{list-style:disc;padding-left:20px;margin-bottom:4px}
+        .bullet-list li{font-size:15px;color:#fff;line-height:1.5;text-shadow:0 1px 3px rgba(0,0,0,0.1)}
+
+        .check-list{list-style:none;margin-bottom:4px}
+        .check-list li{font-size:15px;color:#fff;line-height:1.6;padding-left:22px;position:relative;text-shadow:0 1px 3px rgba(0,0,0,0.1)}
+        .check-list li::before{
+            content:'✓';position:absolute;left:0;
+            color:#fff;font-size:10px;
+            background:rgba(90,50,130,0.6);
+            width:16px;height:16px;border-radius:4px;
+            display:flex;align-items:center;justify-content:center;
+            top:2px;
+        }
+
+        /* Footer */
+        .page-footer{
+            position:absolute;bottom:0;left:0;right:0;z-index:5;
+            text-align:center;padding:4px;
+            background:rgba(60,30,90,0.5);
+            border-top:1px solid rgba(197,165,90,0.2);
+        }
+        .page-footer span{font-size:12px;color:rgba(255,255,255,0.8);letter-spacing:2px;font-weight:700}
+
+        /* Page 2 smaller text */
+        .p2-section .prod-name{font-size:24px}
+        .p2-section .section-title{font-size:14px;margin-top:4px;margin-bottom:2px}
+        .p2-section .bullet-list li{font-size:13.5px;line-height:1.4}
+        .p2-section .check-list li{font-size:13.5px;line-height:1.4}
+        .p2-section .bullet-list{margin-bottom:2px}
+        .p2-section .check-list{margin-bottom:2px}
+
+        /* Print */
+        .no-print{text-align:center;padding:20px}
+        .btn{background:#9B6CB8;color:#fff;border:none;padding:12px 32px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Tajawal';margin:0 8px}
+        @media print{
+            body{background:#fff;margin:0;padding:0}
+            .page{margin:0;box-shadow:none;page-break-after:always}
+            .no-print{display:none!important}
+            @page{size:A4;margin:0}
+            *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;color-adjust:exact !important}
+        }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <button class="btn" onclick="window.print()">🖨️ طباعة البروشور</button>
+    <button class="btn" onclick="window.history.back()" style="background:transparent;border:1px solid #9B6CB8;color:#9B6CB8">← رجوع</button>
+</div>
+
+<!-- Controller -->
+<div class="no-print" id="ctrl" style="position:fixed;top:20px;right:20px;background:rgba(45,27,61,0.95);color:#fff;padding:16px 20px;border-radius:12px;z-index:999;font-size:12px;display:flex;flex-direction:column;gap:8px;backdrop-filter:blur(10px);box-shadow:0 8px 32px rgba(0,0,0,0.3)">
+    <h4 style="font-size:14px;color:#C5A55A;margin-bottom:4px">تحكم في البروشور</h4>
+    <label>المنتج: <select id="elSelect" onchange="loadEl()" style="background:#2D1B3D;color:#fff;border:1px solid rgba(255,255,255,0.2);padding:4px;border-radius:6px;font-family:Tajawal;font-size:11px">
+        <option value="0">1 - Whitening Cleanser</option>
+        <option value="1">2 - Whitening Cream</option>
+        <option value="2">3 - Acne Cleanser</option>
+        <option value="3">4 - Hand & Body</option>
+        <option value="4">5 - Post-Laser</option>
+    </select></label>
+    <label>رأسي: <input type="range" id="ctrlY" min="-200" max="200" value="0" oninput="updateEl()"> <span id="ctrlYVal">0</span></label>
+    <label>أفقي: <input type="range" id="ctrlX" min="-200" max="200" value="0" oninput="updateEl()"> <span id="ctrlXVal">0</span></label>
+    <button onclick="saveAll()" style="background:#C5A55A;color:#2D1B3D;border:none;padding:6px 14px;border-radius:8px;font-weight:700;font-family:Tajawal;cursor:pointer">💾 حفظ</button>
+    <div id="ctrlMsg" style="font-size:10px;color:#C5A55A"></div>
+</div>
+
+<script>
+var badges = [];
+var currentBadge = 0;
+
+window.addEventListener('load', function() {
+    badges = document.querySelectorAll('.prod-size');
+
+    var saved = JSON.parse(localStorage.getItem('brochure_badges') || '{}');
+    Object.keys(saved).forEach(function(k) {
+        var s = saved[k];
+        if (badges[k]) {
+            badges[k].style.marginTop = s.y + 'px';
+            badges[k].style.marginLeft = s.x + 'px';
+        }
+    });
+
+    loadEl();
+});
+
+function loadEl() {
+    currentBadge = parseInt(document.getElementById('elSelect').value);
+    var saved = JSON.parse(localStorage.getItem('brochure_badges') || '{}');
+    var s = saved[currentBadge] || {};
+
+    document.getElementById('ctrlY').value = s.y || 0;
+    document.getElementById('ctrlX').value = s.x || 0;
+    updateLabels();
+}
+
+function updateEl() {
+    var badge = badges[currentBadge];
+    if (!badge) return;
+
+    var y = parseInt(document.getElementById('ctrlY').value);
+    var x = parseInt(document.getElementById('ctrlX').value);
+
+    badge.style.marginTop = y + 'px';
+    badge.style.marginLeft = x + 'px';
+    updateLabels();
+}
+
+function updateLabels() {
+    document.getElementById('ctrlYVal').textContent = document.getElementById('ctrlY').value;
+    document.getElementById('ctrlXVal').textContent = document.getElementById('ctrlX').value;
+}
+
+function saveAll() {
+    var saved = JSON.parse(localStorage.getItem('brochure_badges') || '{}');
+    var y = parseInt(document.getElementById('ctrlY').value);
+    var x = parseInt(document.getElementById('ctrlX').value);
+
+    saved[currentBadge] = { y: y, x: x };
+    localStorage.setItem('brochure_badges', JSON.stringify(saved));
+
+    document.getElementById('ctrlMsg').textContent = '✅ تم الحفظ!';
+    setTimeout(function() { document.getElementById('ctrlMsg').textContent = ''; }, 2000);
+}
+</script>
+
+<!-- Page 1 -->
+<div class="page">
+    <div class="silk"></div>
+    <div class="dim"></div>
+
+    <!-- Water drops -->
+    <div class="drop" style="width:80px;height:80px;top:3%;right:8%"></div>
+    <div class="drop" style="width:45px;height:45px;top:1%;right:22%"></div>
+    <div class="drop" style="width:25px;height:25px;top:6%;right:5%"></div>
+    <div class="drop" style="width:60px;height:60px;bottom:15%;right:3%"></div>
+    <div class="drop" style="width:35px;height:35px;bottom:20%;left:5%"></div>
+    <div class="drop" style="width:20px;height:20px;top:45%;right:2%"></div>
+
+    <!-- Header -->
+    <div class="header">
+        <img src="images/logo-full.png" class="logo"><br>
+        <div style="text-align:center;color:#2D1B3D;font-family:'Cormorant Garamond',serif;font-size:22px;letter-spacing:4px;margin-top:-6px">Pharmaceutical</div>
+        <div class="quote" style="text-align:left;padding-left:20px;margin-top:-22px">Whitening Kit</div>
+    </div>
+
+    <!-- Whitening Cleanser -->
+    <div class="product-section">
+        <div class="prod-img">
+            <div class="shine-wrap"><img src="images/p2.png" alt="Whitening Cleanser" style="height:550px;margin:-105px 0"></div>
+            <span class="prod-size">200ml</span>
+        </div>
+        <div class="prod-info">
+            <div class="prod-name"><span class="gold">Montaña</span> Whitening Cleanser</div>
+            <div style="font-style:italic;font-size:15px;color:rgba(255,255,255,0.85);margin-bottom:8px;border-bottom:2px solid rgba(197,165,90,0.4);padding-bottom:8px">Formula that helps in reducing pigmentation</div>
+            <div class="section-title">Indications:</div>
+            <ul class="bullet-list">
+                <li>Dark spots</li>
+                <li>Uneven tone</li>
+                <li>Dull, and pigmented skin</li>
+                <li>Post-acne marks</li>
+                <li>Loss of radiance</li>
+            </ul>
+            <div class="section-title">Active Ingredients:</div>
+            <ul class="check-list">
+                <li>Liquorice extract (Glabridin)</li>
+                <li>Niacinamide & Zinc oxide</li>
+                <li>Vitamin C</li>
+                <li>Salicylic Acid</li>
+                <li>Tea tree oil</li>
+                <li>Wheat germ Oil</li>
+                <li>Almond oil</li>
+                <li>ZnPCA</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Gold Divider -->
+    <div class="gold-divider"></div>
+
+    <!-- Whitening Cream -->
+    <div class="product-section" style="margin-top:-6px">
+        <div class="prod-img">
+            <div class="shine-wrap"><img src="images/p3.png" alt="Whitening Cream" style="height:450px;margin:-130px 0"></div>
+            <span class="prod-size">50ml</span>
+        </div>
+        <div class="prod-info">
+            <div class="prod-name"><span class="gold">Montaña</span> Whitening Cream</div>
+            <div style="font-style:italic;font-size:15px;color:rgba(255,255,255,0.85);margin-bottom:8px;border-bottom:2px solid rgba(197,165,90,0.4);padding-bottom:8px">Formula that helps in reducing pigmentation</div>
+            <div class="section-title">Indications:</div>
+            <ul class="bullet-list">
+                <li>Melasma</li>
+                <li>Acne marks (post-acne pigmentation)</li>
+                <li>Uneven skin tone / dullness</li>
+                <li>Dark underarms & Sensitive areas</li>
+                <li>Body pigmentation & Dark spots from the sun</li>
+            </ul>
+            <div class="section-title">Active Ingredients:</div>
+            <ul class="check-list">
+                <li>Alpha-arbutin</li>
+                <li>Liquorice extract (Glabridin)</li>
+                <li>Niacinamide & Zinc oxide</li>
+                <li>Vitamin C & E</li>
+                <li>Lactic Acid</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="page-footer" style="display:flex;justify-content:space-between;align-items:center;padding:4px 20px">
+        <span style="font-size:12px;letter-spacing:1px">Manufactured by Montana Pharmaceutical Co.</span>
+        <span>www.montana.com.eg</span>
+    </div>
+</div>
+
+<!-- Page 2 -->
+<div class="page">
+    <div class="silk"></div>
+    <div class="dim"></div>
+
+    <!-- Water drops -->
+    <div class="drop" style="width:70px;height:70px;top:2%;right:6%"></div>
+    <div class="drop" style="width:40px;height:40px;top:4%;left:8%"></div>
+    <div class="drop" style="width:55px;height:55px;bottom:10%;right:4%"></div>
+    <div class="drop" style="width:25px;height:25px;top:50%;right:3%"></div>
+
+
+    <!-- Acne Facial Cleanser -->
+    <div class="product-section p2-section" style="margin:6px 24px;margin-top:30px;padding:2px 16px">
+        <div class="prod-img">
+            <div class="shine-wrap"><img src="images/p1.png" alt="Acne Facial Cleanser" style="height:540px;margin:-110px 0"></div>
+            <span class="prod-size">200ml</span>
+        </div>
+        <div class="prod-info">
+            <div class="prod-name"><span class="gold">Montaña</span> Acne Facial Cleanser</div>
+            <div style="font-style:italic;font-size:15px;color:rgba(255,255,255,0.85);margin-bottom:8px;border-bottom:2px solid rgba(197,165,90,0.4);padding-bottom:8px">Creamy Formula to Prevent Dehydration</div>
+            <div class="section-title">Indications:</div>
+            <ul class="bullet-list">
+                <li>Combined to Oily skin</li>
+                <li>Blackheads</li>
+                <li>Whiteheads</li>
+                <li>Mild acne / congested pores</li>
+            </ul>
+            <div class="section-title">Active Ingredients:</div>
+            <ul class="check-list">
+                <li>Salicylic Acid</li>
+                <li>Niacinamide</li>
+                <li>ZnPCA</li>
+                <li>Argan & Jojoba Oil</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Gold Divider -->
+    <div class="gold-divider"></div>
+
+    <!-- Hand & Body Lotion -->
+    <div class="product-section p2-section" style="margin:6px 24px;padding:2px 16px">
+        <div class="prod-img">
+            <div class="shine-wrap"><img src="images/p4.png" alt="Hand & Body Lotion" style="height:330px;margin:-70px 0"></div>
+            <span class="prod-size">50ml</span>
+        </div>
+        <div class="prod-info">
+            <div class="prod-name"><span class="gold">Montaña</span> Hand & Body Lotion</div>
+            <div style="font-size:18px;font-weight:700;color:#C5A55A;margin-bottom:2px">72-HOUR HYDRATION</div>
+            <div style="font-style:italic;font-size:14px;color:rgba(255,255,255,0.85);margin-bottom:8px;border-bottom:2px solid rgba(197,165,90,0.4);padding-bottom:8px">Formula that helps in preventing dryness.</div>
+            <div class="section-title">Indications:</div>
+            <ul class="bullet-list">
+                <li>Rough and uneven skin texture</li>
+                <li>Daily hydration and long-lasting moisture</li>
+                <li>Softening and smoothing skin</li>
+                <li>Skin exposed to frequent washing</li>
+                <li>Maintaining healthy, comfortable skin</li>
+            </ul>
+            <div class="section-title">Active Ingredients:</div>
+            <ul class="check-list">
+                <li>Glycerin</li>
+                <li>Jojoba & Olive Oil</li>
+                <li>Shea & Cocoa Butter</li>
+                <li>Almond & Coconut Oil</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Gold Divider -->
+    <div class="gold-divider"></div>
+
+    <!-- Post-Laser Cream -->
+    <div class="product-section p2-section" style="margin:6px 24px;padding:2px 16px">
+        <div class="prod-img">
+            <div class="shine-wrap"><img src="images/p5.png" alt="Post-Laser Cream" style="height:290px;margin:-55px 0"></div>
+            <span class="prod-size">50ml</span>
+        </div>
+        <div class="prod-info">
+            <div class="prod-name"><span class="gold">Montaña</span> Post-Laser Cream</div>
+            <div style="font-style:italic;font-size:15px;color:rgba(255,255,255,0.85);margin-bottom:8px;border-bottom:2px solid rgba(197,165,90,0.4);padding-bottom:8px">Reduces Inflammation After Laser Treatments</div>
+            <div class="section-title">Indications:</div>
+            <ul class="bullet-list">
+                <li>Skin irritation and redness after laser</li>
+                <li>Post-procedure skin sensitivity</li>
+                <li>Burning, stinging, or tight feeling</li>
+                <li>Supporting faster skin recovery</li>
+            </ul>
+            <div class="section-title">Active Ingredients:</div>
+            <ul class="check-list">
+                <li>Sesame Oil</li>
+                <li>Allantoin & Panthenol</li>
+                <li>Alo-vera & tea tree extract</li>
+                <li>Niacinamide & Vitamin E</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="page-footer" style="display:flex;justify-content:space-between;align-items:center;padding:4px 20px">
+        <span style="font-size:12px;letter-spacing:1px">Manufactured by Montana Pharmaceutical Co.</span>
+        <span>www.montana.com.eg</span>
+    </div>
+</div>
+
+</body>
+</html>

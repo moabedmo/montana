@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#9B6CB8">
+    <title>Montana | الإرجاع والاستبدال</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet"></noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="app.css">
+    <link rel="stylesheet" href="pages.css">
+    <link rel="stylesheet" href="premium.css">
+    <link rel="stylesheet" href="dark-theme.css">
+    <style>
+        .ret-page { padding: 16px; max-width: 640px; margin: 0 auto; }
+        .ret-policy { background: var(--bg-light); border-radius: 14px; padding: 16px; margin-bottom: 20px; font-size: 14px; line-height: 1.8; color: var(--text-light); }
+        .ret-policy h3 { font-size: 15px; margin-bottom: 8px; color: var(--text); }
+        .ret-form .form-group { margin-bottom: 14px; }
+        .ret-form label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+        .ret-form input, .ret-form select, .ret-form textarea {
+            width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 12px;
+            font-family: 'Tajawal', sans-serif; font-size: 14px; background: var(--bg-light, #fff);
+        }
+        .ret-submit { width: 100%; padding: 14px; border: none; border-radius: 12px; background: var(--accent); color: #fff; font-weight: 800; font-size: 15px; cursor: pointer; font-family: inherit; }
+        .ret-msg { text-align: center; margin-top: 12px; font-size: 13px; display: none; }
+        .ret-msg.ok { color: #27ae60; display: block; }
+        .ret-msg.err { color: #EF5350; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="page-header">
+    <a href="account.html" class="page-back"><i class="fas fa-arrow-right"></i></a>
+    <h2>الإرجاع والاستبدال</h2>
+    <div class="page-header-actions"></div>
+</div>
+
+<div class="ret-page">
+    <div class="ret-policy">
+        <h3><i class="fas fa-info-circle"></i> سياسة الإرجاع</h3>
+        <p id="returnPolicyText">يمكنك إرجاع أو استبدال أي منتج خلال 14 يوماً من تاريخ الاستلام، بشرط أن يكون المنتج في حالته الأصلية ولم يُفتح أو يُستخدم. سيتواصل معك فريقنا خلال 24–48 ساعة لترتيب الاستلام.</p>
+    </div>
+
+    <form class="ret-form" id="returnForm">
+        <div class="form-group">
+            <label>رقم الطلب</label>
+            <input type="text" id="retOrder" placeholder="MON-XXXXX" dir="ltr" required>
+        </div>
+        <div class="form-group">
+            <label>الاسم</label>
+            <input type="text" id="retName" required>
+        </div>
+        <div class="form-group">
+            <label>رقم الهاتف</label>
+            <input type="tel" id="retPhone" dir="ltr" required>
+        </div>
+        <div class="form-group">
+            <label>البريد (اختياري)</label>
+            <input type="email" id="retEmail" dir="ltr">
+        </div>
+        <div class="form-group">
+            <label>سبب الإرجاع</label>
+            <select id="retReason" required>
+                <option value="">اختر السبب</option>
+                <option>المنتج تالف أو معيب</option>
+                <option>المنتج غير مطابق للوصف</option>
+                <option>استبدال بمقاس/نوع آخر</option>
+                <option>غير راضٍ عن المنتج</option>
+                <option>سبب آخر</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>تفاصيل إضافية</label>
+            <textarea id="retDetails" rows="4" placeholder="صف المشكلة أو طلب الاستبدال…"></textarea>
+        </div>
+        <button type="submit" class="ret-submit" id="retSubmit"><i class="fas fa-paper-plane"></i> إرسال طلب الإرجاع</button>
+        <p class="ret-msg" id="retMsg"></p>
+    </form>
+</div>
+
+<script src="components.js"></script>
+<script src="js/cart.js"></script>
+<script type="module">
+import { returns as returnsApi, settings, sb } from '/js/store-api.js';
+
+try {
+  const days = await settings.get('return_days');
+  if (days) {
+    document.getElementById('returnPolicyText').textContent =
+      `يمكنك إرجاع أو استبدال أي منتج خلال ${days} يوماً من تاريخ الاستلام، بشرط أن يكون المنتج في حالته الأصلية ولم يُفتح أو يُستخدم. سيتواصل معك فريقنا خلال 24–48 ساعة.`;
+  }
+} catch { /* default text */ }
+
+const params = new URLSearchParams(location.search);
+if (params.get('order')) document.getElementById('retOrder').value = params.get('order');
+
+const { data: { session } } = await sb.auth.getSession();
+if (session) {
+  document.getElementById('retName').value = session.user.user_metadata?.full_name || '';
+  document.getElementById('retEmail').value = session.user.email || '';
+  document.getElementById('retPhone').value = session.user.user_metadata?.phone || '';
+}
+
+document.getElementById('returnForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById('retMsg');
+  const btn = document.getElementById('retSubmit');
+  msg.className = 'ret-msg';
+  btn.disabled = true;
+  try {
+    const res = await returnsApi.submit({
+      order_number: document.getElementById('retOrder').value.trim(),
+      customer_name: document.getElementById('retName').value.trim(),
+      customer_phone: document.getElementById('retPhone').value.trim(),
+      customer_email: document.getElementById('retEmail').value.trim() || null,
+      reason: document.getElementById('retReason').value,
+      details: document.getElementById('retDetails').value.trim() || null
+    });
+    msg.textContent = res.message || 'تم إرسال طلبك بنجاح ✓';
+    msg.className = 'ret-msg ok';
+    e.target.reset();
+  } catch (err) {
+    msg.textContent = err?.message || 'تعذّر إرسال الطلب، حاول مرة أخرى';
+    msg.className = 'ret-msg err';
+  }
+  btn.disabled = false;
+});
+</script>
+<script type="module" src="js/site-settings.js"></script>
+</body>
+</html>
