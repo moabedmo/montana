@@ -4,8 +4,8 @@
   "description": "Montana Naturals Field CRM for sales reps",
   "start_url": "/crm/rep/",
   "display": "standalone",
-  "background_color": "#231840",
-  "theme_color": "#231840",
+  "background_color": "#FAF8F4",
+  "theme_color": "#8B6BAF",
   "orientation": "portrait",
   "icons": [
     { "src": "/images/logo.png", "sizes": "192x192", "type": "image/png" },

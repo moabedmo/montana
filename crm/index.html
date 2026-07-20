@@ -1,75 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Montana CRM — Sign In</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="preconnect" href="https://ikryeyqrithikabwidov.supabase.co">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;1,300&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{
-  min-height:100vh;background:#FAF8F4;color:rgba(35,24,64,.95);
-  font-family:'Jost',sans-serif;font-weight:300;
+  min-height:100vh;background:#F2EEE8;color:#1a1228;
+  font-family:'Jost',sans-serif;font-weight:500;font-size:15px;
   display:flex;align-items:center;justify-content:center;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:rgba(109,74,219,.15);
   background:
-    radial-gradient(circle at 20% 20%,rgba(167,139,250,.10),transparent 45%),
-    radial-gradient(circle at 80% 80%,rgba(201,168,76,.10),transparent 40%),
-    #FAF8F4;
+    radial-gradient(circle at 20% 20%,rgba(109,74,219,.10),transparent 45%),
+    radial-gradient(circle at 80% 80%,rgba(90,61,122,.10),transparent 40%),
+    #F2EEE8;
 }
-.login-wrap{width:400px;max-width:95vw;}
-.logo{text-align:center;margin-bottom:40px;}
-.logo h1{font-family:'Playfair Display',serif;font-weight:400;font-size:32px;letter-spacing:.06em;color:#231840;}
-.logo h1 span{color:#B8933A;}
-.logo p{font-size:12px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:rgba(35,24,64,.65);margin-top:8px;}
+.login-wrap{width:400px;max-width:95vw;padding:16px 0;}
+.logo{text-align:center;margin-bottom:32px;}
+.logo h1{font-family:'Playfair Display',serif;font-weight:400;font-size:34px;letter-spacing:.06em;color:#1a1228;}
+.logo h1 span{color:#5A3D7A;}
+.logo p{font-size:13px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:#4a3f5c;margin-top:8px;}
 .card{
-  background:#fff;border:1px solid rgba(35,24,64,.1);
-  border-radius:20px;padding:36px 32px;box-shadow:0 4px 24px rgba(35,24,64,.06);
+  background:#fff;border:1.5px solid rgba(35,24,64,.18);
+  border-radius:20px;padding:36px 32px;box-shadow:0 4px 24px rgba(35,24,64,.08);
 }
-.card h2{font-family:'Playfair Display',serif;font-weight:400;font-size:20px;margin-bottom:6px;color:#231840;}
-.card p{font-size:13px;font-weight:700;color:rgba(35,24,64,.7);margin-bottom:28px;}
+.card h2{font-family:'Playfair Display',serif;font-weight:400;font-size:22px;margin-bottom:6px;color:#1a1228;}
+.card .sub{font-size:14px;font-weight:600;color:#4a3f5c;margin-bottom:24px;}
 .form-group{margin-bottom:16px;}
-label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
-  color:rgba(35,24,64,.7);margin-bottom:7px;}
-input{
-  width:100%;background:rgba(35,24,64,.03);border:1px solid rgba(35,24,64,.14);
-  border-radius:10px;padding:13px 16px;color:rgba(35,24,64,.95);
-  font-family:'Jost',sans-serif;font-size:14px;transition:border-color .2s;
+.field-lbl{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
+  color:#4a3f5c;margin-bottom:7px;}
+input[type="email"],input[type="password"]{
+  width:100%;background:#fff;border:1.5px solid rgba(35,24,64,.22);
+  border-radius:10px;padding:13px 16px;color:#1a1228;
+  font-family:'Jost',sans-serif;font-size:16px;font-weight:500;
 }
-input:focus{outline:none;border-color:#A78BFA;}
+input:focus{outline:none;border-color:#6D4ADB;box-shadow:0 0 0 3px rgba(109,74,219,.15);}
+
 .role-tabs{display:flex;gap:8px;margin-bottom:24px;}
-.role-tab{
-  flex:1;padding:10px;border-radius:9px;border:1px solid rgba(35,24,64,.14);
-  background:transparent;outline:none;-webkit-appearance:none;appearance:none;
-  font-family:'Jost',sans-serif;
-  text-align:center;font-size:13px;font-weight:700;color:rgba(35,24,64,.7);cursor:pointer;transition:all .2s;
+.role-tab{flex:1;position:relative;cursor:pointer;min-height:48px;touch-action:manipulation;}
+.role-tab input{
+  position:absolute;inset:0;opacity:0;margin:0;width:100%;height:100%;
+  cursor:pointer;z-index:2;
 }
-.role-tab.active{
-  background:rgba(167,139,250,.14);border-color:rgba(167,139,250,.5);color:#231840;
+.role-tab span{
+  display:flex;align-items:center;justify-content:center;
+  min-height:48px;padding:12px 8px;border-radius:9px;
+  border:1.5px solid rgba(35,24,64,.22);background:#fff;
+  font-size:14px;font-weight:700;color:#4a3f5c;pointer-events:none;
 }
+.role-tab input:checked + span{
+  background:rgba(109,74,219,.14);border-color:#6D4ADB;color:#1a1228;
+  box-shadow:0 0 0 2px rgba(109,74,219,.18);
+}
+
 .btn-login{
-  width:100%;padding:14px;border-radius:10px;border:none;
-  background:linear-gradient(135deg,#C9A84C 0%,#E8D48A 50%,#C9A84C 100%);
-  color:#1a1030;font-weight:500;font-size:14px;letter-spacing:.06em;cursor:pointer;
-  margin-top:8px;font-family:'Jost',sans-serif;
-  box-shadow:0 6px 20px rgba(201,168,76,.3);transition:all .2s;
+  display:block;width:100%;padding:14px;border-radius:10px;border:none;
+  background:linear-gradient(135deg,#5A3D7A 0%,#8B6BAF 50%,#5A3D7A 100%);
+  color:#fff;font-weight:700;font-size:16px;cursor:pointer;
+  margin-top:8px;font-family:'Jost',sans-serif;min-height:52px;
+  box-shadow:0 6px 20px rgba(90,61,122,.30);
+  touch-action:manipulation;-webkit-appearance:none;appearance:none;
+  position:relative;z-index:5;
 }
-.btn-login:hover{box-shadow:0 8px 28px rgba(201,168,76,.45);}
-.btn-login:disabled{opacity:.5;cursor:default;}
+.btn-login:disabled{opacity:.55;cursor:wait;}
 .error{
-  background:rgba(240,153,123,.12);border:1px solid rgba(240,153,123,.35);
-  border-radius:9px;padding:11px 14px;font-size:13px;color:#C9502F;
+  background:rgba(179,61,30,.10);border:1px solid rgba(179,61,30,.35);
+  border-radius:9px;padding:11px 14px;font-size:14px;color:#B33D1E;font-weight:600;
   margin-top:14px;display:none;
 }
-.foot{text-align:center;margin-top:22px;font-size:12px;font-weight:700;color:rgba(35,24,64,.5);}
-.old-browser-warning{
-  background:rgba(240,153,123,.15);border:1px solid rgba(240,153,123,.4);
-  border-radius:12px;padding:16px 18px;font-size:13px;font-weight:700;
-  color:#8a3a1f;line-height:1.8;text-align:center;
-}
+.foot{text-align:center;margin-top:22px;font-size:13px;font-weight:600;color:#4a3f5c;}
+@media (max-width:420px){.card{padding:28px 20px;}.role-tab span{font-size:13px;}}
 </style>
 </head>
 <body>
@@ -78,103 +84,246 @@ input:focus{outline:none;border-color:#A78BFA;}
     <h1>MONTANA<span>.</span></h1>
     <p>CRM Suite</p>
   </div>
-  <div id="oldBrowserWarning" class="card old-browser-warning" style="display:none">
-    متصفحك قديم أوي ومش بيدعم صفحة الدخول دي، عشان كده الأزرار مش بترد. من فضلك افتحي الصفحة من Chrome أو Edge بأحدث نسخة عشان تقدري تسجلي دخولك.
-  </div>
   <div class="card" id="loginCard">
     <h2>Welcome back</h2>
-    <p>Sign in to access your CRM dashboard</p>
+    <p class="sub">Sign in to access your CRM dashboard</p>
 
-    <div class="role-tabs">
-      <button type="button" class="role-tab active" data-role="rep">Sales Rep</button>
-      <button type="button" class="role-tab" data-role="admin">Admin</button>
-    </div>
+    <form id="loginForm" action="#" method="post" novalidate>
+      <div class="role-tabs" role="radiogroup" aria-label="Account type">
+        <label class="role-tab">
+          <input type="radio" name="crm-role" value="rep" checked>
+          <span>Sales Rep</span>
+        </label>
+        <label class="role-tab">
+          <input type="radio" name="crm-role" value="admin">
+          <span>Admin</span>
+        </label>
+      </div>
 
-    <div class="form-group">
-      <label>Email</label>
-      <input type="email" id="email" placeholder="you@montana.com" autocomplete="email">
-    </div>
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
-    </div>
+      <div class="form-group">
+        <label class="field-lbl" for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@montana.com" autocomplete="username" inputmode="email" required>
+      </div>
+      <div class="form-group">
+        <label class="field-lbl" for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+      </div>
 
-    <button class="btn-login" id="login-btn" type="button">Sign in</button>
-    <div class="error" id="err"></div>
+      <button class="btn-login" id="login-btn" type="submit">Sign in</button>
+      <div class="error" id="err" role="alert"></div>
+    </form>
   </div>
   <div class="foot">Montana Naturals · Field CRM<br>
-    <a href="/crm/guide.html" style="color:#A78BFA;text-decoration:none;font-size:12px">📖 دليل الاستخدام</a>
+    <a href="/crm/guide.html" style="color:#A78BFA;text-decoration:none;font-size:13px">📖 User Guide</a>
   </div>
 </div>
 
 <script>
-// Plain (non-module) script — runs on every browser, even ones too old to
-// execute the type="module" block below at all. 'noModule' on the script
-// element prototype only exists in browsers that also support type="module"
-// and ES2020 syntax (optional chaining etc.) used further down, so its
-// absence is a reliable proxy for "this browser can't run this page" —
-// show a clear message instead of a silently unresponsive login form.
-if (!('noModule' in document.createElement('script'))) {
-  document.getElementById('oldBrowserWarning').style.display = '';
-  document.getElementById('loginCard').style.display = 'none';
-}
-</script>
-<script type="module">
-import { auth, isCrmAdminAccess } from './js/crm-api.js';
+/* Classic script — no ES modules. Works on older Android/WebViews that
+   can't import crm-api.js, so Sign-in actually fires on those devices. */
+(function () {
+  var SUPABASE_URL = 'https://ikryeyqrithikabwidov.supabase.co';
+  var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrcnlleXFyaXRoaWthYndpZG92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MzY1ODcsImV4cCI6MjA5NzMxMjU4N30.kNfHPxV4fq67cOF8uFsTrLOxPYcLcmmDO3ScIHzI9Uo';
+  var AUTH_STORAGE_KEY = 'sb-ikryeyqrithikabwidov-auth-token';
+  var REP_CACHE_KEY = 'crm_rep_cache';
 
-window.currentRole = 'rep';
+  var form = document.getElementById('loginForm');
+  var btn = document.getElementById('login-btn');
+  var errEl = document.getElementById('err');
 
-function setRole(role, el) {
-  window.currentRole = role;
-  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-}
-
-document.querySelectorAll('.role-tab').forEach((tab) => {
-  tab.addEventListener('click', () => setRole(tab.dataset.role, tab));
-});
-
-document.getElementById('login-btn').addEventListener('click', () => window.doLogin());
-
-window.doLogin = async () => {
-  const email = document.getElementById('email').value.trim();
-  const pass  = document.getElementById('password').value;
-  const btn   = document.getElementById('login-btn');
-  const err   = document.getElementById('err');
-
-  if (!email || !pass) { showErr('Please enter your email and password.'); return; }
-  btn.disabled = true; btn.textContent = 'Signing in…';
-
-  try {
-    const me = await auth.login(email, pass, { role: window.currentRole });
-    if (window.currentRole === 'admin') {
-      location.href = '/crm/admin/';
-      return;
-    }
-    location.href = me.rep?.role === 'admin' ? '/crm/admin/' : '/crm/rep/';
-  } catch (e) {
-    showErr(e.message || 'Invalid credentials. Please try again.');
-    btn.disabled = false; btn.textContent = 'Sign in';
+  function showErr(msg) {
+    errEl.textContent = msg;
+    errEl.style.display = 'block';
   }
-};
 
-function showErr(msg) {
-  const el = document.getElementById('err');
-  el.textContent = msg; el.style.display = 'block';
-}
+  function getRole() {
+    var checked = document.querySelector('input[name="crm-role"]:checked');
+    return (checked && checked.value) || 'rep';
+  }
 
-// Enter key submits
-document.addEventListener('keydown', e => { if (e.key === 'Enter') window.doLogin(); });
+  function headers(token) {
+    var h = {
+      'apikey': SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    };
+    if (token) h['Authorization'] = 'Bearer ' + token;
+    return h;
+  }
 
-// Check if already logged in
-(async () => {
-  try {
-    const me = await auth.me();
-    if (!me?.user) return;
-    if (me.rep?.role === 'admin') { location.href = '/crm/admin/'; return; }
-    if (me.rep?.role === 'rep') { location.href = '/crm/rep/'; return; }
-    if (await isCrmAdminAccess()) location.href = '/crm/admin/';
-  } catch {}
+  function saveSession(data) {
+    var expiresIn = data.expires_in || 3600;
+    var session = {
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      expires_in: expiresIn,
+      expires_at: Math.floor(Date.now() / 1000) + expiresIn,
+      token_type: data.token_type || 'bearer',
+      user: data.user
+    };
+    try {
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+    } catch (e) {}
+    return session;
+  }
+
+  function readSession() {
+    try {
+      var raw = localStorage.getItem(AUTH_STORAGE_KEY);
+      if (!raw) return null;
+      var s = JSON.parse(raw);
+      if (!s || !s.access_token) return null;
+      if (s.expires_at && s.expires_at * 1000 < Date.now() - 30000) return null;
+      return s;
+    } catch (e) { return null; }
+  }
+
+  function rpcBool(name, token) {
+    return fetch(SUPABASE_URL + '/rest/v1/rpc/' + name, {
+      method: 'POST',
+      headers: headers(token),
+      body: '{}'
+    }).then(function (res) { return res.json(); }).then(function (data) {
+      return data === true;
+    }).catch(function () { return false; });
+  }
+
+  function fetchRep(userId, token) {
+    var q = '/rest/v1/crm_reps?select=*,crm_offices(name)&user_id=eq.' + encodeURIComponent(userId) + '&limit=1';
+    return fetch(SUPABASE_URL + q, {
+      method: 'GET',
+      headers: headers(token)
+    }).then(function (res) { return res.json(); }).then(function (rows) {
+      var rep = (rows && rows[0]) || null;
+      if (rep && rep.active) {
+        try { localStorage.setItem(REP_CACHE_KEY, JSON.stringify(rep)); } catch (e) {}
+      }
+      return rep;
+    }).catch(function () { return null; });
+  }
+
+  function goAfterLogin(role, rep, token) {
+    if (role === 'admin') {
+      return Promise.all([
+        rpcBool('is_owner', token),
+        rpcBool('is_crm_admin', token),
+        rpcBool('is_store_admin', token)
+      ]).then(function (flags) {
+        var isOwner = flags[0];
+        var canAdmin = flags[0] || flags[1] || flags[2] || (rep && rep.role === 'admin');
+        if (!canAdmin && !(rep && rep.active && rep.role === 'admin')) {
+          throw new Error('This account is not authorized to access the admin panel');
+        }
+        location.href = isOwner
+          ? '/crm/admin/?page=pharmacy-invoices&standalone=1'
+          : '/crm/admin/';
+      });
+    }
+    if (rep && rep.role === 'admin') {
+      location.href = '/crm/admin/';
+      return Promise.resolve();
+    }
+    location.href = '/crm/rep/';
+    return Promise.resolve();
+  }
+
+  var busy = false;
+
+  function doLogin(e) {
+    if (e) {
+      if (e.preventDefault) e.preventDefault();
+      if (e.stopPropagation) e.stopPropagation();
+    }
+    if (busy) return false;
+
+    var email = (document.getElementById('email').value || '').replace(/^\s+|\s+$/g, '');
+    var pass = document.getElementById('password').value || '';
+    var role = getRole();
+
+    errEl.style.display = 'none';
+    if (!email || !pass) {
+      showErr('Please enter your email and password');
+      return false;
+    }
+
+    busy = true;
+    btn.disabled = true;
+    btn.textContent = 'Signing in…';
+
+    fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ email: email, password: pass })
+    }).then(function (res) {
+      return res.json().then(function (body) {
+        if (!res.ok) {
+          var msg = (body && (body.error_description || body.msg || body.message)) || 'Incorrect email or password';
+          throw new Error(msg);
+        }
+        return body;
+      });
+    }).then(function (authData) {
+      var session = saveSession(authData);
+      var user = authData.user || {};
+      return fetchRep(user.id, session.access_token).then(function (rep) {
+        if (rep && rep.active) {
+          if (role === 'admin' && rep.role !== 'admin') {
+            throw new Error('This account is a sales rep, not a CRM admin.');
+          }
+          return goAfterLogin(role, rep, session.access_token);
+        }
+        if (role === 'admin') {
+          return Promise.all([
+            rpcBool('is_crm_admin', session.access_token),
+            rpcBool('is_store_admin', session.access_token),
+            rpcBool('is_owner', session.access_token)
+          ]).then(function (flags) {
+            if (!(flags[0] || flags[1] || flags[2])) {
+              throw new Error('No active CRM account for this user.');
+            }
+            return goAfterLogin(role, null, session.access_token);
+          });
+        }
+        throw new Error('No active CRM account for this user.');
+      });
+    }).catch(function (ex) {
+      showErr((ex && ex.message) || 'Sign in failed');
+      busy = false;
+      btn.disabled = false;
+      btn.textContent = 'Sign in';
+    });
+
+    return false;
+  }
+
+  form.onsubmit = doLogin;
+  btn.onclick = function (e) {
+    return doLogin(e || window.event);
+  };
+
+  // Already signed in? Redirect.
+  (function () {
+    var session = readSession();
+    if (!session || !session.user) return;
+    var userId = session.user.id;
+    fetchRep(userId, session.access_token).then(function (rep) {
+      if (rep && rep.active) {
+        location.href = rep.role === 'admin' ? '/crm/admin/' : '/crm/rep/';
+        return;
+      }
+      return Promise.all([
+        rpcBool('is_owner', session.access_token),
+        rpcBool('is_crm_admin', session.access_token),
+        rpcBool('is_store_admin', session.access_token)
+      ]).then(function (flags) {
+        if (flags[0]) {
+          location.href = '/crm/admin/?page=pharmacy-invoices&standalone=1';
+        } else if (flags[1] || flags[2]) {
+          location.href = '/crm/admin/';
+        }
+      });
+    });
+  })();
 })();
 </script>
 </body>

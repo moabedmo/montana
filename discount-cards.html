@@ -212,10 +212,10 @@
     <div class="gold-t"></div><div class="gold-b"></div>
     <div class="content">
         <img src="images/logo-icon.png" class="logo embossed">
-        <div class="limited">عرض حصري · LIMITED EDITION</div>
-        <div class="discount foil-text">20<span>%</span></div>
-        <div class="disc-text">خصم على جميع المنتجات</div>
-        <div class="disc-sub">DISCOUNT ON ALL PRODUCTS</div>
+        <div class="limited" id="dc-limited">عرض حصري · LIMITED EDITION</div>
+        <div class="discount foil-text" id="dc-pct">20<span>%</span></div>
+        <div class="disc-text" id="dc-ar-title">خصم على جميع المنتجات</div>
+        <div class="disc-sub" id="dc-en-title">DISCOUNT ON ALL PRODUCTS</div>
     </div>
 </div>
 
@@ -234,7 +234,7 @@
     <div class="content">
         <img src="images/logo-icon.png" class="logo embossed">
         <div class="brand-name">MONTAÑA</div>
-        <div class="website">www.montana.com.eg</div>
+        <div class="website" id="dc-website-back">www.montana.com.eg</div>
     </div>
 </div>
 
@@ -253,13 +253,13 @@
     <div class="content">
         <img src="images/logo-icon.png" class="logo embossed">
         <div class="brand-name">MONTAÑA</div>
-        <div class="tagline">للعناية بالبشرة والتجميل</div>
+        <div class="tagline" id="dc-ar-body">للعناية بالبشرة والتجميل</div>
         <div class="bar"></div>
     </div>
     <div class="footer-info">
-        <span><span class="gold-icon">📍</span> القاهرة، مصر</span>
-        <span><span class="gold-icon">📞</span> 01XX-XXX-XXXX</span>
-        <span><span class="gold-icon">🌐</span> montana.com.eg</span>
+        <span><span class="gold-icon">📍</span> <span id="dc-address">القاهرة، مصر</span></span>
+        <span><span class="gold-icon">📞</span> <span id="dc-phone">01XX-XXX-XXXX</span></span>
+        <span><span class="gold-icon">🌐</span> <span id="dc-website-ar">montana.com.eg</span></span>
     </div>
 </div>
 
@@ -278,15 +278,74 @@
     <div class="content">
         <img src="images/logo-icon.png" class="logo embossed">
         <div class="brand-name">MONTAÑA</div>
-        <div class="tagline">Premium Skincare · Cosmetics</div>
+        <div class="tagline" id="dc-en-body">Premium Skincare · Cosmetics</div>
         <div class="bar"></div>
     </div>
     <div class="footer-info">
-        <span><span class="gold-icon">📍</span> Cairo, Egypt</span>
-        <span><span class="gold-icon">📞</span> 01XX-XXX-XXXX</span>
-        <span><span class="gold-icon">🌐</span> montana.com.eg</span>
+        <span><span class="gold-icon">📍</span> <span id="dc-address-en">Cairo, Egypt</span></span>
+        <span><span class="gold-icon">📞</span> <span id="dc-phone-en">01XX-XXX-XXXX</span></span>
+        <span><span class="gold-icon">🌐</span> <span id="dc-website-en">montana.com.eg</span></span>
     </div>
 </div>
+
+<script>
+(function () {
+  const params = new URLSearchParams(location.search);
+  if (params.get('embed') === '1') {
+    document.querySelectorAll('.no-print').forEach(el => el.style.display = 'none');
+    document.body.style.padding = '16px';
+  }
+
+  function setPct(raw) {
+    const el = document.getElementById('dc-pct');
+    if (!el) return;
+    const m = String(raw || '20%').match(/(\d+)\s*%?/);
+    const n = m ? m[1] : '20';
+    el.innerHTML = n + '<span>%</span>';
+  }
+
+  function apply(d) {
+    if (!d) return;
+    if (d.limited != null) document.getElementById('dc-limited').textContent = d.limited;
+    if (d.pct != null) setPct(d.pct);
+    if (d.arTitle != null) document.getElementById('dc-ar-title').textContent = d.arTitle;
+    if (d.enTitle != null) document.getElementById('dc-en-title').textContent = d.enTitle;
+    if (d.arBody != null) document.getElementById('dc-ar-body').textContent = d.arBody;
+    if (d.enBody != null) document.getElementById('dc-en-body').textContent = d.enBody;
+    if (d.address != null) document.getElementById('dc-address').textContent = d.address;
+    if (d.addressEn != null) document.getElementById('dc-address-en').textContent = d.addressEn;
+    if (d.phone != null) {
+      document.getElementById('dc-phone').textContent = d.phone;
+      document.getElementById('dc-phone-en').textContent = d.phone;
+    }
+    if (d.website != null) {
+      const w = d.website.replace(/^https?:\/\//, '');
+      document.getElementById('dc-website-back').textContent = w.startsWith('www.') ? w : w;
+      document.getElementById('dc-website-ar').textContent = w.replace(/^www\./, '');
+      document.getElementById('dc-website-en').textContent = w.replace(/^www\./, '');
+    }
+  }
+
+  try {
+    const local = JSON.parse(localStorage.getItem('montana_print_discount_cards') || 'null');
+    apply(local);
+  } catch (e) {}
+
+  fetch('https://ikryeyqrithikabwidov.supabase.co/rest/v1/site_settings?key=eq.print_discount_cards&select=value', {
+    headers: {
+      apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrcnlleXFyaXRoaWthYndpZG92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MzY1ODcsImV4cCI6MjA5NzMxMjU4N30.kNfHPxV4fq67cOF8uFsTrLOxPYcLcmmDO3ScIHzI9Uo',
+      Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrcnlleXFyaXRoaWthYndpZG92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MzY1ODcsImV4cCI6MjA5NzMxMjU4N30.kNfHPxV4fq67cOF8uFsTrLOxPYcLcmmDO3ScIHzI9Uo'
+    }
+  }).then(r => r.json()).then(rows => {
+    if (rows?.[0]?.value) {
+      try { apply(JSON.parse(rows[0].value)); } catch (e) {}
+    }
+    if (params.get('print') === '1') setTimeout(() => window.print(), 500);
+  }).catch(() => {
+    if (params.get('print') === '1') setTimeout(() => window.print(), 400);
+  });
+})();
+</script>
 
 </body>
 </html>

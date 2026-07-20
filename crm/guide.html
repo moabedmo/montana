@@ -1,259 +1,257 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>دليل استخدام نظام Montana CRM</title>
+<title>Montana CRM User Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#231840;--panel:rgba(255,255,255,.05);--b:rgba(255,255,255,.1);
-  --text:rgba(255,255,255,.92);--dim:rgba(255,255,255,.55);
-  --violet:#A78BFA;--gold:#C9A84C;--gl:#E8D48A;--ok:#4ADE80;--warn:#F5A623;--bad:#F0997B;
+  --bg:#FAF8F4;--panel:#ffffff;--b:rgba(35,24,64,.10);
+  --text:rgba(35,24,64,.95);--dim:rgba(35,24,64,.55);
+  --violet:#A78BFA;--gold:#8B6BAF;--gl:#8B6BAF;--ok:#2F9E5F;--warn:#C4811A;--bad:#C9502F;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
 body{
   background:
-    radial-gradient(circle at 15% 0%,rgba(167,139,250,.14),transparent 40%),
-    radial-gradient(circle at 90% 100%,rgba(201,168,76,.1),transparent 40%),
+    radial-gradient(circle at 15% 0%,rgba(167,139,250,.12),transparent 40%),
+    radial-gradient(circle at 90% 100%,rgba(139,107,175,.10),transparent 40%),
     var(--bg);
   color:var(--text);font-family:'Cairo',sans-serif;font-weight:300;line-height:1.9;
 }
 .wrap{max-width:860px;margin:0 auto;padding:40px 22px 80px;}
 header{text-align:center;margin-bottom:40px;}
-header .logo{font-size:34px;font-weight:700;letter-spacing:.04em;}
+header .logo{font-size:36px;font-weight:700;letter-spacing:.04em;color:#231840;}
 header .logo span{color:var(--gl);}
-header p{color:var(--dim);font-size:14px;margin-top:6px;}
-.toc{background:var(--panel);border:1px solid var(--b);border-radius:16px;padding:22px 26px;margin-bottom:36px;}
-.toc h2{font-size:16px;margin-bottom:10px;color:var(--gl);}
-.toc a{display:block;color:var(--violet);text-decoration:none;font-size:14px;padding:4px 0;}
-.toc a:hover{color:#fff;}
+header p{color:var(--dim);font-size:15px;margin-top:6px;}
+.toc{background:var(--panel);border:1px solid var(--b);border-radius:16px;padding:22px 26px;margin-bottom:36px;box-shadow:0 4px 20px rgba(35,24,64,.05);}
+.toc h2{font-size:17px;margin-bottom:10px;color:var(--gl);}
+.toc a{display:block;color:var(--violet);text-decoration:none;font-size:15px;padding:4px 0;}
+.toc a:hover{color:#6B4F8C;}
 section{margin-bottom:44px;}
 h1.sec{
-  font-size:24px;font-weight:700;padding:14px 20px;border-radius:14px;margin-bottom:22px;
-  background:linear-gradient(135deg,rgba(201,168,76,.18),rgba(167,139,250,.12));
-  border:1px solid rgba(201,168,76,.3);
+  font-size:26px;font-weight:700;padding:14px 20px;border-radius:14px;margin-bottom:22px;
+  background:linear-gradient(135deg,rgba(139,107,175,.14),rgba(167,139,250,.10));
+  border:1px solid rgba(139,107,175,.28);color:#231840;
 }
-h2.step{font-size:18px;font-weight:600;color:var(--gl);margin:28px 0 10px;}
+h2.step{font-size:20px;font-weight:600;color:var(--gl);margin:28px 0 10px;}
 h2.step .n{
   display:inline-flex;align-items:center;justify-content:center;
-  width:30px;height:30px;border-radius:50%;background:rgba(201,168,76,.2);
-  color:var(--gl);font-size:14px;margin-inline-end:10px;
+  width:30px;height:30px;border-radius:50%;background:rgba(139,107,175,.16);
+  color:var(--gl);font-size:15px;margin-inline-end:10px;
 }
-p,li{font-size:15px;color:rgba(255,255,255,.85);}
+p,li{font-size:16px;color:rgba(35,24,64,.85);}
 ul,ol{padding-inline-start:24px;margin:8px 0 14px;}
 li{margin-bottom:6px;}
-.card{background:var(--panel);border:1px solid var(--b);border-radius:14px;padding:18px 22px;margin:14px 0;}
-.tip{border-inline-start:3px solid var(--ok);background:rgba(74,222,128,.07);}
-.warn{border-inline-start:3px solid var(--warn);background:rgba(245,166,35,.07);}
-.danger{border-inline-start:3px solid var(--bad);background:rgba(240,153,123,.07);}
+.card{background:var(--panel);border:1px solid var(--b);border-radius:14px;padding:18px 22px;margin:14px 0;box-shadow:0 2px 14px rgba(35,24,64,.04);}
+.tip{border-inline-start:3px solid var(--ok);background:rgba(47,158,95,.07);}
+.warn{border-inline-start:3px solid var(--warn);background:rgba(196,129,26,.07);}
+.danger{border-inline-start:3px solid var(--bad);background:rgba(201,80,47,.07);}
 .tip b,.warn b,.danger b{display:block;margin-bottom:4px;}
 .tip b{color:var(--ok);} .warn b{color:var(--warn);} .danger b{color:var(--bad);}
 code{
-  direction:ltr;display:inline-block;background:rgba(0,0,0,.35);border:1px solid var(--b);
-  border-radius:6px;padding:1px 8px;font-size:13px;color:var(--gl);font-family:Consolas,monospace;
+  direction:ltr;display:inline-block;background:rgba(35,24,64,.05);border:1px solid var(--b);
+  border-radius:6px;padding:1px 8px;font-size:14px;color:var(--gl);font-family:Consolas,monospace;
 }
-.pill{display:inline-block;padding:2px 12px;border-radius:20px;font-size:12px;font-weight:600;margin:0 2px;}
-.pill-am{background:rgba(201,168,76,.18);color:var(--gl);border:1px solid rgba(201,168,76,.4);}
-.pill-pm{background:rgba(167,139,250,.18);color:var(--violet);border:1px solid rgba(167,139,250,.4);}
-.pill-ok{background:rgba(74,222,128,.15);color:var(--ok);}
-.pill-bad{background:rgba(240,153,123,.15);color:var(--bad);}
-table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px;}
-th,td{padding:10px 14px;text-align:right;border-bottom:1px solid rgba(255,255,255,.08);}
-th{color:var(--gl);font-weight:600;font-size:13px;}
-.faq-q{font-weight:600;color:var(--violet);margin-top:16px;}
-footer{text-align:center;color:var(--dim);font-size:12px;margin-top:50px;border-top:1px solid var(--b);padding-top:20px;}
+.pill{display:inline-block;padding:2px 12px;border-radius:20px;font-size:13px;font-weight:600;margin:0 2px;}
+.pill-am{background:rgba(139,107,175,.14);color:var(--gl);border:1px solid rgba(139,107,175,.35);}
+.pill-pm{background:rgba(167,139,250,.14);color:#7C3AED;border:1px solid rgba(167,139,250,.35);}
+.pill-ok{background:rgba(47,158,95,.12);color:var(--ok);}
+.pill-bad{background:rgba(201,80,47,.12);color:var(--bad);}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:15px;}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid rgba(35,24,64,.08);}
+th{color:var(--gl);font-weight:600;font-size:14px;}
+.faq-q{font-weight:600;color:#7C3AED;margin-top:16px;}
+footer{text-align:center;color:var(--dim);font-size:13px;margin-top:50px;border-top:1px solid var(--b);padding-top:20px;}
 .print-btn{
   position:fixed;bottom:22px;inset-inline-start:22px;padding:10px 18px;border-radius:12px;border:none;
-  background:linear-gradient(135deg,#C9A84C,#E8D48A);color:#1a1030;font-family:'Cairo',sans-serif;
-  font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 6px 20px rgba(201,168,76,.35);
+  background:linear-gradient(135deg,#8B6BAF,#C4B0E0);color:#231840;font-family:'Cairo',sans-serif;
+  font-weight:600;font-size:14px;cursor:pointer;box-shadow:0 6px 20px rgba(139,107,175,.35);
 }
 @media print{
   body{background:#fff;color:#111;}
   p,li{color:#222;}
   .card{border:1px solid #ddd;background:#fafafa;}
   .print-btn,.toc a:hover{display:none;}
-  h1.sec{background:#f3ecd8;border-color:#c9a84c;color:#111;}
+  h1.sec{background:#efe8f7;border-color:#8B6BAF;color:#111;}
   code{background:#eee;color:#333;border-color:#ccc;}
 }
 </style>
 </head>
 <body>
-<button class="print-btn" onclick="window.print()">🖨️ طباعة الدليل</button>
+<button class="print-btn" onclick="window.print()">🖨️ Print Guide</button>
 <div class="wrap">
 
 <header>
   <div class="logo">MONTANA<span>.</span></div>
-  <p>دليل استخدام نظام إدارة الزيارات الميدانية — للمندوبين والإدارة</p>
+  <p>Field Visit Management System User Guide — for Sales Reps and Admins</p>
 </header>
 
 <div class="toc">
-  <h2>محتويات الدليل</h2>
-  <a href="#rep">📱 أولاً: دليل المندوب</a>
-  <a href="#admin">🖥️ ثانياً: دليل المدير</a>
-  <a href="#faq">❓ أسئلة شائعة</a>
+  <h2>Table of Contents</h2>
+  <a href="#rep">📱 Part One: Sales Rep Guide</a>
+  <a href="#admin">🖥️ Part Two: Admin Guide</a>
+  <a href="#faq">❓ Frequently Asked Questions</a>
 </div>
 
-<!-- ═══════════ دليل المندوب ═══════════ -->
+<!-- ═══════════ Sales Rep Guide ═══════════ -->
 <section id="rep">
-<h1 class="sec">📱 أولاً: دليل المندوب</h1>
+<h1 class="sec">📱 Part One: Sales Rep Guide</h1>
 
-<h2 class="step"><span class="n">1</span>تسجيل الدخول وتثبيت التطبيق</h2>
+<h2 class="step"><span class="n">1</span>Signing In and Installing the App</h2>
 <ul>
-  <li>افتح من متصفح الموبايل الرابط: <code>montana2.vercel.app/crm</code></li>
-  <li>اختر تبويب «Sales Rep» ثم أدخل بريدك وكلمة المرور اللي استلمتها من الإدارة.</li>
-  <li>لتثبيت التطبيق على شاشة الموبايل: من قائمة المتصفح اختر «إضافة إلى الشاشة الرئيسية».</li>
+  <li>Open this link in your mobile browser: <code>montana2.vercel.app/crm</code></li>
+  <li>Choose the "Sales Rep" tab, then enter the email and password you received from the admin.</li>
+  <li>To install the app on your phone's home screen: from the browser menu, choose "Add to Home Screen".</li>
 </ul>
-<div class="card tip"><b>نصيحة</b>بعد التثبيت هيشتغل التطبيق زي أي تطبيق عادي، وهيفتح بشكل أسرع ويدعم العمل بدون إنترنت.</div>
+<div class="card tip"><b>Tip</b>Once installed, the app works just like any regular app — it opens faster and supports working offline.</div>
 
-<h2 class="step"><span class="n">2</span>بناء خطتك الشهرية (الجدول)</h2>
-<p>أنت المسؤول عن بناء جدولك بنفسك من الدكاترة اللي أضافتهم الإدارة في مناطقك:</p>
+<h2 class="step"><span class="n">2</span>Building the Week Plan (Saturday → Thursday)</h2>
+<p>Each rep prepares a <b>week plan</b> and submits it for admin approval. Planning days are <b>Saturday through Thursday</b> — <b>Friday is off</b>.</p>
 <ul>
-  <li><b>الإضافة السريعة:</b> اضغط «⚡ Auto-fill» وهيتملى جدولك تلقائياً بكل دكاترة مناطقك، وعدد الزيارات بيتحدد حسب تصنيف كل دكتور:</li>
+  <li>From the home screen, tap "Create Plan".</li>
+  <li>You can plan <b>one day or more</b> — you don’t need to fill every day.</li>
+  <li>For each day you include: choose one or more active clients in your territory plus <span class="pill pill-am">AM</span> or <span class="pill pill-pm">PM</span>.</li>
+  <li>Submit for admin approval. Once approved, you can write visit reports from the plan.</li>
 </ul>
-<table>
-  <tr><th>التصنيف</th><th>عدد الزيارات في الشهر</th></tr>
-  <tr><td>AB1</td><td>4 زيارات</td></tr>
-  <tr><td>AB2</td><td>3 زيارات</td></tr>
-  <tr><td>BB1</td><td>زيارتان</td></tr>
-  <tr><td>BB2</td><td>زيارة واحدة</td></tr>
-</table>
-<ul>
-  <li><b>الإضافة اليدوية:</b> اضغط «+ Add» وابحث عن الدكتور وأضفه، وتقدر تعدّل عدد الزيارات من الرقم اللي جنب اسمه.</li>
-  <li><b>تحديد وقت الزيارة:</b> لكل دكتور في جدولك زر <span class="pill pill-am">🌅 AM</span> أو <span class="pill pill-pm">🌆 PM</span> — اضغط عليه لتبديل الفترة اللي ناوي تزور فيها الدكتور. الاختيار ده بيتحفظ وبيظهر تلقائياً وقت تسجيل الزيارة.</li>
-  <li><b>الحذف:</b> علامة ✕ جنب أي دكتور بتشيله من جدولك.</li>
-</ul>
+<div class="card tip"><b>Note</b>Doctors the admin has set to "Inactive" won't appear for you — only Active doctors show in the list.</div>
+<div class="card warn"><b>Important</b>Without an approved plan, you won't be able to submit a visit report. Submit your plan early in the week.</div>
 
-<h2 class="step"><span class="n">3</span>تحديد حالة اليوم</h2>
-<p>من الشاشة الرئيسية اضغط «Set today's status» واختر نوع اليوم: يوم عمل عادي، سبت، إجازة سنوية، يوم مكتب، أو يوم صحي. رصيد إجازاتك السنوية بيظهر في نفس الشاشة.</p>
+<h2 class="step"><span class="n">3</span>Setting Today's Status</h2>
+<p>From the home screen, tap "Set today's status" and choose the day type: regular working day, Saturday, annual leave, office day, or sick day. Your annual leave balance appears on the same screen.</p>
 
-<h2 class="step"><span class="n">4</span>تسجيل زيارة</h2>
+<h2 class="step"><span class="n">4</span>Logging a Visit (Field Report)</h2>
 <ol>
-  <li>من جدولك اضغط على اسم الدكتور.</li>
-  <li><b>الموقع:</b> النظام بيتأكد إنك فعلاً عند العيادة — لازم تكون في نطاق <b>150 متر</b>. أول زيارة لدكتور جديد بيتسجل موقع عيادته تلقائياً.</li>
-  <li><b>الفترة:</b> AM أو PM — بتيجي جاهزة من جدولك وتقدر تغيّرها.</li>
-  <li><b>نوع الزيارة:</b> عادية «Regular»، الدكتور مش موجود «No Show»، أو طلب من الدكتور «Dr Request».</li>
-  <li><b>المنتجات:</b> اختر المنتجات اللي اتناقشت في الزيارة.</li>
-  <li><b>العينات:</b> حدّد كمية كل عينة اتوزعت بأزرار + و −. تحت اسم كل منتج هتلاقي "معاك: X عبوة" — ده رصيد العهدة اللي الإدارة دّتهالك، وبينقص أوتوماتيك كل ما تسجّل عينات في زيارة. لو الرقم اللي كتبته أكتر من عهدتك، النظام بيسجّله برضو (عشان محدش يتعطل في الميدان) بس بيوريك تنبيه إنه تجاوز العهدة المسجّلة.</li>
-  <li><b>المنافسين:</b> لو الدكتور ذكر منتجات منافسة، سجّلها — الإدارة بتتابعها.</li>
-  <li><b>الصورة (اختياري):</b> صورة من داخل العيادة كإثبات إضافي للزيارة.</li>
-  <li><b>الملاحظات:</b> اكتب ملخص اللي حصل، ثم اضغط زر الإرسال.</li>
+  <li>From the "This Week's Visits" list, or from the days in your locked plan — tap the visit / doctor.</li>
+  <li><b>Four steps:</b> Visit type → Location → Products/Samples → Notes and submit.</li>
+  <li><b>Location:</b> recorded from where you write the report. The allowed range is <b>200 meters</b> from the client's address. A client's first visit without saved coordinates automatically records the clinic's location.</li>
+  <li><b>Period:</b> AM or PM — pulled from the plan, and you can change it.</li>
+  <li><b>Visit type:</b> actual visit, regular, or no show.</li>
+  <li><b>Products:</b> choose the products discussed during the visit.</li>
+  <li><b>Samples:</b> set the quantity with the + and − buttons from your <b>allocation</b>. Under each product: "You have: X units". If you enter more than your allocation, the system still records it but flags it for the admin.</li>
+  <li><b>Competitors / Photo (optional)</b>, then write your notes and submit the report.</li>
 </ol>
-<div class="card warn"><b>مهم</b>لو كنت بعيد عن العيادة أكتر من 150 متر، الزيارة بتتسجل لكن بتتعلّم بعلامة <span class="pill pill-bad">⚠ Flagged</span> وبتظهر للإدارة في مراجعة المواقع. التحقق بيتم على الخادم — مش من الموبايل.</div>
-
-<div class="card tip"><b>عمل فاتورة لصيدلية/دكتور</b>في خطوة الملاحظات، فعّل «تسليم منتجات للصيدلية». لما تختار منتج، مش هيوريك كل منتجات الشركة — بس اللي معاك فعلاً في عهدتك، وجنب كل واحد فيهم عدد العبوات المتبقية معاك. حدد الكمية (السعر الأصلي قبل أي خصم)، طريقة الدفع (كاش / جزئي / آجل)، ونسبة الخصم لو في. لما تبعت الزيارة، الفاتورة بتتعمل فورًا وبتتخصم من عهدتك على طول — مش محتاج تستنى الإدارة. تقدر بس تعمل فاتورة لدكتور أو صيدلية موجودة في بريكاتك.
+<div class="card warn"><b>Important — GPS</b>If you're more than <b>200 meters</b> from the client's address, you can still submit the report after confirming — the visit gets <span class="pill pill-bad">⚠ Flagged</span> and a warning reaches the admin in "GPS Audit" and Telegram. Final verification happens on the server.</div>
+<div class="card tip"><b>Creating an Invoice for a Pharmacy/Doctor</b>In the notes step, enable "Deliver products to pharmacy". When you pick a product, it won't show every company product — only what you actually have in your allocation, with the number of remaining units next to each one. Set the quantity (original price before any discount), payment method (cash / partial / on credit), and discount percentage if any. When you submit the visit, the invoice is created immediately and deducted from your allocation right away — no need to wait for the admin. You can only invoice a doctor or pharmacy that's in your bricks.
 <br><br>
-<b>لو الخصم أكتر من 40%</b>: الفاتورة مش هتتعمل على طول — هتتبعت للإدارة للموافقة، وهتوصلك رسالة تأكيد لما توافق.</div>
+<b>If the discount is over 40%</b>: the invoice won't be created immediately — it will be sent to the admin for approval, and you'll get a confirmation message once approved.</div>
 
-<div class="card tip"><b>فاتورة لعميل مش مسجل في النظام</b>زر «🧾 فاتورة» فوق في أعلى الشاشة (شغال من أي مكان في التطبيق) بيفتحلك فورمة سريعة: اكتب اسم العميل/الصيدلية (والهاتف والعنوان لو حابب)، أضف المنتجات، وحدد الدفع والخصم زي أي فاتورة عادية. مفيش شرط إنه يكون في بريكاتك أو حتى مسجّل في النظام أصلاً — مفيد لما تدّي منتجات لصيدلية أو دكتور لسه مش مضاف.</div>
+<div class="card tip"><b>Invoice for a Client Not Registered in the System</b>The "🧾 Invoice" button at the top of the screen (works from anywhere in the app) opens a quick form: enter the client's/pharmacy's name (plus phone and address if you like), add the products, and set payment and discount just like any regular invoice. There's no requirement that they be in your bricks or even registered in the system at all — useful when you're giving products to a pharmacy or doctor who hasn't been added yet.</div>
 
-<h2 class="step"><span class="n">5</span>العمل بدون إنترنت</h2>
+<h2 class="step"><span class="n">5</span>Working Offline</h2>
 <ul>
-  <li>لو النت قاطع وقت الزيارة، سجّلها عادي — هتتحفظ على الموبايل وهيظهر شريط برتقالي فوق.</li>
-  <li>أول ما النت يرجع بتتزامن الزيارات لوحدها، أو اضغط زر «⟳ Sync» فوق.</li>
-  <li>مفيش خوف من التكرار — النظام بيمنع تسجيل نفس الزيارة مرتين.</li>
+  <li>If the internet drops during a visit, log it as usual — it will be saved on your phone, and an orange banner will appear at the top.</li>
+  <li>As soon as the connection returns, visits sync automatically, or tap the "⟳ Sync" button at the top.</li>
+  <li>No need to worry about duplicates — the system prevents the same visit from being logged twice.</li>
 </ul>
 
-<h2 class="step"><span class="n">6</span>باقي الشاشات</h2>
+<h2 class="step"><span class="n">6</span>Other Screens</h2>
 <ul>
-  <li><b>History:</b> كل زياراتك السابقة مع حالة التحقق من الموقع، وتقدر تفلترها حسب النوع.</li>
-  <li><b>Materials:</b> المواد الدعائية للمنتجات — اعرضها للدكتور من الشاشة أثناء الزيارة.</li>
-  <li><b>Ranking:</b> ترتيبك بين زملائك حسب نسبة تغطية الخطة والعينات.</li>
-  <li><b>Profile:</b> بياناتك، وزر «🔔 Enable daily reminders» لتفعيل إشعار صباحي يومي بعدد زياراتك المتبقية — فعّله مرة واحدة بس.</li>
+  <li><b>History:</b> all your past visits with location verification status, filterable by type.</li>
+  <li><b>Materials:</b> promotional materials for products — show them to the doctor from the screen during the visit.</li>
+  <li><b>Ranking:</b> your standing among your colleagues based on plan coverage and sample distribution.</li>
+  <li><b>Profile:</b> your details, and a "🔔 Enable daily reminders" button to turn on a daily morning notification with your remaining visit count — enable it once and you're set.</li>
 </ul>
 </section>
 
-<!-- ═══════════ دليل المدير ═══════════ -->
+<!-- ═══════════ Admin Guide ═══════════ -->
 <section id="admin">
-<h1 class="sec">🖥️ ثانياً: دليل المدير</h1>
-<p>الدخول من نفس الرابط <code>montana2.vercel.app/crm</code> مع اختيار تبويب «Admin». يُفضّل الاستخدام من كمبيوتر.</p>
+<h1 class="sec">🖥️ Part Two: Admin Guide</h1>
+<p>Sign in from the same link <code>montana2.vercel.app/crm</code>, choosing the "Admin" tab. Using a computer is recommended.</p>
 
-<h2 class="step"><span class="n">1</span>إضافة الدكاترة والصيدليات (أساس النظام)</h2>
-<p>المندوبين بيبنوا جداولهم من البيانات اللي بتضيفها هنا — فدي أول خطوة:</p>
+<h2 class="step"><span class="n">1</span>Adding Doctors and Pharmacies (System Foundation)</h2>
+<p>Reps build their schedules from the data you add here — so this is the first step:</p>
 <ul>
-  <li><b>إضافة يدوية:</b> من صفحة «Doctors & HCOs» اضغط «+ Add doctor» واملأ: الاسم، التصنيف (AB1 حتى BB2)، التخصص، النوع (دكتور / صيدلية / بوليكلينيك / مستشفى)، المنطقة «Brick»، العنوان والهاتف.</li>
-  <li><b>عدد الزيارات في الشهر:</b> حقل «Visits / month» بيتيح لك تحدد بنفسك كام مرة الدكتور أو الصيدلية دي المفروض تتزار في الشهر. لو سبته فاضي، النظام بيستخدم القيمة الافتراضية حسب التصنيف (AB1=4، AB2=3، BB1=2، BB2=1). أي رقم تكتبه هنا بيبقى هو اللي يتطبّق فورًا في جدول المندوب، حتى لو كان الجدول اتعمل قبل كده.</li>
-  <li><b>استيراد جماعي:</b> زر «↑ Import Excel» بيقبل ملفات إكسل و CSV — حمّل القالب الجاهز من نفس النافذة، والأعمدة بتقبل عناوين بالعربي أو الإنجليزي. المنطقة بتتطابق بالاسم تلقائياً.</li>
-  <li><b>التعديل:</b> زر «Edit» جنب أي دكتور بيفتح كل بياناته للتعديل، وتقدر تغيّر عدد الزيارات في أي وقت.</li>
-  <li><b>الاعتماد:</b> لو مندوب أضاف دكتور جديد، بيظهر «Pending» ولازم تعتمده الأول قبل ما يظهر لباقي المندوبين.</li>
+  <li><b>Manual entry:</b> from the "Doctors & HCOs" page, tap "+ Add doctor" and fill in: name, class (AB1 through BB2), specialty, type (doctor / pharmacy / polyclinic / hospital), territory ("Brick"), address, and phone.</li>
+  <li><b>Visits per month:</b> the "Visits / month" field lets you set how many times this doctor or pharmacy should be visited per month. If left blank, the system uses the default based on class (AB1=4, AB2=3, BB1=2, BB2=1). Any number you enter here applies immediately in the rep's schedule, even if the schedule was already created.</li>
+  <li><b>Bulk import:</b> the "↑ Import Excel" button accepts Excel and CSV files — download the ready-made template from the same window; columns accept headers in Arabic or English. Territory is matched by name automatically.</li>
+  <li><b>Editing:</b> the "Edit" button next to any doctor opens all their data for editing, and you can change the visit count at any time.</li>
+  <li><b>Approval:</b> if a rep adds a new doctor, it appears as "Pending" and you must approve it before it shows up for other reps.</li>
+  <li><b>Active / Inactive:</b> the status column in the doctors table — Inactive hides the doctor from reps and excludes them from the weekly plan. Use the filter by brick or status.</li>
 </ul>
 
-<h2 class="step"><span class="n">2</span>إدارة حسابات المندوبين</h2>
+<h2 class="step"><span class="n">2</span>Managing Rep Accounts</h2>
 <ul>
-  <li>من صفحة «Sales Reps» اضغط «+ Add rep» — الحساب بيتفعّل فوراً بدون تأكيد بريد.</li>
-  <li>زر «Manage» بيتيح تعديل البيانات، إيقاف الحساب، إرسال رابط إعادة تعيين كلمة المرور، أو الحذف النهائي (بيمسح حساب الدخول نفسه).</li>
+  <li>From the "Sales Reps" page, tap "+ Add rep" — the account activates immediately without email confirmation.</li>
+  <li>The "Manage" button lets you edit data, deactivate the account, send a password reset link, or permanently delete it (which also removes the login account itself).</li>
 </ul>
 
-<h2 class="step"><span class="n">3</span>مراجعة المواقع «GPS Audit»</h2>
+<h2 class="step"><span class="n">3</span>Reviewing Locations — "GPS Audit"</h2>
 <ul>
-  <li>أي زيارة اتسجلت بعيد عن العيادة بتظهر هنا بالمسافة بالمتر.</li>
-  <li>لو الظرف مبرر (الدكتور غيّر العيادة مثلاً)، اضغط «Approve» لاعتمادها يدوياً.</li>
-  <li>المندوب <b>لا يستطيع</b> اعتماد زياراته بنفسه — الصلاحية دي ليك بس.</li>
+  <li>Any visit logged more than <b>200 meters</b> from the clinic's address appears here, with the distance in meters.</li>
+  <li>If the circumstance is justified (e.g., the doctor changed clinics), tap "Approve" to approve it manually.</li>
+  <li>Reps <b>cannot</b> approve their own visits — that permission is admin-only.</li>
 </ul>
 
-<h2 class="step"><span class="n">4</span>خريطة المناطق «Territory Map»</h2>
+<h2 class="step"><span class="n">4</span>Territory Map</h2>
 <ul>
-  <li>كل الدكاترة على الخريطة، ولون كل نقطة حسب تصنيفها.</li>
-  <li>فعّل «Show flagged visits» لعرض أماكن المندوبين وقت الزيارات المشبوهة ومقارنتها بموقع العيادة.</li>
+  <li>All doctors appear on the map, with each point colored by its class.</li>
+  <li>Enable "Show flagged visits" to display rep locations at the time of flagged visits, compared against the clinic's location.</li>
 </ul>
 
-<h2 class="step"><span class="n">5</span>التقارير</h2>
+<h2 class="step"><span class="n">5</span>Reports</h2>
 <table>
-  <tr><th>الصفحة</th><th>المحتوى</th></tr>
-  <tr><td>Dashboard</td><td>زيارات اليوم، نسبة التغطية، التنبيهات، ملخص العينات</td></tr>
-  <tr><td>Visit Reports</td><td>كل الزيارات بالتفاصيل والصور، مع فلتر لكل مندوب</td></tr>
-  <tr><td>Samples Report</td><td>كل العينات الموزعة بالكميات</td></tr>
-  <tr><td>Competitor Intel</td><td>المنتجات المنافسة اللي اتذكرت في الزيارات</td></tr>
-  <tr><td>Leaderboard</td><td>ترتيب المندوبين حسب الأداء</td></tr>
-  <tr><td>Sales &amp; Invoices</td><td>ملخص شهري (حسب البريك/التصنيف/المندوب) + جدول «All invoices» بكل فاتورة لوحدها — من المتجر، من الإدارة، أو من المندوبين</td></tr>
+  <tr><th>Page</th><th>Content</th></tr>
+  <tr><td>Dashboard</td><td>Today's visits, coverage rate, alerts, sample summary</td></tr>
+  <tr><td>Visit Reports</td><td>All visits with full details and photos, filterable by rep</td></tr>
+  <tr><td>Samples Report</td><td>All distributed samples with quantities</td></tr>
+  <tr><td>Competitor Intel</td><td>Competitor products mentioned during visits</td></tr>
+  <tr><td>Leaderboard</td><td>Rep ranking by performance</td></tr>
+  <tr><td>Sales &amp; Invoices</td><td>Monthly summary (by brick/class/rep) plus an "All invoices" table listing every invoice individually — from the store, the admin, or reps</td></tr>
 </table>
-<p>زر «↓ Export» في أعلى اللوحة وزر «↓ Export CSV» في تقرير العينات بيصدّروا ملفات تفتح في إكسل بالعربي سليم.</p>
-<div class="card tip"><b>فواتير المندوبين</b>لما مندوب يعمل فاتورة لصيدلية/دكتور من تطبيقه، هتظهر فورًا في جدول «All invoices» بصفحة Sales &amp; Invoices — بعمود «Source» = Rep، وعمود «Rep» باسم اللي عملها. تقدر تشوف المدفوع والمتبقي لكل فاتورة لوحدها.
+<p>The "↓ Export" button at the top of the dashboard and the "↓ Export CSV" button in the samples report export files that open cleanly in Excel, including Arabic text.</p>
+<div class="card tip"><b>Rep Invoices</b>When a rep creates an invoice for a pharmacy/doctor from their app, it appears immediately in the "All invoices" table on the Sales &amp; Invoices page — with the "Source" column set to Rep, and the "Rep" column showing who created it. You can view the amount paid and remaining for each invoice individually.
 <br><br>
-<b>ربط فاتورة بدكتور/صيدلية يدويًا</b>: لو الفاتورة من غير عميل مربوط (زر «🔗 Link» بيبان في آخر عمود بالجدول) — مثلاً فواتير مستوردة، أو فواتير عمِلها مندوب لعميل مش مسجّل — اضغط الزر، دوّر بالاسم، واختار الدكتور/الصيدلية الصح من قاعدة البيانات.</div>
+<b>Manually linking an invoice to a doctor/pharmacy</b>: if an invoice has no linked client (the "🔗 Link" button appears in the last column of the table) — for example, imported invoices, or invoices a rep created for an unregistered client — click the button, search by name, and select the correct doctor/pharmacy from the database.</div>
 
-<div class="card warn"><b>موافقة الخصم فوق 40%</b>المندوب مسموحله يخصم لغاية 40% وتتعمل الفاتورة فورًا. لو طلب خصم أكتر، هتوصلك رسالة على تليجرام فيها كل التفاصيل مع زرارين ✅ موافقة / ❌ رفض — الفاتورة بتتعمل فعليًا بس بعد ما توافق.</div>
+<div class="card warn"><b>Approving Discounts Over 40%</b>Reps are allowed to discount up to 40%, and the invoice is created immediately. If a larger discount is requested, you'll receive a Telegram message with all the details and two buttons, ✅ Approve / ❌ Reject — the invoice is only actually created after you approve it.</div>
 
-<div class="card tip"><b>فواتير متأخرة التحصيل</b>كل يوم الساعة 9 صباحًا تقريبًا، بتوصلك رسالة تليجرام بكل فاتورة فات ميعاد تحصيلها (Due date) ولسه متحصلتش بالكامل.</div>
+<div class="card tip"><b>Overdue Invoices</b>Every day at around 9 AM, you'll receive a Telegram message listing every invoice whose due date has passed and hasn't been fully collected yet.</div>
 
-<div class="card tip"><b>ملفات المطابقة (Reconciliation files)</b>في آخر صفحة Sales &amp; Invoices، زر «↑ Upload file» بيسيبك ترفع ملفات إكسل/CSV (مثلاً كشوفات من الموزّعين) للحفظ والرجوع ليها — الملف بيتخزن وتقدر تنزّله تاني وقت ما تحتاجه، مش بيتقرا/يتحلل أوتوماتيك.</div>
+<div class="card tip"><b>Reconciliation Files</b>At the bottom of the Sales &amp; Invoices page, the "↑ Upload file" button lets you upload Excel/CSV files (e.g., statements from distributors) for storage and future reference — the file is stored and you can download it again whenever you need it; it is not read or parsed automatically.</div>
 
-<div class="card tip"><b>عهدة العينات</b>من نفس صفحة «Samples Report»، تقدر تدي كل مندوب كمية عينات من المخزن («عهدة») يسحب منها وهو بيسجّل زياراته، بدل ما يتخصم مباشرة من مخزون المتجر. اختار المندوب والمنتج والكمية واضغط «Give / reclaim samples» — رقم سالب بيرجّع الكمية للمخزن. الجدول تحته بيوريك كل مندوب حاليًا معاه كام من كل منتج، والكروت فوقه بتوريك إجمالي الموجود بالمخزن مقابل الموزّع على المندوبين.</div>
+<div class="card tip"><b>Sample Allocations</b>From the same "Samples Report" page, you can give each rep a quantity of samples from the warehouse (an "allocation") for them to draw from as they log visits, instead of deducting directly from store inventory. Choose the rep, product, and quantity, then tap "Give / reclaim samples" — a negative number returns the quantity to the warehouse. The table below shows how much of each product every rep currently holds, and the cards above show the total in the warehouse versus what's been distributed to reps.</div>
 
-<h2 class="step"><span class="n">6</span>المنتجات والمواد الدعائية</h2>
+<h2 class="step"><span class="n">6</span>Products and Promotional Materials</h2>
 <ul>
-  <li><b>Products:</b> إضافة وتعديل منتجات الشركة (اسم، وصف، نشط/موقوف).</li>
-  <li><b>eDetailing Materials:</b> ارفع ملفات PDF أو صور لكل منتج — بتظهر فوراً في شاشة «Materials» عند كل المندوبين.</li>
+  <li><b>Products:</b> add and edit company products (name, description, active/discontinued).</li>
+  <li><b>eDetailing Materials:</b> upload PDF files or images for each product — they appear immediately in the "Materials" screen for all reps.</li>
 </ul>
 </section>
 
-<!-- ═══════════ أسئلة شائعة ═══════════ -->
+<!-- ═══════════ Frequently Asked Questions ═══════════ -->
 <section id="faq">
-<h1 class="sec">❓ أسئلة شائعة</h1>
+<h1 class="sec">❓ Frequently Asked Questions</h1>
 
-<p class="faq-q">الموقع مش بيتحدد أو بيقول «Could not get GPS location»؟</p>
-<p>فعّل خدمة الموقع من إعدادات الموبايل، واسمح للمتصفح بالوصول للموقع، وحاول تكون في مكان مفتوح — ثم اضغط على الدكتور تاني.</p>
+<p class="faq-q">My location won't lock in, or it says "Could not get GPS location"?</p>
+<p>Turn on location services in your phone's settings, allow the browser to access your location, and try to be in an open area — then tap the doctor again.</p>
 
-<p class="faq-q">سجلت زيارة والنت قاطع — راحت مني؟</p>
-<p>لا، اتحفظت على الموبايل. أول ما النت يرجع هتتزامن لوحدها، أو اضغط «⟳ Sync».</p>
+<p class="faq-q">I logged a visit while offline — did it get lost?</p>
+<p>No, it was saved on your phone. As soon as the connection returns it will sync automatically, or tap "⟳ Sync".</p>
 
-<p class="faq-q">المندوب نسي كلمة المرور؟</p>
-<p>المدير يدخل على «Sales Reps» ← «Manage» ← «Reset password» — هيوصل المندوب بريد فيه رابط لتعيين كلمة مرور جديدة.</p>
+<p class="faq-q">A rep forgot their password?</p>
+<p>The admin goes to "Sales Reps" → "Manage" → "Reset password" — the rep will receive an email with a link to set a new password.</p>
 
-<p class="faq-q">دكتور جديد مش موجود في النظام؟</p>
-<p>المندوب يبلّغ الإدارة لإضافته، وبعد الاعتماد هيظهر في قائمة الإضافة عنده.</p>
+<p class="faq-q">A new doctor isn't in the system?</p>
+<p>The rep should notify the admin to add them. Once approved and set to Active, they'll appear in the week plan.</p>
 
-<p class="faq-q">الإشعارات الصباحية مش بتوصل؟</p>
-<p>اتأكد إنك فعّلتها من شاشة «Profile»، وإن الإشعارات مسموحة للمتصفح من إعدادات الموبايل. بتتبعت يومياً الساعة 6 صباحاً.</p>
+<p class="faq-q">I locked my plan by mistake — can I edit it?</p>
+<p>Not from the rep side. Contact the admin. The weekly plan can only be locked once.</p>
 
-<p class="faq-q">زيارة معلّمة ⚠ رغم إن المندوب كان عند العيادة فعلاً؟</p>
-<p>غالباً موقع العيادة المسجل قديم أو غير دقيق. المدير يقدر يعتمد الزيارة من «GPS Audit»، ويصحح إحداثيات العيادة بتعديل الدكتور.</p>
+<p class="faq-q">Why is a visit flagged even though the limit is 200m?</p>
+<p>Make sure the database server is updated to the 200m limit (migration 081). Otherwise the system may still be calculating with an older limit.</p>
+
+<p class="faq-q">Morning notifications aren't arriving?</p>
+<p>Make sure you enabled them from the "Profile" screen, and that notifications are allowed for the browser in your phone's settings. They're sent daily at 6 AM.</p>
+
+<p class="faq-q">A visit is flagged ⚠ even though the rep was actually at the clinic?</p>
+<p>The clinic's saved location is likely outdated or inaccurate. The admin can approve the visit from "GPS Audit", and correct the clinic's coordinates by editing the doctor.</p>
 </section>
 
 <footer>
-  Montana Naturals · نظام إدارة الزيارات الميدانية · هذا الدليل متاح دائماً على <code>/crm/guide.html</code>
+  Montana Naturals · Field Visit Management System · This guide is always available at <code>/crm/guide.html</code>
 </footer>
 </div>
 </body>

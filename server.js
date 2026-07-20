@@ -23,6 +23,15 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname), {
   dotfiles: 'deny',
   index: ['index.html'],
+  setHeaders(res, filePath) {
+    // Keep CRM assets uncacheable so soft refresh never gets stale HTML/JS.
+    // (express.static would otherwise overwrite earlier Cache-Control.)
+    const norm = filePath.replace(/\\/g, '/');
+    if (norm.includes('/crm/')) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+    }
+  },
 }));
 
 // ===== AGENT NAME =====

@@ -46,11 +46,19 @@ export const auth = {
   }
 };
 
-/** Store admin or CRM admin — used for admin panel access gate */
+/** CRM admin, store admin, or owner — admin panel SSO gate (matches pharmacy-invoice RLS). */
 export async function isCrmAdminAccess() {
-  const { data, error } = await sb.rpc('is_crm_admin');
-  if (error) return false;
-  return data === true;
+  const checks = await Promise.all([
+    sb.rpc('is_crm_admin'),
+    sb.rpc('is_store_admin'),
+    sb.rpc('is_owner'),
+  ]);
+  return checks.some(({ data, error }) => !error && data === true);
+}
+
+export async function isOwnerAccess() {
+  const { data, error } = await sb.rpc('is_owner');
+  return !error && data === true;
 }
 
 export const geo = {
@@ -72,6 +80,16 @@ export const doctors = {
     if (error) throw error;
     return data;
   },
+  /** Active doctors for the current rep's bricks (weekly plan picker). */
+  listActiveForRep: async () => {
+    const { data, error } = await sb.from('crm_doctors')
+      .select('*, crm_bricks(name)')
+      .eq('approved', true)
+      .eq('is_active', true)
+      .order('name');
+    if (error) throw error;
+    return data || [];
+  },
   get: async (id) => {
     const { data, error } = await sb.from('crm_doctors').select('*, crm_bricks(name)').eq('id', id).single();
     if (error) throw error;
@@ -80,7 +98,12 @@ export const doctors = {
   create: async (doctor) => {
     const { data: { session } } = await sb.auth.getSession();
     const rep = await repFor(session?.user?.id);
-    const payload = { ...doctor, added_by: rep?.id || null, approved: rep?.role === 'admin' };
+    const payload = {
+      ...doctor,
+      added_by: rep?.id || null,
+      approved: rep?.role === 'admin',
+      is_active: doctor.is_active !== undefined ? doctor.is_active : true,
+    };
     const { data, error } = await sb.from('crm_doctors').insert(payload).select().single();
     if (error) throw error;
     return data;
@@ -99,7 +122,16 @@ export const doctors = {
       inserted += data.length;
     }
     return inserted;
-  }
+  },
+  setActive: async (id, isActive) => {
+    const { data, error } = await sb.from('crm_doctors')
+      .update({ is_active: !!isActive })
+      .eq('id', id)
+      .select('id, is_active')
+      .single();
+    if (error) throw error;
+    return data;
+  },
 };
 
 export const products = {
@@ -267,7 +299,8 @@ export const visits = {
       time_of_day: v.time_of_day || 'AM', visit_type: v.visit_type || 'regular',
       needs_b2b_invoice: !!v.needs_b2b_invoice,
       photo_url: photoUrl,
-      financial_requests: v.financial_requests || []
+      financial_requests: v.financial_requests || [],
+      manager_id: v.manager_id || null,
     }).select().single();
     if (error) {
       // 23505 = this client_id was already inserted (offline retry) — done
@@ -344,12 +377,25 @@ export const visits = {
     return data;
   },
   adminAll: async (opts = {}) => {
-    let q = sb.from('crm_visits').select('*, crm_doctors(name, address, doctor_type, crm_bricks(name)), crm_reps(name), crm_visit_samples(*, crm_products(name))').order('visited_at', { ascending: false }).limit(300);
+    let q = sb.from('crm_visits').select('*, crm_doctors(name, address, doctor_type, crm_bricks(name)), crm_reps!rep_id(name), manager:crm_reps!manager_id(name), crm_visit_samples(*, crm_products(name))').order('visited_at', { ascending: false }).limit(300);
     if (opts.repId) q = q.eq('rep_id', opts.repId);
     if (opts.flagged) q = q.eq('gps_verified', false);
     if (opts.b2bPending) q = q.eq('b2b_invoice_status', 'pending');
     const { data, error } = await q;
-    if (error) throw error;
+    if (error) {
+      // Fallback before migration 083 (no manager_id column yet)
+      if (/manager_id|relationship/i.test(error.message || '')) {
+        const q2 = sb.from('crm_visits').select('*, crm_doctors(name, address, doctor_type, crm_bricks(name)), crm_reps!rep_id(name), crm_visit_samples(*, crm_products(name))').order('visited_at', { ascending: false }).limit(300);
+        let qq = q2;
+        if (opts.repId) qq = qq.eq('rep_id', opts.repId);
+        if (opts.flagged) qq = qq.eq('gps_verified', false);
+        if (opts.b2bPending) qq = qq.eq('b2b_invoice_status', 'pending');
+        const res = await qq;
+        if (res.error) throw res.error;
+        return res.data;
+      }
+      throw error;
+    }
     return data;
   },
   approve: async (id) => {
@@ -528,6 +574,117 @@ export const visitSchedule = {
   },
 };
 
+/** Calendar day in Africa/Cairo as YYYY-MM-DD (matches DB week helpers). */
+export function cairoYmd(date = new Date()) {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Africa/Cairo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date);
+}
+
+/** Saturday–Friday week start using Cairo calendar day. */
+export function weekStartSaturday(date = new Date()) {
+  const [y, m, d] = cairoYmd(date).split('-').map(Number);
+  // Noon UTC on that Cairo civil date — weekday matches the calendar date.
+  const utc = new Date(Date.UTC(y, m - 1, d, 12));
+  const sinceSat = (utc.getUTCDay() + 1) % 7; // Sat→0 … Fri→6
+  utc.setUTCDate(utc.getUTCDate() - sinceSat);
+  return new Date(utc.getUTCFullYear(), utc.getUTCMonth(), utc.getUTCDate(), 12, 0, 0, 0);
+}
+
+function ymd(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+export const weekPlans = {
+  currentWeekBounds() {
+    const start = weekStartSaturday(new Date());
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    return { weekStart: ymd(start), weekEnd: ymd(end), start, end };
+  },
+  getForWeek: async (repId, weekStart) => {
+    const { data, error } = await sb.from('crm_week_plans')
+      .select('*, crm_week_plan_days(*, crm_doctors(id, name, class, doctor_type, crm_bricks(name)))')
+      .eq('rep_id', repId)
+      .eq('week_start', weekStart)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+  /** Admin: list week plans (pending first). */
+  listForAdmin: async (status = null) => {
+    let q = sb.from('crm_week_plans')
+      .select('*, crm_reps!rep_id(id, name), crm_week_plan_days(*, crm_doctors(id, name, class, doctor_type, crm_bricks(name)))')
+      .order('submitted_at', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: false })
+      .limit(100);
+    if (status) q = q.eq('status', status);
+    const { data, error } = await q;
+    if (error) throw error;
+    return data || [];
+  },
+  ensureDraft: async (repId, weekStart, weekEnd) => {
+    const existing = await weekPlans.getForWeek(repId, weekStart);
+    if (existing) {
+      if (existing.status === 'pending') {
+        throw new Error('Plan is awaiting admin approval');
+      }
+      if (existing.status === 'approved' || existing.status === 'locked') {
+        throw new Error('Plan is already approved');
+      }
+      if (existing.status === 'rejected') {
+        await weekPlans.resetRejected(existing.id);
+        return weekPlans.getForWeek(repId, weekStart);
+      }
+      return existing;
+    }
+    const { data, error } = await sb.from('crm_week_plans')
+      .insert({
+        rep_id: repId,
+        week_start: weekStart,
+        week_end: weekEnd,
+        status: 'draft',
+      })
+      .select('*, crm_week_plan_days(*, crm_doctors(id, name, class, doctor_type, crm_bricks(name)))')
+      .single();
+    if (error) {
+      if (error.code === '23505') return weekPlans.getForWeek(repId, weekStart);
+      throw error;
+    }
+    return data;
+  },
+  /** days: [{ day_date, doctor_id, time_of_day }] — submit for admin approval */
+  submit: async (weekPlanId, days) => {
+    const { data, error } = await sb.rpc('crm_submit_week_plan', {
+      p_week_plan_id: weekPlanId,
+      p_days: days,
+    });
+    if (error) throw error;
+    return data;
+  },
+  /** @deprecated use submit — kept for older clients */
+  lock: async (weekPlanId, days) => weekPlans.submit(weekPlanId, days),
+  review: async (weekPlanId, action, note = null) => {
+    const { data, error } = await sb.rpc('crm_review_week_plan', {
+      p_week_plan_id: weekPlanId,
+      p_action: action,
+      p_note: note,
+    });
+    if (error) throw error;
+    return data;
+  },
+  resetRejected: async (weekPlanId) => {
+    const { data, error } = await sb.rpc('crm_reset_rejected_week_plan', {
+      p_week_plan_id: weekPlanId,
+    });
+    if (error) throw error;
+    return data;
+  },
+};
+
 export const dayLogs = {
   upsert: async (repId, dayType, notes = null) => {
     const logDate = new Date().toISOString().slice(0, 10);
@@ -579,6 +736,16 @@ export const reps = {
     if (error) throw error;
     return data;
   },
+  /** Active CRM managers for double-visit picker (readable by field reps). */
+  listManagers: async () => {
+    const { data, error } = await sb.from('crm_reps')
+      .select('id, name, email, phone')
+      .eq('role', 'admin')
+      .eq('active', true)
+      .order('name');
+    if (error) throw error;
+    return data || [];
+  },
   update: async (id, patch) => {
     const { data, error } = await sb.from('crm_reps').update(patch).eq('id', id).select().single();
     if (error) throw error;
@@ -589,9 +756,10 @@ export const reps = {
   // service-role key (email pre-confirmed, atomic rollback on failure).
   // If the function isn't deployed yet we fall back to the old anon signUp —
   // note the fallback stops working once 003_crm_hardening.sql is applied.
-  create: async ({ email, password, name, phone, territory, officeId, brickIds }) => {
+  create: async ({ email, password, name, phone, territory, officeId, brickIds, role = 'rep' }) => {
+    const safeRole = role === 'admin' ? 'admin' : 'rep';
     const { data, error } = await sb.functions.invoke('admin-users', {
-      body: { action: 'create_rep', email, password, name, phone, territory, officeId, brickIds }
+      body: { action: 'create_rep', email, password, name, phone, territory, officeId, brickIds, role: safeRole }
     });
     if (!error) {
       if (data?.error) throw new Error(data.error);
@@ -606,11 +774,11 @@ export const reps = {
     const { data: signUp, error: authErr } = await sbTemp.auth.signUp({ email, password });
     if (authErr) throw authErr;
     const userId = signUp.user?.id;
-    if (!userId) throw new Error('Account created but pending email confirmation. Ask the rep to verify their email before first login.');
+    if (!userId) throw new Error('Account created but pending email confirmation. Ask the user to verify their email before first login.');
     const clientToUse = signUp.session ? sbTemp : sb;
     const { data: newRep, error: insErr } = await clientToUse.from('crm_reps').insert({
       user_id: userId, name, email, phone, territory,
-      office_id: officeId || null, role: 'rep', active: true
+      office_id: officeId || null, role: safeRole, active: true
     }).select().single();
     if (insErr) throw insErr;
     if (brickIds && brickIds.length) {
@@ -844,9 +1012,162 @@ export async function notifyVisitSubmitted(payload) {
   } catch { /* non-blocking */ }
 }
 
+// ---------- Pharmacy regions (governorate → area → pharmacy) ----------
+export const pharmacyRegions = {
+  list: async () => {
+    const { data, error } = await sb.from('crm_pharmacy_regions')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order')
+      .order('name');
+    if (error) throw error;
+    return data || [];
+  },
+  listAll: async () => {
+    const { data, error } = await sb.from('crm_pharmacy_regions')
+      .select('*')
+      .order('sort_order')
+      .order('name');
+    if (error) throw error;
+    return data || [];
+  },
+  create: async (payload) => {
+    const row = {
+      parent_id: payload.parent_id || null,
+      name: String(payload.name || '').trim(),
+      region_type: payload.region_type,
+      phone: payload.phone?.trim() || null,
+      address: payload.address?.trim() || null,
+      sort_order: Number(payload.sort_order) || 0,
+      is_active: payload.is_active !== false,
+    };
+    const { data, error } = await sb.from('crm_pharmacy_regions').insert(row).select().single();
+    if (error) throw error;
+    return data;
+  },
+  update: async (id, patch) => {
+    const { data, error } = await sb.from('crm_pharmacy_regions').update(patch).eq('id', id).select().single();
+    if (error) throw error;
+    return data;
+  },
+  remove: async (id) => {
+    const { error } = await sb.from('crm_pharmacy_regions').delete().eq('id', id);
+    if (error) throw error;
+    return true;
+  },
+  regionBricks: async () => {
+    const { data, error } = await sb.from('crm_pharmacy_region_bricks')
+      .select('region_id, brick_id, crm_bricks(id, name, crm_areas(name, crm_offices(name)))');
+    if (error) throw error;
+    return data || [];
+  },
+};
+
+// ---------- Pharmacy invoices (trade AR — not doctor samples) ----------
+export const pharmacyInvoices = {
+  list: async ({ status = null, q = null } = {}) => {
+    let query = sb.from('crm_pharmacy_invoices')
+      .select('*, crm_doctors(id, name, doctor_type, brick_id, crm_bricks(name)), crm_bricks(id, name), crm_pharmacy_regions(id, name, region_type, parent_id, phone, address)')
+      .order('invoice_date', { ascending: false })
+      .limit(1000);
+    if (status === 'open') query = query.in('status', ['pending', 'partial']);
+    else if (status === 'paid') query = query.eq('status', 'paid');
+    else if (status) query = query.eq('status', status);
+    const { data, error } = await query;
+    if (error) throw error;
+    let rows = data || [];
+    if (q) {
+      const s = q.toLowerCase();
+      rows = rows.filter((r) =>
+        (r.pharmacy_name || '').toLowerCase().includes(s)
+        || (r.invoice_number || '').toLowerCase().includes(s)
+        || (r.region || '').toLowerCase().includes(s)
+        || (r.pharmacy_phone || '').toLowerCase().includes(s)
+        || (r.pharmacy_address || '').toLowerCase().includes(s)
+      );
+    }
+    return rows;
+  },
+  nextNumber: async () => {
+    const { data, error } = await sb.rpc('crm_next_pharmacy_invoice_number');
+    if (error) throw error;
+    return data;
+  },
+  arSchedule: async () => {
+    const { data, error } = await sb.rpc('get_pharmacy_ar_schedule');
+    if (error) throw error;
+    return data || [];
+  },
+  create: async (payload) => {
+    const { data: { session } } = await sb.auth.getSession();
+    const rep = session?.user ? await repFor(session.user.id) : null;
+    let number = payload.invoice_number;
+    if (!number) number = await pharmacyInvoices.nextNumber();
+    const phone = String(payload.pharmacy_phone || '').trim();
+    if (!payload.is_legacy && !phone) throw new Error('Pharmacy phone is required');
+    const row = {
+      invoice_number: number,
+      pharmacy_id: payload.pharmacy_id || null,
+      pharmacy_name: payload.pharmacy_name,
+      region: payload.region || null,
+      region_id: payload.region_id || null,
+      pharmacy_phone: phone || null,
+      pharmacy_address: payload.pharmacy_address?.trim() || null,
+      brick_id: payload.brick_id || null,
+      invoice_date: payload.invoice_date || new Date().toISOString().slice(0, 10),
+      due_date: payload.due_date || null,
+      due_date_manual: !!payload.due_date_manual,
+      payment_type: payload.payment_type || 'credit',
+      discount: Number(payload.discount) || 0,
+      line_items: payload.line_items || [],
+      subtotal: Number(payload.subtotal) || 0,
+      tax: Number(payload.tax) || 0,
+      total: Number(payload.total) || 0,
+      amount_paid: Number(payload.amount_paid) || 0,
+      bottles: Number(payload.bottles) >= 0
+        ? Number(payload.bottles)
+        : (payload.line_items || []).reduce((s, l) => s + (Number(l.qty) || 0), 0),
+      bonus: Number(payload.bonus) >= 0
+        ? Number(payload.bonus)
+        : (payload.line_items || []).reduce((s, l) => s + (Number(l.bonus_qty) || 0), 0),
+      is_legacy: !!payload.is_legacy,
+      price_list: payload.price_list === 'old' ? 'old' : 'new',
+      notes: payload.notes || null,
+      created_by: rep?.id || null,
+    };
+    const { data, error } = await sb.from('crm_pharmacy_invoices').insert(row).select().single();
+    if (error) throw error;
+    return data;
+  },
+  update: async (id, patch) => {
+    const { data, error } = await sb.from('crm_pharmacy_invoices').update(patch).eq('id', id).select().single();
+    if (error) throw error;
+    return data;
+  },
+  /** Set collection due date manually (for old open invoices). */
+  setDueDate: async (id, dueDate) => {
+    return pharmacyInvoices.update(id, {
+      due_date: dueDate,
+      due_date_manual: true,
+    });
+  },
+  /** Record a collection payment (adds to amount_paid). */
+  collect: async (id, amount) => {
+    const { data: inv, error: e1 } = await sb.from('crm_pharmacy_invoices').select('amount_paid, total').eq('id', id).single();
+    if (e1) throw e1;
+    const next = Number(inv.amount_paid || 0) + Number(amount || 0);
+    return pharmacyInvoices.update(id, { amount_paid: next });
+  },
+  remove: async (id) => {
+    const { error } = await sb.from('crm_pharmacy_invoices').delete().eq('id', id);
+    if (error) throw error;
+    return true;
+  },
+};
+
 // ---------- GPS helpers ----------
 export { SUPABASE_URL, SUPABASE_KEY };
-export const GPS_THRESHOLD_M = 150;
+export const GPS_THRESHOLD_M = 200;
 
 export function getCurrentPosition() {
   return new Promise((resolve, reject) => {
@@ -893,5 +1214,29 @@ export const offlineQueue = {
     if (remaining.length) localStorage.setItem(QUEUE_KEY, JSON.stringify(remaining));
     else offlineQueue.clear();
     return { synced, remaining: remaining.length };
+  }
+};
+
+/** Print card templates (discount / business) — stored as JSON text in site_settings */
+export const printCards = {
+  KEY_DISCOUNT: 'print_discount_cards',
+  KEY_BUSINESS: 'print_business_card',
+  async get(key) {
+    const { data, error } = await sb.from('site_settings').select('value').eq('key', key).maybeSingle();
+    if (error) throw error;
+    if (!data?.value) return null;
+    try { return JSON.parse(data.value); } catch { return null; }
+  },
+  async set(key, obj) {
+    const value = JSON.stringify(obj);
+    const updated_at = new Date().toISOString();
+    const { data: existing } = await sb.from('site_settings').select('key').eq('key', key).maybeSingle();
+    if (existing) {
+      const { error } = await sb.from('site_settings').update({ value, updated_at }).eq('key', key);
+      if (error) throw error;
+    } else {
+      const { error } = await sb.from('site_settings').insert({ key, value });
+      if (error) throw error;
+    }
   }
 };

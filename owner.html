@@ -9,7 +9,7 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
-    <link rel="stylesheet" href="owner.css">
+    <link rel="stylesheet" href="owner.css?v=oa1">
 </head>
 <body>
     <header class="owner-header">
@@ -17,10 +17,12 @@
             <img src="images/logo.png" alt="Montana" onerror="this.style.display='none'">
             <div>
                 <h1>لوحة المالك</h1>
-                <p>نظرة عامة على أداء Montana</p>
+                <p id="ownerWelcome">مرحباً، خالد — نظرة عامة على أداء Montana</p>
             </div>
         </div>
         <div class="owner-header-actions">
+            <button type="button" class="owner-link-btn owner-link-gold" onclick="openOwnerAssistant()"><i class="fas fa-comments"></i> محمد عابد أسيستنت</button>
+            <a href="crm/admin/?page=pharmacy-invoices&standalone=1" class="owner-link-btn owner-link-gold"><i class="fas fa-prescription-bottle-medical"></i> فواتير الصيدليات</a>
             <a href="admin.html" class="owner-link-btn"><i class="fas fa-cog"></i> لوحة التحكم</a>
             <a href="index.html" target="_blank" rel="noopener noreferrer" class="owner-link-btn"><i class="fas fa-external-link-alt"></i> الموقع</a>
             <button type="button" class="owner-link-btn owner-logout" onclick="ownerLogout()"><i class="fas fa-sign-out-alt"></i> خروج</button>
@@ -29,7 +31,7 @@
 
     <main class="owner-main">
         <div class="owner-dash-toolbar">
-            <p class="owner-dash-sub">المخزون · الفواتير · المندوبين · رسائل العملاء حسب القناة</p>
+            <p class="owner-dash-sub">فواتير الصيدليات · طلبات فيسبوك/إنستجرام · المخزون · CRM</p>
             <div class="owner-month-picker">
                 <label for="ownerDashMonth">الفترة:</label>
                 <input type="month" id="ownerDashMonth" onchange="loadOwnerDashboard()">
@@ -39,17 +41,26 @@
         <div class="stats-grid owner-stats-primary">
             <div class="stat-card purple"><div class="stat-icon"><i class="fas fa-coins"></i></div><div class="stat-info"><h3 id="odRevenueMonth">0</h3><span>مبيعات الشهر (ج.م)</span></div></div>
             <div class="stat-card green"><div class="stat-icon"><i class="fas fa-shopping-cart"></i></div><div class="stat-info"><h3 id="odOrdersMonth">0</h3><span>طلبات الشهر</span></div></div>
-            <div class="stat-card blue"><div class="stat-icon"><i class="fas fa-file-invoice"></i></div><div class="stat-info"><h3 id="odInvoicesMonth">0</h3><span>فواتير الشهر</span></div></div>
-            <div class="stat-card gold"><div class="stat-icon"><i class="fas fa-cubes"></i></div><div class="stat-info"><h3 id="odStockUnits">0</h3><span>وحدات المخزون</span></div></div>
+            <div class="stat-card blue"><div class="stat-icon"><i class="fas fa-share-nodes"></i></div><div class="stat-info"><h3 id="odSocialMonth">0</h3><span>طلبات سوشيال (الشهر)</span></div></div>
+            <div class="stat-card pink"><div class="stat-icon"><i class="fab fa-facebook-messenger"></i></div><div class="stat-info"><h3 id="odFbMonth">0</h3><span>Messenger · IG · ManyChat</span></div></div>
+        </div>
+
+        <div class="stats-grid owner-stats-pharm">
+            <a href="crm/admin/?page=pharmacy-invoices&standalone=1" class="stat-card mini owner-stat-link"><div class="stat-info"><h3 id="odPharmCount">0</h3><span>فواتير الصيدليات</span></div></a>
+            <a href="crm/admin/?page=pharmacy-invoices&standalone=1" class="stat-card mini green-soft owner-stat-link"><div class="stat-info"><h3 id="odPharmCollected">0</h3><span>محصّل (ج.م)</span></div></a>
+            <a href="crm/admin/?page=pharmacy-invoices&standalone=1" class="stat-card mini gold-soft owner-stat-link"><div class="stat-info"><h3 id="odPharmRemain">0</h3><span>متبقي عليك (ج.م)</span></div></a>
+            <a href="crm/admin/?page=pharmacy-invoices&standalone=1" class="stat-card mini warn owner-stat-link"><div class="stat-info"><h3 id="odPharmOverdue">0</h3><span>فواتير متأخرة</span></div></a>
         </div>
 
         <div class="stats-grid owner-stats-secondary">
+            <div class="stat-card mini"><div class="stat-info"><h3 id="odStockUnits">0</h3><span>وحدات المخزون</span></div></div>
             <div class="stat-card mini"><div class="stat-info"><h3 id="odProducts">0</h3><span>منتجات نشطة</span></div></div>
             <div class="stat-card mini"><div class="stat-info"><h3 id="odCustomers">0</h3><span>عملاء</span></div></div>
             <div class="stat-card mini"><div class="stat-info"><h3 id="odReps">0</h3><span>مندوبين نشطين</span></div></div>
             <div class="stat-card mini"><div class="stat-info"><h3 id="odVisits">0</h3><span>زيارات CRM (الشهر)</span></div></div>
             <div class="stat-card mini warn"><div class="stat-info"><h3 id="odLowStock">0</h3><span>مخزون منخفض</span></div></div>
             <div class="stat-card mini warn"><div class="stat-info"><h3 id="odPendingOrders">0</h3><span>طلبات معلّقة</span></div></div>
+            <div class="stat-card mini"><div class="stat-info"><h3 id="odInvoicesMonth">0</h3><span>فواتير أونلاين (الشهر)</span></div></div>
         </div>
 
         <div class="dashboard-grid owner-grid-3">
@@ -62,9 +73,14 @@
                 <div class="card-body" id="ownerCrm"><p class="empty">جارٍ التحميل…</p></div>
             </div>
             <div class="card">
-                <h3><i class="fas fa-file-invoice-dollar"></i> الفواتير</h3>
-                <div class="card-body" id="ownerInvoices"><p class="empty">جارٍ التحميل…</p></div>
+                <h3><i class="fas fa-file-invoice-dollar"></i> فواتير الصيدليات — ملخص</h3>
+                <div class="card-body" id="ownerPharmacyAr"><p class="empty">جارٍ التحميل…</p></div>
             </div>
+        </div>
+
+        <div class="card owner-card-full" style="margin-bottom:20px">
+            <h3><i class="fas fa-prescription-bottle-medical"></i> كل فواتير الصيدليات</h3>
+            <div class="card-body" id="ownerPharmacyList"><p class="empty">جارٍ التحميل…</p></div>
         </div>
 
         <div id="lowStockAlert" class="card owner-alert" style="display:none">
@@ -75,10 +91,51 @@
         <div class="dashboard-grid">
             <div class="card"><h3><i class="fas fa-clock"></i> آخر الطلبات</h3><div id="recentOrders" class="card-body"><p class="empty">لا توجد طلبات بعد</p></div></div>
             <div class="card"><h3><i class="fas fa-envelope"></i> تواصل العملاء</h3><div id="ownerContact" class="card-body"><p class="empty">—</p></div></div>
+            <div class="card"><h3><i class="fas fa-file-invoice"></i> فواتير المتجر</h3><div id="ownerInvoices" class="card-body"><p class="empty">—</p></div></div>
         </div>
     </main>
 
+    <div class="owner-modal-overlay hidden" id="ownerPiModal" onclick="if(event.target===this)closeOwnerPiModal()">
+      <div class="owner-modal-inner">
+        <div class="owner-modal-toolbar">
+          <button type="button" class="btn-primary" onclick="printOwnerPiInvoice()"><i class="fas fa-print"></i> طباعة</button>
+          <button type="button" class="btn-primary btn-outline" onclick="closeOwnerPiModal()">إغلاق</button>
+        </div>
+        <div id="ownerPiBody"></div>
+      </div>
+    </div>
+    <iframe id="ownerPiPrintFrame" title="print" style="position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0;pointer-events:none" aria-hidden="true"></iframe>
+
     <div id="toast" class="toast"></div>
+
+    <!-- محمد عابد — WhatsApp-style owner assistant -->
+    <div id="oaShell" class="oa-shell" hidden>
+      <div class="oa-panel">
+        <header class="oa-header">
+          <button type="button" class="oa-back" onclick="closeOwnerAssistant()" aria-label="رجوع"><i class="fas fa-arrow-right"></i></button>
+          <div class="oa-avatar" aria-hidden="true">م</div>
+          <div class="oa-meta">
+            <strong>محمد عابد</strong>
+            <span id="oaStatus">أسيستنت أعمال مونتانيا · متصل</span>
+          </div>
+          <button type="button" class="oa-icon-btn" onclick="oaClearChat()" title="محادثة جديدة"><i class="fas fa-rotate-right"></i></button>
+        </header>
+        <div class="oa-chips" id="oaChips">
+          <button type="button" data-q="لقطة النهاردة: طلبات وإيراد ومتأخرات ومخزون منخفض">لقطة النهاردة</button>
+          <button type="button" data-q="إيه أصناف المخزن وكميات كل صنف؟">المخزون</button>
+          <button type="button" data-q="الفواتير المتأخرة للصيدليات: العدد والمبلغ وأهم الصيدليات">فواتير متأخرة</button>
+          <button type="button" data-q="كام طلب جه النهاردة؟ حسب القناة والحالة والإيراد">طلبات النهاردة</button>
+          <button type="button" data-q="ملخص أداء الشهر الحالي من لوحة المالك">ملخص الشهر</button>
+          <button type="button" data-q="أداء المندوبين وزيارات الشهر">المندوبين</button>
+          <button type="button" data-q="صدّرلي CSV بالفواتير المتأخرة">تصدير متأخرات</button>
+        </div>
+        <div class="oa-messages" id="oaMessages" role="log" aria-live="polite"></div>
+        <form class="oa-composer" id="oaForm" autocomplete="off">
+          <input type="text" id="oaInput" placeholder="اسأل محمد عابد عن النظام…" maxlength="2000" enterkeyhint="send">
+          <button type="submit" id="oaSend" aria-label="إرسال"><i class="fas fa-paper-plane"></i></button>
+        </form>
+      </div>
+    </div>
 
     <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
@@ -96,9 +153,16 @@
       if (error || !isOwner) { await sb.auth.signOut(); location.href = 'owner-login.html'; }
       else {
         window.__OWNER_TOKEN__ = session.access_token;
+        const meta = session.user?.user_metadata || {};
+        const name = meta.name || meta.full_name || 'خالد';
+        const welcome = document.getElementById('ownerWelcome');
+        if (welcome) welcome.textContent = `مرحباً، ${name} — نظرة عامة على أداء Montana`;
         const s = document.createElement('script');
-        s.src = 'owner.js';
+        s.src = 'owner.js?v=oa1';
         document.body.appendChild(s);
+        const s2 = document.createElement('script');
+        s2.src = 'owner-assistant.js?v=1';
+        document.body.appendChild(s2);
       }
     }
     </script>

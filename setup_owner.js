@@ -1,4 +1,5 @@
 // Creates or resets the store owner account (owner.html / admin.html access).
+// Canonical owner: owner@montana.com — الاسم: خالد
 //
 //   $env:SUPABASE_SERVICE_ROLE_KEY="<from Supabase Dashboard → Settings → API>"
 //   node setup_owner.js
@@ -8,9 +9,9 @@ const { createClient } = require('@supabase/supabase-js');
 
 const SUPABASE_URL = 'https://ikryeyqrithikabwidov.supabase.co';
 
-const OWNER_EMAIL    = 'khaled@montana.com';
-const OWNER_PASSWORD = 'Kh@led@Montana';
-const OWNER_NAME     = 'Khaled';
+const OWNER_EMAIL    = 'owner@montana.com';
+const OWNER_PASSWORD = process.env.OWNER_PASSWORD || 'Mont@na2026';
+const OWNER_NAME     = 'خالد';
 
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!serviceKey) {
@@ -36,6 +37,7 @@ async function findUserByEmail(email) {
 
 (async () => {
   console.log('\n Montana — Store Owner Setup\n');
+  console.log('  Account:', OWNER_EMAIL, '·', OWNER_NAME, '\n');
 
   let userId;
   const existing = await findUserByEmail(OWNER_EMAIL);
@@ -44,19 +46,20 @@ async function findUserByEmail(email) {
     const { data, error } = await admin.auth.admin.updateUserById(existing.id, {
       password: OWNER_PASSWORD,
       email_confirm: true,
+      user_metadata: { name: OWNER_NAME, full_name: OWNER_NAME },
     });
     if (error) {
       console.error('✗  Password reset failed:', error.message);
       process.exit(1);
     }
     userId = data.user.id;
-    console.log('✓  Password updated:', OWNER_EMAIL);
+    console.log('✓  Password + name updated:', OWNER_EMAIL);
   } else {
     const { data, error } = await admin.auth.admin.createUser({
       email: OWNER_EMAIL,
       password: OWNER_PASSWORD,
       email_confirm: true,
-      user_metadata: { name: OWNER_NAME },
+      user_metadata: { name: OWNER_NAME, full_name: OWNER_NAME },
     });
     if (error) {
       console.error('✗  Create user failed:', error.message);
@@ -76,13 +79,25 @@ async function findUserByEmail(email) {
     console.error('✗  store_admins upsert failed:', adminErr.message);
     process.exit(1);
   }
-  console.log('✓  store_admins row created/updated.\n');
+  console.log('✓  store_admins row created/updated.');
+
+  const { error: ownerErr } = await admin.from('store_owners').upsert({
+    user_id: userId,
+    email: OWNER_EMAIL,
+    active: true,
+  }, { onConflict: 'user_id' });
+
+  if (ownerErr) {
+    console.error('✗  store_owners upsert failed:', ownerErr.message);
+    process.exit(1);
+  }
+  console.log('✓  store_owners row created/updated.\n');
 
   console.log('═══════════════════════════════════════');
-  console.log('  Owner / Admin login');
-  console.log('  Owner:  https://www.montana.com.eg/owner-login.html');
-  console.log('  Admin:  https://www.montana.com.eg/admin-login.html');
+  console.log('  Owner login');
+  console.log('  Page:     https://www.montana.com.eg/owner-login.html');
   console.log('  Email:    ' + OWNER_EMAIL);
+  console.log('  Name:     ' + OWNER_NAME);
   console.log('  Password: ' + OWNER_PASSWORD);
   console.log('═══════════════════════════════════════\n');
 

@@ -46,9 +46,11 @@ const L = isEn ? UI_STRINGS.confirmation : {
   home: 'العودة للرئيسية',
   successTitle: 'تم تأكيد طلبك بنجاح!',
   successDesc: 'شكراً لك على طلبك. سنرسل لك تحديثات عن حالة الطلب.',
-  bookingConfirmed: 'تم تأكيد الحجز',
-  awaitingBooking: 'بانتظار تأكيد الحجز',
+  bookingConfirmed: 'تم تأكيد الطلب',
+  awaitingBooking: 'بانتظار مراجعة الإيصال',
   awaitingDesc: 'هنراجع إيصال التحويل ونأكد طلبك، عادةً خلال وقت قصير.',
+  orderReceived: 'طلبك اتسجّل',
+  orderReceivedDesc: 'هنراجع الطلب ونكلمك قريب لتأكيد التوصيل.',
   refreshStatus: 'تحديث الحالة',
   refreshing: 'جارٍ التحديث…',
   orderNumber: 'رقم الطلب',
@@ -76,11 +78,18 @@ function depositBannerHtml(order) {
   if (order.payment_status === 'confirmed') {
     return `<div class="conf-order-row total" style="border:1px solid #27ae60;border-radius:12px;padding:12px;margin-bottom:16px"><span style="color:#27ae60"><i class="fas fa-check-circle"></i> ${L.bookingConfirmed}</span></div>`;
   }
-  return `
+  if (order.payment_status === 'awaiting_review') {
+    return `
         <div class="conf-order-row" style="flex-direction:column;align-items:flex-start;gap:8px;border:1.5px dashed var(--accent);border-radius:12px;padding:14px;margin-bottom:16px">
             <strong style="color:var(--accent)"><i class="fas fa-clock"></i> ${L.awaitingBooking}</strong>
             <span style="font-size:12px;color:var(--text-muted)">${L.awaitingDesc}</span>
             <button id="refreshStatusBtn" style="font-size:12px;font-weight:700;color:var(--accent);background:none;border:1.5px solid var(--accent);border-radius:20px;padding:6px 14px">${L.refreshStatus}</button>
+        </div>`;
+  }
+  return `
+        <div class="conf-order-row" style="flex-direction:column;align-items:flex-start;gap:8px;border:1px solid var(--border,#e8e0f0);border-radius:12px;padding:14px;margin-bottom:16px">
+            <strong style="color:var(--accent)"><i class="fas fa-check-circle"></i> ${L.orderReceived || 'Order received'}</strong>
+            <span style="font-size:12px;color:var(--text-muted)">${L.orderReceivedDesc || 'We will review your order and contact you shortly to confirm delivery.'}</span>
         </div>`;
 }
 

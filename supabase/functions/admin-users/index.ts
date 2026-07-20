@@ -60,15 +60,20 @@ Deno.serve(async (req) => {
   try {
     switch (body.action) {
       case "create_rep": {
-        const { email, password, name, phone, territory, officeId, brickIds } = body as {
+        const { email, password, name, phone, territory, officeId, brickIds, role } = body as {
           email: string; password: string; name: string; phone?: string;
           territory?: string; officeId?: string; brickIds?: string[];
+          role?: string;
         };
         if (!email || !password || !name) {
           return json({ error: "email, password and name are required" }, 400);
         }
         if (password.length < 6) {
           return json({ error: "password must be at least 6 characters" }, 400);
+        }
+        const safeRole = role === "admin" ? "admin" : "rep";
+        if (safeRole === "rep" && !(Array.isArray(brickIds) && brickIds.length)) {
+          return json({ error: "Select at least one brick for a sales rep" }, 400);
         }
 
         const { data: created, error: authErr } = await admin.auth.admin.createUser({
@@ -86,7 +91,7 @@ Deno.serve(async (req) => {
             phone: phone || null,
             territory: territory || null,
             office_id: officeId || null,
-            role: "rep",
+            role: safeRole,
             active: true,
           })
           .select()
@@ -113,8 +118,19 @@ Deno.serve(async (req) => {
           .select("id, user_id, role")
           .eq("id", repId)
           .maybeSingle();
-        if (!rep) return json({ error: "Rep not found" }, 404);
-        if (rep.role === "admin") return json({ error: "Cannot delete an admin account" }, 400);
+        if (!rep) return json({ error: "Account not found" }, 404);
+
+        // Don't delete the last remaining CRM admin
+        if (rep.role === "admin") {
+          const { count } = await admin
+            .from("crm_reps")
+            .select("id", { count: "exact", head: true })
+            .eq("role", "admin")
+            .eq("active", true);
+          if ((count ?? 0) <= 1) {
+            return json({ error: "مينفعش تمسح آخر مدير في النظام" }, 400);
+          }
+        }
 
         await admin.from("crm_reps").delete().eq("id", repId);
         if (rep.user_id) await admin.auth.admin.deleteUser(rep.user_id);
@@ -135,8 +151,7 @@ Deno.serve(async (req) => {
           .select("user_id, role")
           .eq("id", repId)
           .maybeSingle();
-        if (!rep?.user_id) return json({ error: "Rep not found" }, 404);
-        if (rep.role === "admin") return json({ error: "Use setup_admin.js for CRM admin password" }, 400);
+        if (!rep?.user_id) return json({ error: "Account not found" }, 404);
 
         const { error: pwErr } = await admin.auth.admin.updateUserById(rep.user_id, {
           password,

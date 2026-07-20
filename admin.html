@@ -363,8 +363,13 @@
     const { data: { session } } = await sb.auth.getSession();
     if (!session) { location.href = 'admin-login.html'; }
     else {
-      const { data: isAdmin, error } = await sb.rpc('is_store_admin');
-      if (error || !isAdmin) { await sb.auth.signOut(); location.href = 'admin-login.html'; }
+      const [{ data: isAdmin }, { data: isOwner }] = await Promise.all([
+        sb.rpc('is_store_admin'),
+        sb.rpc('is_owner'),
+      ]);
+      // Owner may open store admin (invoices etc.) without a second login.
+      // Never signOut here — that would kill the owner session too.
+      if (!isAdmin && !isOwner) { location.href = 'admin-login.html'; }
       else {
         window.__ADMIN_TOKEN__ = session.access_token;
         const s = document.createElement('script');

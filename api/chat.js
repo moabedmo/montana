@@ -1,5 +1,6 @@
 // Thin Vercel function wrapper — the real logic lives in lib/chatEngine.js.
-const { handleInboundMessage, channelOf, getCartForSid, getPointsBalance } = require('../lib/chatEngine');
+const { handleInboundMessage, channelOf, getCartForSid, getOrderForSid, getPointsBalance } = require('../lib/chatEngine');
+const { handleOwnerAssistant } = require('../lib/ownerAssistant');
 const { enforceRateLimit, rateLimit, hasValidApiSecret } = require('../lib/security');
 
 // Trusted external senders (e.g. ManyChat relaying Facebook/Instagram DMs and
@@ -11,8 +12,31 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
 
   try {
+    // Owner dashboard assistant (Mohamed Abed) — same /api/chat function to
+    // stay within Vercel Hobby serverless function limits.
+    if (req.body?.owner_assistant) {
+      enforceRateLimit(req, 'owner-assistant', { windowMs: 60_000, max: 30 });
+      const auth = req.headers.authorization || '';
+      const token = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
+      const { message, history } = req.body || {};
+      const result = await handleOwnerAssistant({
+        accessToken: token,
+        message,
+        history: Array.isArray(history) ? history.slice(-20) : [],
+      });
+      return res.json({ ok: true, ...result });
+    }
+
     const trusted = hasValidApiSecret(req);
     const { message, sessionId, formSubmit, channel, getCart, getPoints, phone } = req.body || {};
+
+    if (req.body?.getOrder) {
+      const sid = String(sessionId || '').slice(0, 64);
+      if (!sid) return res.status(400).json({ error: 'sessionId required' });
+      enforceRateLimit(req, 'chat-getorder', { windowMs: 60_000, max: 60 });
+      const order = await getOrderForSid(sid);
+      return res.json({ order });
+    }
 
     // Lightweight read used by complete-order.html to show the customer's
     // real cart when she arrives via a checkout link from a non-web channel
@@ -84,7 +108,10 @@ module.exports = async (req, res) => {
     res.json(payload);
   } catch (error) {
     if (error.status === 400) return res.status(400).json({ error: error.message });
+    if (error.status === 401) return res.status(401).json({ ok: false, error: error.message || 'Unauthorized' });
+    if (error.status === 403) return res.status(403).json({ ok: false, error: error.message || 'Forbidden' });
     if (error.status === 429) return res.status(429).json({ error: 'Too many requests' });
+    if (error.status === 503) return res.status(503).json({ ok: false, error: error.message || 'Unavailable' });
     console.error('Chat error:', error.message);
     res.status(500).json({ error: 'حصل مشكلة، حاول تاني' });
   }

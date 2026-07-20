@@ -1,0 +1,212 @@
+[
+  {
+    "region": "Giza",
+    "pharmacy_name": "juvia",
+    "discount": 0.4,
+    "subtotal": 11808,
+    "tax": 0,
+    "total": 11808,
+    "amount_paid": 0,
+    "price_list": "new",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 50,
+        "unit_price": 393.6,
+        "line_total": 11808
+      }
+    ],
+    "bottles": 50,
+    "sheet": "Sheet1",
+    "row": 2,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "OTHMANY",
+    "discount": 0.3,
+    "subtotal": 19252.8,
+    "tax": 0,
+    "total": 19252.8,
+    "amount_paid": 0,
+    "price_list": "new",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 24,
+        "unit_price": 369,
+        "line_total": 6199.2
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 24,
+        "unit_price": 229,
+        "line_total": 3847.2
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 24,
+        "unit_price": 299,
+        "line_total": 5023.2
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 24,
+        "unit_price": 249,
+        "line_total": 4183.2
+      }
+    ],
+    "bottles": 96,
+    "sheet": "Sheet1",
+    "row": 3,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Hosney Mohamed",
+    "discount": 0.25,
+    "subtotal": 1383.75,
+    "tax": 0,
+    "total": 1383.75,
+    "amount_paid": 0,
+    "price_list": "new",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 369,
+        "line_total": 1383.75
+      }
+    ],
+    "bottles": 5,
+    "sheet": "Sheet1",
+    "row": 5,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "latef",
+    "discount": 0.2,
+    "subtotal": 1196,
+    "tax": 0,
+    "total": 1196,
+    "amount_paid": 1040,
+    "price_list": "new",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1196
+      }
+    ],
+    "bottles": 5,
+    "sheet": "Sheet1",
+    "row": 6,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "elrehab",
+    "discount": 0.2,
+    "subtotal": 1146,
+    "tax": 0,
+    "total": 1146,
+    "amount_paid": 0,
+    "price_list": "new",
+    "line_items": [
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 3,
+        "unit_price": 228.75,
+        "line_total": 549
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 248.75,
+        "line_total": 597
+      }
+    ],
+    "bottles": 6,
+    "sheet": "Sheet1",
+    "row": 7,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "elfayrouz",
+    "discount": 0.3,
+    "subtotal": 6139,
+    "tax": 0,
+    "total": 6139,
+    "amount_paid": 0,
+    "price_list": "new",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 10,
+        "unit_price": 299,
+        "line_total": 2093
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 10,
+        "unit_price": 329,
+        "line_total": 2303
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 10,
+        "unit_price": 249,
+        "line_total": 1743
+      }
+    ],
+    "bottles": 30,
+    "sheet": "Sheet1",
+    "row": 8,
+    "continued": false
+  },
+  {
+    "region": "Fayoum",
+    "pharmacy_name": "gemmi",
+    "discount": 0.3,
+    "subtotal": 2198,
+    "tax": 0,
+    "total": 2198,
+    "amount_paid": 0,
+    "price_list": "new",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1046.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 329,
+        "line_total": 1151.5
+      }
+    ],
+    "bottles": 10,
+    "sheet": "Sheet1",
+    "row": 10,
+    "continued": false
+  }
+]

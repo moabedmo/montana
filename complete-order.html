@@ -65,7 +65,7 @@
 
     <div id="coFormBox">
         <div id="coCartSummary"></div>
-        <p class="co-intro">كمّلي بياناتك عشان نسجل طلبك ونحسب تكلفة الشحن حسب محافظتك 💜</p>
+        <p class="co-intro">المنتجات اللي اخترتيها من الشات جاهزة تحت. كمّلي بياناتك عشان نسجّل طلبك — وبرنامج <strong>نقاط مونتانيا</strong> مربوط برقم موبايلك 🎁</p>
         <form class="co-form" id="coForm">
             <input type="text" id="coName" placeholder="الاسم بالكامل" required>
             <input type="tel" id="coPhone" placeholder="رقم الموبايل (01xxxxxxxxx)" dir="ltr" required>
@@ -91,6 +91,45 @@ import { shipping as shippingApi } from '/js/store-api.js';
 const params = new URLSearchParams(location.search);
 const sid = params.get('sid');
 
+async function checkExistingOrder() {
+    if (!sid) return false;
+    try {
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId: sid, getOrder: true }),
+        });
+        const data = await res.json();
+        if (!data.order) return false;
+        const o = data.order;
+        const statusMap = {
+            pending: 'قيد المراجعة ⏳',
+            confirmed: 'تم التأكيد ✅',
+            preparing: 'جاري التجهيز 📦',
+            shipped: 'تم الشحن 🚚',
+            delivered: 'تم التوصيل ✅',
+            cancelled: 'ملغي ❌',
+        };
+        document.getElementById('coFormBox').style.display = 'none';
+        const box = document.getElementById('coSuccessBox');
+        box.style.display = '';
+        box.innerHTML = `
+            <div class="co-order-num">
+                <span>رقم الطلب</span>
+                <strong>${o.order_number}</strong>
+            </div>
+            <div class="co-deposit-box">
+                <p style="text-align:center;font-size:16px;font-weight:700;color:var(--accent)">
+                    ${statusMap[o.status] || o.status}
+                </p>
+                <p style="text-align:center">الإجمالي: <strong>${Math.round(o.total)} ج.م</strong></p>
+            </div>`;
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
 if (!sid) {
     document.getElementById('coEmpty').style.display = '';
     document.getElementById('coFormBox').style.display = 'none';
@@ -106,7 +145,6 @@ async function loadGovernorates() {
         sel.innerHTML = '<option value="">تعذّر تحميل المحافظات</option>';
     }
 }
-if (sid) loadGovernorates();
 
 async function loadCartSummary() {
     const box = document.getElementById('coCartSummary');
@@ -123,7 +161,14 @@ async function loadCartSummary() {
         box.innerHTML = `<div class="co-cart">${items}<div class="co-cart-total"><span>الإجمالي (قبل الشحن)</span><span>${Math.round(data.subtotal)} ج.م</span></div></div>`;
     } catch (e) { /* summary is a nice-to-have — form still works without it */ }
 }
-if (sid) loadCartSummary();
+
+(async () => {
+    if (!sid) return;
+    const hasOrder = await checkExistingOrder();
+    if (hasOrder) return;
+    loadGovernorates();
+    loadCartSummary();
+})();
 
 let pointsLookupTimer = null;
 document.getElementById('coPhone').addEventListener('input', (e) => {
@@ -167,17 +212,9 @@ function renderSuccess(order) {
             <strong>${order.order_number}</strong>
         </div>
         <div class="co-deposit-box">
-            <p>الإجمالي <strong>${Math.round(order.total)} ج.م</strong> (شامل مقدّم حجز <strong>${Math.round(order.deposit_amount)} ج.م</strong> هيتخصم منه). حوّلي المقدّم على الرقم التالي وارفعي صورة الإيصال تحت وهنأكدلك الحجز على طول:</p>
-            <div class="co-deposit-num">${order.transfer_number || ''}${order.transfer_name ? ' — ' + order.transfer_name : ''}</div>
-        </div>
-        <div class="co-proof" id="proofBox">
-            <p>ارفعي صورة إيصال التحويل هنا 💜</p>
-            <label for="proofFile" id="proofLabel"><i class="fas fa-camera"></i> ارفعي صورة الإيصال</label>
-            <input type="file" id="proofFile" accept="image/*">
-            <div class="co-proof-msg" id="proofMsg"></div>
+            <p style="text-align:center">الإجمالي <strong>${Math.round(order.total)} ج.م</strong></p>
+            <p style="text-align:center;margin-top:8px">الدفع كاش عند الاستلام — بدون مقدّم. هنراجع الطلب ونكلمك قريب لتأكيد التوصيل 💜</p>
         </div>`;
-
-    document.getElementById('proofFile').addEventListener('change', () => uploadProof(order.order_number, order.phone));
 }
 
 function fileToBase64(file) {

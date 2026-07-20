@@ -81,7 +81,7 @@
         <div class="ck-payment-option selected" data-method="cod">
             <div class="ck-address-radio"><i class="fas fa-check-circle"></i></div>
             <div class="ck-payment-icon"><i class="fas fa-money-bill-wave"></i></div>
-            <span>الدفع عند الاستلام <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:500">200 ج.م مقدم + الباقي كاش عند الاستلام</small></span>
+            <span>الدفع عند الاستلام <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:500">كاش عند الاستلام — بدون مقدّم</small></span>
         </div>
         <div class="ck-payment-option" data-method="wallet">
             <div class="ck-address-radio"><i class="far fa-circle"></i></div>
@@ -188,26 +188,21 @@ let shippingRates = [];
 let transferNumber = '';
 let transferName = '';
 
-// Both real payment methods (COD, wallet/InstaPay) require a transfer
-// proof — COD as a fixed 200 ج.م booking deposit, wallet as the full
-// order total. The order only ever ships/gets marked "confirmed"
-// after an admin reviews the screenshot (via Telegram or the admin
-// dashboard) — see get_order_status()/admin.js.
+// Wallet/InstaPay still requires a full-amount transfer proof.
+// COD is cash on delivery with no booking deposit.
 function depositAmount() {
     const method = document.querySelector('.ck-payment-option.selected')?.dataset.method;
     if (method === 'wallet') return computeTotals().total;
-    return 200; // cod
+    return 0;
 }
 
 function renderDepositBox() {
     const method = document.querySelector('.ck-payment-option.selected')?.dataset.method;
     const box = document.getElementById('depositBox');
-    if (method === 'card') { box.style.display = 'none'; return; }
+    if (method !== 'wallet') { box.style.display = 'none'; return; }
     box.style.display = 'block';
     const amount = depositAmount();
-    document.getElementById('depositMsg').textContent = method === 'wallet'
-        ? fmt(S.depositWallet, { amount: money(amount) })
-        : fmt(S.depositCod, { amount: Math.round(amount) });
+    document.getElementById('depositMsg').textContent = fmt(S.depositWallet, { amount: money(amount) });
     document.getElementById('depositNumber').textContent = `${transferNumber} — ${transferName}`;
 }
 
@@ -340,14 +335,14 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
     const paymentMethod = paymentEl ? paymentEl.dataset.method : 'cod';
     const proofFile = document.getElementById('proofFile').files[0];
 
-    if (paymentMethod !== 'card' && !proofFile) {
+    if (paymentMethod === 'wallet' && !proofFile) {
         errEl.textContent = S.uploadProof;
         errEl.style.display = 'block';
         return;
     }
 
     const { items, subtotal, shipping, discount, pointsRedeemed, total } = computeTotals();
-    const deposit = depositAmount();
+    const deposit = paymentMethod === 'wallet' ? depositAmount() : 0;
 
     const btn = document.getElementById('confirmBtn');
     btn.disabled = true;

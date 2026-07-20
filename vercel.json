@@ -71,7 +71,7 @@
     { "path": "/api/crm-visit-notify", "schedule": "0 7 * * *" }
   ],
   "functions": {
-    "api/chat.js": { "maxDuration": 30 },
+    "api/chat.js": { "maxDuration": 60 },
     "api/messenger-webhook.js": { "maxDuration": 30 },
     "api/instagram-webhook.js": { "maxDuration": 30 },
     "api/whatsapp-webhook.js": { "maxDuration": 30 }

@@ -1,0 +1,6017 @@
+[
+  {
+    "region": "Giza",
+    "pharmacy_name": "Abo Ali",
+    "discount": 0.35,
+    "subtotal": 24843,
+    "tax": 3478.2,
+    "total": 28321.2,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 28,
+        "unit_price": 349,
+        "line_total": 6351.8
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 28,
+        "unit_price": 209,
+        "line_total": 3803.8
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 28,
+        "unit_price": 279,
+        "line_total": 5077.8
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 28,
+        "unit_price": 299,
+        "line_total": 5441.8
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 28,
+        "unit_price": 229,
+        "line_total": 4167.8
+      }
+    ],
+    "bottles": 140,
+    "sheet": "total",
+    "row": 2,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Misr",
+    "discount": 0.36,
+    "subtotal": 51816.8,
+    "tax": 7254.35,
+    "total": 59071.15,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 80,
+        "unit_price": 310.92,
+        "line_total": 15919.2
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 80,
+        "unit_price": 186.19,
+        "line_total": 9532.8
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 80,
+        "unit_price": 248.56,
+        "line_total": 12726.4
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 80,
+        "unit_price": 266.38,
+        "line_total": 13638.4
+      }
+    ],
+    "bottles": 320,
+    "sheet": "total",
+    "row": 3,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Ahmed Yehia",
+    "discount": 0.25,
+    "subtotal": 29242.5,
+    "tax": 0,
+    "total": 29242.5,
+    "amount_paid": 17280,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 20,
+        "unit_price": 349,
+        "line_total": 5235
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 20,
+        "unit_price": 209,
+        "line_total": 3135
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 20,
+        "unit_price": 279,
+        "line_total": 4185
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 30,
+        "unit_price": 589,
+        "line_total": 13252.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 20,
+        "unit_price": 229,
+        "line_total": 3435
+      }
+    ],
+    "bottles": 110,
+    "sheet": "total",
+    "row": 4,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Elbeh",
+    "discount": 0.2,
+    "subtotal": 5460,
+    "tax": 0,
+    "total": 5460,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1396
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 836
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1116
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1196
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 916
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 5,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Elesaaf",
+    "discount": 0.2,
+    "subtotal": 2187,
+    "tax": 0,
+    "total": 2187,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 349.38,
+        "line_total": 559
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209.38,
+        "line_total": 335
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279.38,
+        "line_total": 447
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299.38,
+        "line_total": 479
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229.38,
+        "line_total": 367
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 6,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Elwaleed",
+    "discount": 0.2,
+    "subtotal": 1628,
+    "tax": 0,
+    "total": 1628,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209.38,
+        "line_total": 335
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279.38,
+        "line_total": 447
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299.38,
+        "line_total": 479
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229.38,
+        "line_total": 367
+      }
+    ],
+    "bottles": 8,
+    "sheet": "total",
+    "row": 7,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Amira abdelfatah",
+    "discount": 0.2,
+    "subtotal": 1628,
+    "tax": 0,
+    "total": 1628,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209.38,
+        "line_total": 335
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279.38,
+        "line_total": 447
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299.38,
+        "line_total": 479
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229.38,
+        "line_total": 367
+      }
+    ],
+    "bottles": 8,
+    "sheet": "total",
+    "row": 8,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Ghada",
+    "discount": 0.2,
+    "subtotal": 1628,
+    "tax": 0,
+    "total": 1628,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209.38,
+        "line_total": 335
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279.38,
+        "line_total": 447
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299.38,
+        "line_total": 479
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229.38,
+        "line_total": 367
+      }
+    ],
+    "bottles": 8,
+    "sheet": "total",
+    "row": 9,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "AbdelrahmanMohamed",
+    "discount": 0.2,
+    "subtotal": 2187,
+    "tax": 0,
+    "total": 2187,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 349.38,
+        "line_total": 559
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209.38,
+        "line_total": 335
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279.38,
+        "line_total": 447
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299.38,
+        "line_total": 479
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229.38,
+        "line_total": 367
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 10,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Nouran",
+    "discount": 0.25,
+    "subtotal": 3071.25,
+    "tax": 0,
+    "total": 3071.25,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 3,
+        "unit_price": 349,
+        "line_total": 785.25
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 3,
+        "unit_price": 209,
+        "line_total": 470.25
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 279,
+        "line_total": 627.75
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 3,
+        "unit_price": 299,
+        "line_total": 672.75
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 229,
+        "line_total": 515.25
+      }
+    ],
+    "bottles": 15,
+    "sheet": "total",
+    "row": 11,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "El3areesh",
+    "discount": 0.35,
+    "subtotal": 6606,
+    "tax": 0,
+    "total": 6606,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 10,
+        "unit_price": 209.08,
+        "line_total": 1359
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 10,
+        "unit_price": 279.08,
+        "line_total": 1814
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 10,
+        "unit_price": 299.08,
+        "line_total": 1944
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 10,
+        "unit_price": 229.08,
+        "line_total": 1489
+      }
+    ],
+    "bottles": 40,
+    "sheet": "total",
+    "row": 12,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Elsalam",
+    "discount": 0.2,
+    "subtotal": 1625.5,
+    "tax": 0,
+    "total": 1625.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209.38,
+        "line_total": 335
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279.38,
+        "line_total": 447
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299.38,
+        "line_total": 479
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 227.81,
+        "line_total": 364.5
+      }
+    ],
+    "bottles": 8,
+    "sheet": "total",
+    "row": 13,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Ali",
+    "discount": 0.2,
+    "subtotal": 2184,
+    "tax": 0,
+    "total": 2184,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 349,
+        "line_total": 558.4
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209,
+        "line_total": 334.4
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 446.4
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 478.4
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 366.4
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 14,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Amira",
+    "discount": 0.25,
+    "subtotal": 10238,
+    "tax": 0,
+    "total": 10238,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 10,
+        "unit_price": 349,
+        "line_total": 2617.5
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 10,
+        "unit_price": 209,
+        "line_total": 1567.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 10,
+        "unit_price": 279,
+        "line_total": 2092.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 10,
+        "unit_price": 299,
+        "line_total": 2242.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 10,
+        "unit_price": 229.07,
+        "line_total": 1718
+      }
+    ],
+    "bottles": 50,
+    "sheet": "total",
+    "row": 15,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Khatab",
+    "discount": 0.25,
+    "subtotal": 10238,
+    "tax": 0,
+    "total": 10238,
+    "amount_paid": 2465,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 10,
+        "unit_price": 349,
+        "line_total": 2617.5
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 10,
+        "unit_price": 209,
+        "line_total": 1567.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 10,
+        "unit_price": 279,
+        "line_total": 2092.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 10,
+        "unit_price": 299,
+        "line_total": 2242.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 10,
+        "unit_price": 229.07,
+        "line_total": 1718
+      }
+    ],
+    "bottles": 50,
+    "sheet": "total",
+    "row": 16,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Abdelrahman Elsayes",
+    "discount": 0.35,
+    "subtotal": 4436.25,
+    "tax": 0,
+    "total": 4436.25,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1134.25
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 679.25
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 906.75
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 971.75
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 744.25
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 17,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Abdelrahman Elsayes",
+    "discount": 0.35,
+    "subtotal": 8355.72,
+    "tax": 0,
+    "total": 8355.72,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 15,
+        "unit_price": 349,
+        "line_total": 3402.75
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 15,
+        "unit_price": 279,
+        "line_total": 2720.25
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 15,
+        "unit_price": 229,
+        "line_total": 2232.72
+      }
+    ],
+    "bottles": 45,
+    "sheet": "total",
+    "row": 18,
+    "continued": true
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Ahmed Nabawy",
+    "discount": 0.25,
+    "subtotal": 2047.5,
+    "tax": 0,
+    "total": 2047.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 349,
+        "line_total": 523.5
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209,
+        "line_total": 313.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 418.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 448.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 343.5
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 19,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "adel",
+    "discount": 0.25,
+    "subtotal": 3071.25,
+    "tax": 0,
+    "total": 3071.25,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 3,
+        "unit_price": 349,
+        "line_total": 785.25
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 3,
+        "unit_price": 209,
+        "line_total": 470.25
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 279,
+        "line_total": 627.75
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 3,
+        "unit_price": 299,
+        "line_total": 672.75
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 229,
+        "line_total": 515.25
+      }
+    ],
+    "bottles": 15,
+    "sheet": "total",
+    "row": 20,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "2.5",
+    "discount": 0.3,
+    "subtotal": 3556,
+    "tax": 0,
+    "total": 3556,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 731.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 976.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1046.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 801.5
+      }
+    ],
+    "bottles": 20,
+    "sheet": "total",
+    "row": 21,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Ahmed azzam",
+    "discount": 0.3,
+    "subtotal": 355,
+    "tax": 0,
+    "total": 355,
+    "amount_paid": 355,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 1,
+        "unit_price": 278.57,
+        "line_total": 195
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 1,
+        "unit_price": 228.57,
+        "line_total": 160
+      }
+    ],
+    "bottles": 2,
+    "sheet": "total",
+    "row": 22,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "esraa sabry",
+    "discount": 0.25,
+    "subtotal": 385,
+    "tax": 0,
+    "total": 385,
+    "amount_paid": 385,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 1,
+        "unit_price": 282.67,
+        "line_total": 212
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 1,
+        "unit_price": 230.67,
+        "line_total": 173
+      }
+    ],
+    "bottles": 2,
+    "sheet": "total",
+    "row": 23,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "juvia",
+    "discount": 0.4,
+    "subtotal": 7398.4,
+    "tax": 0,
+    "total": 7398.4,
+    "amount_paid": 5566,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 20,
+        "unit_price": 372.27,
+        "line_total": 4467.2
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 20,
+        "unit_price": 244.27,
+        "line_total": 2931.2
+      }
+    ],
+    "bottles": 40,
+    "sheet": "total",
+    "row": 24,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "juvia",
+    "discount": 0.4,
+    "subtotal": 11080.4,
+    "tax": 0,
+    "total": 11080.4,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 30,
+        "unit_price": 371.87,
+        "line_total": 6693.6
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 30,
+        "unit_price": 243.71,
+        "line_total": 4386.8
+      }
+    ],
+    "bottles": 60,
+    "sheet": "total",
+    "row": 25,
+    "continued": true
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Hagar",
+    "discount": 0.65,
+    "subtotal": 9556,
+    "tax": 0,
+    "total": 9556,
+    "amount_paid": 9556,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 20,
+        "unit_price": 349,
+        "line_total": 2443
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 20,
+        "unit_price": 209.14,
+        "line_total": 1464
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 20,
+        "unit_price": 279,
+        "line_total": 1953
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 20,
+        "unit_price": 299,
+        "line_total": 2093
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 20,
+        "unit_price": 229,
+        "line_total": 1603
+      }
+    ],
+    "bottles": 100,
+    "sheet": "total",
+    "row": 26,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "hawas",
+    "discount": 0.25,
+    "subtotal": 3810,
+    "tax": 0,
+    "total": 3810,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 10,
+        "unit_price": 279,
+        "line_total": 2092.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 10,
+        "unit_price": 229,
+        "line_total": 1717.5
+      }
+    ],
+    "bottles": 20,
+    "sheet": "total",
+    "row": 27,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "elgiza elkobra",
+    "discount": 0.2,
+    "subtotal": 1936.8,
+    "tax": 0,
+    "total": 1936.8,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 279,
+        "line_total": 669.6
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 3,
+        "unit_price": 299,
+        "line_total": 717.6
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 229,
+        "line_total": 549.6
+      }
+    ],
+    "bottles": 9,
+    "sheet": "total",
+    "row": 28,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "dr marzouk",
+    "discount": 0.2,
+    "subtotal": 1092,
+    "tax": 0,
+    "total": 1092,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 1,
+        "unit_price": 349,
+        "line_total": 279.2
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 1,
+        "unit_price": 209,
+        "line_total": 167.2
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 1,
+        "unit_price": 279,
+        "line_total": 223.2
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 1,
+        "unit_price": 299,
+        "line_total": 239.2
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 1,
+        "unit_price": 229,
+        "line_total": 183.2
+      }
+    ],
+    "bottles": 5,
+    "sheet": "total",
+    "row": 29,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "dr Khaled",
+    "discount": 0.2,
+    "subtotal": 1092,
+    "tax": 0,
+    "total": 1092,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 1,
+        "unit_price": 349,
+        "line_total": 279.2
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 1,
+        "unit_price": 209,
+        "line_total": 167.2
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 1,
+        "unit_price": 279,
+        "line_total": 223.2
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 1,
+        "unit_price": 299,
+        "line_total": 239.2
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 1,
+        "unit_price": 229,
+        "line_total": 183.2
+      }
+    ],
+    "bottles": 5,
+    "sheet": "total",
+    "row": 30,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "2al omran",
+    "discount": 0.2,
+    "subtotal": 2187,
+    "tax": 0,
+    "total": 2187,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 349.38,
+        "line_total": 559
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209.38,
+        "line_total": 335
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279.38,
+        "line_total": 447
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299.38,
+        "line_total": 479
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229.38,
+        "line_total": 367
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 31,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Medicine",
+    "discount": 0.3,
+    "subtotal": 1911,
+    "tax": 0,
+    "total": 1911,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 349,
+        "line_total": 488.6
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209,
+        "line_total": 292.6
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 390.6
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 418.6
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 320.6
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 32,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Beshoy",
+    "discount": 0.2,
+    "subtotal": 3276,
+    "tax": 0,
+    "total": 3276,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 3,
+        "unit_price": 349,
+        "line_total": 837.6
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 3,
+        "unit_price": 209,
+        "line_total": 501.6
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 279,
+        "line_total": 669.6
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 3,
+        "unit_price": 299,
+        "line_total": 717.6
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 229,
+        "line_total": 549.6
+      }
+    ],
+    "bottles": 15,
+    "sheet": "total",
+    "row": 33,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "دكتور اياد عبد الوراث",
+    "discount": 0.2,
+    "subtotal": 2187,
+    "tax": 0,
+    "total": 2187,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 349.38,
+        "line_total": 559
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209.38,
+        "line_total": 335
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279.38,
+        "line_total": 447
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299.38,
+        "line_total": 479
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229.38,
+        "line_total": 367
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 34,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "صيدلية دكتوره مني",
+    "discount": 0.2,
+    "subtotal": 1092,
+    "tax": 0,
+    "total": 1092,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 1,
+        "unit_price": 349,
+        "line_total": 279.2
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 1,
+        "unit_price": 209,
+        "line_total": 167.2
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 1,
+        "unit_price": 279,
+        "line_total": 223.2
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 1,
+        "unit_price": 299,
+        "line_total": 239.2
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 1,
+        "unit_price": 229,
+        "line_total": 183.2
+      }
+    ],
+    "bottles": 5,
+    "sheet": "total",
+    "row": 35,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "صيدليه سفنكس فارمازون",
+    "discount": 0.2,
+    "subtotal": 2187,
+    "tax": 0,
+    "total": 2187,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 349.38,
+        "line_total": 559
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209.38,
+        "line_total": 335
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279.38,
+        "line_total": 447
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299.38,
+        "line_total": 479
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229.38,
+        "line_total": 367
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 36,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "صيدلية فاميلي",
+    "discount": 0.2,
+    "subtotal": 1092,
+    "tax": 0,
+    "total": 1092,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 1,
+        "unit_price": 349,
+        "line_total": 279.2
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 1,
+        "unit_price": 209,
+        "line_total": 167.2
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 1,
+        "unit_price": 279,
+        "line_total": 223.2
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 1,
+        "unit_price": 299,
+        "line_total": 239.2
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 1,
+        "unit_price": 229,
+        "line_total": 183.2
+      }
+    ],
+    "bottles": 5,
+    "sheet": "total",
+    "row": 37,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Romany adel",
+    "discount": 0.2,
+    "subtotal": 1387.2,
+    "tax": 0,
+    "total": 1387.2,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 279,
+        "line_total": 669.6
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 3,
+        "unit_price": 299,
+        "line_total": 717.6
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 0,
+        "line_total": 0
+      }
+    ],
+    "bottles": 9,
+    "sheet": "total",
+    "row": 38,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Beshoy safy",
+    "discount": 0.2,
+    "subtotal": 3276,
+    "tax": 0,
+    "total": 3276,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 3,
+        "unit_price": 349,
+        "line_total": 837.6
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 3,
+        "unit_price": 209,
+        "line_total": 501.6
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 279,
+        "line_total": 669.6
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 3,
+        "unit_price": 299,
+        "line_total": 717.6
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 229,
+        "line_total": 549.6
+      }
+    ],
+    "bottles": 15,
+    "sheet": "total",
+    "row": 39,
+    "continued": false
+  },
+  {
+    "region": "Giza",
+    "pharmacy_name": "Abu elfadl",
+    "discount": 0.25,
+    "subtotal": 2047.5,
+    "tax": 0,
+    "total": 2047.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 349,
+        "line_total": 523.5
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209,
+        "line_total": 313.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 418.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 448.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 343.5
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 40,
+    "continued": false
+  },
+  {
+    "region": "مخازن Giza",
+    "pharmacy_name": "elzahraa",
+    "discount": 0.25,
+    "subtotal": 20475,
+    "tax": 0,
+    "total": 20475,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 20,
+        "unit_price": 349,
+        "line_total": 5235
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 20,
+        "unit_price": 209,
+        "line_total": 3135
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 20,
+        "unit_price": 279,
+        "line_total": 4185
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 20,
+        "unit_price": 299,
+        "line_total": 4485
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 20,
+        "unit_price": 229,
+        "line_total": 3435
+      }
+    ],
+    "bottles": 100,
+    "sheet": "total",
+    "row": 42,
+    "continued": false
+  },
+  {
+    "region": "مخازن Giza",
+    "pharmacy_name": "Elesalmya",
+    "discount": 0.35,
+    "subtotal": 19812,
+    "tax": 0,
+    "total": 19812,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 12,
+        "unit_price": 522.5,
+        "line_total": 4075.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 12,
+        "unit_price": 697.5,
+        "line_total": 5440.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 12,
+        "unit_price": 747.5,
+        "line_total": 5830.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 12,
+        "unit_price": 572.5,
+        "line_total": 4465.5
+      }
+    ],
+    "bottles": 48,
+    "sheet": "total",
+    "row": 43,
+    "continued": false
+  },
+  {
+    "region": "مخازن Giza",
+    "pharmacy_name": "El Hekma",
+    "discount": 0.25,
+    "subtotal": 25593.75,
+    "tax": 0,
+    "total": 25593.75,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 25,
+        "unit_price": 349,
+        "line_total": 6543.75
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 25,
+        "unit_price": 209,
+        "line_total": 3918.75
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 25,
+        "unit_price": 279,
+        "line_total": 5231.25
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 25,
+        "unit_price": 299,
+        "line_total": 5606.25
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 25,
+        "unit_price": 229,
+        "line_total": 4293.75
+      }
+    ],
+    "bottles": 125,
+    "sheet": "total",
+    "row": 44,
+    "continued": false
+  },
+  {
+    "region": "مخازن Giza",
+    "pharmacy_name": "مخزن الاقصي",
+    "discount": 0.25,
+    "subtotal": 19987.5,
+    "tax": 0,
+    "total": 19987.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 25,
+        "unit_price": 349,
+        "line_total": 6543.75
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 25,
+        "unit_price": 209,
+        "line_total": 3918.75
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 25,
+        "unit_price": 279,
+        "line_total": 5231.25
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 25,
+        "unit_price": 229,
+        "line_total": 4293.75
+      }
+    ],
+    "bottles": 100,
+    "sheet": "total",
+    "row": 45,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Elfardous",
+    "discount": 0.4,
+    "subtotal": 1219.2,
+    "tax": 0,
+    "total": 1219.2,
+    "amount_paid": 1219,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209,
+        "line_total": 250.8
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 334.8
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 358.8
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 274.8
+      }
+    ],
+    "bottles": 8,
+    "sheet": "total",
+    "row": 47,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Elfardous",
+    "discount": 0.4,
+    "subtotal": 3048,
+    "tax": 0,
+    "total": 3048,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 627
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 837
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 897
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 687
+      }
+    ],
+    "bottles": 20,
+    "sheet": "total",
+    "row": 48,
+    "continued": true
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Healthy",
+    "discount": 0.35,
+    "subtotal": 21294,
+    "tax": 0,
+    "total": 21294,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 24,
+        "unit_price": 349,
+        "line_total": 5444.4
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 24,
+        "unit_price": 209,
+        "line_total": 3260.4
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 24,
+        "unit_price": 279,
+        "line_total": 4352.4
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 24,
+        "unit_price": 299,
+        "line_total": 4664.4
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 24,
+        "unit_price": 229,
+        "line_total": 3572.4
+      }
+    ],
+    "bottles": 120,
+    "sheet": "total",
+    "row": 50,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Elmenallawy",
+    "discount": 0.2,
+    "subtotal": 2184,
+    "tax": 0,
+    "total": 2184,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 349,
+        "line_total": 558.4
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209,
+        "line_total": 334.4
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 446.4
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 478.4
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 366.4
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 51,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Principles",
+    "discount": 0.2,
+    "subtotal": 5460,
+    "tax": 0,
+    "total": 5460,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1396
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 836
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1116
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1196
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 916
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 52,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Diasty",
+    "discount": 0.2,
+    "subtotal": 5460,
+    "tax": 0,
+    "total": 5460,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1396
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 836
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1116
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1196
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 916
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 53,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Ahmed mokhtar",
+    "discount": 0.2,
+    "subtotal": 5460,
+    "tax": 0,
+    "total": 5460,
+    "amount_paid": 1030,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1396
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 836
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1116
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1196
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 916
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 54,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Hosney Mohamed",
+    "discount": 0.25,
+    "subtotal": 2167.5,
+    "tax": 0,
+    "total": 2167.5,
+    "amount_paid": 1271,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1046.25
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1121.25
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 55,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Hosney Mohamed",
+    "discount": 0.25,
+    "subtotal": 1770.75,
+    "tax": 0,
+    "total": 1770.75,
+    "amount_paid": 1839,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 3,
+        "unit_price": 349,
+        "line_total": 785.25
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 3,
+        "unit_price": 209,
+        "line_total": 470.25
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 229,
+        "line_total": 515.25
+      }
+    ],
+    "bottles": 9,
+    "sheet": "total",
+    "row": 56,
+    "continued": true
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Hosney Mohamed",
+    "discount": 0.25,
+    "subtotal": 1121.25,
+    "tax": 0,
+    "total": 1121.25,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1121.25
+      }
+    ],
+    "bottles": 5,
+    "sheet": "total",
+    "row": 57,
+    "continued": true
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Elshefaa",
+    "discount": 0.2,
+    "subtotal": 2167.5,
+    "tax": 0,
+    "total": 2167.5,
+    "amount_paid": 628,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 261.56,
+        "line_total": 1046.25
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 280.31,
+        "line_total": 1121.25
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 58,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "ELSHRFAA",
+    "discount": 0.28,
+    "subtotal": 4914,
+    "tax": 0,
+    "total": 4914,
+    "amount_paid": 627,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1256.4
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 752.4
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1004.4
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1076.4
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 824.4
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 59,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Latef",
+    "discount": 0.2,
+    "subtotal": 5314,
+    "tax": 0,
+    "total": 5314,
+    "amount_paid": 1056,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1396
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 836
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 10,
+        "unit_price": 270.75,
+        "line_total": 2166
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 916
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 60,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Elrehab",
+    "discount": 0.2,
+    "subtotal": 924.8,
+    "tax": 0,
+    "total": 924.8,
+    "amount_paid": 925,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 446.4
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 478.4
+      }
+    ],
+    "bottles": 4,
+    "sheet": "total",
+    "row": 61,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Elrehab",
+    "discount": 0.2,
+    "subtotal": 2184,
+    "tax": 0,
+    "total": 2184,
+    "amount_paid": 2184,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 349,
+        "line_total": 558.4
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209,
+        "line_total": 334.4
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 446.4
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 478.4
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 366.4
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 62,
+    "continued": true
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Elrehab",
+    "discount": 0.2,
+    "subtotal": 916,
+    "tax": 0,
+    "total": 916,
+    "amount_paid": 916,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 916
+      }
+    ],
+    "bottles": 5,
+    "sheet": "total",
+    "row": 63,
+    "continued": true
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Elrehab",
+    "discount": 0.2,
+    "subtotal": 4624,
+    "tax": 0,
+    "total": 4624,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 10,
+        "unit_price": 279,
+        "line_total": 2232
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 10,
+        "unit_price": 299,
+        "line_total": 2392
+      }
+    ],
+    "bottles": 20,
+    "sheet": "total",
+    "row": 64,
+    "continued": true
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Amr Ziada",
+    "discount": 0.2,
+    "subtotal": 3276,
+    "tax": 0,
+    "total": 3276,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 3,
+        "unit_price": 349,
+        "line_total": 837.6
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 3,
+        "unit_price": 209,
+        "line_total": 501.6
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 279,
+        "line_total": 669.6
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 3,
+        "unit_price": 299,
+        "line_total": 717.6
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 229,
+        "line_total": 549.6
+      }
+    ],
+    "bottles": 15,
+    "sheet": "total",
+    "row": 65,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Hany Mohamed",
+    "discount": 0.2,
+    "subtotal": 4264,
+    "tax": 0,
+    "total": 4264,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1396
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 836
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1116
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 916
+      }
+    ],
+    "bottles": 20,
+    "sheet": "total",
+    "row": 66,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Mahgoub",
+    "discount": 0.25,
+    "subtotal": 3071.25,
+    "tax": 0,
+    "total": 3071.25,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 3,
+        "unit_price": 349,
+        "line_total": 785.25
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 3,
+        "unit_price": 209,
+        "line_total": 470.25
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 279,
+        "line_total": 627.75
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 3,
+        "unit_price": 299,
+        "line_total": 672.75
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 229,
+        "line_total": 515.25
+      }
+    ],
+    "bottles": 15,
+    "sheet": "total",
+    "row": 67,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Mabrouk",
+    "discount": 0.3,
+    "subtotal": 1911,
+    "tax": 0,
+    "total": 1911,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 349,
+        "line_total": 488.6
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209,
+        "line_total": 292.6
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 390.6
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 418.6
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 320.6
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 68,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Zahraa elsalam",
+    "discount": 0.25,
+    "subtotal": 8219.25,
+    "tax": 0,
+    "total": 8219.25,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 10,
+        "unit_price": 349,
+        "line_total": 2617.5
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 10,
+        "unit_price": 209,
+        "line_total": 1567.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 10,
+        "unit_price": 279,
+        "line_total": 2092.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 1,
+        "unit_price": 299,
+        "line_total": 224.25
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 10,
+        "unit_price": 229,
+        "line_total": 1717.5
+      }
+    ],
+    "bottles": 41,
+    "sheet": "total",
+    "row": 69,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Elraeey",
+    "discount": 0.25,
+    "subtotal": 10237.5,
+    "tax": 0,
+    "total": 10237.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 10,
+        "unit_price": 349,
+        "line_total": 2617.5
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 10,
+        "unit_price": 209,
+        "line_total": 1567.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 10,
+        "unit_price": 279,
+        "line_total": 2092.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 10,
+        "unit_price": 299,
+        "line_total": 2242.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 10,
+        "unit_price": 229,
+        "line_total": 1717.5
+      }
+    ],
+    "bottles": 50,
+    "sheet": "total",
+    "row": 70,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Beshoy",
+    "discount": 0.25,
+    "subtotal": 8667.75,
+    "tax": 0,
+    "total": 8667.75,
+    "amount_paid": 1300,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 10,
+        "unit_price": 349,
+        "line_total": 2617.5
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 10,
+        "unit_price": 209,
+        "line_total": 1567.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 10,
+        "unit_price": 279,
+        "line_total": 2092.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 3,
+        "unit_price": 299,
+        "line_total": 672.75
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 10,
+        "unit_price": 229,
+        "line_total": 1717.5
+      }
+    ],
+    "bottles": 43,
+    "sheet": "total",
+    "row": 71,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Mohamed Salah",
+    "discount": 0.2,
+    "subtotal": 5460,
+    "tax": 0,
+    "total": 5460,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1396
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 836
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1116
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1196
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 916
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 72,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Magdy Elsayed Cosmo",
+    "discount": 0.3,
+    "subtotal": 5733,
+    "tax": 0,
+    "total": 5733,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 6,
+        "unit_price": 349,
+        "line_total": 1465.8
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 6,
+        "unit_price": 209,
+        "line_total": 877.8
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 6,
+        "unit_price": 279,
+        "line_total": 1171.8
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 6,
+        "unit_price": 299,
+        "line_total": 1255.8
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 6,
+        "unit_price": 229,
+        "line_total": 961.8
+      }
+    ],
+    "bottles": 30,
+    "sheet": "total",
+    "row": 73,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Amany",
+    "discount": 0.25,
+    "subtotal": 3071.25,
+    "tax": 0,
+    "total": 3071.25,
+    "amount_paid": 422,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 3,
+        "unit_price": 349,
+        "line_total": 785.25
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 3,
+        "unit_price": 209,
+        "line_total": 470.25
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 279,
+        "line_total": 627.75
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 3,
+        "unit_price": 299,
+        "line_total": 672.75
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 229,
+        "line_total": 515.25
+      }
+    ],
+    "bottles": 15,
+    "sheet": "total",
+    "row": 74,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Bdeir",
+    "discount": 0.3,
+    "subtotal": 9555,
+    "tax": 0,
+    "total": 9555,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 10,
+        "unit_price": 349,
+        "line_total": 2443
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 10,
+        "unit_price": 209,
+        "line_total": 1463
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 10,
+        "unit_price": 279,
+        "line_total": 1953
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 10,
+        "unit_price": 299,
+        "line_total": 2093
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 10,
+        "unit_price": 229,
+        "line_total": 1603
+      }
+    ],
+    "bottles": 50,
+    "sheet": "total",
+    "row": 75,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "hamdyy Elsayed",
+    "discount": 0.4,
+    "subtotal": 4095,
+    "tax": 0,
+    "total": 4095,
+    "amount_paid": 1277,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1047
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 627
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 837
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 897
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 687
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 76,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Elzo8by",
+    "discount": 0.2,
+    "subtotal": 2184,
+    "tax": 30.57,
+    "total": 2214.57,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 349,
+        "line_total": 558.4
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209,
+        "line_total": 334.4
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 446.4
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 478.4
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 366.4
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 77,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Ahmed abdELkhalek",
+    "discount": 0.2,
+    "subtotal": 3276,
+    "tax": 0,
+    "total": 3276,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 3,
+        "unit_price": 349,
+        "line_total": 837.6
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 3,
+        "unit_price": 209,
+        "line_total": 501.6
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 279,
+        "line_total": 669.6
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 3,
+        "unit_price": 299,
+        "line_total": 717.6
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 229,
+        "line_total": 549.6
+      }
+    ],
+    "bottles": 15,
+    "sheet": "total",
+    "row": 78,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Super Drug",
+    "discount": 0.2,
+    "subtotal": 5460,
+    "tax": 0,
+    "total": 5460,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1396
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 836
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1116
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1196
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 916
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 79,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "ص نور المحمدي",
+    "discount": 0.3,
+    "subtotal": 4777.5,
+    "tax": 0,
+    "total": 4777.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1221.5
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 731.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 976.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1046.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 801.5
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 80,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Dr Lamiaa Niazy",
+    "discount": 0.5,
+    "subtotal": 2540,
+    "tax": 0,
+    "total": 2540,
+    "amount_paid": 2540,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 522.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 572.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 747.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 697.5
+      }
+    ],
+    "bottles": 20,
+    "sheet": "total",
+    "row": 81,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "dr rania abubakr",
+    "discount": 0.4,
+    "subtotal": 4842,
+    "tax": 0,
+    "total": 4842,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 10,
+        "unit_price": 279,
+        "line_total": 1674
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 10,
+        "unit_price": 299,
+        "line_total": 1794
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 10,
+        "unit_price": 229,
+        "line_total": 1374
+      }
+    ],
+    "bottles": 30,
+    "sheet": "total",
+    "row": 82,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Mohamed hassan",
+    "discount": 0.2,
+    "subtotal": 4264,
+    "tax": 0,
+    "total": 4264,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 10,
+        "unit_price": 174.5,
+        "line_total": 1396
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 10,
+        "unit_price": 104.5,
+        "line_total": 836
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 10,
+        "unit_price": 139.5,
+        "line_total": 1116
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 10,
+        "unit_price": 114.5,
+        "line_total": 916
+      }
+    ],
+    "bottles": 40,
+    "sheet": "total",
+    "row": 83,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Mores fekry",
+    "discount": 0.5,
+    "subtotal": 2047.5,
+    "tax": 0,
+    "total": 2047.5,
+    "amount_paid": 2048,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 3,
+        "unit_price": 349,
+        "line_total": 523.5
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 3,
+        "unit_price": 209,
+        "line_total": 313.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 279,
+        "line_total": 418.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 3,
+        "unit_price": 299,
+        "line_total": 448.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 229,
+        "line_total": 343.5
+      }
+    ],
+    "bottles": 15,
+    "sheet": "total",
+    "row": 84,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "ELFAYROUZ",
+    "discount": 0.3,
+    "subtotal": 3409.7,
+    "tax": 0,
+    "total": 3409.7,
+    "amount_paid": 3409.7,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 4,
+        "unit_price": 209,
+        "line_total": 585.2
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 976.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1046.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 801.5
+      }
+    ],
+    "bottles": 19,
+    "sheet": "total",
+    "row": 85,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "ELFAYROUZ",
+    "discount": 0.3,
+    "subtotal": 1778,
+    "tax": 0,
+    "total": 1778,
+    "amount_paid": 1778,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 976.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 801.5
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 86,
+    "continued": true
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "ELFAYROUZ",
+    "discount": 0.3,
+    "subtotal": 2334.5,
+    "tax": 0,
+    "total": 2334.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 731.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 10,
+        "unit_price": 229,
+        "line_total": 1603
+      }
+    ],
+    "bottles": 15,
+    "sheet": "total",
+    "row": 87,
+    "continued": true
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "ELMARKAZ ELESLAMY",
+    "discount": 0.2,
+    "subtotal": 1291.2,
+    "tax": 0,
+    "total": 1291.2,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 446.4
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 478.4
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 366.4
+      }
+    ],
+    "bottles": 6,
+    "sheet": "total",
+    "row": 88,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "ELGOMHORIA",
+    "discount": 0.25,
+    "subtotal": 858.75,
+    "tax": 0,
+    "total": 858.75,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 858.75
+      }
+    ],
+    "bottles": 5,
+    "sheet": "total",
+    "row": 89,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "ELAMA7",
+    "discount": 0.35,
+    "subtotal": 4436.25,
+    "tax": 0,
+    "total": 4436.25,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1134.25
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 679.25
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 906.75
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 971.75
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 744.25
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 90,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "BARSOUM",
+    "discount": 0.25,
+    "subtotal": 7166,
+    "tax": 0,
+    "total": 7166,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 7,
+        "unit_price": 348.99,
+        "line_total": 1832.2
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 7,
+        "unit_price": 208.99,
+        "line_total": 1097.2
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 7,
+        "unit_price": 278.99,
+        "line_total": 1464.7
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 7,
+        "unit_price": 298.99,
+        "line_total": 1569.7
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 7,
+        "unit_price": 228.99,
+        "line_total": 1202.2
+      }
+    ],
+    "bottles": 35,
+    "sheet": "total",
+    "row": 91,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "AHMED MANSOUR",
+    "discount": 0.35,
+    "subtotal": 298,
+    "tax": 0,
+    "total": 298,
+    "amount_paid": 298,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229.23,
+        "line_total": 298
+      }
+    ],
+    "bottles": 2,
+    "sheet": "total",
+    "row": 92,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "el3awady elkhalifa",
+    "discount": 0.2,
+    "subtotal": 2184,
+    "tax": 0,
+    "total": 2184,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 349,
+        "line_total": 558.4
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209,
+        "line_total": 334.4
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 446.4
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 478.4
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 366.4
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 93,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Radwan",
+    "discount": 0.2,
+    "subtotal": 2558.4,
+    "tax": 0,
+    "total": 2558.4,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 3,
+        "unit_price": 349,
+        "line_total": 837.6
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 3,
+        "unit_price": 209,
+        "line_total": 501.6
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 279,
+        "line_total": 669.6
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 229,
+        "line_total": 549.6
+      }
+    ],
+    "bottles": 12,
+    "sheet": "total",
+    "row": 94,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Elashry",
+    "discount": 0.27,
+    "subtotal": 2299.35,
+    "tax": 0,
+    "total": 2299.35,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 3,
+        "unit_price": 33.93,
+        "line_total": 74.31
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 3,
+        "unit_price": 209,
+        "line_total": 457.71
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 279,
+        "line_total": 611.01
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 3,
+        "unit_price": 299,
+        "line_total": 654.81
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 229,
+        "line_total": 501.51
+      }
+    ],
+    "bottles": 15,
+    "sheet": "total",
+    "row": 95,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Abdelrazek Mekkawy",
+    "discount": 0.25,
+    "subtotal": 3997.5,
+    "tax": 0,
+    "total": 3997.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1308.75
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 783.75
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1046.25
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 858.75
+      }
+    ],
+    "bottles": 20,
+    "sheet": "total",
+    "row": 96,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Elmadina elmnawra",
+    "discount": 0.2,
+    "subtotal": 4264,
+    "tax": 0,
+    "total": 4264,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1396
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 836
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1116
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 916
+      }
+    ],
+    "bottles": 20,
+    "sheet": "total",
+    "row": 97,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Mekka Elmokrama",
+    "discount": 0.27,
+    "subtotal": 2989.35,
+    "tax": 0,
+    "total": 2989.35,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 3,
+        "unit_price": 349,
+        "line_total": 764.31
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 3,
+        "unit_price": 209,
+        "line_total": 457.71
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 279,
+        "line_total": 611.01
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 3,
+        "unit_price": 299,
+        "line_total": 654.81
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 229,
+        "line_total": 501.51
+      }
+    ],
+    "bottles": 15,
+    "sheet": "total",
+    "row": 98,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Dr Nabil 7ana",
+    "discount": 0.25,
+    "subtotal": 1023.75,
+    "tax": 0,
+    "total": 1023.75,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 1,
+        "unit_price": 349,
+        "line_total": 261.75
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 1,
+        "unit_price": 209,
+        "line_total": 156.75
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 1,
+        "unit_price": 279,
+        "line_total": 209.25
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 1,
+        "unit_price": 299,
+        "line_total": 224.25
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 1,
+        "unit_price": 229,
+        "line_total": 171.75
+      }
+    ],
+    "bottles": 5,
+    "sheet": "total",
+    "row": 99,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Rana Elkady",
+    "discount": 0.25,
+    "subtotal": 3071.25,
+    "tax": 0,
+    "total": 3071.25,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 3,
+        "unit_price": 349,
+        "line_total": 785.25
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 3,
+        "unit_price": 209,
+        "line_total": 470.25
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 279,
+        "line_total": 627.75
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 3,
+        "unit_price": 299,
+        "line_total": 672.75
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 229,
+        "line_total": 515.25
+      }
+    ],
+    "bottles": 15,
+    "sheet": "total",
+    "row": 100,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "صيدلية  الجبالي",
+    "discount": 0.25,
+    "subtotal": 3997.5,
+    "tax": 0,
+    "total": 3997.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1308.75
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 783.75
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1046.25
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 858.75
+      }
+    ],
+    "bottles": 20,
+    "sheet": "total",
+    "row": 101,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "المركز الاسلامي بالزيتون",
+    "discount": 0.2,
+    "subtotal": 1291.2,
+    "tax": 0,
+    "total": 1291.2,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 446.4
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 478.4
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 366.4
+      }
+    ],
+    "bottles": 6,
+    "sheet": "total",
+    "row": 102,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "حياة",
+    "discount": 0.35,
+    "subtotal": 2319.2,
+    "tax": 0,
+    "total": 2319.2,
+    "amount_paid": 2320,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1134.25
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 1,
+        "unit_price": 209,
+        "line_total": 135.85
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 362.7
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 388.7
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 297.7
+      }
+    ],
+    "bottles": 12,
+    "sheet": "total",
+    "row": 103,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "حياة",
+    "discount": 0.4,
+    "subtotal": 987,
+    "tax": 0,
+    "total": 987,
+    "amount_paid": 987,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 329,
+        "line_total": 987
+      }
+    ],
+    "bottles": 5,
+    "sheet": "total",
+    "row": 104,
+    "continued": true
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "حياة",
+    "discount": 0.4,
+    "subtotal": 2296.8,
+    "tax": 0,
+    "total": 2296.8,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 3,
+        "unit_price": 369,
+        "line_total": 664.2
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 1,
+        "unit_price": 229,
+        "line_total": 137.4
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 358.8
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 329,
+        "line_total": 987
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 83,
+        "line_total": 149.4
+      }
+    ],
+    "bottles": 14,
+    "sheet": "total",
+    "row": 105,
+    "continued": true
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "حياة",
+    "discount": 0.4,
+    "subtotal": 836.8,
+    "tax": 0,
+    "total": 836.8,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 298.89,
+        "line_total": 538
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 249,
+        "line_total": 298.8
+      }
+    ],
+    "bottles": 5,
+    "sheet": "total",
+    "row": 106,
+    "continued": true
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "خالد سمير",
+    "discount": 0.5,
+    "subtotal": 2222,
+    "tax": 0,
+    "total": 2222,
+    "amount_paid": 2222,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 872.5
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 1,
+        "unit_price": 209,
+        "line_total": 104.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 4,
+        "unit_price": 279,
+        "line_total": 558
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 6,
+        "unit_price": 229,
+        "line_total": 687
+      }
+    ],
+    "bottles": 16,
+    "sheet": "total",
+    "row": 107,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "روماني عادل",
+    "discount": 0,
+    "subtotal": 1387.2,
+    "tax": 0,
+    "total": 1387.2,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 223.2,
+        "line_total": 669.6
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 3,
+        "unit_price": 239.2,
+        "line_total": 717.6
+      }
+    ],
+    "bottles": 6,
+    "sheet": "total",
+    "row": 108,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "صيدليه الجزار",
+    "discount": 0.3,
+    "subtotal": 1911,
+    "tax": 0,
+    "total": 1911,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 349,
+        "line_total": 488.6
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209,
+        "line_total": 292.6
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 390.6
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 418.6
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 320.6
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 109,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "النعناعي",
+    "discount": 0.27,
+    "subtotal": 1992.81,
+    "tax": 0,
+    "total": 1992.81,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 348.94,
+        "line_total": 509.45
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209,
+        "line_total": 305.14
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 407.34
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 436.54
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 334.34
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 110,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "صيدليه فرست كوزماتكس",
+    "discount": 0.3,
+    "subtotal": 2866.5,
+    "tax": 0,
+    "total": 2866.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 3,
+        "unit_price": 349,
+        "line_total": 732.9
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 3,
+        "unit_price": 209,
+        "line_total": 438.9
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 279,
+        "line_total": 585.9
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 3,
+        "unit_price": 299,
+        "line_total": 627.9
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 229,
+        "line_total": 480.9
+      }
+    ],
+    "bottles": 15,
+    "sheet": "total",
+    "row": 111,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "مجدي لمعي",
+    "discount": 0.27,
+    "subtotal": 3890.9,
+    "tax": 0,
+    "total": 3890.9,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1273.85
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 762.85
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1018.35
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 835.85
+      }
+    ],
+    "bottles": 20,
+    "sheet": "total",
+    "row": 112,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "El Aziz blaah",
+    "discount": 0.2,
+    "subtotal": 1291.2,
+    "tax": 0,
+    "total": 1291.2,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 446.4
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 478.4
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 366.4
+      }
+    ],
+    "bottles": 6,
+    "sheet": "total",
+    "row": 113,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Dr Yehia",
+    "discount": 0.2,
+    "subtotal": 4742.4,
+    "tax": 0,
+    "total": 4742.4,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1396
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 836
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1116
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 478.4
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 916
+      }
+    ],
+    "bottles": 22,
+    "sheet": "total",
+    "row": 114,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Mo7sen",
+    "discount": 0.2,
+    "subtotal": 2558.4,
+    "tax": 0,
+    "total": 2558.4,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 3,
+        "unit_price": 349,
+        "line_total": 837.6
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 3,
+        "unit_price": 209,
+        "line_total": 501.6
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 3,
+        "unit_price": 279,
+        "line_total": 669.6
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 3,
+        "unit_price": 229,
+        "line_total": 549.6
+      }
+    ],
+    "bottles": 12,
+    "sheet": "total",
+    "row": 115,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "H store",
+    "discount": 0.25,
+    "subtotal": 2047.5,
+    "tax": 0,
+    "total": 2047.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 349,
+        "line_total": 523.5
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209,
+        "line_total": 313.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 418.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 448.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 343.5
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 116,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "dr hossam",
+    "discount": 0.25,
+    "subtotal": 2047.5,
+    "tax": 0,
+    "total": 2047.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 349,
+        "line_total": 523.5
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209,
+        "line_total": 313.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 418.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 448.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 343.5
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 117,
+    "continued": false
+  },
+  {
+    "region": "Cairo",
+    "pharmacy_name": "Ahmed Mokhtar",
+    "discount": 0.2,
+    "subtotal": 5460,
+    "tax": 0,
+    "total": 5460,
+    "amount_paid": 1028,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1396
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 836
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1116
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1196
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 916
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 118,
+    "continued": false
+  },
+  {
+    "region": "مخازن Cairo",
+    "pharmacy_name": "m5zan se77a",
+    "discount": 0.25,
+    "subtotal": 10237.5,
+    "tax": 0,
+    "total": 10237.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 10,
+        "unit_price": 349,
+        "line_total": 2617.5
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 10,
+        "unit_price": 209,
+        "line_total": 1567.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 10,
+        "unit_price": 279,
+        "line_total": 2092.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 10,
+        "unit_price": 299,
+        "line_total": 2242.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 10,
+        "unit_price": 229,
+        "line_total": 1717.5
+      }
+    ],
+    "bottles": 50,
+    "sheet": "total",
+    "row": 121,
+    "continued": false
+  },
+  {
+    "region": "مخازن Cairo",
+    "pharmacy_name": "m5zan watnia",
+    "discount": 0.3,
+    "subtotal": 4777.5,
+    "tax": 0,
+    "total": 4777.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1221.5
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 731.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 976.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1046.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 801.5
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 122,
+    "continued": false
+  },
+  {
+    "region": "مخازن Cairo",
+    "pharmacy_name": "m5zan healthy",
+    "discount": 0.35,
+    "subtotal": 4436.25,
+    "tax": 0,
+    "total": 4436.25,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1134.25
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 679.25
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 906.75
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 971.75
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 744.25
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 123,
+    "continued": false
+  },
+  {
+    "region": "مخازن Cairo",
+    "pharmacy_name": "m5zn elra3y",
+    "discount": 0.35,
+    "subtotal": 8872.5,
+    "tax": 0,
+    "total": 8872.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 10,
+        "unit_price": 349,
+        "line_total": 2268.5
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 10,
+        "unit_price": 209,
+        "line_total": 1358.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 10,
+        "unit_price": 279,
+        "line_total": 1813.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 10,
+        "unit_price": 299,
+        "line_total": 1943.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 10,
+        "unit_price": 229,
+        "line_total": 1488.5
+      }
+    ],
+    "bottles": 50,
+    "sheet": "total",
+    "row": 124,
+    "continued": false
+  },
+  {
+    "region": "مخازن Cairo",
+    "pharmacy_name": "m5zan elkwasar",
+    "discount": 0.25,
+    "subtotal": 20475,
+    "tax": 0,
+    "total": 20475,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 20,
+        "unit_price": 349,
+        "line_total": 5235
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 20,
+        "unit_price": 209,
+        "line_total": 3135
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 20,
+        "unit_price": 279,
+        "line_total": 4185
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 20,
+        "unit_price": 299,
+        "line_total": 4485
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 20,
+        "unit_price": 229,
+        "line_total": 3435
+      }
+    ],
+    "bottles": 100,
+    "sheet": "total",
+    "row": 125,
+    "continued": false
+  },
+  {
+    "region": "مخازن Cairo",
+    "pharmacy_name": "m5zan elmaleka",
+    "discount": 0.3,
+    "subtotal": 9555,
+    "tax": 0,
+    "total": 9555,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 10,
+        "unit_price": 349,
+        "line_total": 2443
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 10,
+        "unit_price": 209,
+        "line_total": 1463
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 10,
+        "unit_price": 279,
+        "line_total": 1953
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 10,
+        "unit_price": 299,
+        "line_total": 2093
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 10,
+        "unit_price": 229,
+        "line_total": 1603
+      }
+    ],
+    "bottles": 50,
+    "sheet": "total",
+    "row": 126,
+    "continued": false
+  },
+  {
+    "region": "Alex",
+    "pharmacy_name": "Eva store",
+    "discount": 0.3,
+    "subtotal": 955.5,
+    "tax": 0,
+    "total": 955.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 1,
+        "unit_price": 349,
+        "line_total": 244.3
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 1,
+        "unit_price": 209,
+        "line_total": 146.3
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 1,
+        "unit_price": 279,
+        "line_total": 195.3
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 1,
+        "unit_price": 299,
+        "line_total": 209.3
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 1,
+        "unit_price": 229,
+        "line_total": 160.3
+      }
+    ],
+    "bottles": 5,
+    "sheet": "total",
+    "row": 128,
+    "continued": false
+  },
+  {
+    "region": "Alex",
+    "pharmacy_name": "صيدلية دكتورة نهى",
+    "discount": 0.3,
+    "subtotal": 4777.5,
+    "tax": 0,
+    "total": 4777.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1221.5
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 731.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 976.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1046.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 801.5
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 129,
+    "continued": false
+  },
+  {
+    "region": "Alex",
+    "pharmacy_name": "صيدلية محمد عطا الله",
+    "discount": 0.3,
+    "subtotal": 955.5,
+    "tax": 0,
+    "total": 955.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 1,
+        "unit_price": 349,
+        "line_total": 244.3
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 1,
+        "unit_price": 209,
+        "line_total": 146.3
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 1,
+        "unit_price": 279,
+        "line_total": 195.3
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 1,
+        "unit_price": 299,
+        "line_total": 209.3
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 1,
+        "unit_price": 229,
+        "line_total": 160.3
+      }
+    ],
+    "bottles": 5,
+    "sheet": "total",
+    "row": 130,
+    "continued": false
+  },
+  {
+    "region": "Fayoum",
+    "pharmacy_name": "ROCHETTE",
+    "discount": 0.2,
+    "subtotal": 605.6,
+    "tax": 0,
+    "total": 605.6,
+    "amount_paid": 605,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 1,
+        "unit_price": 299,
+        "line_total": 239.2
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 366.4
+      }
+    ],
+    "bottles": 3,
+    "sheet": "total",
+    "row": 132,
+    "continued": false
+  },
+  {
+    "region": "Fayoum",
+    "pharmacy_name": "GEMMI",
+    "discount": 0.25,
+    "subtotal": 4869,
+    "tax": 0,
+    "total": 4869,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 6,
+        "unit_price": 345,
+        "line_total": 1552.5
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 6,
+        "unit_price": 209,
+        "line_total": 940.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 6,
+        "unit_price": 299,
+        "line_total": 1345.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 6,
+        "unit_price": 229,
+        "line_total": 1030.5
+      }
+    ],
+    "bottles": 24,
+    "sheet": "total",
+    "row": 133,
+    "continued": false
+  },
+  {
+    "region": "Fayoum",
+    "pharmacy_name": "NO7",
+    "discount": 0.2,
+    "subtotal": 240,
+    "tax": 0,
+    "total": 240,
+    "amount_paid": 240,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 1,
+        "unit_price": 300,
+        "line_total": 240
+      }
+    ],
+    "bottles": 1,
+    "sheet": "total",
+    "row": 134,
+    "continued": false
+  },
+  {
+    "region": "Fayoum",
+    "pharmacy_name": "gemmi",
+    "discount": 0,
+    "subtotal": 1345,
+    "tax": 0,
+    "total": 1345,
+    "amount_paid": 1345,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "misc",
+        "name": "Miscellaneous",
+        "qty": 1,
+        "unit_price": 1345,
+        "line_total": 1345
+      }
+    ],
+    "bottles": 0,
+    "sheet": "total",
+    "row": 135,
+    "continued": false
+  },
+  {
+    "region": "Fayoum",
+    "pharmacy_name": "ELLAMONNI",
+    "discount": 0.2,
+    "subtotal": 5460,
+    "tax": 0,
+    "total": 5460,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1396
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 836
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1116
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1196
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 916
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 136,
+    "continued": false
+  },
+  {
+    "region": "Fayoum",
+    "pharmacy_name": "DOKKAN DAWAA",
+    "discount": 0.2,
+    "subtotal": 5460,
+    "tax": 0,
+    "total": 5460,
+    "amount_paid": 5460,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1396
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 836
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1116
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1196
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 916
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 137,
+    "continued": false
+  },
+  {
+    "region": "Fayoum",
+    "pharmacy_name": "DOKKAN DAWAA",
+    "discount": 0.25,
+    "subtotal": 2047.5,
+    "tax": 0,
+    "total": 2047.5,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 2,
+        "unit_price": 349,
+        "line_total": 523.5
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 2,
+        "unit_price": 209,
+        "line_total": 313.5
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 418.5
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 2,
+        "unit_price": 299,
+        "line_total": 448.5
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 2,
+        "unit_price": 229,
+        "line_total": 343.5
+      }
+    ],
+    "bottles": 10,
+    "sheet": "total",
+    "row": 138,
+    "continued": true
+  },
+  {
+    "region": "Fayoum",
+    "pharmacy_name": "DOKKAN DAWAA",
+    "discount": 0.3,
+    "subtotal": 1437.1,
+    "tax": 0,
+    "total": 1437.1,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 2,
+        "unit_price": 279,
+        "line_total": 390.6
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1046.5
+      }
+    ],
+    "bottles": 7,
+    "sheet": "total",
+    "row": 139,
+    "continued": true
+  },
+  {
+    "region": "Fayoum",
+    "pharmacy_name": "Madonna",
+    "discount": 0.1,
+    "subtotal": 1615,
+    "tax": 0,
+    "total": 1615,
+    "amount_paid": 1615,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 6,
+        "unit_price": 299.07,
+        "line_total": 1615
+      }
+    ],
+    "bottles": 6,
+    "sheet": "total",
+    "row": 140,
+    "continued": false
+  },
+  {
+    "region": "Fayoum",
+    "pharmacy_name": "EBRAM",
+    "discount": 0.2,
+    "subtotal": 5460,
+    "tax": 0,
+    "total": 5460,
+    "amount_paid": 0,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1396
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 836
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1116
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1196
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 916
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 141,
+    "continued": false
+  },
+  {
+    "region": "Fayoum",
+    "pharmacy_name": "ELWAFAA",
+    "discount": 0.2,
+    "subtotal": 5460,
+    "tax": 0,
+    "total": 5460,
+    "amount_paid": 1310,
+    "price_list": "old",
+    "line_items": [
+      {
+        "sku": "post-laser",
+        "name": "Post-Laser",
+        "qty": 5,
+        "unit_price": 349,
+        "line_total": 1396
+      },
+      {
+        "sku": "lotion",
+        "name": "Lotion",
+        "qty": 5,
+        "unit_price": 209,
+        "line_total": 836
+      },
+      {
+        "sku": "w-cleanser",
+        "name": "W.cleanser",
+        "qty": 5,
+        "unit_price": 279,
+        "line_total": 1116
+      },
+      {
+        "sku": "acne",
+        "name": "Acne",
+        "qty": 5,
+        "unit_price": 299,
+        "line_total": 1196
+      },
+      {
+        "sku": "w-cream",
+        "name": "W.cream",
+        "qty": 5,
+        "unit_price": 229,
+        "line_total": 916
+      }
+    ],
+    "bottles": 25,
+    "sheet": "total",
+    "row": 142,
+    "continued": false
+  }
+]

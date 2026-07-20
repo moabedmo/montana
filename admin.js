@@ -301,7 +301,7 @@ async function updateOrderStatus(id, status) {
 }
 
 function paymentStatusAr(s) {
-    const map = { pending: 'بانتظار الدفع', awaiting_review: 'بانتظار مراجعة الإيصال', confirmed: 'تم تأكيد الحجز' };
+    const map = { pending: 'بانتظار التأكيد', awaiting_review: 'بانتظار مراجعة الإيصال', confirmed: 'تم التأكيد' };
     return map[s] || s;
 }
 
@@ -310,7 +310,7 @@ async function viewOrder(id) {
     const items = await api('order_items', 'GET', null, `?order_id=eq.${id}`);
     const proofHtml = o.payment_proof_url
         ? `<div><strong>إيصال التحويل:</strong><br><a href="${o.payment_proof_url}" target="_blank" rel="noopener noreferrer"><img src="${o.payment_proof_url}" style="max-width:100%;max-height:200px;border-radius:10px;margin-top:8px"></a></div>
-           ${o.payment_status !== 'confirmed' ? `<button class="btn-primary" style="margin-top:12px" onclick="confirmOrderPayment(${o.id}, '${o.order_number}')"><i class="fas fa-check"></i> تأكيد الحجز (${o.deposit_amount || 0} ج.م)</button>` : ''}`
+           ${o.payment_status !== 'confirmed' ? `<button class="btn-primary" style="margin-top:12px" onclick="confirmOrderPayment(${o.id}, '${o.order_number}')"><i class="fas fa-check"></i> تأكيد الطلب${o.deposit_amount > 0 ? ` (${o.deposit_amount} ج.م)` : ''}</button>` : ''}`
         : '<div><strong>إيصال:</strong> لم يُرفع بعد</div>';
     openModal('تفاصيل الطلب #' + o.order_number, `
         <div style="display:flex;flex-direction:column;gap:12px">
@@ -321,6 +321,7 @@ async function viewOrder(id) {
             <div><strong>حالة الدفع:</strong> <span class="status ${o.payment_status === 'confirmed' ? 'active' : 'pending'}">${paymentStatusAr(o.payment_status)}</span></div>
             <div><strong>حالة الطلب:</strong> <span class="status ${o.status}">${statusAr(o.status)}</span></div>
             ${proofHtml}
+            ${(!o.payment_proof_url && o.payment_status !== 'confirmed') ? `<button class="btn-primary" style="margin-top:4px" onclick="confirmOrderPayment(${o.id}, '${o.order_number}')"><i class="fas fa-check"></i> تأكيد الطلب</button>` : ''}
             <hr style="border:none;border-top:1px solid var(--border)">
             <h4>المنتجات:</h4>
             ${items.map(i => `<div style="display:flex;justify-content:space-between"><span>${i.product_name} x${i.quantity}</span><strong>${i.total} ج.م</strong></div>`).join('')}

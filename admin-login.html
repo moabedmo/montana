@@ -76,8 +76,11 @@ const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 // already logged in as a verified admin? skip straight to the dashboard.
 const { data: { session } } = await sb.auth.getSession();
 if (session) {
-  const { data: isAdmin } = await sb.rpc('is_store_admin');
-  if (isAdmin) location.href = 'admin.html';
+  const [{ data: isAdmin }, { data: isOwner }] = await Promise.all([
+    sb.rpc('is_store_admin'),
+    sb.rpc('is_owner'),
+  ]);
+  if (isAdmin || isOwner) location.href = 'admin.html';
 }
 
 const form = document.getElementById('loginForm');
@@ -95,8 +98,11 @@ form.addEventListener('submit', async (e) => {
     const { error: authErr } = await sb.auth.signInWithPassword({ email, password });
     if (authErr) throw new Error('البريد أو كلمة المرور غير صحيحة');
 
-    const { data: isAdmin, error: rpcErr } = await sb.rpc('is_store_admin');
-    if (rpcErr || !isAdmin) {
+    const [{ data: isAdmin, error: rpcErr }, { data: isOwner }] = await Promise.all([
+      sb.rpc('is_store_admin'),
+      sb.rpc('is_owner'),
+    ]);
+    if (rpcErr || (!isAdmin && !isOwner)) {
       await sb.auth.signOut();
       throw new Error('هذا الحساب غير مصرّح له بالدخول للوحة التحكم');
     }
