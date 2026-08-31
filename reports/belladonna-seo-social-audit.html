@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>تقرير تحليل Bella Donna</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+  @page { size: A4; margin: 18mm 16mm 20mm 16mm; }
+
+  /* ============================================================
+     نظام التصميم
+     الخطوط : عائلة واحدة (IBM Plex Sans Arabic) للعربي واللاتيني والأرقام
+     الألوان : حبر + لون أساسي واحد (تركوازي غامق) + لون تنبيه واحد (طوبي)
+     ============================================================ */
+  :root{
+    --ink:      #15171C;   /* العناوين والغلاف */
+    --body:     #3A3F49;   /* النص الأساسي */
+    /* درجتان للنص الثانوي — لكل خلفية درجتها، حفاظًا على التباين */
+    --muted:    #5F656F;   /* على الخلفيات الفاتحة — تباين 6.1:1 */
+    --on-dark:  #AEB4BE;   /* على الخلفيات الداكنة — تباين 8.2:1 */
+    --hairline: #E6E4DF;   /* الفواصل */
+    --paper:    #FFFFFF;
+    --tint:     #F7F6F3;   /* تعبئة واحدة لكل البطاقات */
+
+    --accent:   #1F4E46;   /* اللون الأساسي */
+    --accent-s: #E8EEEC;   /* اللون الأساسي — تعبئة فاتحة */
+    --alert:    #A63A2E;   /* لون التنبيه الوحيد */
+    --alert-s:  #F5E9E7;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+
+  body{
+    font-family:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;
+    font-weight:400;
+    color:var(--body);
+    font-size:10pt;
+    line-height:1.85;
+    margin:0;
+    font-feature-settings:"kern" 1;
+  }
+
+  code, .mono{ font-family:'IBM Plex Mono','Consolas',monospace; }
+
+  /* ---------------- الغلاف ---------------- */
+  .cover{
+    height:255mm;
+    background:var(--ink);
+    color:#fff;
+    padding:24mm 20mm;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    page-break-after:always;
+  }
+  .cover .kicker{
+    font-size:8.5pt;
+    font-weight:500;
+    letter-spacing:.22em;
+    color:var(--on-dark);
+    text-transform:uppercase;
+  }
+  .cover h1{
+    font-size:30pt;
+    line-height:1.35;
+    margin:9mm 0 0;
+    font-weight:600;
+    color:#fff;
+    letter-spacing:-.01em;
+  }
+  .cover h1 .light{ font-weight:300; color:#CDD2D9; display:block; font-size:24pt; }
+  .cover .rule{ width:30mm; height:1.5px; background:var(--accent); margin:8mm 0 7mm; }
+  .cover .sub{
+    font-size:11.5pt; font-weight:400; line-height:1.8;
+    color:#D2D6DD; max-width:118mm;
+  }
+
+  .stat-row{ display:flex; gap:0; margin-top:14mm; border-top:1px solid rgba(255,255,255,.12); }
+  .stat{ flex:1; padding:6mm 4mm 0; text-align:center; border-left:1px solid rgba(255,255,255,.12); }
+  .stat:first-child{ border-left:none; }
+  .stat .n{ display:block; font-size:19pt; font-weight:600; color:#fff; line-height:1.3; }
+  .stat .l{ font-size:8.5pt; font-weight:400; color:var(--on-dark); }
+
+  .cover-meta{ display:flex; gap:0; border-top:1px solid rgba(255,255,255,.12); padding-top:6mm; }
+  .cover-meta div{ flex:1; }
+  .cover-meta b{
+    display:block; font-size:8pt; font-weight:500; letter-spacing:.12em;
+    color:var(--on-dark); text-transform:uppercase; margin-bottom:1.5mm;
+  }
+  .cover-meta span{ font-size:9.5pt; font-weight:400; color:#FFFFFF; }
+
+  /* ---------------- الأقسام ---------------- */
+  .page{ page-break-before:always; }
+
+  h2.sec{
+    font-size:17pt; font-weight:600; color:var(--ink);
+    margin:0; padding-bottom:3mm;
+    border-bottom:1px solid var(--ink);
+    letter-spacing:-.01em;
+    display:flex; align-items:baseline; gap:4mm;
+  }
+  h2.sec .num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10pt; font-weight:500; color:var(--accent);
+    letter-spacing:.05em;
+  }
+  .sec-lead{ color:var(--muted); font-size:9.5pt; font-weight:400; margin:3mm 0 7mm; }
+
+  h3{
+    font-size:12pt; font-weight:600; color:var(--ink);
+    margin:8mm 0 3mm; letter-spacing:-.005em;
+    page-break-after:avoid; break-after:avoid;
+  }
+
+  p{ margin:0 0 3mm; }
+  ul{ margin:0 0 3mm; padding-right:5mm; }
+  li{ margin-bottom:1.5mm; }
+  b, strong{ font-weight:600; color:var(--ink); }
+
+  /* ---------------- بطاقات النتائج ---------------- */
+  .finding{
+    background:var(--tint);
+    border:1px solid var(--hairline);
+    border-right:2.5px solid var(--muted);
+    padding:5mm 6mm;
+    margin-bottom:5mm;
+    break-inside:avoid;
+  }
+  .finding.crit{ border-right-color:var(--alert); }
+  .finding.high{ border-right-color:var(--ink); }
+  .finding.med { border-right-color:var(--muted); }
+  /* ملاحظة: الاسم "chance" وليس "opp" تفاديًا للتصادم مع بلوك .opp في قسم الفرص */
+  .finding.chance { border-right-color:var(--accent); }
+
+  .finding{ overflow:hidden; }
+  .finding-head{ display:flex; align-items:center; gap:4mm; margin-bottom:3mm; }
+  .finding-head h4{
+    margin:0; font-size:11.5pt; font-weight:600; color:var(--ink);
+    flex:1 1 auto; min-width:0; overflow-wrap:anywhere;
+    letter-spacing:-.005em;
+  }
+  .finding p{ overflow-wrap:anywhere; }
+
+  /* شارة واحدة بثلاث معالجات — لا تنضغط أبدًا داخل الفلكس */
+  .chip{
+    font-size:7.5pt; font-weight:600; letter-spacing:.08em;
+    padding:.8mm 3mm; white-space:nowrap; border:1px solid;
+    flex:0 0 auto;
+  }
+  .chip.crit{ background:var(--alert); border-color:var(--alert); color:#fff; }
+  .chip.high{ background:transparent; border-color:var(--alert); color:var(--alert); }
+  .chip.med { background:transparent; border-color:var(--muted); color:var(--muted); }
+  .chip.chance { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+  /* بلوك الكود — لاتيني فقط. العربي لا يوضع هنا إطلاقًا لأن خط المونوسبيس
+     لا يحتوي حروفًا عربية و word-break يكسر تشكيل الحروف. */
+  .evidence{
+    direction:ltr; text-align:left;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:8pt; font-weight:400; line-height:1.8;
+    background:var(--ink); color:#E4E6EA;
+    padding:4mm 5mm; margin:3.5mm 0;
+    white-space:pre-wrap; overflow-wrap:anywhere;
+  }
+  .evidence .c{ color:#AEB4BE; }   /* التعليقات — تباين 8.2:1 */
+  .evidence .r{ color:#F0A79C; }   /* القيم المميّزة — تباين 7.4:1 */
+
+  /* قائمة أدلة بعناوين عربية — العربي بخطه، والكود بخطه، كلٌ في عموده */
+  .ev-list{ margin:3.5mm 0; border:1px solid var(--hairline); }
+  .ev-list .row{
+    display:flex; align-items:baseline; gap:5mm;
+    padding:3mm 4mm; border-bottom:1px solid var(--hairline);
+  }
+  .ev-list .row:last-child{ border-bottom:none; }
+  .ev-list .row:nth-child(odd){ background:var(--tint); }
+  .ev-list .lbl{
+    font-size:9pt; color:var(--muted); min-width:30mm; flex-shrink:0;
+  }
+  .ev-list .val{
+    font-family:'IBM Plex Mono','IBM Plex Sans Arabic',monospace;
+    font-size:8.5pt; color:var(--ink);
+    direction:ltr; text-align:left; flex:1;
+    overflow-wrap:anywhere;
+  }
+  .ev-list .val .r{ color:var(--alert); font-weight:500; }
+
+  .ev-cap{ font-size:9pt; color:var(--muted); margin:-1mm 0 3mm; }
+
+  .impact{
+    border-top:1px solid var(--hairline);
+    padding-top:3mm; margin-top:3.5mm;
+    font-size:9.5pt;
+  }
+
+  /* ---------------- الجداول ---------------- */
+  table{ width:100%; border-collapse:collapse; margin:3mm 0 5mm; font-size:9.5pt; break-inside:avoid; }
+  th{
+    background:var(--ink); color:#fff; text-align:right;
+    padding:3mm; font-weight:500; font-size:9pt; letter-spacing:.02em;
+  }
+  td{ padding:3mm; border-bottom:1px solid var(--hairline); vertical-align:top; }
+  tr:nth-child(even) td{ background:var(--tint); }
+  td.c, th.c{ text-align:center; }
+  table code{ font-size:8.5pt; }
+
+  .dot{ display:inline-block; width:2mm; height:2mm; border-radius:50%; margin-left:2mm; vertical-align:middle; }
+  .dot.bad{ background:var(--alert); }
+  .dot.mid{ background:var(--muted); }
+  .dot.ok { background:var(--accent); }
+
+  /* ---------------- الفرص ---------------- */
+  .opp{
+    border-top:1px solid var(--hairline);
+    padding:5mm 0;
+    break-inside:avoid;
+  }
+  .opp:first-of-type{ border-top:1px solid var(--ink); }
+  .opp-head{ display:flex; align-items:center; gap:4mm; margin-bottom:2.5mm; }
+  .rank{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12pt; font-weight:500; color:var(--accent);
+    min-width:7mm;
+  }
+  .opp-head h4{
+    margin:0; font-size:12pt; font-weight:600; color:var(--ink);
+    flex:1 1 auto; min-width:0; overflow-wrap:anywhere; letter-spacing:-.005em;
+  }
+  .opp .why{ font-size:9.5pt; color:var(--muted); margin-bottom:2.5mm; }
+  .pitch{
+    background:var(--accent-s);
+    border-right:2.5px solid var(--accent);
+    padding:3mm 4mm; margin-top:3.5mm;
+    font-size:9.5pt; color:var(--ink);
+  }
+  .pitch::before{
+    content:"العرض"; display:block;
+    font-size:7.5pt; font-weight:600; letter-spacing:.12em;
+    color:var(--accent); margin-bottom:1mm;
+  }
+
+  .callout{
+    background:var(--accent-s);
+    border-right:2.5px solid var(--accent);
+    padding:5mm 6mm; margin:6mm 0;
+    break-inside:avoid;
+  }
+  .callout h4{ margin:0 0 2.5mm; color:var(--ink); font-size:11.5pt; font-weight:600; }
+
+  .note{ background:var(--tint); border:1px solid var(--hairline); padding:5mm 6mm; font-size:9.5pt; }
+</style>
+</head>
+<body>
+
+<!-- ============ الغلاف ============ -->
+<div class="cover">
+  <div>
+    <div class="kicker">تقرير تحليل تقني</div>
+    <h1>Bella Donna<span class="light">تحليل السيو والسوشيال ميديا</span></h1>
+    <div class="rule"></div>
+    <div class="sub">فحص تقني مباشر للموقع، وتحليل البنية التسويقية وأنظمة التتبع، مع خطة عمل مقترحة بالأولويات.</div>
+
+    <div class="stat-row">
+      <div class="stat"><span class="n">509</span><span class="l">منتج</span></div>
+      <div class="stat"><span class="n">233</span><span class="l">كولكشن</span></div>
+      <div class="stat"><span class="n">63.5K</span><span class="l">متابع إنستجرام</span></div>
+      <div class="stat"><span class="n">0</span><span class="l">مقالة مدونة</span></div>
+    </div>
+  </div>
+
+  <div class="cover-meta">
+    <div><b>الموقع</b><span>belladonnashop.net</span></div>
+    <div><b>المنصة</b><span>Shopify · Dawn 8.0.0</span></div>
+    <div><b>الأسواق</b><span>مصر · السعودية</span></div>
+    <div><b>تاريخ الفحص</b><span>٤ أغسطس ٢٠٢٦</span></div>
+  </div>
+</div>
+
+<!-- ============ الملخص التنفيذي ============ -->
+<div class="page">
+  <h2 class="sec"><span class="num">01</span>الملخص التنفيذي</h2>
+  <p class="sec-lead">أهم ما خرج به الفحص المباشر للموقع.</p>
+
+  <p>Bella Donna براند فاشون مصري قوي: كتالوج ضخم يضم 509 منتج، حضور رقمي حقيقي بـ 63.5 ألف متابع على إنستجرام، أمباسدر بوزن سوسن بدر، ومقاسات ممتدة حتى 7XL — وهي ميزة تنافسية نادرة في السوق المصري.</p>
+
+  <p><b>لكن البنية التقنية والتسويقية تحت هذا كله فيها فجوات كبيرة قابلة للإصلاح.</b> كشف الفحص ثلاث مشاكل حرجة تؤثر مباشرة على الترتيب في محركات البحث وعلى دقة قياس الإعلانات، إضافة إلى فرص نمو غير مستغلة تمامًا.</p>
+
+  <table>
+    <tr><th>المحور</th><th class="c">التقييم</th><th>أهم ملاحظة</th></tr>
+    <tr><td>السيو التقني</td><td class="c"><span class="dot bad"></span>ضعيف</td><td>عنصر H1 مكسور في كل صفحات الموقع</td></tr>
+    <tr><td>السيو العربي</td><td class="c"><span class="dot bad"></span>غير مفعّل</td><td>النسخة العربية بعناوين إنجليزية</td></tr>
+    <tr><td>دقة التتبع والقياس</td><td class="c"><span class="dot bad"></span>غير دقيق</td><td>أربعة بيكسلات فيسبوك على نفس الصفحة</td></tr>
+    <tr><td>محتوى المنتجات</td><td class="c"><span class="dot mid"></span>رقيق</td><td>وصف بمتوسط 155 حرفًا فقط</td></tr>
+    <tr><td>الدليل الاجتماعي</td><td class="c"><span class="dot bad"></span>غائب</td><td>لا تقييمات ولا نجوم في نتائج البحث</td></tr>
+    <tr><td>التسويق بالمحتوى</td><td class="c"><span class="dot bad"></span>غائب</td><td>المدونة فارغة تمامًا</td></tr>
+    <tr><td>حضور السوشيال ميديا</td><td class="c"><span class="dot mid"></span>متفاوت</td><td>إنستجرام قوي، باقي القنوات مهملة</td></tr>
+    <tr><td>خدمة العملاء الرقمية</td><td class="c"><span class="dot mid"></span>يدوية</td><td>واتساب وماسنجر بدون أي أتمتة</td></tr>
+  </table>
+
+  <div class="callout">
+    <h4>الخلاصة في سطر واحد</h4>
+    <p style="margin:0">الأصول التسويقية — المنتج والبراند والجمهور — قوية، والمشكلة في الطبقة التقنية التي تحوّل هذه الأصول إلى مبيعات. معظم المشاكل الحرجة تُصلَح خلال أسبوع إلى ثلاثة أسابيع.</p>
+  </div>
+</div>
+
+<!-- ============ المشاكل الحرجة ============ -->
+<div class="page">
+  <h2 class="sec"><span class="num">02</span>المشاكل الحرجة</h2>
+  <p class="sec-lead">ثلاث مشاكل تؤثر على الموقع بالكامل — وكلها موثّقة بأدلة من الكود الفعلي.</p>
+
+  <div class="finding crit">
+    <div class="finding-head">
+      <h4>عنصر H1 مكسور في كل صفحات الموقع</h4>
+      <span class="chip crit">حرج</span>
+    </div>
+    <p>أول عنصر <code>&lt;h1&gt;</code> في كل صفحة هو إجمالي سلة المشتريات، وليس اسم المنتج أو القسم. وهذا خطأ في الثيم:</p>
+    <div class="ev-list">
+      <div class="row"><span class="lbl">الصفحة الرئيسية</span><span class="val">&lt;h1&gt;<span class="r">LE 0.00</span>&lt;/h1&gt;</span></div>
+      <div class="row"><span class="lbl">صفحة الكولكشن</span><span class="val">&lt;h1&gt;<span class="r">LE 0.00</span>&lt;/h1&gt;</span></div>
+      <div class="row"><span class="lbl">صفحة المنتج</span><span class="val">&lt;h1&gt;&lt;span class="money"&gt;<span class="r">ج.م.0.00EGP</span>&lt;/span&gt;&lt;/h1&gt;</span></div>
+    </div>
+    <div class="impact"><b>الأثر:</b> عنصر H1 من أقوى إشارات الـ on-page SEO. جوجل حاليًا يقرأ العنوان الرئيسي لكل صفحة على أنه «صفر جنيه». أكثر من <b>740 صفحة</b> متأثرة — 509 منتج و233 كولكشن.<br>
+    <b>وقت الإصلاح المقدّر:</b> ساعة عمل واحدة.</div>
+  </div>
+
+  <div class="finding crit">
+    <div class="finding-head">
+      <h4>النسخة العربية غير مُفعّلة للبحث</h4>
+      <span class="chip crit">حرج</span>
+    </div>
+    <p>صفحة <code>/ar</code> محتواها مترجم فعليًا — أكثر من 4,000 حرف عربي في الصفحة — لكن عناصر السيو الأساسية بقيت إنجليزية:</p>
+    <div class="ev-list">
+      <div class="row"><span class="lbl">الرابط</span><span class="val">/ar</span></div>
+      <div class="row"><span class="lbl">عنوان الصفحة</span><span class="val"><span class="r">Bella Donna | Women's Fashion Wear</span></span></div>
+      <div class="row"><span class="lbl">وصف الميتا</span><span class="val"><span class="r">Bella Donna is your shopping destination…</span></span></div>
+    </div>
+    <div class="impact"><b>الأثر:</b> النسخة العربية لن تترتب على أي كلمة بحث عربية، رغم أن الغالبية العظمى من عمليات البحث في السوق المصري تتم بالعربية — «بلوزة شيفون»، «جاكيت كتان حريمي»، «ملابس مقاسات كبيرة». قناة ترافيك مجانية كاملة معطّلة.</div>
+  </div>
+
+  <div class="finding crit">
+    <div class="finding-head">
+      <h4>أربعة بيكسلات فيسبوك تعمل على نفس الصفحة</h4>
+      <span class="chip crit">حرج</span>
+    </div>
+    <p>رصد الفحص أربعة معرّفات بيكسل مختلفة تُحمَّل وتعمل في نفس الوقت:</p>
+    <div class="evidence">connect.facebook.net/signals/config/<span class="r">523744055246693</span>
+connect.facebook.net/signals/config/<span class="r">837143737364441</span>
+connect.facebook.net/signals/config/<span class="r">748657216797515</span>
+connect.facebook.net/signals/config/<span class="r">1366113687538428</span></div>
+    <div class="impact"><b>الأثر:</b> كل حدث — مشاهدة صفحة، إضافة للسلة، شراء — يُسجَّل أربع مرات. النتائج المباشرة: أرقام ROAS غير حقيقية في مدير الإعلانات، إسناد مشوّش، وخوارزمية Meta تتعلّم على بيانات مضاعفة. أي أن ميزانية الإعلانات تُصرف بناءً على قياس غير دقيق.</div>
+  </div>
+</div>
+
+<!-- ============ السيو ============ -->
+<div class="page">
+  <h2 class="sec"><span class="num">03</span>تحليل السيو بالتفصيل</h2>
+  <p class="sec-lead">ما يتجاوز المشاكل الحرجة — على مستوى المحتوى والبنية والفهرسة.</p>
+
+  <h3>عناوين وأوصاف المنتجات</h3>
+  <p>مثال حقيقي مأخوذ من صفحة منتج على الموقع:</p>
+  <div class="ev-list">
+    <div class="row"><span class="lbl">عنوان الصفحة</span><span class="val"><span class="r">linen shirt – Bella Donna</span></span></div>
+    <div class="row"><span class="lbl">وصف الميتا</span><span class="val"><span class="r">Composition 55% LINEN - 45% VISCOSE · Washing Details: DRY CLEAN ONLY</span></span></div>
+    <div class="row"><span class="lbl">طول وصف المنتج</span><span class="val"><span class="r">155 characters</span></span></div>
+  </div>
+  <ul>
+    <li>العنوان خالٍ من أي كلمة مفتاحية — لا لون، لا فئة، لا مقاس، لا نية شرائية.</li>
+    <li>وصف الميتا مسحوب آليًا من بيانات القماش — لا يبيع ولا يجذب نقرة.</li>
+    <li>وصف المنتج 155 حرفًا فقط، وهو محتوى رقيق متكرر عبر 509 منتج.</li>
+  </ul>
+
+  <h3>البيانات المنظّمة</h3>
+  <table>
+    <tr><th>العنصر</th><th class="c">الحالة</th><th>الأثر</th></tr>
+    <tr><td><code>Product</code></td><td class="c"><span class="dot ok"></span>موجود</td><td>—</td></tr>
+    <tr><td><code>BreadcrumbList</code></td><td class="c"><span class="dot bad"></span>غير موجود</td><td>فقدان مسار التنقل في نتائج البحث</td></tr>
+    <tr><td><code>aggregateRating</code></td><td class="c"><span class="dot bad"></span>غير موجود</td><td><b>لا نجوم في نتائج جوجل</b> — انخفاض حاد في نسبة النقر</td></tr>
+    <tr><td><code>Organization sameAs</code></td><td class="c"><span class="dot mid"></span>ناقص</td><td>يحتوي قيمًا فارغة — روابط السوشيال غير مرتبطة بالبراند</td></tr>
+  </table>
+
+  <h3>بنية الموقع والفهرسة</h3>
+
+  <div class="finding high">
+    <div class="finding-head"><h4>المدونة فارغة تمامًا</h4><span class="chip high">عالي</span></div>
+    <p style="margin:0">ملف <code>sitemap_blogs_1.xml</code> يحتوي رابطًا واحدًا فقط — صفحة المدونة نفسها — أي <b>صفر مقالات منشورة</b>. براند فاشون بهذا الحجم بلا أي محتوى تحريري يعني التخلي عن أهم قناة ترافيك لا تحتاج ميزانية إعلانية.</p>
+  </div>
+
+  <div class="finding high">
+    <div class="finding-head"><h4>233 كولكشن مقابل 509 منتج</h4><span class="chip high">عالي</span></div>
+    <p>نسبة مرتفعة جدًا، ومعظمها متكرر بنفس المنتجات تحت مسميات مختلفة:</p>
+    <div class="evidence">/collections/blouses-nc
+/collections/blouses-os
+/collections/blouses-basic</div>
+    <p class="ev-cap">ثلاث صفحات منفصلة لنفس فئة المنتج.</p>
+    <p style="margin:0">النتيجة: تنافس داخلي على نفس الكلمات المفتاحية، وصفحات رقيقة تُضعف بعضها.</p>
+  </div>
+
+  <div class="finding med">
+    <div class="finding-head"><h4>صفحات بلا قيمة داخل السايت ماب</h4><span class="chip med">متوسط</span></div>
+    <div class="evidence">/pages/test
+/pages/search-results
+/pages/search-results-1
+/pages/search-results-v-next
+/pages/copy-of-contact-us</div>
+    <p style="margin:0">صفحات اختبار ونسخ مكررة معروضة للفهرسة — تستهلك ميزانية الزحف وتُضعف جودة الموقع في عين محرك البحث.</p>
+  </div>
+
+  <h3>ملاحظات إضافية</h3>
+  <table>
+    <tr><th>الملاحظة</th><th>التفصيل</th></tr>
+    <tr><td>صور بلا وصف بديل</td><td>21 صورة من أصل 37 في الصفحة الرئيسية بدون <code>alt</code> — فقدان لترافيك بحث الصور ومشكلة إتاحة</td></tr>
+    <tr><td>الكولكشن بلا وصف ميتا</td><td>جوجل يولّد وصفًا عشوائيًا بدلًا منه</td></tr>
+    <tr><td>صورة المشاركة</td><td><code>og:image</code> هو اللوجو على كل الصفحات — أي رابط يُشارَك على واتساب أو فيسبوك يظهر بلوجو بدل صورة المنتج</td></tr>
+    <tr><td>ثقل الصفحة</td><td>187 طلب شبكة و25 نطاقًا خارجيًا على صفحة واحدة</td></tr>
+    <tr><td>إصدار الثيم</td><td>Dawn 8.0.0 — إصدار قديم مقارنة بالنسخ الحالية</td></tr>
+  </table>
+</div>
+
+<!-- ============ التتبع ============ -->
+<div class="page">
+  <h2 class="sec"><span class="num">04</span>أنظمة التتبع والتطبيقات</h2>
+  <p class="sec-lead">جرد كامل لما يعمل فعليًا على الصفحة — مع رصد التكرار والتعارض.</p>
+
+  <div class="finding crit">
+    <div class="finding-head"><h4>حسابا Klaviyo مختلفان يعملان معًا</h4><span class="chip crit">حرج</span></div>
+    <div class="evidence">klaviyo.js?company_id=<span class="r">WhXhTu</span>
+klaviyo.js?company_id=<span class="r">SPWjSJ</span></div>
+    <p style="margin:0">قوائم البريد وتدفقات الأتمتة موزّعة على حسابين — أو أن أحدهما قديم مهجور يجمع بيانات بلا فائدة، مع تحمّل تكلفة اشتراكه.</p>
+  </div>
+
+  <div class="finding high">
+    <div class="finding-head"><h4>تطبيقان للبحث والفلترة يعملان في نفس الوقت</h4><span class="chip high">عالي</span></div>
+    <div class="evidence">cdn.boostcommerce.io/widget-integration/…   <span class="c">← Boost Commerce</span>
+hotyon.com + usf-boot.js                    <span class="c">← Ultimate Search &amp; Filter</span></div>
+    <p style="margin:0">تطبيقان يؤديان نفس الوظيفة: تكلفة اشتراك مزدوجة، احتمال تعارض في نتائج البحث، وأثر سلبي على سرعة الصفحة.</p>
+  </div>
+
+  <h3>الجرد الكامل</h3>
+  <table>
+    <tr><th>الأداة</th><th class="c">الحالة</th><th>ملاحظة</th></tr>
+    <tr><td>Google Tag Manager <code>GTM-KN8Z7WV</code></td><td class="c"><span class="dot ok"></span>يعمل</td><td>—</td></tr>
+    <tr><td>Google Analytics 4 <code>G-P9SMY9FDN9</code></td><td class="c"><span class="dot ok"></span>يعمل</td><td>—</td></tr>
+    <tr><td>Google Ads · Remarketing</td><td class="c"><span class="dot ok"></span>يعمل</td><td>يعلنون على جوجل فعليًا</td></tr>
+    <tr><td>Meta Pixel</td><td class="c"><span class="dot bad"></span>مكرر ×4</td><td>مشكلة حرجة — راجع القسم 02</td></tr>
+    <tr><td>Meta Conversions API</td><td class="c"><span class="dot mid"></span>غير ظاهر</td><td>يحتاج تأكيدًا من داخل Business Manager</td></tr>
+    <tr><td>Klaviyo</td><td class="c"><span class="dot bad"></span>مكرر ×2</td><td>حسابان مختلفان</td></tr>
+    <tr><td>Boost Commerce + USF</td><td class="c"><span class="dot bad"></span>متعارض</td><td>تطبيقا بحث معًا</td></tr>
+    <tr><td>PushAlert</td><td class="c"><span class="dot ok"></span>يعمل</td><td>إشعارات المتصفح</td></tr>
+    <tr><td>Instafeed</td><td class="c"><span class="dot ok"></span>يعمل</td><td>عرض فيد إنستجرام</td></tr>
+    <tr><td>Globo Also Bought</td><td class="c"><span class="dot ok"></span>يعمل</td><td>بيع متقاطع</td></tr>
+    <tr><td>Currency Converter</td><td class="c"><span class="dot ok"></span>يعمل</td><td>—</td></tr>
+    <tr><td>واتساب شات + ماسنجر شات</td><td class="c"><span class="dot mid"></span>يدوي</td><td>الاثنان معًا بلا أي أتمتة</td></tr>
+    <tr><td>sympl.ai</td><td class="c"><span class="dot ok"></span>يعمل</td><td>—</td></tr>
+  </table>
+</div>
+
+<!-- ============ السوشيال ============ -->
+<div class="page">
+  <h2 class="sec"><span class="num">05</span>تحليل السوشيال ميديا</h2>
+  <p class="sec-lead">حضور قوي على قناة واحدة، وإهمال شبه كامل لباقي القنوات.</p>
+
+  <table>
+    <tr><th>القناة</th><th>الحساب</th><th class="c">التقييم</th><th>الملاحظة</th></tr>
+    <tr><td>Instagram</td><td><code>@belladonna.egypt</code></td><td class="c"><span class="dot ok"></span>قوي</td><td>63.5 ألف متابع، 897 منشور، ريلز نشطة — أقوى أصل رقمي لديهم</td></tr>
+    <tr><td>Facebook</td><td><code>/belladonnashop.net</code></td><td class="c"><span class="dot mid"></span>متوسط</td><td>نشطة ومربوطة بالبيكسل</td></tr>
+    <tr><td>TikTok</td><td><code>@bella_donna.egypt</code></td><td class="c"><span class="dot mid"></span>غير محدد</td><td>الرابط موجود بالموقع — تعذّر التحقق من الأرقام</td></tr>
+    <tr><td>YouTube</td><td><code>/user/belladonnashop</code></td><td class="c"><span class="dot bad"></span>مهملة</td><td>رابط بصيغة legacy username — القناة متوقفة منذ سنوات</td></tr>
+    <tr><td>X</td><td><code>@belladonnashop1</code></td><td class="c"><span class="dot bad"></span>مهملة</td><td>حضور بالاسم فقط</td></tr>
+    <tr><td>Pinterest</td><td><code>/belladonnashop</code></td><td class="c"><span class="dot bad"></span>مهملة</td><td>منصة مثالية للفاشون وغير مستغلة</td></tr>
+    <tr><td>نون مصر</td><td>marketplace</td><td class="c"><span class="dot mid"></span>نشط</td><td>عمولة تُدفع لمنصة خارجية بدل تنمية البيع المباشر</td></tr>
+  </table>
+
+  <h3>أهم ثلاث ملاحظات استراتيجية</h3>
+
+  <div class="finding chance">
+    <div class="finding-head"><h4>63.5 ألف متابع… وصفر تقييم على الموقع</h4><span class="chip chance">فرصة</span></div>
+    <p style="margin:0">الجمهور موجود ومتفاعل، لكن لا يوجد أي محتوى من صنع المستخدم ولا تقييم واحد منقول إلى صفحات المنتجات. الثقة المتراكمة على إنستجرام لا تُترجم إلى قرار شراء على الموقع.</p>
+  </div>
+
+  <div class="finding chance">
+    <div class="finding-head"><h4>مقاسات حتى 7XL — ميزة تنافسية غير مُسوّقة</h4><span class="chip chance">فرصة</span></div>
+    <p style="margin:0">يظهر من بيانات المنتجات أن المقاسات تمتد من S حتى 7XL. هذا تموضع ذهبي في السوق المصري — ولا يُذكر في أي عنوان صفحة، ولا وصف ميتا، ولا حملة محتوى.</p>
+  </div>
+
+  <div class="finding chance">
+    <div class="finding-head"><h4>سوسن بدر: أصل محتوى غير مستثمَر بالكامل</h4><span class="chip chance">فرصة</span></div>
+    <p style="margin:0">رسالة البراند — «الجمال بلا مقاس ولا عمر ولا قواعد» — قوية ومصوّرة باحترافية، لكنها مستخدمة في بانر الصفحة الرئيسية فقط، دون بنائها كمحور لاستراتيجية محتوى ممتدة عبر يوتيوب وتيك توك والمدونة.</p>
+  </div>
+</div>
+
+<!-- ============ الفرص ============ -->
+<div class="page">
+  <h2 class="sec"><span class="num">06</span>فرص العمل</h2>
+  <p class="sec-lead">سبعة مسارات عمل، مرتّبة بحسب العائد مقابل سرعة التنفيذ.</p>
+
+  <div class="opp">
+    <div class="opp-head"><span class="rank">01</span><h4>تنظيف منظومة التتبع وتفعيل Meta Conversions API</h4><span class="chip crit">أعلى عائد</span></div>
+    <div class="why">المشكلة: أربعة بيكسلات، حسابا Klaviyo، وبيانات قياس مضاعفة.</div>
+    <p style="margin:0"><b>العمل المطلوب:</b> حذف البيكسلات المكررة والإبقاء على واحد، توحيد حساب Klaviyo، تركيب Meta Conversions API من جانب الخادم مع إزالة تكرار الأحداث بشكل صحيح، وإعادة ضبط أحداث GA4.</p>
+    <div class="pitch">ميزانية الإعلانات تُقاس حاليًا أربع مرات — نضبط القياس، فتظهر أرقام ROAS الحقيقية ويُصرف الإنفاق على ما يبيع فعلًا.</div>
+  </div>
+
+  <div class="opp">
+    <div class="opp-head"><span class="rank">02</span><h4>أتمتة المحادثات: إنستجرام وماسنجر وواتساب</h4><span class="chip crit">أعلى عائد</span></div>
+    <div class="why">المشكلة: واتساب شات وماسنجر شات مركّبان على الموقع، و63.5 ألف متابع يرسلون رسائل — والرد كله يدوي.</div>
+    <p style="margin:0"><b>العمل المطلوب:</b> مساعد ذكي يرد بالعربية المصرية على أسئلة المقاس والسعر والتوافر والشحن، يستقبل الطلب ويكمله، ويحوّل المحادثة لموظف بشري عند الحاجة — عبر القنوات الثلاث بنظام موحّد.</p>
+    <div class="pitch">63 ألف متابع يسألون نفس العشرة أسئلة — الرد يصبح فوريًا على مدار الساعة، والطلبات تُغلق خارج ساعات العمل.</div>
+  </div>
+
+  <div class="opp">
+    <div class="opp-head"><span class="rank">03</span><h4>إصلاح السيو التقني وإطلاق النسخة العربية</h4><span class="chip high">عائد مرتفع</span></div>
+    <p style="margin:0 0 1mm"><b>العمل المطلوب:</b></p>
+    <ul style="margin-bottom:0">
+      <li>إصلاح خطأ الـ H1 عبر الموقع بالكامل — أثر على أكثر من 740 صفحة.</li>
+      <li>تعريب عناوين الصفحات وأوصاف الميتا للنسخة العربية بالكامل.</li>
+      <li>توليد عناوين وأوصاف ميتا محسّنة لـ 509 منتج باللغتين.</li>
+      <li>دمج وتنظيف الـ 233 كولكشن لإنهاء التنافس الداخلي.</li>
+      <li>إضافة <code>BreadcrumbList</code> ونصوص <code>alt</code> للصور.</li>
+      <li>إخراج صفحات الاختبار والنسخ المكررة من الفهرسة.</li>
+    </ul>
+    <div class="pitch">النسخة العربية لا تترتب على أي كلمة بحث عربية لأن عناوينها إنجليزية — وهذا ترافيك مجاني يُفقد يوميًا.</div>
+  </div>
+
+  <div class="opp">
+    <div class="opp-head"><span class="rank">04</span><h4>نظام تقييمات ومحتوى مستخدمين</h4><span class="chip high">عائد مرتفع</span></div>
+    <div class="why">لا يوجد <code>aggregateRating</code> على الإطلاق — أي لا نجوم في نتائج البحث ولا دليل اجتماعي في صفحة المنتج.</div>
+    <p style="margin:0"><b>العمل المطلوب:</b> نظام تقييمات بالصور، سحب محتوى العملاء من إنستجرام وربطه بصفحات المنتجات، وتوصيله بالبيانات المنظّمة.</p>
+    <div class="pitch">نجوم في نتائج جوجل ترفع نسبة النقر، ودليل اجتماعي في صفحة المنتج يرفع معدل التحويل.</div>
+  </div>
+
+  <div class="opp">
+    <div class="opp-head"><span class="rank">05</span><h4>صفحات هبوط للعروض والباقات</h4><span class="chip med">متوسط</span></div>
+    <div class="why">كل المنتجات عليها خصم مباشر — مثال: 2,599 ← 2,340 جنيه — دون أي استراتيجية لرفع متوسط قيمة الطلب.</div>
+    <p style="margin:0"><b>العمل المطلوب:</b> صفحات هبوط مخصصة للحملات، وباقات مجمّعة بأسعار خاصة بدل الخصم على القطعة الواحدة.</p>
+    <div class="pitch">بدل خصم على قطعة — باقة من ثلاث قطع بسعر خاص ترفع متوسط الطلب دون زيادة تكلفة الاستحواذ.</div>
+  </div>
+
+  <div class="opp">
+    <div class="opp-head"><span class="rank">06</span><h4>نظام CRM موحّد وربط الشحن</h4><span class="chip med">متوسط</span></div>
+    <div class="why">فروع فعلية ومتجر إلكتروني وبيع على نون — على الأرجح بلا رؤية موحّدة للعميل عبر القنوات.</div>
+    <p style="margin:0"><b>العمل المطلوب:</b> نظام إدارة عملاء وطلبات موحّد، مربوط بشركات الشحن وبوابات الدفع، مع سجل كامل لكل عميل.</p>
+  </div>
+
+  <div class="opp">
+    <div class="opp-head"><span class="rank">07</span><h4>إحياء يوتيوب وتيك توك ومحتوى المدونة</h4><span class="chip med">متوسط</span></div>
+    <div class="why">قناة يوتيوب متوقفة منذ سنوات رغم توفر محتوى فيديو احترافي، ومدونة فارغة تمامًا.</div>
+    <p style="margin:0"><b>العمل المطلوب:</b> إعادة توظيف المحتوى المصوّر إلى Reels وShorts، وخطة محتوى تحريري تستهدف كلمات البحث العربية — أدلة التنسيق، دليل المقاسات، اتجاهات الموسم.</p>
+  </div>
+</div>
+
+<!-- ============ الخطة والحدود ============ -->
+<div class="page">
+  <h2 class="sec"><span class="num">07</span>خطة التنفيذ المقترحة</h2>
+  <p class="sec-lead">تقسيم زمني يبدأ بالأسرع أثرًا.</p>
+
+  <table>
+    <tr><th>المرحلة</th><th>النطاق</th><th>المخرجات</th></tr>
+    <tr>
+      <td><b>الأولى</b><br><span style="color:var(--muted);font-size:8.5pt">أسبوع 1</span></td>
+      <td>إصلاحات عاجلة</td>
+      <td>إصلاح H1 · حذف البيكسلات المكررة · توحيد Klaviyo · إخراج صفحات الاختبار من الفهرسة</td>
+    </tr>
+    <tr>
+      <td><b>الثانية</b><br><span style="color:var(--muted);font-size:8.5pt">أسبوع 2–4</span></td>
+      <td>القياس والسيو</td>
+      <td>Meta Conversions API · ضبط GA4 · تعريب النسخة العربية بالكامل · Schema ونصوص alt</td>
+    </tr>
+    <tr>
+      <td><b>الثالثة</b><br><span style="color:var(--muted);font-size:8.5pt">شهر 2</span></td>
+      <td>الأتمتة والتحويل</td>
+      <td>أتمتة المحادثات عبر ثلاث قنوات · نظام التقييمات والمحتوى المستخدم · تنظيف الكولكشنات</td>
+    </tr>
+    <tr>
+      <td><b>الرابعة</b><br><span style="color:var(--muted);font-size:8.5pt">شهر 3+</span></td>
+      <td>النمو</td>
+      <td>صفحات الباقات · CRM موحّد · خطة المحتوى والمدونة · إحياء القنوات المهملة</td>
+    </tr>
+  </table>
+
+  <div class="callout">
+    <h4>مدخل مقترح للتواصل</h4>
+    <p>ثلاث ملاحظات ملموسة تفتح الباب أسرع من أي عرض خدمات عام:</p>
+    <ul style="margin-bottom:3mm">
+      <li>أربعة بيكسلات فيسبوك تعمل على نفس الصفحة — كل حدث يُسجَّل أربع مرات، وأرقام العائد على الإعلان غير دقيقة.</li>
+      <li>عنصر H1 في كل صفحات الموقع مكتوب فيه «LE 0.00» بدل اسم المنتج — أكثر من 740 صفحة متأثرة.</li>
+      <li>النسخة العربية بعناوين إنجليزية — لا تترتب على أي كلمة بحث عربية.</li>
+    </ul>
+    <p style="margin:0"><b>الثلاثة تُصلَح خلال أسبوع واحد.</b></p>
+  </div>
+
+  <h2 class="sec" style="margin-top:12mm"><span class="num">08</span>حدود التحليل</h2>
+  <p class="sec-lead">ما لم يكن ممكنًا التحقق منه من خارج الموقع.</p>
+
+  <div class="note">
+    <p>هذا التقرير مبني على فحص تقني مباشر ومتاح للعامة لموقع belladonnashop.net، وملفات السايت ماب، والكود المُحمَّل في المتصفح. النقاط التالية تحتاج صلاحيات داخلية:</p>
+    <ul style="margin-bottom:0">
+      <li><b>أرقام تيك توك:</b> المنصة طلبت تحقق CAPTCHA ولم يتم تجاوزه.</li>
+      <li><b>أرقام فيسبوك التفصيلية:</b> محجوبة خلف تسجيل الدخول.</li>
+      <li><b>الإعلانات النشطة:</b> مكتبة إعلانات Meta تتطلب تسجيل دخول.</li>
+      <li><b>وجود Meta Conversions API من جانب الخادم:</b> لا يمكن رصده من خارج الموقع — يحتاج صلاحية على Business Manager.</li>
+      <li><b>ترتيب الكلمات المفتاحية وحجم الترافيك الفعلي:</b> يحتاج صلاحية على Google Search Console وAnalytics.</li>
+    </ul>
+  </div>
+</div>
+
+</body>
+</html>

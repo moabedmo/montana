@@ -20,6 +20,34 @@
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
     },
     {
+      "source": "/",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
+        { "key": "Content-Type", "value": "text/html; charset=utf-8" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
+        { "key": "Content-Type", "value": "text/html; charset=utf-8" }
+      ]
+    },
+    {
+      "source": "/en",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
+        { "key": "Content-Type", "value": "text/html; charset=utf-8" }
+      ]
+    },
+    {
+      "source": "/en/",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
+        { "key": "Content-Type", "value": "text/html; charset=utf-8" }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
@@ -29,7 +57,7 @@
         { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://ikryeyqrithikabwidov.supabase.co https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com; frame-src https://accept.paymob.com; base-uri 'self'; form-action 'self'"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://ikryeyqrithikabwidov.supabase.co https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://graph.facebook.com https://www.facebook.com https://connect.facebook.net; frame-src 'self' https://accept.paymob.com https://*.supabase.co blob:; base-uri 'self'; form-action 'self'"
         }
       ]
     },
@@ -60,12 +88,26 @@
     { "source": "/api/chat-notify", "destination": "/api/chat-notify" },
     { "source": "/api/paymob-create", "destination": "/api/paymob-create" },
     { "source": "/api/paymob-webhook", "destination": "/api/paymob-webhook" },
+    { "source": "/api/bosta-create", "destination": "/api/send-telegram?action=bosta-create" },
+    { "source": "/api/bosta-webhook", "destination": "/api/send-telegram?action=bosta-webhook" },
     { "source": "/api/integrations-status", "destination": "/api/integrations-status" },
+    { "source": "/api/meta-capi", "destination": "/api/integrations-status?action=meta-capi" },
+    { "source": "/api/meta-public-config", "destination": "/api/integrations-status?action=meta-public-config" },
+    { "source": "/api/customer-by-phone", "destination": "/api/integrations-status?action=customer-by-phone" },
+    { "source": "/api/owner-company-docs", "destination": "/api/integrations-status?action=owner-company-docs" },
+    { "source": "/api/jumia-oauth-callback", "destination": "/api/integrations-status?action=jumia-oauth-callback" },
+    { "source": "/api/jumia-oauth-start", "destination": "/api/integrations-status?action=jumia-oauth-start" },
+    { "source": "/api/jumia-orders", "destination": "/api/integrations-status?action=jumia-orders" },
+    { "source": "/api/jumia-stock", "destination": "/api/integrations-status?action=jumia-stock" },
+    { "source": "/api/amazon-orders", "destination": "/api/integrations-status?action=amazon-orders" },
+    { "source": "/api/amazon-stock", "destination": "/api/integrations-status?action=amazon-stock" },
+    { "source": "/api/amazon-token-test", "destination": "/api/integrations-status?action=amazon-token-test" },
     { "source": "/api/whatsapp-webhook", "destination": "/api/whatsapp-webhook" },
     { "source": "/api/messenger-webhook", "destination": "/api/messenger-webhook" },
     { "source": "/api/instagram-webhook", "destination": "/api/instagram-webhook" },
     { "source": "/product/:slug", "destination": "/product.html?slug=:slug" },
-    { "source": "/en/product/:slug", "destination": "/en/product.html?slug=:slug" }
+    { "source": "/en/product/:slug", "destination": "/en/product.html?slug=:slug" },
+    { "source": "/bundle/:slug", "destination": "/bundle.html?slug=:slug" }
   ],
   "crons": [
     { "path": "/api/crm-visit-notify", "schedule": "0 7 * * *" }

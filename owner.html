@@ -9,7 +9,7 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
-    <link rel="stylesheet" href="owner.css?v=oa1">
+    <link rel="stylesheet" href="owner.css?v=oa10">
 </head>
 <body>
     <header class="owner-header">
@@ -22,6 +22,8 @@
         </div>
         <div class="owner-header-actions">
             <button type="button" class="owner-link-btn owner-link-gold" onclick="openOwnerAssistant()"><i class="fas fa-comments"></i> محمد عابد أسيستنت</button>
+            <a href="#ownerDocs" class="owner-link-btn owner-link-gold"><i class="fas fa-folder-open"></i> أوراق الشركة</a>
+            <a href="#ownerStockistPharmacies" class="owner-link-btn owner-link-gold"><i class="fas fa-prescription-bottle"></i> صيدليات التوفر</a>
             <a href="crm/admin/?page=pharmacy-invoices&standalone=1" class="owner-link-btn owner-link-gold"><i class="fas fa-prescription-bottle-medical"></i> فواتير الصيدليات</a>
             <a href="admin.html" class="owner-link-btn"><i class="fas fa-cog"></i> لوحة التحكم</a>
             <a href="index.html" target="_blank" rel="noopener noreferrer" class="owner-link-btn"><i class="fas fa-external-link-alt"></i> الموقع</a>
@@ -39,10 +41,22 @@
         </div>
 
         <div class="stats-grid owner-stats-primary">
-            <div class="stat-card purple"><div class="stat-icon"><i class="fas fa-coins"></i></div><div class="stat-info"><h3 id="odRevenueMonth">0</h3><span>مبيعات الشهر (ج.م)</span></div></div>
-            <div class="stat-card green"><div class="stat-icon"><i class="fas fa-shopping-cart"></i></div><div class="stat-info"><h3 id="odOrdersMonth">0</h3><span>طلبات الشهر</span></div></div>
-            <div class="stat-card blue"><div class="stat-icon"><i class="fas fa-share-nodes"></i></div><div class="stat-info"><h3 id="odSocialMonth">0</h3><span>طلبات سوشيال (الشهر)</span></div></div>
-            <div class="stat-card pink"><div class="stat-icon"><i class="fab fa-facebook-messenger"></i></div><div class="stat-info"><h3 id="odFbMonth">0</h3><span>Messenger · IG · ManyChat</span></div></div>
+            <a href="#recentOrdersCard" class="stat-card purple owner-stat-link" title="تفاصيل الطلبات والمبيعات">
+                <div class="stat-icon"><i class="fas fa-coins"></i></div>
+                <div class="stat-info"><h3 id="odRevenueMonth">0</h3><span>مبيعات الشهر (ج.م)</span></div>
+            </a>
+            <a href="admin.html?page=orders" class="stat-card green owner-stat-link" title="فتح كل الطلبات">
+                <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+                <div class="stat-info"><h3 id="odOrdersMonth">0</h3><span>طلبات الشهر</span></div>
+            </a>
+            <a href="#ownerChannelsCard" class="stat-card blue owner-stat-link" title="تفاصيل طلبات السوشيال">
+                <div class="stat-icon"><i class="fas fa-share-nodes"></i></div>
+                <div class="stat-info"><h3 id="odSocialMonth">0</h3><span>طلبات سوشيال (الشهر)</span></div>
+            </a>
+            <a href="#ownerChannelsCard" class="stat-card pink owner-stat-link" title="Messenger · Instagram · ManyChat">
+                <div class="stat-icon"><i class="fab fa-facebook-messenger"></i></div>
+                <div class="stat-info"><h3 id="odFbMonth">0</h3><span>Messenger · IG · ManyChat</span></div>
+            </a>
         </div>
 
         <div class="stats-grid owner-stats-pharm">
@@ -53,34 +67,152 @@
         </div>
 
         <div class="stats-grid owner-stats-secondary">
-            <div class="stat-card mini"><div class="stat-info"><h3 id="odStockUnits">0</h3><span>وحدات المخزون</span></div></div>
-            <div class="stat-card mini"><div class="stat-info"><h3 id="odProducts">0</h3><span>منتجات نشطة</span></div></div>
-            <div class="stat-card mini"><div class="stat-info"><h3 id="odCustomers">0</h3><span>عملاء</span></div></div>
-            <div class="stat-card mini"><div class="stat-info"><h3 id="odReps">0</h3><span>مندوبين نشطين</span></div></div>
-            <div class="stat-card mini"><div class="stat-info"><h3 id="odVisits">0</h3><span>زيارات CRM (الشهر)</span></div></div>
-            <div class="stat-card mini warn"><div class="stat-info"><h3 id="odLowStock">0</h3><span>مخزون منخفض</span></div></div>
-            <div class="stat-card mini warn"><div class="stat-info"><h3 id="odPendingOrders">0</h3><span>طلبات معلّقة</span></div></div>
-            <div class="stat-card mini"><div class="stat-info"><h3 id="odInvoicesMonth">0</h3><span>فواتير أونلاين (الشهر)</span></div></div>
+            <a href="admin.html?page=products" class="stat-card mini owner-stat-link" title="فتح المنتجات والمخزون"><div class="stat-info"><h3 id="odStockUnits">0</h3><span>وحدات المخزون</span></div></a>
+            <a href="admin.html?page=products" class="stat-card mini owner-stat-link" title="المنتجات النشطة"><div class="stat-info"><h3 id="odProducts">0</h3><span>منتجات نشطة</span></div></a>
+            <a href="admin.html?page=customers" class="stat-card mini owner-stat-link" title="قائمة العملاء"><div class="stat-info"><h3 id="odCustomers">0</h3><span>عملاء</span></div></a>
+            <a href="crm/admin/" class="stat-card mini owner-stat-link" title="فتح CRM المندوبين"><div class="stat-info"><h3 id="odReps">0</h3><span>مندوبين نشطين</span></div></a>
+            <a href="crm/admin/" class="stat-card mini owner-stat-link" title="زيارات CRM"><div class="stat-info"><h3 id="odVisits">0</h3><span>زيارات CRM (الشهر)</span></div></a>
+            <a href="#lowStockAlert" class="stat-card mini warn owner-stat-link" title="تفاصيل المخزون المنخفض"><div class="stat-info"><h3 id="odLowStock">0</h3><span>مخزون منخفض</span></div></a>
+            <a href="admin.html?page=orders" class="stat-card mini warn owner-stat-link" title="الطلبات المعلّقة"><div class="stat-info"><h3 id="odPendingOrders">0</h3><span>طلبات معلّقة</span></div></a>
+            <a href="admin.html?page=invoices" class="stat-card mini owner-stat-link" title="فواتير المتجر"><div class="stat-info"><h3 id="odInvoicesMonth">0</h3><span>فواتير أونلاين (الشهر)</span></div></a>
         </div>
 
         <div class="dashboard-grid owner-grid-3">
-            <div class="card owner-card-wide">
+            <div class="card owner-card-wide" id="ownerChannelsCard">
                 <h3><i class="fas fa-comments"></i> رسائل وطلبات حسب القناة</h3>
                 <div class="card-body" id="ownerChannels"><p class="empty">جارٍ التحميل…</p></div>
             </div>
-            <div class="card">
+            <div class="card" id="ownerCrmCard">
                 <h3><i class="fas fa-route"></i> فريق المبيعات (CRM)</h3>
                 <div class="card-body" id="ownerCrm"><p class="empty">جارٍ التحميل…</p></div>
             </div>
-            <div class="card">
+            <div class="card" id="ownerPharmacyArCard">
                 <h3><i class="fas fa-file-invoice-dollar"></i> فواتير الصيدليات — ملخص</h3>
                 <div class="card-body" id="ownerPharmacyAr"><p class="empty">جارٍ التحميل…</p></div>
             </div>
         </div>
 
-        <div class="card owner-card-full" style="margin-bottom:20px">
+        <div class="card owner-card-full" id="ownerAmazonOrdersCard" style="margin-bottom:20px">
+            <div class="owner-docs-head">
+                <h3><i class="fab fa-amazon"></i> طلبات أمازون</h3>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <select id="ownerAmazonDays" title="الفترة">
+                        <option value="7">آخر 7 أيام</option>
+                        <option value="30" selected>آخر 30 يوم</option>
+                        <option value="90">آخر 90 يوم</option>
+                    </select>
+                    <button type="button" class="btn-primary" id="ownerAmazonRefreshBtn"><i class="fas fa-sync"></i> تحديث</button>
+                </div>
+            </div>
+            <p class="owner-docs-hint">طلبات أمازون مصر مباشرة من Selling Partner API. اسم العميل/الهاتف يحتاج صلاحية Restricted لاحقًا.</p>
+            <div class="card-body" id="ownerAmazonOrders"><p class="empty">جارٍ التحميل…</p></div>
+
+            <div class="owner-docs-head" style="margin-top:22px">
+                <h3><i class="fas fa-boxes-stacked"></i> مزامنة مخزون أمازون</h3>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <button type="button" class="btn-primary btn-outline" id="ownerAmazonStockRefreshBtn"><i class="fas fa-sync"></i> مقارنة</button>
+                    <button type="button" class="btn-primary" id="ownerAmazonStockPushBtn"><i class="fas fa-cloud-upload-alt"></i> ادفع المخزون لأمازون</button>
+                </div>
+            </div>
+            <p class="owner-docs-hint">المصدر = مخزون الموقع. يحدّث كمية MFN عبر Listings Items API. لو الربط مش ظاهر، تأكد Seller SKU على أمازون أو ضيف AMAZON_SELLER_ID في Vercel.</p>
+            <p id="ownerAmazonStockMeta" class="owner-dash-hint" style="margin:8px 0"></p>
+            <div class="card-body" id="ownerAmazonStock"><p class="empty">اضغط مقارنة لعرض المخزون</p></div>
+        </div>
+
+        <div class="card owner-card-full" id="ownerJumiaOrdersCard" style="margin-bottom:20px">
+            <div class="owner-docs-head">
+                <h3><i class="fas fa-store"></i> طلبات جوميا</h3>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <select id="ownerJumiaDays" title="الفترة">
+                        <option value="7">آخر 7 أيام</option>
+                        <option value="30" selected>آخر 30 يوم</option>
+                        <option value="90">آخر 90 يوم</option>
+                    </select>
+                    <button type="button" class="btn-primary" id="ownerJumiaRefreshBtn"><i class="fas fa-sync"></i> تحديث</button>
+                </div>
+            </div>
+            <p class="owner-docs-hint">طلبات متجر جوميا مباشرة من Vendor API.</p>
+            <div class="card-body" id="ownerJumiaOrders"><p class="empty">جارٍ التحميل…</p></div>
+
+            <div class="owner-docs-head" style="margin-top:22px">
+                <h3><i class="fas fa-boxes-stacked"></i> مزامنة مخزون جوميا</h3>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <button type="button" class="btn-primary btn-outline" id="ownerJumiaStockRefreshBtn"><i class="fas fa-sync"></i> مقارنة</button>
+                    <button type="button" class="btn-primary" id="ownerJumiaStockPushBtn"><i class="fas fa-cloud-upload-alt"></i> ادفع المخزون لجوميا</button>
+                </div>
+            </div>
+            <p class="owner-docs-hint">المصدر = مخزون الموقع. الزر يحدّث جوميا بالفروقات فقط (Feed). لو الربط مش ظاهر، عدّل Seller SKU يدويًا تحت.</p>
+            <p id="ownerJumiaStockMeta" class="owner-dash-hint" style="margin:8px 0"></p>
+            <div class="card-body" id="ownerJumiaStock"><p class="empty">اضغط مقارنة لعرض المخزون</p></div>
+        </div>
+
+        <div class="card owner-card-full" id="ownerPharmacyListCard" style="margin-bottom:20px">
             <h3><i class="fas fa-prescription-bottle-medical"></i> كل فواتير الصيدليات</h3>
             <div class="card-body" id="ownerPharmacyList"><p class="empty">جارٍ التحميل…</p></div>
+        </div>
+
+        <div class="card owner-card-full owner-docs-card" id="ownerDocs" style="margin-bottom:20px">
+            <div class="owner-docs-head">
+                <h3><i class="fas fa-folder-open"></i> أوراق الشركة</h3>
+                <label class="btn-primary owner-docs-upload-btn">
+                    <i class="fas fa-cloud-upload-alt"></i> رفع أوراق
+                    <input type="file" id="ownerDocFile" hidden multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,.doc,.docx,.xls,.xlsx,.zip,application/pdf,image/*">
+                </label>
+            </div>
+            <p class="owner-docs-hint">تقدر ترفع أكثر من ملف مرة واحدة (سجل · بطاقة ضريبية · تراخيص · عقود). يفضّل كل ملف أقل من 3 ميجا. الملفات خاصة بالمالك فقط.</p>
+            <div class="owner-docs-form" id="ownerDocsForm" hidden>
+                <p class="owner-docs-pending" id="ownerDocsPending"></p>
+                <input type="text" id="ownerDocTitle" placeholder="اسم الورقة (اختياري — لو ملف واحد)" maxlength="120">
+                <select id="ownerDocCategory">
+                    <option value="سجل وتراخيص">سجل وتراخيص</option>
+                    <option value="ضرائب">ضرائب</option>
+                    <option value="عقود">عقود</option>
+                    <option value="بنوك">بنوك</option>
+                    <option value="عام" selected>عام</option>
+                </select>
+                <input type="text" id="ownerDocNotes" placeholder="ملاحظة اختيارية" maxlength="200">
+                <button type="button" class="btn-primary" id="ownerDocConfirmUpload"><i class="fas fa-check"></i> تأكيد الرفع</button>
+                <button type="button" class="btn-primary btn-outline" id="ownerDocCancelUpload">إلغاء</button>
+            </div>
+            <div class="card-body" id="ownerDocsList"><p class="empty">جارٍ التحميل…</p></div>
+
+            <div class="owner-links-block" id="ownerCompanyLinks">
+                <div class="owner-docs-head" style="margin-top:18px">
+                    <h3><i class="fas fa-link"></i> لينكات الشركة</h3>
+                    <button type="button" class="btn-primary" id="ownerLinksSaveBtn"><i class="fas fa-save"></i> حفظ اللينكات</button>
+                </div>
+                <p class="owner-docs-hint">الموقع · فيسبوك · إنستجرام · أمازون · جوميا · نون — احفظ اللينك وافتحه من هنا في أي وقت.</p>
+                <div class="owner-links-grid" id="ownerLinksGrid"><p class="empty">جارٍ التحميل…</p></div>
+            </div>
+
+            <div class="owner-links-block" id="ownerStockistPharmacies">
+                <div class="owner-docs-head" style="margin-top:18px">
+                    <h3><i class="fas fa-prescription-bottle"></i> صيدليات التوفر</h3>
+                </div>
+                <p class="owner-docs-hint">الصيدليات اللي منتجات مونتانيا بتباع فيها — البوت بيستخدم نفس القائمة لما العميلة تسأل «فين ألاقي المنتج؟». تقدر تضيف · تعدّل اللينك · تبحث · تحذف.</p>
+                <div class="owner-stockist-toolbar">
+                    <input type="search" id="ownerStockistSearch" placeholder="بحث باسم الصيدلية أو المنطقة…" maxlength="80">
+                    <select id="ownerStockistRegionFilter">
+                        <option value="">كل المناطق</option>
+                        <option value="6 أكتوبر">6 أكتوبر</option>
+                        <option value="فيصل">فيصل</option>
+                        <option value="القاهرة">القاهرة</option>
+                        <option value="أخرى">أخرى</option>
+                    </select>
+                </div>
+                <div class="owner-stockist-add">
+                    <input type="text" id="ownerStockistName" placeholder="اسم الصيدلية" maxlength="120">
+                    <input type="text" id="ownerStockistRegion" list="ownerStockistRegionList" placeholder="المنطقة" maxlength="80">
+                    <datalist id="ownerStockistRegionList">
+                        <option value="6 أكتوبر"></option>
+                        <option value="فيصل"></option>
+                        <option value="القاهرة"></option>
+                    </datalist>
+                    <input type="url" id="ownerStockistLink" placeholder="لينك (اختياري) https://..." dir="ltr" maxlength="500">
+                    <button type="button" class="btn-primary" id="ownerStockistAddBtn"><i class="fas fa-plus"></i> إضافة</button>
+                </div>
+                <div class="owner-stockist-list" id="ownerStockistList"><p class="empty">جارٍ التحميل…</p></div>
+            </div>
         </div>
 
         <div id="lowStockAlert" class="card owner-alert" style="display:none">
@@ -89,9 +221,9 @@
         </div>
 
         <div class="dashboard-grid">
-            <div class="card"><h3><i class="fas fa-clock"></i> آخر الطلبات</h3><div id="recentOrders" class="card-body"><p class="empty">لا توجد طلبات بعد</p></div></div>
-            <div class="card"><h3><i class="fas fa-envelope"></i> تواصل العملاء</h3><div id="ownerContact" class="card-body"><p class="empty">—</p></div></div>
-            <div class="card"><h3><i class="fas fa-file-invoice"></i> فواتير المتجر</h3><div id="ownerInvoices" class="card-body"><p class="empty">—</p></div></div>
+            <div class="card" id="recentOrdersCard"><h3><i class="fas fa-clock"></i> آخر الطلبات</h3><div id="recentOrders" class="card-body"><p class="empty">لا توجد طلبات بعد</p></div></div>
+            <div class="card" id="ownerContactCard"><h3><i class="fas fa-envelope"></i> تواصل العملاء</h3><div id="ownerContact" class="card-body"><p class="empty">—</p></div></div>
+            <div class="card" id="ownerInvoicesCard"><h3><i class="fas fa-file-invoice"></i> فواتير المتجر</h3><div id="ownerInvoices" class="card-body"><p class="empty">—</p></div></div>
         </div>
     </main>
 
@@ -104,7 +236,18 @@
         <div id="ownerPiBody"></div>
       </div>
     </div>
-    <iframe id="ownerPiPrintFrame" title="print" style="position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0;pointer-events:none" aria-hidden="true"></iframe>
+
+    <div class="owner-modal-overlay hidden" id="ownerDocPreviewModal" onclick="if(event.target===this)closeOwnerDocPreview()">
+      <div class="owner-modal-inner owner-doc-preview-inner">
+        <div class="owner-modal-toolbar">
+          <strong id="ownerDocPreviewTitle">معاينة</strong>
+          <a class="btn-primary" id="ownerDocPreviewDownload" href="#" download target="_blank" rel="noopener"><i class="fas fa-download"></i> تنزيل</a>
+          <button type="button" class="btn-primary btn-outline" onclick="closeOwnerDocPreview()">إغلاق</button>
+        </div>
+        <div id="ownerDocPreviewBody" class="owner-doc-preview-body"></div>
+      </div>
+    </div>
+    <iframe id="ownerPiPrintFrame" title="print" style="position:fixed;left:0;top:0;width:210mm;height:297mm;border:0;opacity:0;z-index:-1;pointer-events:none" aria-hidden="true"></iframe>
 
     <div id="toast" class="toast"></div>
 
@@ -138,7 +281,7 @@
     </div>
 
     <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+    import { createClient } from '/js/vendor/supabase.js';
     const SUPABASE_URL = 'https://ikryeyqrithikabwidov.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrcnlleXFyaXRoaWthYndpZG92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MzY1ODcsImV4cCI6MjA5NzMxMjU4N30.kNfHPxV4fq67cOF8uFsTrLOxPYcLcmmDO3ScIHzI9Uo';
     const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -158,11 +301,21 @@
         const welcome = document.getElementById('ownerWelcome');
         if (welcome) welcome.textContent = `مرحباً، ${name} — نظرة عامة على أداء Montana`;
         const s = document.createElement('script');
-        s.src = 'owner.js?v=oa1';
+        s.src = 'owner.js?v=oa10';
         document.body.appendChild(s);
         const s2 = document.createElement('script');
         s2.src = 'owner-assistant.js?v=1';
         document.body.appendChild(s2);
+        // Smooth scroll + highlight when landing on an in-page detail section
+        if (location.hash) {
+          setTimeout(() => {
+            const el = document.querySelector(location.hash);
+            if (!el) return;
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            el.classList.add('owner-section-flash');
+            setTimeout(() => el.classList.remove('owner-section-flash'), 1600);
+          }, 400);
+        }
       }
     }
     </script>

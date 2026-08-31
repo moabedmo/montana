@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    <link rel="preload" href="css/home.bundle.css?v=7" as="style">
+    <link rel="preload" href="css/home.bundle.css?v=16" as="style">
     <link rel="preload" href="images/p1.webp" as="image" type="image/webp" fetchpriority="high">
     <style>
       body{margin:0;background:#342f44;color:#f5f0fa;font-family:Tajawal,sans-serif}
@@ -36,30 +36,49 @@
         #aurora-bg,.hero-dust,.hero-bokeh,.hero-cursor,.hero-loader,.hero-grain{display:none!important}
         .hero-silk{opacity:.4}
       }
-      /* ===== Hero background video — soft cross-fade ===== */
-      .hero-bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right center;z-index:0;opacity:0;transition:opacity .8s ease;will-change:opacity}
+      /* ===== Hero background video — soft cross-fade + tap-to-play ===== */
+      .hero-bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right center;z-index:0;opacity:0;transition:opacity .8s ease;will-change:opacity;background:#1a1224}
       .hero-bg-video.is-active{opacity:1}
       @media (prefers-reduced-motion:reduce){.hero-bg-video{transition:opacity .4s ease}}
       .hero-has-video .hero-video-overlay{
         background:
-          linear-gradient(to right, rgba(18,10,36,.86) 0%, rgba(18,10,36,.62) 26%, rgba(18,10,36,.18) 52%, transparent 70%),
-          linear-gradient(to bottom, rgba(18,10,36,.35) 0%, transparent 30%, rgba(18,10,36,.55) 100%);
+          linear-gradient(to right, rgba(18,10,36,.9) 0%, rgba(18,10,36,.72) 28%, rgba(18,10,36,.35) 55%, rgba(18,10,36,.2) 100%),
+          linear-gradient(to bottom, rgba(18,10,36,.45) 0%, transparent 28%, rgba(18,10,36,.78) 100%);
       }
       .hero-has-video .showcase-wrap{direction:ltr;display:flex;justify-content:flex-start;align-items:center;max-width:none;margin:0;padding-left:clamp(14px,2vw,32px)}
-      .hero-has-video .showcase-info{direction:rtl;text-align:right;max-width:min(500px,44vw)}
+      .hero-has-video .showcase-info{direction:rtl;text-align:right;max-width:min(500px,44vw);position:relative;z-index:3;text-shadow:0 2px 18px rgba(0,0,0,.55);pointer-events:none}
+      .hero-has-video .showcase-info a,
+      .hero-has-video .showcase-info button{pointer-events:auto}
       .hero-has-video .showcase-stage,
       .hero-has-video .sc-dots,
       .hero-has-video .sc-counter{display:none!important}
+      .hero-play-btn{
+        position:absolute;inset:0;z-index:12;margin:auto;width:72px;height:72px;border:none;border-radius:50%;
+        background:rgba(18,10,36,.55);color:#E8D48A;font-size:28px;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;
+        box-shadow:0 8px 32px rgba(0,0,0,.35), inset 0 0 0 1.5px rgba(232,212,138,.45);
+        transition:transform .2s ease, background .2s ease, opacity .25s ease;
+        -webkit-tap-highlight-color:transparent;
+        pointer-events:auto;
+      }
+      .hero-play-btn:active{transform:scale(.94)}
+      .hero-play-btn[hidden]{display:none!important}
+      .hero-is-playing .hero-play-btn{opacity:0;pointer-events:none}
       @media (max-width:768px),(hover:none){
         .hero-has-video .showcase-wrap{direction:rtl;flex-direction:column-reverse;justify-content:flex-end;text-align:center;padding:0 20px 40px}
         .hero-has-video .showcase-info{max-width:92vw;text-align:center}
         .hero-has-video .hero-video-overlay{
-          background:linear-gradient(to bottom, rgba(18,10,36,.25) 0%, transparent 35%, rgba(18,10,36,.82) 100%);
+          background:
+            linear-gradient(to bottom, rgba(18,10,36,.55) 0%, rgba(18,10,36,.35) 30%, rgba(18,10,36,.55) 55%, rgba(18,10,36,.92) 100%);
         }
         .hero-bg-video{object-position:center 20%}
+        /* Sit above the copy block so the tagline never intercepts taps */
+        .hero-play-btn{width:64px;height:64px;font-size:24px;top:28%;bottom:auto}
       }
     </style>
     <script src="js/analytics-config.js"></script>
+    <script src="js/meta-pixel.js?v=15"></script>
+    <script src="js/metaEvents.js?v=16"></script>
     <script src="js/analytics.js" defer></script>
     <script src="js/perf.js?v=2" defer></script>
     <script src="js/seo.js" defer></script>
@@ -67,8 +86,8 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
-    <link rel="stylesheet" href="css/home.bundle.css?v=7" media="print" onload="this.media='all';this.onload=null;">
-    <noscript><link rel="stylesheet" href="css/home.bundle.css?v=7"></noscript>
+    <link rel="stylesheet" href="css/home.bundle.css?v=16" media="print" onload="this.media='all';this.onload=null;">
+    <noscript><link rel="stylesheet" href="css/home.bundle.css?v=16"></noscript>
 </head>
 <body class="mnt-home">
 <!-- Aurora Background -->
@@ -99,9 +118,12 @@
         <div class="hero-silk"></div>
         <div class="hero-bokeh" id="hero-bokeh"><s></s><s></s><s></s><s></s><s></s><s></s></div>
     </div>
-    <video class="hero-bg-video is-active" id="hero-bg-video" poster="/images/p1.webp" muted playsinline preload="none" aria-hidden="true"></video>
+    <video class="hero-bg-video is-active" id="hero-bg-video" muted playsinline preload="metadata" aria-hidden="true"></video>
     <video class="hero-bg-video" id="hero-bg-video-b" muted playsinline preload="none" aria-hidden="true"></video>
     <div class="hero-video-overlay"></div>
+    <button type="button" class="hero-play-btn" id="hero-play-btn" aria-label="تشغيل الفيديو">
+        <i class="fas fa-play" aria-hidden="true"></i>
+    </button>
     <div class="hero-grain" aria-hidden="true"></div>
     <div class="hero-vignette" aria-hidden="true"></div>
     <div class="hero-brand-chip">
@@ -180,8 +202,7 @@
 <!-- Top Promotional Banner -->
 <div class="promo-banner promo-banner--lux">
     <div class="promo-slider">
-        <span>🎁 اشتري قطعتين واحصل على الثالثة مجاناً</span>
-        <span>🚚 شحن مجاني للطلبات فوق 500 جنيه</span>
+        <span>🚚 شحن من 50 ج.م حسب المحافظة — مجاني من 3 منتجات</span>
         <span>✨ خصومات حصرية لأعضاء Montana Rewards</span>
     </div>
 </div>
@@ -258,65 +279,37 @@
 <div class="app-only">
     <!-- Stories -->
     <div class="app-stories">
-        <div class="app-story">
-            <div class="app-story-ring"><img loading="lazy" decoding="async" src="images/p1-premium.webp" alt="عروض اليوم"></div>
+        <button type="button" class="app-story" data-story="offers" aria-label="عروض اليوم">
+            <div class="app-story-ring"><img loading="lazy" decoding="async" src="images/p1-premium.webp" alt=""></div>
             <span>عروض اليوم</span>
-        </div>
-        <div class="app-story">
-            <div class="app-story-ring"><img loading="lazy" decoding="async" src="images/p2-premium.webp" alt="جديد"></div>
+        </button>
+        <button type="button" class="app-story" data-story="new" aria-label="جديد">
+            <div class="app-story-ring"><img loading="lazy" decoding="async" src="images/p2-premium.webp" alt=""></div>
             <span>جديد</span>
-        </div>
-        <div class="app-story">
-            <div class="app-story-ring"><img loading="lazy" decoding="async" src="images/p3-premium.webp" alt="العناية"></div>
+        </button>
+        <a href="category.html" class="app-story" data-story="care" aria-label="العناية">
+            <div class="app-story-ring"><img loading="lazy" decoding="async" src="images/p3-premium.webp" alt=""></div>
             <span>العناية</span>
-        </div>
-        <div class="app-story">
-            <div class="app-story-ring"><img loading="lazy" decoding="async" src="images/p4-premium.webp" alt="الأكثر مبيعاً"></div>
+        </a>
+        <button type="button" class="app-story" data-story="best" aria-label="الأكثر مبيعاً">
+            <div class="app-story-ring"><img loading="lazy" decoding="async" src="images/p4-premium.webp" alt=""></div>
             <span>الأكثر مبيعاً</span>
-        </div>
-        <div class="app-story">
-            <div class="app-story-ring"><img loading="lazy" decoding="async" src="images/p5-premium.webp" alt="نصائح"></div>
+        </button>
+        <button type="button" class="app-story" data-story="tips" aria-label="نصائح">
+            <div class="app-story-ring"><img loading="lazy" decoding="async" src="images/p5-premium.webp" alt=""></div>
             <span>نصائح</span>
-        </div>
-        <div class="app-story">
-            <div class="app-story-ring"><img loading="lazy" decoding="async" src="images/p6-premium.webp" alt="صحتك"></div>
+        </button>
+        <button type="button" class="app-story" data-story="concern" aria-label="صحتك">
+            <div class="app-story-ring"><img loading="lazy" decoding="async" src="images/p6-premium.webp" alt=""></div>
             <span>صحتك</span>
-        </div>
+        </button>
     </div>
 
-    <!-- Quick Actions Grid -->
-    <div class="app-actions">
-        <a href="category.html" class="app-action">
-            <div class="app-action-icon skin"><i class="fas fa-spa"></i></div>
-            <span>البشرة</span>
-        </a>
-        <a href="category.html" class="app-action">
-            <div class="app-action-icon hair"><i class="fas fa-pump-soap"></i></div>
-            <span>الشعر</span>
-        </a>
-        <a href="category.html" class="app-action">
-            <div class="app-action-icon health"><i class="fas fa-heartbeat"></i></div>
-            <span>الصحة</span>
-        </a>
-        <a href="category.html" class="app-action">
-            <div class="app-action-icon kids"><i class="fas fa-baby"></i></div>
-            <span>الأطفال</span>
-        </a>
-        <a href="category.html" class="app-action">
-            <div class="app-action-icon therm"><i class="fas fa-temperature-low"></i></div>
-            <span>الثيرم</span>
-        </a>
-        <a href="javascript:void(0)" onclick="switchScreen('offers')" class="app-action">
+    <!-- Quick Actions — Offers only (designed single-column width) -->
+    <div class="app-actions app-actions--offers-only">
+        <a href="javascript:void(0)" onclick="switchScreen('offers'); return false;" class="app-action">
             <div class="app-action-icon offers"><i class="fas fa-fire"></i></div>
             <span>العروض</span>
-        </a>
-        <a href="account.html" class="app-action">
-            <div class="app-action-icon rewards"><i class="fas fa-crown"></i></div>
-            <span>المكافآت</span>
-        </a>
-        <a href="category.html" class="app-action">
-            <div class="app-action-icon brands"><i class="fas fa-tags"></i></div>
-            <span>الماركات</span>
         </a>
     </div>
 
@@ -464,6 +457,9 @@
         </div>
     </div>
 </section>
+
+<!-- Bundle deals (shared component via js/bundle-ui.js) -->
+<section class="bundles-section lux-reveal" id="bundlesMount" data-title="عروض البندلات" aria-label="عروض البندلات"></section>
 
 <!-- Shop by skin concern (from indications.docx) -->
 <section class="lux-section lux-section--dark lux-reveal" id="shop-by-concern">
@@ -949,74 +945,14 @@
     </div>
 </div>
 
-<!-- Offers Screen -->
+<!-- Offers Screen — bundle routines (same as site bundles) -->
 <div class="app-screen" id="screen-offers">
     <div class="app-screen-header">
         <div class="app-screen-title">العروض</div>
     </div>
-    <div class="app-screen-body">
-        <div class="app-offer-banner" style="background: linear-gradient(135deg, var(--accent), var(--accent-dark));">
-            <div class="app-offer-info">
-                <span class="app-offer-tag">عرض محدود</span>
-                <h3>خصومات حتى 20%</h3>
-                <p>على منتجات مونتانا المختارة</p>
-                <button class="app-offer-btn" onclick="switchScreen('home')">تسوق الآن</button>
-            </div>
-        </div>
-
-        <div class="app-section-title"><h3>عروض اليوم</h3></div>
-
-        <a href="/product/acne-facial-cleanser" class="app-offer-card" style="text-decoration:none;color:inherit">
-            <div class="app-offer-discount">-19%</div>
-            <img loading="lazy" decoding="async" src="images/p1-premium.webp" alt="غسول الوجه لعلاج حب الشباب">
-            <div class="app-offer-details">
-                <span class="app-offer-brand">Montaña</span>
-                <h4>غسول الوجه لعلاج حب الشباب</h4>
-                <div class="app-offer-prices">
-                    <span class="app-price-new">285 ج.م</span>
-                    <span class="app-price-old">350 ج.م</span>
-                </div>
-            </div>
-        </a>
-
-        <a href="/product/whitening-cream" class="app-offer-card" style="text-decoration:none;color:inherit">
-            <div class="app-offer-discount">-20%</div>
-            <img loading="lazy" decoding="async" src="images/p3-premium.webp" alt="كريم التفتيح بالألفا أربوتين">
-            <div class="app-offer-details">
-                <span class="app-offer-brand">Montaña</span>
-                <h4>كريم التفتيح بالألفا أربوتين</h4>
-                <div class="app-offer-prices">
-                    <span class="app-price-new">240 ج.م</span>
-                    <span class="app-price-old">300 ج.م</span>
-                </div>
-            </div>
-        </a>
-
-        <a href="/product/post-laser-cream" class="app-offer-card" style="text-decoration:none;color:inherit">
-            <div class="app-offer-discount">-17%</div>
-            <img loading="lazy" decoding="async" src="images/p5-premium.webp" alt="كريم ما بعد الليزر بزيت السمسم">
-            <div class="app-offer-details">
-                <span class="app-offer-brand">Montaña</span>
-                <h4>كريم ما بعد الليزر بزيت السمسم</h4>
-                <div class="app-offer-prices">
-                    <span class="app-price-new">265 ج.م</span>
-                    <span class="app-price-old">320 ج.م</span>
-                </div>
-            </div>
-        </a>
-
-        <a href="/product/anti-scar-gel" class="app-offer-card" style="text-decoration:none;color:inherit">
-            <div class="app-offer-discount">-15%</div>
-            <img loading="lazy" decoding="async" src="images/p6-premium.webp" alt="جل السيليكون لعلاج الندبات">
-            <div class="app-offer-details">
-                <span class="app-offer-brand">Montaña</span>
-                <h4>جل السيليكون لعلاج الندبات</h4>
-                <div class="app-offer-prices">
-                    <span class="app-price-new">340 ج.م</span>
-                    <span class="app-price-old">400 ج.م</span>
-                </div>
-            </div>
-        </a>
+    <div class="app-screen-body app-offers-body">
+        <p class="app-offers-intro">روتينات كاملة بسعر أوفر — نفس عروض البندلات على الموقع</p>
+        <div id="offersBundlesMount" class="bundles-section cat-bundles" data-title="عروض البندلات" aria-label="عروض البندلات"></div>
     </div>
 </div>
 
@@ -1098,7 +1034,7 @@ window.renderAppCart = renderAppCart;
         <i class="fas fa-store"></i>
         <span>المتجر</span>
     </a>
-    <a href="#offers">
+    <a href="javascript:void(0)" onclick="switchScreen('offers'); return false;">
         <i class="fas fa-fire"></i>
         <span>العروض</span>
     </a>
@@ -1115,12 +1051,13 @@ window.renderAppCart = renderAppCart;
 </nav>
 
 <script src="js/lang-switch.js?v=2" defer></script>
-<script src="js/cart.js" defer></script>
-<script type="module" src="js/hero-showcase.js"></script>
+<script src="js/cart.js?v=3" defer></script>
+<script type="module" src="js/hero-showcase.js?v=3"></script>
 <script src="js/wishlist.js" defer></script>
-<script src="js/storefront-ui.js?v=3" defer></script>
-<script src="script.js" defer></script>
+<script src="js/storefront-ui.js?v=5" defer></script>
+<script src="script.js?v=3" defer></script>
 <script src="js/home-premium.js" defer></script>
-<script type="module" src="js/home.js"></script>
+<script type="module" src="js/home.js?v=6"></script>
+<script type="module" src="js/bundle-ui.js?v=5"></script>
 </body>
 </html>

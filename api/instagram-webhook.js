@@ -1,12 +1,14 @@
-// Instagram webhook — structurally similar to Messenger. GET handles
-// Meta's verification handshake, POST receives inbound DMs AND public
-// post comments (replied to privately, turning them into a real DM
-// conversation), both handled by the same chatbot brain used by the
-// website (lib/chatEngine.js). Requires the IG account to be
-// subscribed to both the "messages" and "comments" webhook fields in
-// Meta's app dashboard.
-const { handleInboundMessage } = require('../lib/chatEngine');
+// Instagram webhook — GET verification, POST inbound DMs + comments.
+// Ad → bundle mapping for Click-to-Direct ads is owned by ManyChat
+// (selectedBundle on POST /api/chat), not messaging_referrals here.
+// message_echoes: when a human agent replies from the IG inbox, pause the bot.
+const { handleInboundMessage, pauseBotForSession, resumeBotForSession } = require('../lib/chatEngine');
 const { sendPageMessage, sendInstagramCommentPrivateReply } = require('../lib/metaSend');
+const {
+  isOurBotEcho,
+  customerIdFromEcho,
+  echoWantsResume,
+} = require('../lib/botPause');
 
 module.exports = async (req, res) => {
   if (req.method === 'GET') {
@@ -21,23 +23,77 @@ module.exports = async (req, res) => {
 
   if (req.method === 'POST') {
     try {
-      const messaging = req.body.entry?.[0]?.messaging?.[0];
-      const change = req.body.entry?.[0]?.changes?.[0];
+      const entries = req.body.entry || [];
+      for (const entry of entries) {
+        const messagingEvents = entry?.messaging || [];
+        for (const messaging of messagingEvents) {
+          if (messaging?.delivery || messaging?.read) continue;
 
-      if (messaging?.message?.text && messaging?.sender?.id) {
-        // Normal Instagram DM.
-        const senderId = messaging.sender.id;
-        const sid = `instagram:${senderId}`;
-        const payload = await handleInboundMessage({ sid, message: messaging.message.text });
-        await sendPageMessage(process.env.INSTAGRAM_PAGE_TOKEN, senderId, payload.reply);
-      } else if (change?.field === 'comments' && change.value?.text && change.value?.from?.id) {
-        // A public comment on an IG post — reply privately (converts
-        // it into a real DM conversation, handled by the same
-        // chatEngine as a normal message).
-        const { id: commentId, text, from } = change.value;
-        const sid = `instagram:${from.id}`;
-        const payload = await handleInboundMessage({ sid, message: text });
-        await sendInstagramCommentPrivateReply(process.env.INSTAGRAM_PAGE_TOKEN, commentId, payload.reply);
+          if (messaging?.message?.is_echo) {
+            const sid = customerIdFromEcho(messaging, 'instagram');
+            if (!sid) continue;
+            if (isOurBotEcho(messaging, sid)) continue;
+            if (echoWantsResume(messaging.message?.text)) {
+              await resumeBotForSession(sid, 'instagram');
+              console.log('Instagram bot resumed via echo command', sid);
+            } else {
+              await pauseBotForSession(sid, 'instagram');
+              console.log('Instagram bot paused (human echo)', sid);
+            }
+            continue;
+          }
+
+          const senderId = messaging?.sender?.id;
+          if (!senderId) continue;
+          const text = messaging?.message?.text || messaging?.postback?.title || null;
+          const atts = messaging?.message?.attachments || [];
+          const hasImage = !!(
+            messaging?.message?.sticker_id
+            || atts.some((a) => /^(image|story_mention)$/i.test(String(a?.type || '')))
+          );
+          if (!text && !hasImage) continue;
+
+          if (!process.env.INSTAGRAM_PAGE_TOKEN) {
+            console.error('Instagram: INSTAGRAM_PAGE_TOKEN missing');
+            continue;
+          }
+          const sid = `instagram:${senderId}`;
+          console.log('Instagram inbound from', senderId, String(text || (hasImage ? '[image]' : '')).slice(0, 80));
+          const payload = await handleInboundMessage({
+            sid,
+            message: text || null,
+            channel: 'instagram',
+            hasImage: hasImage && !text,
+          });
+          if (payload?.reply) {
+            await sendPageMessage(
+              process.env.INSTAGRAM_PAGE_TOKEN,
+              senderId,
+              payload.reply,
+              { sid }
+            );
+          }
+        }
+
+        const changes = entry?.changes || [];
+        for (const change of changes) {
+          if (change?.field === 'comments' && change.value?.text && change.value?.from?.id) {
+            const { id: commentId, text, from } = change.value;
+            const sid = `instagram:${from.id}`;
+            const payload = await handleInboundMessage({
+              sid,
+              message: text,
+              channel: 'instagram',
+            });
+            if (payload?.reply) {
+              await sendInstagramCommentPrivateReply(
+                process.env.INSTAGRAM_PAGE_TOKEN,
+                commentId,
+                payload.reply
+              );
+            }
+          }
+        }
       }
 
       res.status(200).send('EVENT_RECEIVED');

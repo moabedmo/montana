@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="pages.css">
     <link rel="stylesheet" href="premium.css">
     <link rel="stylesheet" href="dark-theme.css">
+    <script src="js/meta-pixel.js?v=15"></script>
+    <script src="js/metaEvents.js?v=16"></script>
 </head>
 <body>
 
@@ -110,6 +112,12 @@ function renderConfirmation() {
   const dateStr = new Date(order.created_at).toLocaleDateString(isEn ? 'en-GB' : 'ar-EG', { day: 'numeric', month: 'long', year: 'numeric' });
   const points = Math.round((order.total || 0) / 10);
   const addrSep = isEn ? ', ' : '، ';
+
+  // Meta Purchase — fires for COD/wallet after order row exists (not Paymob-only).
+  // event_id = purchase-${order.id}; sessionStorage guard prevents refresh duplicates.
+  try {
+    window.MontanaMeta?.trackPurchaseOnce?.(order, items);
+  } catch (_) { /* ignore */ }
 
   page.innerHTML = `
         <div class="conf-success">

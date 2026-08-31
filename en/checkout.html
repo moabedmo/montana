@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="../premium.css">
     <link rel="stylesheet" href="../css/ltr-en.css?v=1">
     <link rel="stylesheet" href="../dark-theme.css">
+    <script src="../js/meta-pixel.js?v=15"></script>
+    <script src="../js/metaEvents.js?v=16"></script>
     <style>
         .ck-payment-option.disabled { opacity:.55; cursor:not-allowed; }
         .ck-soon-tag { margin-inline-start:auto; font-size:10px; font-weight:700; color:#9B6CB8; background:rgba(155,108,184,.1); padding:3px 9px; border-radius:20px; }
@@ -22,20 +24,208 @@
         .ck-coupon-msg { font-size:12px; margin-top:6px; }
         .ck-coupon-msg.ok { color:#27ae60; }
         .ck-coupon-msg.err { color:#EF5350; }
-        .ck-submit-err { color:#EF5350; font-size:12px; text-align:center; margin-top:8px; display:none; }
+        .ck-submit-err { color:#EF5350; font-size:13px; font-weight:700; text-align:center; margin:0; display:none; padding:8px 12px; background:rgba(239,83,80,.12); border-radius:10px; }
+        .ck-submit-err.is-visible {
+            display:block !important;
+            position:fixed; bottom:88px; left:50%; transform:translateX(-50%);
+            width:min(440px, calc(100% - 24px)); z-index:120;
+        }
+        .ck-success-panel {
+            display:none; text-align:center; padding:48px 20px 120px; max-width:480px; margin:0 auto;
+        }
+        .ck-success-panel.is-visible { display:block; }
+        .ck-success-icon {
+            width:72px; height:72px; border-radius:50%; margin:0 auto 16px;
+            background:linear-gradient(135deg,#27ae60,#2ecc71); color:#fff;
+            display:flex; align-items:center; justify-content:center; font-size:32px;
+        }
+        .ck-success-panel h2 { color:#fff !important; font-size:22px; font-weight:800; margin:0 0 8px; }
+        .ck-success-panel p { color:rgba(255,255,255,.75) !important; font-size:14px; line-height:1.6; margin:0 0 12px; }
+        .ck-success-panel .ck-order-no {
+            display:inline-block; direction:ltr; background:rgba(255,255,255,.08);
+            border:1px solid rgba(201,168,76,.4); color:#E8D48A !important;
+            padding:8px 16px; border-radius:12px; font-weight:800; margin:8px 0 20px;
+        }
+        .ck-success-panel a {
+            display:inline-flex; align-items:center; justify-content:center; gap:8px;
+            background:linear-gradient(135deg,#C9A84C,#E8D48A); color:#2D1B3D !important;
+            font-weight:800; text-decoration:none; padding:14px 22px; border-radius:14px;
+        }
         .ck-gov-row { display:flex; align-items:center; justify-content:space-between; gap:10px; }
-        .ck-gov-row select { flex:1; padding:12px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; font-family:'Tajawal',sans-serif; background:var(--bg-light,#fff); color:var(--text); }
-        .ck-gov-cost { font-size:13px; font-weight:800; color:var(--accent); white-space:nowrap; }
+        .ck-gov-row select {
+            flex:1; padding:12px 14px; border:1.5px solid var(--border); border-radius:12px;
+            font-size:14px; font-weight:600; font-family:'Tajawal',sans-serif;
+            background:#fff; color:var(--text,#2D1B3D);
+            accent-color:#9B6CB8;
+        }
+        .ck-gov-row select:focus { outline:none; border-color:#9B6CB8; box-shadow:0 0 0 3px rgba(155,108,184,0.18); }
+        .ck-gov-row select option {
+            background:#fff; color:#2D1B3D; font-family:'Tajawal',sans-serif; font-weight:600;
+        }
+        .ck-gov-row select option:checked,
+        .ck-gov-row select option:hover {
+            background:#9B6CB8 linear-gradient(0deg, #9B6CB8 0%, #9B6CB8 100%);
+            color:#fff;
+        }
+        .ck-gov-cost { font-size:13px; font-weight:800; color:var(--accent,#9B6CB8); white-space:nowrap; }
         .ck-deposit-box { border:1.5px dashed var(--accent); border-radius:14px; padding:14px; margin-top:10px; }
         .ck-deposit-box p { font-size:13px; color:var(--text-light); line-height:1.8; margin-bottom:8px; }
         .ck-deposit-num { font-size:16px; font-weight:800; color:var(--text); direction:ltr; text-align:center; padding:8px; background:var(--bg-light,rgba(0,0,0,.03)); border-radius:10px; margin-bottom:10px; }
         .ck-deposit-box input[type="file"] { width:100%; font-size:12px; color:var(--text-light); }
         .ck-proof-preview { max-width:140px; border-radius:10px; margin-top:10px; display:none; }
+
+        /* Normal website checkout (not a phone-frame mockup) */
+        html.ck-page, body.ck-page {
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+            background: #342f44;
+        }
+        body.ck-page {
+            margin: 0;
+            min-height: 100dvh;
+        }
+        .ck-app-shell {
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            min-height: 100dvh;
+            background: transparent !important;
+            position: relative;
+            overflow: visible;
+            box-shadow: none;
+        }
+        body.ck-page .page-header {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            max-width: none;
+            width: 100%;
+        }
+        body.ck-page .checkout-page {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 8px 20px 120px;
+        }
+        body.ck-page .pd-bottom-bar {
+            max-width: 720px;
+            left: 50%;
+            right: auto;
+            transform: translateX(-50%);
+            width: calc(100% - 24px);
+            border-radius: 16px 16px 0 0;
+        }
+        body.ck-page .form-group input,
+        body.ck-page .form-group select,
+        body.ck-page .form-group textarea,
+        body.ck-page .ck-coupon input,
+        body.ck-page .ck-gov-row select {
+            font-size: 16px;
+        }
+        @media (min-width: 769px) {
+            body.ck-page .checkout-page {
+                max-width: 880px;
+                padding: 28px 32px 140px;
+            }
+            body.ck-page .pd-bottom-bar {
+                max-width: 880px;
+                width: 100%;
+                border-radius: 16px 16px 0 0;
+            }
+            body.ck-page .ck-section {
+                background: rgba(255,255,255,.04);
+                border: 1px solid rgba(255,255,255,.08);
+                border-radius: 16px;
+                padding: 20px 22px;
+            }
+        }
+        .ck-item { align-items: flex-start; }
+        .ck-item-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .ck-qty {
+            display: inline-flex;
+            align-items: center;
+            border: 1.5px solid rgba(255,255,255,.28);
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(255,255,255,.1);
+        }
+        .ck-qty button {
+            width: 36px;
+            height: 34px;
+            border: none;
+            background: transparent;
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff !important;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            line-height: 1;
+        }
+        .ck-qty button:active { background: rgba(255,255,255,.12); }
+        .ck-qty span {
+            min-width: 28px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 800;
+            color: #fff !important;
+        }
+        .ck-item-name,
+        .ck-item-price,
+        .ck-section h3,
+        .ck-row,
+        .ck-total {
+            color: rgba(255,255,255,.92) !important;
+        }
+        .ck-add-products {
+            border-color: rgba(201,168,76,.45);
+            color: #E8D48A !important;
+        }
+        .ck-item-remove {
+            border: none;
+            background: rgba(239,83,80,.1);
+            color: #EF5350;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ck-item-remove:active { transform: scale(.94); }
+        .ck-item-side {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .ck-add-products {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 12px;
+            border: 1.5px dashed var(--border);
+            border-radius: 14px;
+            color: var(--accent);
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .ck-add-products:active { background: rgba(155,108,184,.06); }
     </style>
     <script src="../js/seo.js" defer></script>
 </head>
-<body class="mnt-en">
+<body class="mnt-en ck-page">
 
+<div class="ck-app-shell">
 <div class="page-header">
     <a href="/en/index.html" class="page-back"><i class="fas fa-arrow-left"></i></a>
     <h2>Checkout</h2>
@@ -100,7 +290,7 @@
             <span class="ck-soon-tag">Coming soon</span>
         </div>
 
-        <div class="ck-deposit-box" id="depositBox">
+        <div class="ck-deposit-box" id="depositBox" style="display:none">
             <p id="depositMsg"></p>
             <div class="ck-deposit-num" id="depositNumber"></div>
             <input type="file" id="proofFile" accept="image/*">
@@ -118,7 +308,10 @@
         <p class="ck-coupon-msg" id="couponMsg"></p>
     </div>
 
-    <!-- Rewards points -->
+    <!-- Customer recognition + Rewards -->
+    <div class="ck-section" id="phoneLookupBanner" style="display:none">
+        <p id="phoneLookupMsg" style="font-size:13px;margin:0;color:var(--accent);font-weight:600"></p>
+    </div>
     <div class="ck-section" id="pointsSection" style="display:none">
         <h3><i class="fas fa-crown"></i> Montana Rewards</h3>
         <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px">Your balance: <strong id="pointsBalance">0</strong> points — every 10 points = 1 EGP off</p>
@@ -135,7 +328,7 @@
         <div id="ckItems"></div>
         <div class="ck-summary">
             <div class="ck-row"><span id="ckSubtotalLabel">Subtotal</span><span id="ckSubtotal">0 EGP</span></div>
-            <div class="ck-row"><span>Shipping</span><span id="ckShipping" class="ck-free">Free</span></div>
+            <div class="ck-row"><span>Shipping</span><span id="ckShipping">—</span></div>
             <div class="ck-row"><span>Discount</span><span class="ck-discount" id="ckDiscount">- 0 EGP</span></div>
             <div class="ck-row" id="ckPointsRow" style="display:none"><span>Points discount</span><span class="ck-discount" id="ckPointsDiscount">- 0 EGP</span></div>
             <div class="ck-row ck-total"><span>Total</span><span id="ckTotal">0 EGP</span></div>
@@ -153,8 +346,16 @@
         <i class="fas fa-check"></i> Place order
     </button>
 </div>
-<p class="ck-submit-err" id="submitErr"></p>
+<p class="ck-submit-err" id="submitErr" role="alert"></p>
 
+<div class="ck-success-panel" id="ckSuccessPanel" aria-live="polite">
+    <div class="ck-success-icon"><i class="fas fa-check"></i></div>
+    <h2>Your order was sent</h2>
+    <p>Thank you for shopping with Montana — we’ll review your order and contact you soon.</p>
+    <div class="ck-order-no" id="ckSuccessOrderNo"></div>
+    <a id="ckSuccessLink" href="/en/order-confirmation.html"><i class="fas fa-receipt"></i> View order details</a>
+</div>
+</div><!-- /.ck-app-shell -->
 
 <script>window.MONTANA_LOCALE="en";</script>
 <script type="module" src="../js/i18n/bootstrap-en.js"></script>
@@ -192,6 +393,88 @@ let userPointsBalance = 0;
 let shippingRates = [];
 let transferNumber = '';
 let transferName = '';
+let phoneLookupTimer = null;
+let lastLookedUpPhone = '';
+
+function looksLikeEgMobile(raw) {
+    const d = String(raw || '').replace(/\D/g, '');
+    return /^01[0125]\d{8}$/.test(d) || /^201[0125]\d{8}$/.test(d);
+}
+
+function applyPhoneLookup(data) {
+    const banner = document.getElementById('phoneLookupBanner');
+    const msg = document.getElementById('phoneLookupMsg');
+    const pointsSec = document.getElementById('pointsSection');
+    if (!data?.found) {
+        if (banner) banner.style.display = 'none';
+        return;
+    }
+    const count = Number(data.orderCount) || 0;
+    const points = Number(data.points) || 0;
+    userPointsBalance = Math.max(userPointsBalance, points);
+
+    if (banner && msg) {
+        if (count > 0) {
+            const nameBit = data.name ? ` ${data.name}` : '';
+            msg.textContent = fmt(S.returningCustomer, { name: nameBit, count });
+            banner.style.display = '';
+        } else if (points > 0) {
+            msg.textContent = S.returningPointsOnly;
+            banner.style.display = '';
+        } else {
+            banner.style.display = 'none';
+        }
+    }
+
+    if (pointsSec && userPointsBalance >= 10) {
+        pointsSec.style.display = '';
+        document.getElementById('pointsBalance').textContent = userPointsBalance;
+    }
+
+    const nameEl = document.getElementById('custName');
+    const addrEl = document.getElementById('custAddress');
+    const cityEl = document.getElementById('custCity');
+    const govEl = document.getElementById('governorateSelect');
+    if (data.name && nameEl && !nameEl.value.trim()) nameEl.value = data.name;
+    if (data.address && addrEl && !addrEl.value.trim()) addrEl.value = data.address;
+    if (data.governorate && govEl && !govEl.value) {
+        const opt = [...govEl.options].find(o => o.value === data.governorate);
+        if (opt) {
+            govEl.value = data.governorate;
+            govEl.dispatchEvent(new Event('change'));
+        }
+    }
+    if (data.governorate && cityEl && !cityEl.value.trim()) cityEl.value = data.governorate;
+}
+
+async function lookupCustomerByPhone(phone) {
+    const normalized = String(phone || '').trim();
+    if (!looksLikeEgMobile(normalized) || normalized === lastLookedUpPhone) return;
+    lastLookedUpPhone = normalized;
+    try {
+        const res = await fetch('/api/customer-by-phone', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: normalized }),
+        });
+        const data = await res.json();
+        if (data?.ok !== false) applyPhoneLookup(data);
+    } catch (_) { /* ignore */ }
+}
+
+function schedulePhoneLookup() {
+    clearTimeout(phoneLookupTimer);
+    phoneLookupTimer = setTimeout(() => {
+        lookupCustomerByPhone(document.getElementById('custPhone')?.value);
+    }, 450);
+}
+
+document.getElementById('custPhone')?.addEventListener('blur', schedulePhoneLookup);
+document.getElementById('custPhone')?.addEventListener('change', schedulePhoneLookup);
+document.getElementById('custPhone')?.addEventListener('input', () => {
+    lastLookedUpPhone = '';
+    schedulePhoneLookup();
+});
 
 // Wallet/InstaPay still requires a full-amount transfer proof.
 // COD is cash on delivery with no booking deposit.
@@ -211,11 +494,39 @@ function renderDepositBox() {
     document.getElementById('depositNumber').textContent = `${transferNumber} — ${transferName}`;
 }
 
+/** Free ship: 3+ units, or pure ad-routine cart (matches chatEngine). */
+const ROUTINE_BUNDLE_SLUGS = new Set(['post-laser-glow', 'brightening-routine', 'face-and-body']);
+function cartGetsFreeShipping(items) {
+    const list = items || window.Cart.getItems();
+    if (!list.length) return false;
+    if (window.Cart.getCount() >= 3) return true;
+    const slugs = list.map((i) => i.bundleSlug).filter(Boolean);
+    return slugs.length === list.length
+        && new Set(slugs).size === 1
+        && ROUTINE_BUNDLE_SLUGS.has(slugs[0]);
+}
+function selectedGovCost() {
+    const opt = document.getElementById('governorateSelect')?.selectedOptions?.[0];
+    const cost = Number(opt?.dataset?.cost);
+    return Number.isFinite(cost) ? cost : 0;
+}
+function updateGovCostHint() {
+    const el = document.getElementById('govCost');
+    const opt = document.getElementById('governorateSelect')?.selectedOptions?.[0];
+    if (!el) return;
+    if (!opt?.value) { el.textContent = ''; return; }
+    if (cartGetsFreeShipping()) {
+        el.textContent = window.Cart.getCount() >= 3
+            ? 'Free shipping (3+ products) 🎁'
+            : 'Free shipping (routine offer) 🎁';
+        return;
+    }
+    el.textContent = `${selectedGovCost()} EGP`;
+}
 function computeTotals() {
     const items = window.Cart.getItems();
     const subtotal = window.Cart.getTotal();
-    const govOpt = document.getElementById('governorateSelect').selectedOptions[0];
-    const shippingCost = govOpt ? parseFloat(govOpt.dataset.cost || 0) : 0;
+    const shippingCost = cartGetsFreeShipping(items) ? 0 : selectedGovCost();
     let couponDiscount = 0;
     if (appliedCoupon) {
         couponDiscount = appliedCoupon.discount_type === 'percent'
@@ -234,27 +545,56 @@ function renderSummary() {
     const itemsEl = document.getElementById('ckItems');
     const bottomBar = document.getElementById('ckBottomBar');
     const page = document.getElementById('checkoutPage');
+    const shopHref = '/en/category.html';
 
     if (!items.length) {
-        page.innerHTML = `<div class="ck-empty"><i class="fas fa-shopping-bag" style="font-size:32px;color:#ddd;margin-bottom:12px;display:block"></i>${S.emptyCart}<br><a href="/en/index.html">${S.browseProducts}</a></div>`;
-        bottomBar.style.display = 'none';
+        page.innerHTML = `<div class="ck-empty"><i class="fas fa-shopping-bag" style="font-size:32px;color:#ddd;margin-bottom:12px;display:block"></i>${S.emptyCart}<br><a href="${shopHref}">${S.browseProducts}</a></div>`;
+        if (bottomBar) bottomBar.style.display = 'none';
         return;
     }
+    if (bottomBar) bottomBar.style.display = '';
+    if (!itemsEl) return;
 
-    itemsEl.innerHTML = items.map(it => `
-        <div class="ck-item">
+    itemsEl.innerHTML = items.map((it) => {
+        const idAttr = encodeURIComponent(String(it.id));
+        return `
+        <div class="ck-item" data-id="${idAttr}">
             <img src="${resolveAssetUrl(it.image)}" alt="">
             <div class="ck-item-info">
                 <span class="ck-item-name">${it.name}</span>
-                <span class="ck-item-qty">${fmt(S.qty, { n: it.qty })}</span>
+                <div class="ck-item-controls">
+                    <div class="ck-qty">
+                        <button type="button" data-ck-action="dec" aria-label="-">−</button>
+                        <span>${it.qty}</span>
+                        <button type="button" data-ck-action="inc" aria-label="+">+</button>
+                    </div>
+                    <button type="button" class="ck-item-remove" data-ck-action="remove" title="${S.removeItem}" aria-label="${S.removeItem}">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
             </div>
-            <span class="ck-item-price">${money(it.price * it.qty)}</span>
-        </div>
-    `).join('');
+            <div class="ck-item-side">
+                <span class="ck-item-price">${money(it.price * it.qty)}</span>
+            </div>
+        </div>`;
+    }).join('') + `
+        <a href="${shopHref}" class="ck-add-products"><i class="fas fa-plus"></i> ${S.addProducts}</a>
+    `;
 
     document.getElementById('ckSubtotalLabel').textContent = fmt(S.subtotalItems, { count: items.reduce((s,i)=>s+i.qty,0) });
     document.getElementById('ckSubtotal').textContent = money(subtotal);
-    document.getElementById('ckShipping').textContent = shipping > 0 ? money(shipping) : S.free;
+    const shipEl = document.getElementById('ckShipping');
+    if (cartGetsFreeShipping(items)) {
+        shipEl.textContent = S.free;
+        shipEl.classList.add('ck-free');
+    } else if (shipping > 0) {
+        shipEl.textContent = money(shipping);
+        shipEl.classList.remove('ck-free');
+    } else {
+        shipEl.textContent = '—';
+        shipEl.classList.remove('ck-free');
+    }
+    updateGovCostHint();
     document.getElementById('ckDiscount').textContent = `- ${money(discount)}`;
     const pr = document.getElementById('ckPointsRow');
     if (pointsDiscount > 0) {
@@ -264,6 +604,30 @@ function renderSummary() {
     document.getElementById('ckTotal').textContent = money(total);
     document.getElementById('ckBottomTotal').textContent = money(total);
 }
+
+function refreshCheckoutCart() {
+    renderSummary();
+    renderDepositBox();
+}
+
+document.getElementById('ckItems')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-ck-action]');
+    if (!btn) return;
+    const row = btn.closest('.ck-item');
+    if (!row) return;
+    const idRaw = decodeURIComponent(row.dataset.id || '');
+    const id = /^\d+$/.test(idRaw) ? Number(idRaw) : idRaw;
+    const action = btn.dataset.ckAction;
+    const items = window.Cart.getItems();
+    const line = items.find((i) => String(i.id) === String(id));
+    if (!line && action !== 'remove') return;
+    if (action === 'inc') window.Cart.setQty(id, (line?.qty || 0) + 1);
+    else if (action === 'dec') window.Cart.setQty(id, (line?.qty || 1) - 1);
+    else if (action === 'remove') window.Cart.remove(id);
+    refreshCheckoutCart();
+});
+
+document.documentElement.classList.add('ck-page');
 
 document.getElementById('applyCouponBtn').addEventListener('click', async () => {
     const code = document.getElementById('couponInput').value.trim();
@@ -303,8 +667,7 @@ document.getElementById('applyPointsBtn')?.addEventListener('click', () => {
 });
 
 document.getElementById('governorateSelect').addEventListener('change', () => {
-    const opt = document.getElementById('governorateSelect').selectedOptions[0];
-    document.getElementById('govCost').textContent = opt && opt.dataset.cost ? money(parseFloat(opt.dataset.cost)) : '';
+    updateGovCostHint();
     renderSummary();
     renderDepositBox();
 });
@@ -319,7 +682,16 @@ document.getElementById('proofFile').addEventListener('change', (e) => {
 
 document.getElementById('confirmBtn').addEventListener('click', async () => {
     const errEl = document.getElementById('submitErr');
+    errEl.classList.remove('is-visible');
     errEl.style.display = 'none';
+    errEl.textContent = '';
+
+    const showErr = (msg) => {
+        errEl.textContent = msg;
+        errEl.style.display = 'block';
+        errEl.classList.add('is-visible');
+        errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
 
     if (document.getElementById('hp_field').value) return; // honeypot tripped — silently drop
 
@@ -331,8 +703,7 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
 
     const govOpt = document.getElementById('governorateSelect').selectedOptions[0];
     if (!name || !phone || !address || !city || !govOpt || !govOpt.value) {
-        errEl.textContent = S.fillRequired;
-        errEl.style.display = 'block';
+        showErr(S.fillRequired);
         return;
     }
 
@@ -341,8 +712,7 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
     const proofFile = document.getElementById('proofFile').files[0];
 
     if (paymentMethod === 'wallet' && !proofFile) {
-        errEl.textContent = S.uploadProof;
-        errEl.style.display = 'block';
+        showErr(S.uploadProof);
         return;
     }
 
@@ -352,6 +722,31 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
     const btn = document.getElementById('confirmBtn');
     btn.disabled = true;
     btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${S.confirming}`;
+
+    const confUrl = '/en/order-confirmation.html';
+
+    const goThankYou = (result) => {
+        try {
+            sessionStorage.setItem('montana_last_order', JSON.stringify(result));
+        } catch (_) { /* ignore */ }
+        try { window.Cart.clear(); } catch (_) { /* ignore */ }
+
+        const page = document.getElementById('checkoutPage');
+        const bar = document.getElementById('ckBottomBar');
+        const panel = document.getElementById('ckSuccessPanel');
+        if (page) page.style.display = 'none';
+        if (bar) bar.style.display = 'none';
+        if (panel) {
+            const num = result?.order?.order_number || '';
+            const noEl = document.getElementById('ckSuccessOrderNo');
+            if (noEl) noEl.textContent = num ? `Order #: ${num}` : '';
+            const link = document.getElementById('ckSuccessLink');
+            if (link) link.href = confUrl;
+            panel.classList.add('is-visible');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        setTimeout(() => { window.location.assign(confUrl); }, 1200);
+    };
 
     try {
         let proofUrl = null;
@@ -363,17 +758,15 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
         const { products: productsApi } = await import('/js/store-api.js');
         const catalog = await productsApi.list();
         for (const it of items) {
-            const p = catalog.find(x => x.id === it.id);
+            const p = catalog.find((x) => String(x.id) === String(it.id));
             if (!p) {
-                errEl.textContent = fmt(S.productUnavailable, { name: it.name });
-                errEl.style.display = 'block';
+                showErr(fmt(S.productUnavailable, { name: it.name }));
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fas fa-check"></i> ${S.confirm}`;
                 return;
             }
             if ((p.stock ?? 0) < it.qty) {
-                errEl.textContent = fmt(S.stockInsufficient, { name: p.name, stock: p.stock });
-                errEl.style.display = 'block';
+                showErr(fmt(S.stockInsufficient, { name: p.name, stock: p.stock }));
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fas fa-check"></i> ${S.confirm}`;
                 return;
@@ -383,7 +776,14 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
         btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${S.confirming}`;
         const result = await orders.create({
             customer: { name, phone, email: email || null, address, city },
-            items: items.map(it => ({ id: it.id, name: it.name, image: it.image, price: it.price, qty: it.qty })),
+            items: items.map(it => ({
+              id: it.id,
+              name: it.name,
+              image: it.image,
+              price: it.price,
+              qty: it.qty,
+              ...(it.bundleSlug ? { bundleSlug: it.bundleSlug } : {}),
+            })),
             payment_method: paymentMethod,
             delivery_method: 'standard',
             coupon_code: appliedCoupon ? appliedCoupon.code : null,
@@ -394,18 +794,51 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
             points_redeemed: pointsRedeemed
         });
 
+        if (!result?.order?.order_number) {
+            throw new Error('Order create returned empty result');
+        }
+
+        const slugById = Object.fromEntries(
+            (catalog || []).map((p) => [String(p.id), p.slug])
+        );
+        if (Array.isArray(result.items)) {
+            result.items = result.items.map((it) => {
+                const sid = slugById[String(it.product_id || it.id)];
+                return sid ? { ...it, slug: sid, product_slug: sid } : it;
+            });
+        }
+
         fetch('/api/send-telegram', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 order_number: result.order.order_number,
+                order_id: result.order.id,
                 total: result.order.total,
                 customer_name: name,
                 customer_phone: phone,
+                city: city || govOpt.value,
+                governorate: govOpt.value,
                 payment_method: paymentMethod,
                 payment_proof_url: proofUrl,
                 deposit_amount: proofUrl ? deposit : 0,
-                points_redeemed: pointsRedeemed
+                points_redeemed: pointsRedeemed,
+                content_ids: items.map((it) => {
+                    const p = catalog.find((x) => String(x.id) === String(it.id));
+                    return p?.slug || String(it.slug || it.id);
+                }),
+                items: items.map((it) => {
+                    const p = catalog.find((x) => String(x.id) === String(it.id));
+                    return {
+                        id: it.id,
+                        slug: p?.slug || it.slug || null,
+                        qty: it.qty,
+                        price: it.price,
+                    };
+                }),
+                event_source_url: location.href,
+                fbp: (document.cookie.match(/(?:^|; )_fbp=([^;]*)/) || [])[1] || undefined,
+                fbc: (document.cookie.match(/(?:^|; )_fbc=([^;]*)/) || [])[1] || undefined,
             })
         }).catch(() => {});
 
@@ -423,29 +856,26 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
             if (payData.ok && payData.iframe_url) {
                 sessionStorage.setItem('montana_last_order', JSON.stringify(result));
                 window.Cart.clear();
-                window.location.href = payData.iframe_url;
+                window.location.assign(payData.iframe_url);
                 return;
             }
-            errEl.textContent = payData.error || S.paymobError;
-            errEl.style.display = 'block';
+            showErr(payData.error || S.paymobError);
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-check"></i> Place order';
+            btn.innerHTML = `<i class="fas fa-check"></i> ${S.confirm}`;
             return;
         }
 
-        sessionStorage.setItem('montana_last_order', JSON.stringify(result));
-        window.Cart.clear();
-        window.location.href = 'order-confirmation.html';
+        goThankYou(result);
     } catch (e) {
+        console.error('checkout confirm failed', e);
         const msg = e?.message || '';
-        if (msg.includes('Insufficient stock')) errEl.textContent = S.stockError;
-        else if (msg.includes('not available')) errEl.textContent = S.itemUnavailable;
-        else if (msg.includes('points') || msg.includes('Points')) errEl.textContent = S.pointsError;
-        else if (msg.includes('total mismatch')) errEl.textContent = S.priceChanged;
-        else errEl.textContent = S.submitError;
-        errEl.style.display = 'block';
+        if (msg.includes('Insufficient stock')) showErr(S.stockError);
+        else if (msg.includes('not available')) showErr(S.itemUnavailable);
+        else if (msg.includes('points') || msg.includes('Points')) showErr(S.pointsError);
+        else if (msg.includes('total mismatch') || msg.includes('mismatch')) showErr(S.priceChanged);
+        else showErr(S.submitError);
         btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-check"></i> Place order';
+        btn.innerHTML = `<i class="fas fa-check"></i> ${S.confirm}`;
     }
 });
 
@@ -453,7 +883,7 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
     try {
         shippingRates = await shippingApi.list();
         const sel = document.getElementById('governorateSelect');
-        sel.innerHTML = shippingRates.map(r => `<option value="${r.governorate}" data-cost="${r.cost}">${r.governorate} — ${money(r.cost)}</option>`).join('');
+        sel.innerHTML = shippingRates.map(r => `<option value="${r.governorate}" data-cost="${Number(r.cost) || 0}">${r.governorate}</option>`).join('');
         sel.dispatchEvent(new Event('change'));
     } catch (e) {
         document.getElementById('governorateSelect').innerHTML = `<option value="">${S.govLoadError}</option>`;
@@ -488,6 +918,7 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
                 document.getElementById('pointsBalance').textContent = userPointsBalance;
             }
         } catch { /* migration 014 */ }
+        schedulePhoneLookup();
     }
 
     renderDepositBox();

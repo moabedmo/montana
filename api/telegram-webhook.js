@@ -1,6 +1,7 @@
 // Telegram bot webhook — handles inline "confirm order" and CRM discount
 // approve/reject button presses.
 const { confirmOrderByNumber, notifyCustomerOrderConfirmed } = require('../lib/orderConfirm');
+const { autoSendOrderToBosta, resolveWebhookBaseUrl } = require('../lib/bostaHandlers');
 const { decideDiscountRequest } = require('../lib/crmDiscountApprove');
 const { answerCallbackQuery, editMessageConfirmed, clearMessageButtons } = require('../lib/telegramApi');
 
@@ -42,7 +43,21 @@ module.exports = async (req, res) => {
   try {
     const update = req.body || {};
     const cb = update.callback_query;
-    if (!cb) return res.json({ ok: true });
+    if (!cb) {
+      // Not a button press. Log which chat it came from: when order alerts stop
+      // arriving it is almost always because TELEGRAM_CHAT_ID no longer matches
+      // this chat, and Telegram's "chat not found" says nothing about the real
+      // one. Sending the bot any message now prints the id to fix it with.
+      const chat = update.message?.chat
+        || update.my_chat_member?.chat
+        || update.channel_post?.chat;
+      if (chat) {
+        console.log('[telegram] message from chat id=%s type=%s name=%s | configured TELEGRAM_CHAT_ID=%s | match=%s',
+          chat.id, chat.type, chat.title || chat.username || '', adminChatId,
+          String(chat.id) === String(adminChatId));
+      }
+      return res.json({ ok: true });
+    }
 
     const fromChatId = String(cb.message?.chat?.id ?? '');
     if (fromChatId !== String(adminChatId)) {
@@ -84,6 +99,11 @@ module.exports = async (req, res) => {
     }
 
     const notify = await notifyCustomerOrderConfirmed(result);
+
+    autoSendOrderToBosta({
+      orderNumber,
+      webhookBaseUrl: resolveWebhookBaseUrl(req),
+    }).catch(() => {});
 
     await answerCallbackQuery(token, cb.id, notify.notified ? 'تم التأكيد ✅' : 'تم التأكيد (بدون إشعار للعميل)');
 

@@ -1,0 +1,8 @@
+file '01.jpg'
+duration 7.5
+file '02.jpg'
+duration 8.0
+file '03.jpg'
+duration 7.83
+file '03.jpg'
+duration 0.1

@@ -3,6 +3,9 @@ const { createClient } = require('@supabase/supabase-js');
 const { enforceRateLimit, verifyStoreOrigin, isSafeHttpUrl, hasValidApiSecret } = require('../lib/security');
 const { notifyTelegramOrder } = require('../lib/telegramOrderNotify');
 const { confirmOrderByNumber, notifyCustomerOrderConfirmed } = require('../lib/orderConfirm');
+const { autoSendOrderToBosta, resolveWebhookBaseUrl } = require('../lib/bostaHandlers');
+const { handleBostaCreate, handleBostaWebhook } = require('../lib/bostaHandlers');
+const { sendPurchaseEvent } = require('../lib/metaCapi');
 
 const sb = createClient(
   process.env.SUPABASE_URL || 'https://ikryeyqrithikabwidov.supabase.co',
@@ -23,7 +26,64 @@ async function uploadProofBuffer(buffer, mime, phoneHint) {
   return `${SB_PUBLIC}/storage/v1/object/public/montana/${key}`;
 }
 
+function clientIpFromReq(req) {
+  const h = req.headers || {};
+  const fwd = h['x-forwarded-for'] || h['X-Forwarded-For'];
+  return (
+    (typeof fwd === 'string' ? fwd.split(',')[0].trim() : undefined) ||
+    h['x-real-ip'] ||
+    h['X-Real-Ip'] ||
+    undefined
+  );
+}
+
+/** Fire Purchase CAPI after a new order — soft-fail, never throws. */
+async function firePurchaseTracking(req, body) {
+  try {
+    if (body.attach_proof || body.is_proof_update || body.confirm_order_number) return;
+    const orderId = body.order_id ?? body.orderId;
+    if (orderId == null || orderId === '') return;
+
+    const contentIds = Array.isArray(body.content_ids)
+      ? body.content_ids
+      : Array.isArray(body.items)
+        ? body.items.map((i) => i.slug || i.product_slug || i.product_id || i.id).filter(Boolean)
+        : [];
+
+    const numItems = Array.isArray(body.items)
+      ? body.items.reduce((s, i) => s + (Number(i.qty || i.quantity) || 1), 0)
+      : undefined;
+
+    const r = await sendPurchaseEvent({
+      orderId,
+      total: body.total,
+      contentIds,
+      numItems,
+      customerName: body.customer_name,
+      customerPhone: body.customer_phone || body.phone,
+      city: body.city || body.governorate,
+      email: body.customer_email || body.email,
+      eventSourceUrl: body.event_source_url || 'https://www.montana.com.eg/checkout.html',
+      clientIp: clientIpFromReq(req),
+      userAgent: req.headers?.['user-agent'] || req.headers?.['User-Agent'],
+      fbp: body.fbp,
+      fbc: body.fbc,
+    });
+    if (!r?.ok) console.error('Meta Purchase (server) soft-fail:', JSON.stringify(r));
+    else console.log('Meta Purchase (server) ok:', `purchase-${orderId}`);
+  } catch (err) {
+    console.error('Meta Purchase (server) exception:', err?.message || err);
+  }
+}
+
 module.exports = async (req, res) => {
+  const routeAction = req.query?.action;
+  if (routeAction === 'bosta-webhook') return handleBostaWebhook(req, res);
+  if (routeAction === 'bosta-create') {
+    if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
+    return handleBostaCreate(req, res);
+  }
+
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
 
   // Trusted external senders (ManyChat forwarding a customer's payment-proof
@@ -50,6 +110,46 @@ module.exports = async (req, res) => {
       return res.status(err.status || 429).json({ ok: false, error: err.message });
     }
 
+    // One-shot connectivity check → current TELEGRAM_CHAT_ID
+    if (body.ping === true || routeAction === 'ping') {
+      const token = process.env.TELEGRAM_BOT_TOKEN;
+      const chatId = process.env.TELEGRAM_CHAT_ID;
+      if (!token || !chatId) {
+        return res.status(503).json({ ok: false, error: 'telegram_not_configured' });
+      }
+      const meRes = await fetch(`https://api.telegram.org/bot${token}/getMe`, {
+        signal: AbortSignal.timeout(8000),
+      });
+      const me = await meRes.json().catch(() => ({}));
+      const botUsername = me?.result?.username || null;
+      const { sendOrderTelegramMessage } = require('../lib/telegramApi');
+      const data = await sendOrderTelegramMessage(
+        token,
+        chatId,
+        'اختبار إشعار مونتانا ✅\nلو الرسالة دي وصلك يبقى الرقم الجديد شغال 💜',
+        null,
+        false
+      );
+      if (!data?.ok) {
+        console.error('telegram ping failed:', data);
+        return res.status(502).json({
+          ok: false,
+          error: data?.description || 'telegram_send_failed',
+          chat_id_suffix: String(chatId).slice(-4),
+          bot_username: botUsername,
+          hint: botUsername
+            ? `افتح t.me/${botUsername} من الأكونت الجديد واضغط Start ثم أعد الاختبار`
+            : 'افتح بوت مونتانا من الأكونت الجديد واضغط Start',
+        });
+      }
+      return res.json({
+        ok: true,
+        ping: true,
+        chat_id_suffix: String(chatId).slice(-4),
+        bot_username: botUsername,
+      });
+    }
+
     // Admin-panel "confirm order" button — same confirm+notify-customer
     // path the Telegram inline button already uses, so both routes behave
     // identically regardless of which one the admin happens to use.
@@ -61,7 +161,26 @@ module.exports = async (req, res) => {
       if (!result.ok) return res.json({ ok: false, error: result.error });
       if (result.already) return res.json({ ok: true, already: true, order_number: body.confirm_order_number });
       const notify = await notifyCustomerOrderConfirmed(result);
+      autoSendOrderToBosta({
+        orderNumber: body.confirm_order_number,
+        webhookBaseUrl: resolveWebhookBaseUrl(req),
+      }).catch(() => {});
       return res.json({ ok: true, order_number: body.confirm_order_number, notify });
+    }
+
+    // Owner alerts from the admin / CRM screens: a new pharmacy invoice, an
+    // order cancelled or returned. Nothing is sent for statuses that are just
+    // the order moving along normally — see ALERTING_ORDER_STATUSES.
+    if (body.admin_alert) {
+      const { formatAdminAlert } = require('../lib/adminAlerts');
+      const { sendOrderTelegramMessage } = require('../lib/telegramApi');
+      const token = process.env.TELEGRAM_BOT_TOKEN;
+      const chatId = process.env.TELEGRAM_CHAT_ID;
+      if (!token || !chatId) return res.json({ ok: false, error: 'telegram_not_configured' });
+      const text = formatAdminAlert(String(body.admin_alert), body);
+      if (!text) return res.json({ ok: true, skipped: true });
+      const sent = await sendOrderTelegramMessage(token, chatId, text, null, false);
+      return res.json({ ok: !!sent?.ok, error: sent?.ok ? null : (sent?.error || sent?.description || null) });
     }
 
     const {
@@ -133,6 +252,13 @@ module.exports = async (req, res) => {
       notifyMethod = status.payment_method || 'cod';
       if (!notifyName && status.customer_name) notifyName = status.customer_name;
       if (!notifyPhone && status.customer_phone) notifyPhone = status.customer_phone;
+    }
+
+    // New COD/wallet/card order notify — fire Purchase CAPI here so tracking
+    // does not depend on the confirmation page / sessionStorage (FB in-app).
+    // Awaited (soft-fail) so Vercel does not freeze the isolate before Meta responds.
+    if (!attach_proof && !is_proof_update && order_number) {
+      await firePurchaseTracking(req, body);
     }
 
     const data = await notifyTelegramOrder({

@@ -1,7 +1,10 @@
 // Paymob webhook — verifies HMAC and logs successful payments.
 // Requires PAYMOB_HMAC_SECRET from Paymob dashboard.
-// Optionally set SUPABASE_SERVICE_ROLE_KEY + SUPABASE_URL to auto-confirm orders.
+// Optionally set SERVICE_ROLE + SUPABASE_URL to auto-confirm orders.
 const crypto = require('crypto');
+const { autoSendOrderToBosta, resolveWebhookBaseUrl } = require('../lib/bostaHandlers');
+
+const SB_SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE;
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
@@ -35,18 +38,22 @@ module.exports = async (req, res) => {
     const success = body.obj?.success === true;
     const merchantOrderId = body.obj?.order?.merchant_order_id || body.obj?.merchant_order_id;
 
-    if (success && merchantOrderId && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    if (success && merchantOrderId && SB_SERVICE) {
       const url = `${process.env.SUPABASE_URL || 'https://ikryeyqrithikabwidov.supabase.co'}/rest/v1/orders?order_number=eq.${encodeURIComponent(merchantOrderId)}`;
       await fetch(url, {
         method: 'PATCH',
         headers: {
-          apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          apikey: SB_SERVICE,
+          Authorization: `Bearer ${SB_SERVICE}`,
           'Content-Type': 'application/json',
           Prefer: 'return=minimal'
         },
         body: JSON.stringify({ payment_status: 'confirmed', status: 'confirmed', updated_at: new Date().toISOString() })
       });
+      autoSendOrderToBosta({
+        orderNumber: merchantOrderId,
+        webhookBaseUrl: resolveWebhookBaseUrl(),
+      }).catch(() => {});
     }
 
     res.json({ ok: true });

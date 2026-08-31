@@ -26,13 +26,65 @@
   }
 
   window.Cart = {
-    // product: { id, name, image, price }
-    add(product, qty = 1) {
+    // product: { id, name, image, price, bundleSlug? }
+    // opts: { skipMeta?: boolean }
+    add(product, qty = 1, opts) {
       const items = readCart();
       const existing = items.find(i => i.id === product.id);
-      if (existing) existing.qty += qty;
-      else items.push({ id: product.id, name: product.name, image: product.image, price: product.price, qty });
+      if (existing) {
+        existing.qty += qty;
+        if (product.price != null) existing.price = product.price;
+        if (product.bundleSlug) existing.bundleSlug = product.bundleSlug;
+      } else {
+        const row = { id: product.id, name: product.name, image: product.image, price: product.price, qty };
+        if (product.bundleSlug) row.bundleSlug = product.bundleSlug;
+        items.push(row);
+      }
       writeCart(items);
+      if (!opts?.skipMeta) {
+        try {
+          window.MontanaMeta?.trackAddToCart?.(product, qty);
+        } catch (_) { /* tracking must never break cart */ }
+      }
+    },
+    /**
+     * Add a bundle: every product line at allocated unit prices that sum to
+     * bundlePrice (e.g. brightening-routine = 3 items → 699).
+     * Cart shape stays { id, name, image, price, qty } (+ optional bundleSlug).
+     * AddToCart Meta: all content_ids (slugs) + value = bundlePrice.
+     */
+    addBundle(bundle) {
+      if (!bundle?.lines?.length) return;
+      const items = readCart();
+      for (const line of bundle.lines) {
+        const existing = items.find(i => i.id === line.id);
+        if (existing) {
+          existing.qty += 1;
+          existing.price = line.price;
+          existing.bundleSlug = bundle.slug;
+        } else {
+          items.push({
+            id: line.id,
+            name: line.name,
+            image: line.image,
+            price: line.price,
+            qty: 1,
+            bundleSlug: bundle.slug,
+          });
+        }
+      }
+      writeCart(items);
+      try {
+        const contentIds = (bundle.lines || [])
+          .map((l) => String(l.slug || l.id))
+          .filter(Boolean);
+        window.MontanaMeta?.trackAddToCartBundle?.({
+          content_ids: contentIds,
+          content_name: bundle.name,
+          value: Number(bundle.bundlePrice) || 0,
+          currency: 'EGP',
+        });
+      } catch (_) { /* tracking must never break cart */ }
     },
     remove(productId) {
       writeCart(readCart().filter(i => i.id !== productId));

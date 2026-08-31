@@ -33,6 +33,17 @@
     document.head.appendChild(an);
   }
 
+  if (!document.querySelector('script[src*="meta-pixel"]')) {
+    const mp = document.createElement('script');
+    mp.src = assetP + 'js/meta-pixel.js?v=15';
+    document.head.appendChild(mp);
+  }
+  if (!document.querySelector('script[src*="metaEvents"]')) {
+    const me = document.createElement('script');
+    me.src = assetP + 'js/metaEvents.js?v=16';
+    document.head.appendChild(me);
+  }
+
   if (!document.querySelector('script[src*="perf.js"]')) {
     const perfScript = document.createElement('script');
     perfScript.src = assetP + 'js/perf.js?v=2';
@@ -41,7 +52,7 @@
   }
 
   const chatScript = document.createElement('script');
-  chatScript.src = assetP + 'chat-widget.js?v=12';
+  chatScript.src = assetP + 'chat-widget.js?v=13';
   chatScript.defer = true;
   document.body.appendChild(chatScript);
 
@@ -49,8 +60,7 @@
 
   const EN_DEFAULT = {
     promo: [
-      '🎁 Buy 2, get the 3rd free',
-      '🚚 Free shipping on orders over 500 EGP',
+      '🚚 Shipping from 50 EGP by governorate — free on 3+ products',
       '✨ Exclusive discounts for Montana Rewards members',
     ],
     header: {
@@ -89,8 +99,7 @@
 
   const AR_DEFAULT = {
     promo: [
-      '🎁 اشتري قطعتين واحصل على الثالثة مجاناً',
-      '🚚 شحن مجاني للطلبات فوق 500 جنيه',
+      '🚚 شحن من 50 ج.م حسب المحافظة — مجاني من 3 منتجات',
       '✨ خصومات حصرية لأعضاء Montana Rewards',
     ],
     header: {
@@ -248,13 +257,12 @@
       document.body.classList.add('injected-site-chrome');
     }
 
-    if (window.innerWidth > 768) {
-      import('/js/site-settings.js').then((m) => m.applySiteSettings()).catch(() => {});
-    }
+    import('/js/site-settings.js?v=c2').then((m) => m.applySiteSettings()).catch(() => {});
   }
 
   function boot() {
     if (!isInnerPage) return;
+    if (document.body.classList.contains('ck-app')) return;
     injectLayout();
   }
 

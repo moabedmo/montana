@@ -42,6 +42,8 @@ document.querySelectorAll('.nav-link').forEach(link => {
         if (page === 'dashboard') loadDashboard();
         if (page === 'products') loadProducts();
         if (page === 'orders') loadOrders();
+        if (page === 'jumia') { loadJumiaOrders(); loadJumiaStock(); }
+        if (page === 'amazon') { loadAmazonOrders(); loadAmazonStock(); }
         if (page === 'customers') loadCustomers();
         if (page === 'categories') loadCategories();
         if (page === 'coupons') loadCoupons();
@@ -239,6 +241,246 @@ async function deleteProduct(id) {
 }
 
 // ===== ORDERS =====
+let _manualOrderProducts = [];
+let _manualOrderGovRates = [];
+let _manualOrderLineSeq = 0;
+
+async function openManualOrderModal() {
+    try {
+        const [products, rates] = await Promise.all([
+            api('products', 'GET', null, '?select=id,name,price,stock,image_url,is_active&is_active=eq.true&order=name'),
+            api('shipping_rates', 'GET', null, '?select=governorate,cost,is_active&is_active=eq.true&order=sort_order'),
+        ]);
+        _manualOrderProducts = products || [];
+        _manualOrderGovRates = rates || [];
+        _manualOrderLineSeq = 0;
+
+        const govOpts = _manualOrderGovRates.map((r) =>
+            `<option value="${escHtml(r.governorate)}" data-cost="${Number(r.cost) || 0}">${escHtml(r.governorate)} — ${Math.round(Number(r.cost) || 0)} ج</option>`
+        ).join('');
+
+        openModal('إضافة طلب يدوي', `
+            <form id="manualOrderForm" onsubmit="submitManualOrder(event)" style="display:flex;flex-direction:column;gap:12px">
+                <div class="form-group"><label>اسم العميل *</label>
+                    <input id="moName" required placeholder="الاسم الثلاثي"></div>
+                <div class="form-group"><label>الموبايل *</label>
+                    <input id="moPhone" required dir="ltr" placeholder="01xxxxxxxxx"></div>
+                <div class="form-group"><label>العنوان *</label>
+                    <textarea id="moAddress" required rows="2" placeholder="المنطقة · الشارع · علامة مميزة"></textarea></div>
+                <div class="form-group"><label>المحافظة *</label>
+                    <select id="moGov" required onchange="recalcManualOrderTotals()">
+                        <option value="">اختاري المحافظة</option>
+                        ${govOpts}
+                    </select></div>
+                <div style="display:flex;gap:12px;flex-wrap:wrap">
+                    <div class="form-group" style="flex:1;min-width:140px"><label>طريقة الدفع</label>
+                        <select id="moPay">
+                            <option value="cod">كاش عند الاستلام</option>
+                            <option value="transfer">تحويل</option>
+                        </select></div>
+                    <div class="form-group" style="flex:1;min-width:140px;display:flex;align-items:flex-end">
+                        <label style="display:flex;align-items:center;gap:8px;font-weight:600;cursor:pointer">
+                            <input type="checkbox" id="moFreeShip" onchange="recalcManualOrderTotals()"> شحن مجاني
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group"><label>ملاحظات</label>
+                    <input id="moNotes" placeholder="اختياري — مصدر الطلب / ملاحظات داخلية"></div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+                    <strong>المنتجات *</strong>
+                    <button type="button" class="btn-sm btn-edit" onclick="addManualOrderLine()"><i class="fas fa-plus"></i> صنف</button>
+                </div>
+                <div id="moLines" style="display:flex;flex-direction:column;gap:8px"></div>
+
+                <div style="background:var(--bg,#f7f5fa);border-radius:10px;padding:12px;font-size:13px;line-height:1.9">
+                    <div style="display:flex;justify-content:space-between"><span>المنتجات</span><strong id="moSubtotal">0 ج.م</strong></div>
+                    <div style="display:flex;justify-content:space-between"><span>الشحن</span><strong id="moShip">0 ج.م</strong></div>
+                    <div style="display:flex;justify-content:space-between;font-size:15px;margin-top:4px"><span>الإجمالي</span><strong style="color:var(--purple)" id="moTotal">0 ج.م</strong></div>
+                </div>
+
+                <button type="submit" class="btn-primary" id="moSubmitBtn"><i class="fas fa-check"></i> تسجيل الطلب</button>
+            </form>
+        `);
+        addManualOrderLine();
+    } catch (e) {
+        toast('تعذّر فتح النموذج: ' + (e.message || e), 'error');
+    }
+}
+
+function escHtml(s) {
+    return String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function productOptionsHtml(selectedId) {
+    return _manualOrderProducts.map((p) => {
+        const stock = p.stock ?? 0;
+        const sel = String(p.id) === String(selectedId) ? 'selected' : '';
+        const dis = stock <= 0 ? 'disabled' : '';
+        return `<option value="${p.id}" data-price="${p.price}" data-stock="${stock}" ${sel} ${dis}>${escHtml(p.name)} — ${Math.round(p.price)} ج (متاح ${stock})</option>`;
+    }).join('');
+}
+
+function addManualOrderLine() {
+    const wrap = document.getElementById('moLines');
+    if (!wrap) return;
+    const id = ++_manualOrderLineSeq;
+    const row = document.createElement('div');
+    row.className = 'mo-line';
+    row.dataset.lineId = String(id);
+    row.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px;border:1px solid var(--border);border-radius:10px';
+    row.innerHTML = `
+        <select class="mo-product" style="flex:1;min-width:180px" onchange="recalcManualOrderTotals()">${productOptionsHtml()}</select>
+        <input class="mo-qty" type="number" min="1" value="1" style="width:72px" onchange="recalcManualOrderTotals()" oninput="recalcManualOrderTotals()">
+        <button type="button" class="btn-sm btn-delete" onclick="this.closest('.mo-line').remove();recalcManualOrderTotals()" title="حذف"><i class="fas fa-trash"></i></button>
+    `;
+    wrap.appendChild(row);
+    recalcManualOrderTotals();
+}
+
+function collectManualOrderLines() {
+    const rows = [...document.querySelectorAll('#moLines .mo-line')];
+    const items = [];
+    for (const row of rows) {
+        const sel = row.querySelector('.mo-product');
+        const qtyInput = row.querySelector('.mo-qty');
+        const pid = Number(sel?.value);
+        const qty = Math.max(1, parseInt(qtyInput?.value, 10) || 1);
+        const opt = sel?.selectedOptions?.[0];
+        if (!pid || !opt || opt.disabled) continue;
+        const price = Number(opt.dataset.price) || 0;
+        const stock = Number(opt.dataset.stock) || 0;
+        const p = _manualOrderProducts.find((x) => String(x.id) === String(pid));
+        items.push({
+            id: pid,
+            name: p?.name || opt.textContent.split('—')[0].trim(),
+            image: p?.image_url || null,
+            price,
+            qty,
+            stock,
+        });
+    }
+    return items;
+}
+
+function recalcManualOrderTotals() {
+    const items = collectManualOrderLines();
+    const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
+    const free = document.getElementById('moFreeShip')?.checked;
+    const govSel = document.getElementById('moGov');
+    const cost = Number(govSel?.selectedOptions?.[0]?.dataset?.cost) || 0;
+    const shipping = free ? 0 : cost;
+    const total = subtotal + shipping;
+    const subEl = document.getElementById('moSubtotal');
+    const shipEl = document.getElementById('moShip');
+    const totEl = document.getElementById('moTotal');
+    if (subEl) subEl.textContent = `${Math.round(subtotal)} ج.م`;
+    if (shipEl) shipEl.textContent = shipping > 0 ? `${Math.round(shipping)} ج.م` : 'مجاني';
+    if (totEl) totEl.textContent = `${Math.round(total)} ج.م`;
+    return { items, subtotal, shipping, total };
+}
+
+async function submitManualOrder(e) {
+    e.preventDefault();
+    const name = document.getElementById('moName')?.value.trim();
+    const phone = document.getElementById('moPhone')?.value.trim();
+    const address = document.getElementById('moAddress')?.value.trim();
+    const governorate = document.getElementById('moGov')?.value;
+    const payment = document.getElementById('moPay')?.value || 'cod';
+    const notesRaw = document.getElementById('moNotes')?.value.trim();
+    const { items, subtotal, shipping, total } = recalcManualOrderTotals();
+
+    if (!name || !phone || !address || !governorate) {
+        toast('املي بيانات العميل والمحافظة', 'error');
+        return;
+    }
+    if (!/^01\d{9}$/.test(phone.replace(/\s/g, ''))) {
+        toast('رقم الموبايل لازم يكون 01xxxxxxxxx', 'error');
+        return;
+    }
+    if (!items.length) {
+        toast('ضيفي منتج واحد على الأقل', 'error');
+        return;
+    }
+    for (const it of items) {
+        if (it.qty > it.stock) {
+            toast(`المخزون مش كافي لـ ${it.name}`, 'error');
+            return;
+        }
+    }
+
+    const btn = document.getElementById('moSubmitBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'جارٍ التسجيل...'; }
+
+    const notes = notesRaw
+        ? `طلب يدوي من الأدمن — ${notesRaw}`
+        : 'طلب يدوي من الأدمن';
+
+    try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/create_guest_order`, {
+            method: 'POST',
+            headers: await authHeaders(),
+            body: JSON.stringify({
+                p_customer: { name, phone, address, city: governorate },
+                p_items: items.map((i) => ({
+                    id: i.id,
+                    name: i.name,
+                    image: i.image,
+                    price: i.price,
+                    qty: i.qty,
+                })),
+                p_payment_method: payment,
+                p_delivery_method: 'standard',
+                p_coupon_code: null,
+                p_notes: notes,
+                p_subtotal: subtotal,
+                p_shipping_cost: shipping,
+                p_discount: 0,
+                p_total: total,
+                p_governorate: governorate,
+                p_payment_proof_url: null,
+                p_deposit_amount: 0,
+                p_points_redeemed: 0,
+                p_chat_session_id: null,
+                p_chat_channel: 'admin',
+            }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            throw new Error(data?.message || data?.error || data?.hint || 'فشل إنشاء الطلب');
+        }
+        const order = data?.order || data;
+        const orderId = order?.id;
+        const orderNumber = order?.order_number;
+
+        // RPC currently forces shipping=0 store-wide — apply admin-chosen shipping when needed
+        if (orderId && shipping > 0) {
+            const realTotal = Math.round((Number(order.subtotal) || subtotal) + shipping);
+            await api('orders', 'PATCH', {
+                shipping_cost: shipping,
+                total: realTotal,
+                notes,
+                updated_at: new Date().toISOString(),
+            }, `?id=eq.${orderId}`);
+        }
+
+        toast(`تم تسجيل الطلب ${orderNumber || ''} ✅`);
+        closeModal();
+        loadOrders(document.querySelector('#page-orders .filter-btn.active')?.dataset.status || 'all');
+        loadDashboard().catch(() => {});
+    } catch (err) {
+        toast('تعذّر التسجيل: ' + (err.message || err), 'error');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> تسجيل الطلب';
+        }
+    }
+}
+
 async function loadOrders(status = 'all') {
     let query = '?select=*&order=created_at.desc';
     if (status !== 'all') query += `&status=eq.${status}`;
@@ -256,11 +498,38 @@ async function loadOrders(status = 'all') {
             <option value="delivered" ${o.status==='delivered'?'selected':''}>تم التوصيل</option>
             <option value="cancelled" ${o.status==='cancelled'?'selected':''}>ملغي</option>
         </select></td>
+        <td>${o.bosta_tracking_number ? `<small style="color:var(--purple)">📦 ${o.bosta_tracking_number}</small>` : '<small style="color:var(--muted)">—</small>'}</td>
         <td>${new Date(o.created_at).toLocaleDateString('ar')}</td>
         <td><button class="btn-sm btn-edit" onclick="viewOrder(${o.id})"><i class="fas fa-eye"></i></button>
             <button class="btn-sm btn-edit" onclick="openOrderInvoice(${o.id})" title="فاتورة"><i class="fas fa-file-invoice"></i></button>
             <button class="btn-sm btn-delete" onclick="deleteOrder(${o.id}, '${o.order_number}')" title="حذف"><i class="fas fa-trash"></i></button></td>
-    </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)">لا توجد طلبات</td></tr>';
+    </tr>`).join('') : '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">لا توجد طلبات</td></tr>';
+}
+
+async function sendOrderToBosta(orderId) {
+    try {
+        const res = await fetch('/api/bosta-create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order_id: orderId }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'فشل الإرسال لبوسطة');
+        const ref = data.tracking_number || data.delivery_id || '';
+        toast(data.already ? `الشحنة مسجّلة مسبقاً على بوسطة ${ref}` : `تم الإرسال لبوسطة ${ref ? '— ' + ref : ''}`);
+        closeModal();
+        loadOrders(document.querySelector('#page-orders .filter-btn.active')?.dataset.status || 'all');
+    } catch (e) {
+        toast('بوسطة: ' + (e.message || e));
+    }
+}
+
+function sendOrderToBostaAuto(orderId) {
+    fetch('/api/bosta-create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_id: orderId }),
+    }).catch(() => {});
 }
 
 async function deleteOrder(id, orderNumber) {
@@ -276,6 +545,30 @@ async function deleteOrder(id, orderNumber) {
 
 async function updateOrderStatus(id, status) {
     await api('orders', 'PATCH', { status, updated_at: new Date().toISOString() }, `?id=eq.${id}`);
+    // Owner alert on Telegram — only for cancelled/returned; the server ignores
+    // the ordinary "moving along" statuses. Fire-and-forget: a failed alert must
+    // never make a status change that already saved look like it failed.
+    if (status === 'cancelled' || status === 'returned') {
+        try {
+            // The orders array lives inside loadOrders(), so read the row back
+            // here rather than depending on a variable that isn't in scope.
+            const rows = await api('orders', 'GET', null, `?id=eq.${id}&select=order_number,customer_name,total`);
+            const row = Array.isArray(rows) ? rows[0] : null;
+            if (row?.order_number) {
+                fetch('/api/send-telegram', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        admin_alert: 'order_status',
+                        status,
+                        order_number: row.order_number,
+                        customer_name: row.customer_name || null,
+                        total: row.total ?? null,
+                    }),
+                }).catch(() => {});
+            }
+        } catch { /* the alert is best-effort; the status change already saved */ }
+    }
     let msg = 'تم تحديث حالة الطلب';
     if (status === 'confirmed') {
         try {
@@ -285,6 +578,7 @@ async function updateOrderStatus(id, status) {
             const data = await res.json();
             if (data?.invoice_number && data.created) msg += ` — فاتورة ${data.invoice_number}`;
         } catch { /* trigger may have already created it */ }
+        sendOrderToBostaAuto(id);
     }
     if (status === 'delivered') {
         try {
@@ -320,6 +614,7 @@ async function viewOrder(id) {
             <div><strong>طريقة الدفع:</strong> ${o.payment_method}</div>
             <div><strong>حالة الدفع:</strong> <span class="status ${o.payment_status === 'confirmed' ? 'active' : 'pending'}">${paymentStatusAr(o.payment_status)}</span></div>
             <div><strong>حالة الطلب:</strong> <span class="status ${o.status}">${statusAr(o.status)}</span></div>
+            ${o.bosta_tracking_number ? `<div><strong>بوسطة:</strong> ${o.bosta_tracking_number}${o.bosta_status ? ' — ' + o.bosta_status : ''}</div>` : ''}
             ${proofHtml}
             ${(!o.payment_proof_url && o.payment_status !== 'confirmed') ? `<button class="btn-primary" style="margin-top:4px" onclick="confirmOrderPayment(${o.id}, '${o.order_number}')"><i class="fas fa-check"></i> تأكيد الطلب</button>` : ''}
             <hr style="border:none;border-top:1px solid var(--border)">
@@ -327,6 +622,7 @@ async function viewOrder(id) {
             ${items.map(i => `<div style="display:flex;justify-content:space-between"><span>${i.product_name} x${i.quantity}</span><strong>${i.total} ج.م</strong></div>`).join('')}
             <hr style="border:none;border-top:1px solid var(--border)">
             <div style="display:flex;justify-content:space-between;font-size:18px"><strong>الإجمالي</strong><strong style="color:var(--purple)">${o.total} ج.م</strong></div>
+            ${!o.bosta_delivery_id ? `<button class="btn-primary" style="margin-top:12px;background:var(--teal,#0d9488)" onclick="sendOrderToBosta(${o.id})"><i class="fas fa-truck"></i> إرسال لبوسطة</button>` : `<p style="margin-top:12px;color:var(--muted);font-size:13px">✓ مُرسَل لبوسطة${o.bosta_tracking_number ? ' — ' + o.bosta_tracking_number : ''}</p>`}
             <button class="btn-primary" style="margin-top:16px" onclick="closeModal(); openOrderInvoice(${o.id})"><i class="fas fa-file-invoice"></i> إصدار / طباعة فاتورة</button>
         </div>
     `);
@@ -348,6 +644,7 @@ async function confirmOrderPayment(id, orderNumber) {
             status: 'confirmed',
             updated_at: new Date().toISOString()
         }, `?id=eq.${id}`);
+        sendOrderToBostaAuto(id);
     }
     let msg = 'تم تأكيد الحجز';
     try {
@@ -370,6 +667,235 @@ document.querySelectorAll('#page-orders .filter-bar .filter-btn').forEach(btn =>
         loadOrders(btn.dataset.status || 'all');
     });
 });
+
+// ===== JUMIA ORDERS =====
+function fmtJumiaDate(v) {
+    if (!v) return '—';
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) return String(v);
+    return d.toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' });
+}
+
+async function loadJumiaOrders() {
+    const tb = document.getElementById('jumiaOrdersTable');
+    const meta = document.getElementById('adminJumiaMeta');
+    if (!tb) return;
+    tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)">جارٍ سحب الطلبات من جوميا…</td></tr>';
+    if (meta) meta.textContent = '';
+    const days = Number(document.getElementById('adminJumiaDays')?.value || 30);
+    try {
+        const headers = await authHeaders();
+        const res = await fetch(`/api/integrations-status?action=jumia-orders&days=${days}&size=50`, { headers });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || `HTTP ${res.status}`);
+        const orders = data.orders || [];
+        if (meta) meta.textContent = `${orders.length} طلب · آخر ${days} يوم`;
+        tb.innerHTML = orders.length
+            ? orders.map((o) => {
+                const total = o.total != null ? `${Number(o.total).toLocaleString('ar-EG')} ${o.currency || 'EGP'}` : '—';
+                return `<tr>
+                    <td dir="ltr"><strong>${o.id}</strong></td>
+                    <td>${o.customer_name || '—'}</td>
+                    <td dir="ltr">${o.customer_phone || '—'}</td>
+                    <td>${total}</td>
+                    <td><span class="status">${o.status || '—'}</span></td>
+                    <td>${fmtJumiaDate(o.created_at)}</td>
+                </tr>`;
+            }).join('')
+            : '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)">لا توجد طلبات جوميا في الفترة المحددة</td></tr>';
+    } catch (e) {
+        console.error(e);
+        tb.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#c0392b">تعذّر السحب: ${e.message || e}</td></tr>`;
+        toast(e.message || 'فشل سحب طلبات جوميا', 'error');
+    }
+}
+
+document.getElementById('adminJumiaRefreshBtn')?.addEventListener('click', () => loadJumiaOrders());
+document.getElementById('adminJumiaDays')?.addEventListener('change', () => loadJumiaOrders());
+
+function jumiaMatchLabel(m) {
+    const map = {
+        manual: 'يدوي',
+        alias: 'تلقائي',
+        slug: 'slug',
+        fuzzy: 'تقريبي',
+        name: 'بالاسم',
+        'manual-unresolved': 'SKU يدوي ناقص',
+    };
+    return map[m] || (m || '—');
+}
+
+async function loadJumiaStock() {
+    const tb = document.getElementById('jumiaStockTable');
+    const meta = document.getElementById('adminJumiaStockMeta');
+    if (!tb) return;
+    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">جارٍ مقارنة المخزون…</td></tr>';
+    if (meta) meta.textContent = '';
+    try {
+        const headers = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=jumia-stock', { headers });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || `HTTP ${res.status}`);
+        const s = data.summary || {};
+        if (meta) {
+            meta.textContent = `مونتانيا ${s.montana_count ?? 0} · جوميا ${s.jumia_count ?? 0} · مربوط ${s.matched ?? 0} · فروقات ${s.mismatched ?? 0}`;
+        }
+        const rows = data.rows || [];
+        tb.innerHTML = rows.length
+            ? rows.map((r) => {
+                const delta = r.delta == null ? '—' : r.delta;
+                const deltaStyle = r.delta && r.delta !== 0 ? 'color:#c0392b;font-weight:700' : '';
+                return `<tr>
+                    <td><strong>${r.montana_name || r.jumia_name || '—'}</strong></td>
+                    <td dir="ltr">${r.slug || '—'}</td>
+                    <td>${r.montana_stock != null ? Number(r.montana_stock).toLocaleString('ar-EG') : '—'}</td>
+                    <td dir="ltr">${r.jumia_sellerSku || '—'}</td>
+                    <td>${r.jumia_stock != null ? Number(r.jumia_stock).toLocaleString('ar-EG') : '—'}</td>
+                    <td style="${deltaStyle}">${delta}</td>
+                    <td>${jumiaMatchLabel(r.match)}${r.can_push ? '' : ' · ناقص'}</td>
+                </tr>`;
+            }).join('')
+            : '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">لا توجد أصناف</td></tr>';
+    } catch (e) {
+        console.error(e);
+        tb.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:#c0392b">${e.message || e}</td></tr>`;
+        toast(e.message || 'فشل مقارنة المخزون', 'error');
+    }
+}
+
+async function pushJumiaStock() {
+    if (!confirm('هتدفع مخزون الموقع لجوميا (الفروقات فقط). متأكد؟')) return;
+    const btn = document.getElementById('adminJumiaStockPushBtn');
+    if (btn) btn.disabled = true;
+    try {
+        const headers = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=jumia-stock-push', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ onlyMismatched: true }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || `HTTP ${res.status}`);
+        toast(data.pushed ? `تم إرسال ${data.pushed} صنف (Feed: ${data.feedId || '—'})` : (data.message || 'لا فروقات'), 'success');
+        await loadJumiaStock();
+    } catch (e) {
+        console.error(e);
+        toast(e.message || 'فشل دفع المخزون', 'error');
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+document.getElementById('adminJumiaStockRefreshBtn')?.addEventListener('click', () => loadJumiaStock());
+
+async function loadAmazonOrders() {
+    const tb = document.getElementById('amazonOrdersTable');
+    const meta = document.getElementById('adminAmazonMeta');
+    if (!tb) return;
+    tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted)">جارٍ سحب الطلبات من أمازون…</td></tr>';
+    const days = Number(document.getElementById('adminAmazonDays')?.value || 30);
+    try {
+        const headers = await authHeaders();
+        const res = await fetch(`/api/integrations-status?action=amazon-orders&days=${days}&size=50`, { headers });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || `HTTP ${res.status}`);
+        const orders = data.orders || [];
+        if (meta) {
+            meta.textContent = `${orders.length} طلب · marketplace ${data.marketplace_id || 'EG'}`;
+        }
+        tb.innerHTML = orders.length
+            ? orders.map((o) => {
+                const total = o.total != null
+                    ? `${Number(o.total).toLocaleString('ar-EG')} ${o.currency || 'EGP'}`
+                    : '—';
+                const d = o.created_at ? new Date(o.created_at).toLocaleString('ar-EG') : '—';
+                return `<tr>
+                    <td dir="ltr"><strong>${o.id || '—'}</strong></td>
+                    <td>${o.fulfillment || '—'}</td>
+                    <td>${total}</td>
+                    <td>${o.status || '—'}</td>
+                    <td>${d}</td>
+                </tr>`;
+            }).join('')
+            : '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted)">لا توجد طلبات أمازون في الفترة المحددة</td></tr>';
+    } catch (e) {
+        console.error(e);
+        tb.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--danger)">${e.message || 'فشل سحب طلبات أمازون'}</td></tr>`;
+        toast(e.message || 'فشل سحب طلبات أمازون', 'error');
+    }
+}
+
+document.getElementById('adminAmazonRefreshBtn')?.addEventListener('click', () => loadAmazonOrders());
+document.getElementById('adminAmazonDays')?.addEventListener('change', () => loadAmazonOrders());
+
+async function loadAmazonStock() {
+    const tb = document.getElementById('amazonStockTable');
+    const meta = document.getElementById('adminAmazonStockMeta');
+    if (!tb) return;
+    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">جارٍ المقارنة…</td></tr>';
+    try {
+        const headers = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=amazon-stock', { headers });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || `HTTP ${res.status}`);
+        const s = data.summary || {};
+        if (meta) {
+            meta.textContent = `مونتانيا ${s.montana_count ?? 0} · أمازون ${s.amazon_count ?? 0} · مربوط ${s.matched ?? 0} · فروقات ${s.mismatched ?? 0}`;
+            if (data.errors?.listings) meta.textContent += ` · ${data.errors.listings}`;
+        }
+        const rows = data.rows || [];
+        tb.innerHTML = rows.length
+            ? rows.map((r) => {
+                const delta = r.delta == null ? '—' : r.delta;
+                return `<tr>
+                    <td><strong>${r.montana_name || r.amazon_name || '—'}</strong></td>
+                    <td dir="ltr">${r.slug || '—'}</td>
+                    <td>${r.montana_stock != null ? Number(r.montana_stock).toLocaleString('ar-EG') : '—'}</td>
+                    <td dir="ltr">${r.amazon_sellerSku || '—'}</td>
+                    <td>${r.amazon_stock != null ? Number(r.amazon_stock).toLocaleString('ar-EG') : '—'}</td>
+                    <td>${delta}</td>
+                    <td>${jumiaMatchLabel(r.match)}${r.can_push ? '' : ' · ناقص'}</td>
+                </tr>`;
+            }).join('')
+            : '<tr><td colspan="7" class="empty">لا أصناف</td></tr>';
+    } catch (e) {
+        console.error(e);
+        tb.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--danger)">${e.message || 'فشل'}</td></tr>`;
+        toast(e.message || 'فشل مقارنة مخزون أمازون', 'error');
+    }
+}
+
+async function pushAmazonStock() {
+    if (!confirm('هتدفع مخزون الموقع لأمازون (الفروقات فقط). متأكد؟')) return;
+    const btn = document.getElementById('adminAmazonStockPushBtn');
+    if (btn) btn.disabled = true;
+    try {
+        const headers = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=amazon-stock-push', {
+            method: 'POST',
+            headers: { ...headers, 'Content-Type': 'application/json' },
+            body: '{}',
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || `HTTP ${res.status}`);
+        toast(
+            data.pushed
+                ? `تم تحديث ${data.pushed} صنف${data.failed ? ` · فشل ${data.failed}` : ''}`
+                : (data.message || 'لا فروقات'),
+            data.failed ? 'error' : 'success'
+        );
+        await loadAmazonStock();
+    } catch (e) {
+        console.error(e);
+        toast(e.message || 'فشل دفع المخزون', 'error');
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+document.getElementById('adminAmazonStockRefreshBtn')?.addEventListener('click', () => loadAmazonStock());
+document.getElementById('adminAmazonStockPushBtn')?.addEventListener('click', () => pushAmazonStock());
+document.getElementById('adminJumiaStockPushBtn')?.addEventListener('click', () => pushJumiaStock());
 
 // ===== CUSTOMERS =====
 async function loadCustomers() {
@@ -801,7 +1327,8 @@ async function loadIntegrationStatus() {
             Messenger (Facebook): <code dir="ltr">${base}/api/messenger-webhook</code><br>
             Instagram: <code dir="ltr">${base}/api/instagram-webhook</code><br>
             Telegram (زر تأكيد): <code dir="ltr">${base}/api/telegram-webhook</code><br>
-            Paymob (callback): <code dir="ltr">${base}/api/paymob-webhook</code>`;
+            Paymob (callback): <code dir="ltr">${base}/api/paymob-webhook</code><br>
+            Bosta (تحديث الشحن): <code dir="ltr">${base}/api/bosta-webhook</code>`;
     }
 
     try {
@@ -815,9 +1342,18 @@ async function loadIntegrationStatus() {
                 : '✗ Paymob غير مضبوط — أضف PAYMOB_* في Vercel';
         }
 
+        const bostaEl = document.getElementById('bostaStatus');
+        if (bostaEl) {
+            bostaEl.className = 'integration-status ' + (st.bosta ? 'ok' : 'off');
+            bostaEl.textContent = st.bosta
+                ? '✓ Bosta متصل — استخدمي «إرسال لبوسطة» من تفاصيل الطلب'
+                : '✗ Bosta غير مضبوط — أضف BOSTA_API_KEY في Vercel';
+        }
+
         if (gridEl) {
             const items = [
                 ['Telegram (إشعارات الطلبات)', st.telegram, 'TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID + SUPABASE_SERVICE_ROLE_KEY'],
+                ['Bosta (الشحن)', st.bosta, 'BOSTA_API_KEY + BOSTA_PICKUP_LOCATION_ID'],
                 ['WhatsApp Business (شات)', st.whatsapp, 'WHATSAPP_TOKEN + WHATSAPP_PHONE_NUMBER_ID'],
                 ['Messenger (شات)', st.messenger, 'MESSENGER_PAGE_TOKEN'],
                 ['Instagram DM (شات)', st.instagram, 'INSTAGRAM_PAGE_TOKEN'],

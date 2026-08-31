@@ -8,9 +8,39 @@ const { enforceRateLimit, rateLimit, hasValidApiSecret } = require('../lib/secur
 // and get rate-limited per conversation instead of per IP — those platforms'
 // outbound requests can share IPs across many unrelated businesses, so an
 // IP-keyed limit would risk throttling real customers.
+
+// ManyChat has fired the same inbound twice (two flows on one keyword, or a
+// retry): two /api/chat calls ~3s apart, and the customer got the same reply
+// twice. Swallow the repeat BEFORE handleInboundMessage runs, so no state is
+// advanced either — and answer with the same "send nothing" sentinel the
+// botPaused path already uses, which the ManyChat flow understands.
+//
+// Web is excluded on purpose: the site widget renders the reply inline, so
+// silence there would look broken. The window is deliberately short — a person
+// re-sending the identical text within it is a double-tap, not a new question.
+const DUPLICATE_WINDOW_MS = 12_000;
+const recentInbound = new Map();
+
+function inboundKey(sid, message) {
+  return `${sid}|${String(message).trim().slice(0, 300)}`;
+}
+
+function markInbound(key) {
+  const now = Date.now();
+  if (recentInbound.size > 500) {
+    for (const [k, at] of recentInbound) {
+      if (now - at > DUPLICATE_WINDOW_MS) recentInbound.delete(k);
+    }
+  }
+  const prev = recentInbound.get(key);
+  recentInbound.set(key, now);
+  return !!prev && now - prev < DUPLICATE_WINDOW_MS;
+}
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
 
+  let dupKey = null;
   try {
     // Owner dashboard assistant (Mohamed Abed) — same /api/chat function to
     // stay within Vercel Hobby serverless function limits.
@@ -28,9 +58,72 @@ module.exports = async (req, res) => {
     }
 
     const trusted = hasValidApiSecret(req);
-    const { message, sessionId, formSubmit, channel, getCart, getPoints, phone } = req.body || {};
+    const body = req.body || {};
+    const {
+      message,
+      sessionId,
+      formSubmit,
+      channel,
+      getCart,
+      getPoints,
+      phone,
+      selectedBundle,
+      selected_bundle,
+    } = body;
 
-    if (req.body?.getOrder) {
+    // Human takeover: ManyChat owns Messenger, so Meta inbox echoes do NOT
+    // reach this server. When an agent opens Live Chat, ManyChat must POST
+    // pauseBot:true with the same sessionId. Aliases for easier mapping.
+    const pauseBot = !!(
+      body.pauseBot ||
+      body.pause_bot ||
+      body.humanTakeover ||
+      body.human_takeover ||
+      body.liveChat ||
+      body.live_chat
+    );
+    const resumeBot = !!(
+      body.resumeBot ||
+      body.resume_bot ||
+      body.botResume ||
+      body.bot_resume
+    );
+
+    // ManyChat ad → bundle key (selectedBundle / selected_bundle). Map the Custom
+    // User Field every turn — unresolved {{cuf_*}} or empty = bot cannot know the ad.
+    // Also accept ad title text (Meta shows it in Inbox even when CF mapping is broken).
+    const bundleKeyRaw = selectedBundle ?? selected_bundle ?? body.offer ?? body.offerKey ?? null;
+    const productKeyRaw =
+      body.selectedProduct ??
+      body.selected_product ??
+      body.productSlug ??
+      body.product_slug ??
+      body.product ??
+      null;
+    const adTitleRaw =
+      body.adTitle ??
+      body.ad_title ??
+      body.adName ??
+      body.ad_name ??
+      body.campaign_name ??
+      body.facebook_ad_title ??
+      null;
+    const unresolvedTpl = typeof bundleKeyRaw === 'string' && /^\{\{[^}]+\}\}$/.test(bundleKeyRaw.trim());
+    console.log(
+      '[chat] selectedBundle=',
+      JSON.stringify(bundleKeyRaw),
+      'selectedProduct=',
+      JSON.stringify(productKeyRaw != null ? String(productKeyRaw).slice(0, 60) : null),
+      'adTitle=',
+      JSON.stringify(adTitleRaw != null ? String(adTitleRaw).slice(0, 80) : null),
+      unresolvedTpl ? '(UNRESOLVED MANYchat TEMPLATE — fix Custom Field mapping)' : '',
+      pauseBot ? 'pauseBot=1' : '',
+      resumeBot ? 'resumeBot=1' : '',
+      'sessionId=',
+      String(sessionId || '').slice(0, 48)
+    );
+
+    if (body?.getOrder) {
       const sid = String(sessionId || '').slice(0, 64);
       if (!sid) return res.status(400).json({ error: 'sessionId required' });
       enforceRateLimit(req, 'chat-getorder', { windowMs: 60_000, max: 60 });
@@ -38,40 +131,89 @@ module.exports = async (req, res) => {
       return res.json({ order });
     }
 
-    // Lightweight read used by complete-order.html to show the customer's
-    // real cart when she arrives via a checkout link from a non-web channel
-    // — no model turn, just the persisted cart for this sid.
     if (getCart) {
       const sid = String(sessionId || '').slice(0, 64);
       if (!sid) return res.status(400).json({ error: 'sessionId required' });
       enforceRateLimit(req, 'chat-getcart', { windowMs: 60_000, max: 60 });
-      const { cart, subtotal } = await getCartForSid(sid);
-      return res.json({ cart, subtotal });
+      const { cart, subtotal, freeShipping } = await getCartForSid(sid);
+      return res.json({ cart, subtotal, freeShipping: !!freeShipping });
     }
 
-    // Lightweight read used by complete-order.html to show the loyalty
-    // points balance for whatever phone number the customer has typed so
-    // far into the form.
     if (getPoints) {
       enforceRateLimit(req, 'chat-getpoints', { windowMs: 60_000, max: 30 });
       const points = await getPointsBalance(phone);
       return res.json({ points: points ?? 0 });
     }
 
-    if (!message && !formSubmit) {
+    const hasBundle = bundleKeyRaw != null && String(bundleKeyRaw).trim() !== '' && !unresolvedTpl;
+    const hasProduct =
+      productKeyRaw != null &&
+      String(productKeyRaw).trim() !== '' &&
+      !/\{\{/.test(String(productKeyRaw));
+    const hasAdTitle = adTitleRaw != null && String(adTitleRaw).trim() !== '' && !/\{\{/.test(String(adTitleRaw));
+    // ManyChat / webhooks: customer sent a photo (often empty last_input_text)
+    const flagOn = (v) => {
+      if (v === true || v === 1) return true;
+      if (typeof v === 'string') return /^(1|true|yes|image|photo|sticker)$/i.test(v.trim()) || /^https?:\/\//i.test(v.trim());
+      return false;
+    };
+    const hasImage = !!(
+      flagOn(body.hasImage) ||
+      flagOn(body.has_image) ||
+      flagOn(body.isImage) ||
+      flagOn(body.is_image) ||
+      flagOn(body.photo) ||
+      flagOn(body.image) ||
+      (Array.isArray(body.attachments) && body.attachments.some((a) => /image|photo|sticker/i.test(String(a?.type || a || ''))))
+      || (typeof body.attachment_type === 'string' && /image|photo|sticker/i.test(body.attachment_type))
+      || (typeof body.type === 'string' && /^(image|photo|sticker)$/i.test(body.type))
+    );
+    if (!message && !formSubmit && !hasBundle && !hasProduct && !hasAdTitle && !pauseBot && !resumeBot && !hasImage) {
       return res.status(400).json({ error: 'message required' });
     }
     if (message && String(message).length > 2000) {
       return res.status(400).json({ error: 'message too long' });
     }
     const sid = String(sessionId || 'default').slice(0, 64);
-    const safeChannel = ['messenger', 'instagram'].includes(channel) ? channel : undefined;
+    const channelHint = ['messenger', 'instagram'].includes(channel) ? channel : undefined;
     if (trusted) {
       rateLimit(`chat:external:${sid}`, { windowMs: 60_000, max: 40 });
     } else {
       enforceRateLimit(req, 'chat', { windowMs: 60_000, max: 40 });
     }
-    const payload = await handleInboundMessage({ sid, message, formSubmit, channel: safeChannel });
+
+    if (pauseBot) {
+      console.warn('[chat] human takeover pauseBot', sid);
+    }
+
+    // Repeat of the same text on a ManyChat-driven channel → send nothing.
+    // Cleared again in the catch below, so a retry after a real failure still
+    // gets answered instead of being silently swallowed.
+    dupKey = message && channelOf(sid) !== 'web' ? inboundKey(sid, message) : null;
+    if (dupKey && markInbound(dupKey)) {
+      console.warn('[chat] duplicate inbound swallowed', sid, String(message).slice(0, 60));
+      return res.json({
+        sessionId: sid,
+        reply: '',
+        reply1: 'NONE',
+        reply2: 'NONE',
+        reply3: 'NONE',
+        duplicate: true,
+      });
+    }
+
+    const payload = await handleInboundMessage({
+      sid,
+      message,
+      formSubmit,
+      channel: channelHint,
+      selectedBundle: hasBundle ? String(bundleKeyRaw).trim() : null,
+      selectedProduct: hasProduct ? String(productKeyRaw).trim() : null,
+      adTitle: hasAdTitle ? String(adTitleRaw).trim() : null,
+      pauseBot,
+      resumeBot,
+      hasImage,
+    });
     // ManyChat (messenger/instagram) can't split a single field into
     // multiple bubbles itself — its "Send Message" steps each need their
     // own variable. Split the reply into up to 3 parts here so the
@@ -91,28 +233,42 @@ module.exports = async (req, res) => {
       // unresolved "{{Bot Reply 2}}" text sent to them once the field was
       // empty). An explicit sentinel the Condition step can string-match
       // against ("isn't NONE") removes that ambiguity entirely.
-      let parts = String(payload.reply).split(/\n\s*\n+/).map(p => p.trim()).filter(Boolean);
-      // Fallback: chatEngine.js's sanitizeReply() already normalizes the
-      // known bullet-list case into blank-line-separated paragraphs, but if
-      // the model returns one long block some other way (no blank lines at
-      // all), force a split on single newlines instead of leaving the
-      // customer with one giant unreadable bubble.
-      if (parts.length === 1 && parts[0].length > 500) {
-        const lines = parts[0].split('\n').map(l => l.trim()).filter(Boolean);
-        if (lines.length > 1) parts = lines;
+      let parts;
+      const reply = String(payload.reply).trim();
+      // Prefer one bubble for short replies — multi-bubble walls feel robotic.
+      if (reply.length <= 380) {
+        parts = [reply];
+      } else {
+        parts = reply.split(/\n\s*\n+/).map(p => p.trim()).filter(Boolean);
+        if (parts.length === 1 && reply.length > 380) {
+          // Hard split long single paragraphs
+          parts = [];
+          let rest = reply;
+          while (rest.length > 380 && parts.length < 2) {
+            let cut = rest.lastIndexOf(' ', 380);
+            if (cut < 120) cut = 380;
+            parts.push(rest.slice(0, cut).trim());
+            rest = rest.slice(cut).trim();
+          }
+          if (rest) parts.push(rest);
+        }
+        parts = parts.slice(0, 3);
       }
-      payload.reply1 = parts[0] || payload.reply;
-      payload.reply2 = parts.length > 1 ? parts[1] : 'NONE';
-      payload.reply3 = parts.length > 2 ? parts.slice(2).join('\n\n') : 'NONE';
+      payload.reply1 = parts[0] || 'NONE';
+      payload.reply2 = parts[1] || 'NONE';
+      payload.reply3 = parts[2] || 'NONE';
+    } else if (payload?.botPaused) {
+      payload.reply = '';
+      payload.reply1 = 'NONE';
+      payload.reply2 = 'NONE';
+      payload.reply3 = 'NONE';
     }
-    res.json(payload);
-  } catch (error) {
-    if (error.status === 400) return res.status(400).json({ error: error.message });
-    if (error.status === 401) return res.status(401).json({ ok: false, error: error.message || 'Unauthorized' });
-    if (error.status === 403) return res.status(403).json({ ok: false, error: error.message || 'Forbidden' });
-    if (error.status === 429) return res.status(429).json({ error: 'Too many requests' });
-    if (error.status === 503) return res.status(503).json({ ok: false, error: error.message || 'Unavailable' });
-    console.error('Chat error:', error.message);
-    res.status(500).json({ error: 'حصل مشكلة، حاول تاني' });
+    return res.json(payload);
+  } catch (err) {
+    // This turn produced no answer, so don't let its key mute ManyChat's retry.
+    if (dupKey) recentInbound.delete(dupKey);
+    const status = err.status || 500;
+    console.error('chat:', err.message);
+    return res.status(status).json({ error: err.message || 'Chat failed' });
   }
 };

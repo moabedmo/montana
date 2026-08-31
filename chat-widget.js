@@ -28,7 +28,7 @@
             addressPh: 'Full address',
             loadingGovs: 'Loading governorates…',
             govError: 'Could not load governorates',
-            govOption: (name, cost) => `${name} — ${cost} EGP shipping`,
+            govOption: (name, cost) => Number(cost) > 0 ? `${name} — Shipping ${Math.round(cost)} EGP` : `${name} — Free shipping 🎁`,
             confirmOrder: 'Confirm order',
             fillFields: 'Please complete all fields',
             submitting: 'Submitting order…',
@@ -57,14 +57,14 @@
             addressPh: 'العنوان بالتفصيل',
             loadingGovs: 'جارٍ تحميل المحافظات…',
             govError: 'تعذّر تحميل المحافظات',
-            govOption: (name, cost) => `${name} — ${Math.round(cost)} ج.م شحن`,
+            govOption: (name, cost) => Number(cost) > 0 ? `${name} — شحن ${Math.round(cost)} ج.م` : `${name} — شحن مجاني 🎁`,
             confirmOrder: 'تأكيد الطلب',
             fillFields: 'من فضلك أكملي كل الحقول',
             submitting: 'جارٍ تسجيل الطلب…',
             submitFail: 'حصلت مشكلة، جرّبي تاني',
         };
 
-    const CHAT_WIDGET_V = '12';
+    const CHAT_WIDGET_V = '13';
     const sessionId = localStorage.getItem('montana_chat_sid') || 'sid_' + Math.random().toString(36).substr(2, 9);
     localStorage.setItem('montana_chat_sid', sessionId);
 
@@ -793,8 +793,19 @@
         const govSelect = document.getElementById(`${boxId}_gov`);
         try {
             const { shipping } = await import('/js/store-api.js');
-            const rates = await shipping.list();
-            govSelect.innerHTML = rates.map(r => `<option value="${r.governorate}">${COPY.govOption(r.governorate, r.cost)}</option>`).join('');
+            const [rates, cartRes] = await Promise.all([
+                shipping.list(),
+                fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId, getCart: true }),
+                }).then((r) => r.json()).catch(() => ({})),
+            ]);
+            const freeShip = !!cartRes.freeShipping;
+            govSelect.innerHTML = rates.map((r) => {
+                const cost = freeShip ? 0 : (Number(r.cost) || 0);
+                return `<option value="${r.governorate}">${COPY.govOption(r.governorate, cost)}</option>`;
+            }).join('');
         } catch (e) {
             govSelect.innerHTML = `<option value="">${COPY.govError}</option>`;
         }

@@ -1,7 +1,7 @@
 // Montana CRM — client API layer
 // Talks directly to Supabase (anon key + RLS), matching this project's existing pattern (see admin.js).
 
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { createClient } from '/js/vendor/supabase.js?v=1';
 
 const SUPABASE_URL = 'https://ikryeyqrithikabwidov.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrcnlleXFyaXRoaWthYndpZG92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MzY1ODcsImV4cCI6MjA5NzMxMjU4N30.kNfHPxV4fq67cOF8uFsTrLOxPYcLcmmDO3ScIHzI9Uo';
@@ -10,12 +10,40 @@ const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const REP_CACHE_KEY = 'crm_rep_cache';
 
+const _memCache = new Map();
+function cacheGet(key) {
+  const e = _memCache.get(key);
+  if (!e) return undefined;
+  if (Date.now() > e.exp) { _memCache.delete(key); return undefined; }
+  return e.data;
+}
+function cacheSet(key, data, ttlMs = 60000) {
+  _memCache.set(key, { data, exp: Date.now() + ttlMs });
+}
+function cacheDrop(prefix) {
+  for (const k of [..._memCache.keys()]) {
+    if (!prefix || k.startsWith(prefix)) _memCache.delete(k);
+  }
+}
+export function crmCacheInvalidate(prefix) {
+  cacheDrop(prefix);
+}
+
 async function repFor(userId) {
   if (!userId) return null;
-  const cached = (() => { try { const c = JSON.parse(localStorage.getItem(REP_CACHE_KEY)); return c?.user_id === userId ? c : null; } catch { return null; } })();
-  if (cached) return cached;
+  const TTL_MS = 10 * 60 * 1000;
+  try {
+    const c = JSON.parse(localStorage.getItem(REP_CACHE_KEY));
+    if (c?.user_id === userId && c._cachedAt && (Date.now() - c._cachedAt) < TTL_MS) {
+      return c;
+    }
+  } catch { /* ignore */ }
   const { data } = await sb.from('crm_reps').select('*, crm_offices(name)').eq('user_id', userId).maybeSingle();
-  if (data) localStorage.setItem(REP_CACHE_KEY, JSON.stringify(data));
+  if (data) {
+    try {
+      localStorage.setItem(REP_CACHE_KEY, JSON.stringify({ ...data, _cachedAt: Date.now() }));
+    } catch { /* ignore quota / private mode */ }
+  }
   return data || null;
 }
 
@@ -63,8 +91,11 @@ export async function isOwnerAccess() {
 
 export const geo = {
   bricks: async () => {
+    const hit = cacheGet('geo.bricks');
+    if (hit) return hit;
     const { data, error } = await sb.from('crm_bricks').select('*, crm_areas(name, crm_offices(name))').order('name');
     if (error) throw error;
+    cacheSet('geo.bricks', data, 300000);
     return data;
   },
   repBricks: async (repId) => {
@@ -76,8 +107,11 @@ export const geo = {
 
 export const doctors = {
   list: async () => {
+    const hit = cacheGet('doctors.list');
+    if (hit) return hit;
     const { data, error } = await sb.from('crm_doctors').select('*, crm_bricks(name)').order('created_at', { ascending: false });
     if (error) throw error;
+    cacheSet('doctors.list', data, 90000);
     return data;
   },
   /** Active doctors for the current rep's bricks (weekly plan picker). */
@@ -106,11 +140,13 @@ export const doctors = {
     };
     const { data, error } = await sb.from('crm_doctors').insert(payload).select().single();
     if (error) throw error;
+    cacheDrop('doctors.');
     return data;
   },
   update: async (id, patch) => {
     const { data, error } = await sb.from('crm_doctors').update(patch).eq('id', id).select().single();
     if (error) throw error;
+    cacheDrop('doctors.');
     return data;
   },
   // Bulk insert (Excel import) — chunked so large sheets don't hit limits
@@ -138,18 +174,23 @@ export const products = {
   // includes crm_materials — the rep Materials screen and the admin
   // eDetailing counters both read p.crm_materials off this result
   list: async () => {
+    const hit = cacheGet('products.list');
+    if (hit) return hit;
     const { data, error } = await sb.from('crm_products').select('*, crm_materials(*)').order('name');
     if (error) throw error;
+    cacheSet('products.list', data, 180000);
     return data;
   },
   create: async (product) => {
     const { data, error } = await sb.from('crm_products').insert(product).select().single();
     if (error) throw error;
+    cacheDrop('products.');
     return data;
   },
   update: async (id, patch) => {
     const { data, error } = await sb.from('crm_products').update(patch).eq('id', id).select().single();
     if (error) throw error;
+    cacheDrop('products.');
     return data;
   },
   listWithStock: async () => {
@@ -377,6 +418,9 @@ export const visits = {
     return data;
   },
   adminAll: async (opts = {}) => {
+    const key = `visits.adminAll:${JSON.stringify(opts)}`;
+    const hit = cacheGet(key);
+    if (hit) return hit;
     let q = sb.from('crm_visits').select('*, crm_doctors(name, address, doctor_type, crm_bricks(name)), crm_reps!rep_id(name), manager:crm_reps!manager_id(name), crm_visit_samples(*, crm_products(name))').order('visited_at', { ascending: false }).limit(300);
     if (opts.repId) q = q.eq('rep_id', opts.repId);
     if (opts.flagged) q = q.eq('gps_verified', false);
@@ -392,15 +436,18 @@ export const visits = {
         if (opts.b2bPending) qq = qq.eq('b2b_invoice_status', 'pending');
         const res = await qq;
         if (res.error) throw res.error;
+        cacheSet(key, res.data, 45000);
         return res.data;
       }
       throw error;
     }
+    cacheSet(key, data, 45000);
     return data;
   },
   approve: async (id) => {
     const { data, error } = await sb.from('crm_visits').update({ gps_verified: true }).eq('id', id).select().single();
     if (error) throw error;
+    cacheDrop('visits.adminAll');
     return data;
   },
   getAdminStats: async (year, month) => {
@@ -427,9 +474,14 @@ export const samplesReport = {
     monthStart.setDate(1);
     monthStart.setHours(0, 0, 0, 0);
     const monthIso = monthStart.toISOString();
+    const key = `samplesReport:${monthIso.slice(0, 7)}`;
+    const hit = cacheGet(key);
+    if (hit) return hit;
     const { data, error } = await sb.from('crm_visit_samples').select('quantity, crm_products(name), crm_visits(visited_at, rep_id, doctor_id, crm_reps(name), crm_doctors(name, crm_bricks(name)))');
     if (error) throw error;
-    return (data || []).filter(s => (s.crm_visits?.visited_at || '') >= monthIso);
+    const rows = (data || []).filter(s => (s.crm_visits?.visited_at || '') >= monthIso);
+    cacheSet(key, rows, 60000);
+    return rows;
   }
 };
 
@@ -769,7 +821,7 @@ export const reps = {
       throw new Error(await edgeErrorMessage(error) || error.message);
     }
     // ── legacy fallback (Edge Function not deployed) ──
-    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+    const { createClient } = await import('/js/vendor/supabase.js?v=1');
     const sbTemp = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } });
     const { data: signUp, error: authErr } = await sbTemp.auth.signUp({ email, password });
     if (authErr) throw authErr;
@@ -1024,58 +1076,71 @@ export const pharmacyRegions = {
     return data || [];
   },
   listAll: async () => {
+    const hit = cacheGet('pharmacyRegions.listAll');
+    if (hit) return hit;
     const { data, error } = await sb.from('crm_pharmacy_regions')
       .select('*')
       .order('sort_order')
       .order('name');
     if (error) throw error;
-    return data || [];
+    const rows = data || [];
+    cacheSet('pharmacyRegions.listAll', rows, 300000);
+    return rows;
   },
   create: async (payload) => {
-    const row = {
-      parent_id: payload.parent_id || null,
-      name: String(payload.name || '').trim(),
-      region_type: payload.region_type,
-      phone: payload.phone?.trim() || null,
-      address: payload.address?.trim() || null,
-      sort_order: Number(payload.sort_order) || 0,
-      is_active: payload.is_active !== false,
-    };
-    const { data, error } = await sb.from('crm_pharmacy_regions').insert(row).select().single();
+    const { data, error } = await sb.rpc('create_pharmacy_region', {
+      p_parent_id: payload.parent_id || null,
+      p_name: String(payload.name || '').trim(),
+      p_region_type: payload.region_type,
+      p_phone: payload.phone?.trim() || null,
+      p_address: payload.address?.trim() || null,
+    });
     if (error) throw error;
+    cacheDrop('pharmacyRegions.');
     return data;
   },
   update: async (id, patch) => {
     const { data, error } = await sb.from('crm_pharmacy_regions').update(patch).eq('id', id).select().single();
     if (error) throw error;
+    cacheDrop('pharmacyRegions.');
     return data;
   },
   remove: async (id) => {
     const { error } = await sb.from('crm_pharmacy_regions').delete().eq('id', id);
     if (error) throw error;
+    cacheDrop('pharmacyRegions.');
     return true;
   },
   regionBricks: async () => {
+    const hit = cacheGet('pharmacyRegions.regionBricks');
+    if (hit) return hit;
     const { data, error } = await sb.from('crm_pharmacy_region_bricks')
       .select('region_id, brick_id, crm_bricks(id, name, crm_areas(name, crm_offices(name)))');
     if (error) throw error;
-    return data || [];
+    const rows = data || [];
+    cacheSet('pharmacyRegions.regionBricks', rows, 300000);
+    return rows;
   },
 };
 
 // ---------- Pharmacy invoices (trade AR — not doctor samples) ----------
 export const pharmacyInvoices = {
   list: async ({ status = null, q = null } = {}) => {
-    let query = sb.from('crm_pharmacy_invoices')
-      .select('*, crm_doctors(id, name, doctor_type, brick_id, crm_bricks(name)), crm_bricks(id, name), crm_pharmacy_regions(id, name, region_type, parent_id, phone, address)')
-      .order('invoice_date', { ascending: false })
-      .limit(1000);
-    if (status === 'open') query = query.in('status', ['pending', 'partial']);
-    else if (status === 'paid') query = query.eq('status', 'paid');
-    else if (status) query = query.eq('status', status);
-    const { data, error } = await query;
-    if (error) throw error;
-    let rows = data || [];
+    const cacheKey = `pharmacyInvoices:${status || 'all'}`;
+    let rows = cacheGet(cacheKey);
+    if (rows === undefined) {
+      let query = sb.from('crm_pharmacy_invoices')
+        .select('*, crm_doctors(id, name, doctor_type, brick_id, crm_bricks(name)), crm_bricks(id, name), crm_pharmacy_regions(id, name, region_type, parent_id, phone, address)')
+        .order('invoice_date', { ascending: false })
+        .limit(1000);
+      if (status === 'open') query = query.in('status', ['pending', 'partial']);
+      else if (status === 'paid') query = query.eq('status', 'paid');
+      else if (status) query = query.eq('status', status);
+      const { data, error } = await query;
+      if (error) throw error;
+      rows = data || [];
+      cacheSet(cacheKey, rows, 90000);
+    }
     if (q) {
       const s = q.toLowerCase();
       rows = rows.filter((r) =>
@@ -1137,11 +1202,26 @@ export const pharmacyInvoices = {
     };
     const { data, error } = await sb.from('crm_pharmacy_invoices').insert(row).select().single();
     if (error) throw error;
+    cacheDrop('pharmacyInvoices');
+    // Tell the owner on Telegram. Deliberately not awaited and never thrown
+    // from: a notification problem must not make a saved invoice look failed.
+    fetch('/api/send-telegram', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        admin_alert: 'invoice_created',
+        invoice_number: data?.invoice_number ?? data?.id ?? null,
+        pharmacy: payload.pharmacy_name || payload.client_name || null,
+        rep: rep?.name || null,
+        total: data?.total ?? row.total ?? null,
+      }),
+    }).catch(() => {});
     return data;
   },
   update: async (id, patch) => {
     const { data, error } = await sb.from('crm_pharmacy_invoices').update(patch).eq('id', id).select().single();
     if (error) throw error;
+    cacheDrop('pharmacyInvoices');
     return data;
   },
   /** Set collection due date manually (for old open invoices). */
@@ -1161,6 +1241,7 @@ export const pharmacyInvoices = {
   remove: async (id) => {
     const { error } = await sb.from('crm_pharmacy_invoices').delete().eq('id', id);
     if (error) throw error;
+    cacheDrop('pharmacyInvoices');
     return true;
   },
 };

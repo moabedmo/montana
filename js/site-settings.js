@@ -1,9 +1,25 @@
+/** Build wa.me digits with country code (EG: 01xxxxxxxxx → 201xxxxxxxxx). */
+export function toWaMeDigits(raw) {
+  let d = String(raw || '').replace(/[٠-٩]/g, (ch) => String(ch.charCodeAt(0) - 0x0660)).replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('00')) d = d.slice(2);
+  if (/^01\d{9}$/.test(d)) return '20' + d.slice(1);
+  if (/^1\d{9}$/.test(d)) return '20' + d;
+  return d;
+}
+
+export function toWaMeHref(raw) {
+  const digits = toWaMeDigits(raw);
+  return digits ? `https://wa.me/${digits}` : '';
+}
+
 // Applies site_settings to footer/contact blocks on any page.
 export async function applySiteSettings(root = document) {
   try {
     const { settings } = await import('/js/store-api.js');
     const keys = ['phone', 'email', 'address', 'working_hours', 'facebook_url', 'instagram_url', 'tiktok_url', 'whatsapp', 'site_name'];
     const map = await settings.getMany(keys);
+    const waHref = toWaMeHref(map.whatsapp);
 
     root.querySelectorAll('.contact-info').forEach(block => {
       const ps = block.querySelectorAll('p');
@@ -18,9 +34,9 @@ export async function applySiteSettings(root = document) {
         map.facebook_url,
         map.instagram_url,
         map.tiktok_url,
-        map.whatsapp ? `https://wa.me/${String(map.whatsapp).replace(/\D/g, '')}` : ''
+        waHref
       ];
-      social.querySelectorAll('a').forEach((a, i) => { if (urls[i]) { a.href = urls[i]; a.target = '_blank'; } });
+      social.querySelectorAll('a').forEach((a, i) => { if (urls[i]) { a.href = urls[i]; a.target = '_blank'; rel = 'noopener noreferrer'; } });
     });
 
     root.querySelectorAll('.contact-card[href^="tel"]').forEach(a => {
@@ -31,7 +47,7 @@ export async function applySiteSettings(root = document) {
       }
     });
     root.querySelectorAll('.contact-card[href*="wa.me"]').forEach(a => {
-      if (map.whatsapp) a.href = 'https://wa.me/' + String(map.whatsapp).replace(/\D/g, '');
+      if (waHref) a.href = waHref;
     });
     root.querySelectorAll('.contact-card[href^="mailto"]').forEach(a => {
       if (map.email) {
@@ -45,6 +61,10 @@ export async function applySiteSettings(root = document) {
     });
     root.querySelectorAll('.contact-location p').forEach(el => {
       if (map.address) el.textContent = map.address;
+    });
+    root.querySelectorAll('.contact-social-links a').forEach((a, i) => {
+      const urls = [map.facebook_url, map.instagram_url, map.tiktok_url, waHref];
+      if (urls[i]) { a.href = urls[i]; a.target = '_blank'; a.rel = 'noopener noreferrer'; }
     });
 
     root.querySelectorAll('.promo-slider span').forEach((el, i) => {

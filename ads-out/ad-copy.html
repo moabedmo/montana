@@ -1,0 +1,585 @@
+<title>نصوص إعلانات مونتانا</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Tajawal:wght@300;400;500;700;900&display=swap">
+<style>
+  :root {
+    --bg: #F7F5F9;
+    --surface: #FFFFFF;
+    --surface-2: #F1EDF5;
+    --ink: #241E30;
+    --ink-2: #554E6C;
+    --muted: #8A82A0;
+    --accent: #856811;
+    --accent-line: #C9A84C;
+    --rule: #E3DDEA;
+    --warn-bg: #FCF3E1;
+    --warn-ink: #674A08;
+    --warn-rule: #E4CC94;
+    --shadow: 0 1px 2px rgba(36,30,48,.05), 0 8px 24px rgba(36,30,48,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #201A2C;
+      --surface: #2A2338;
+      --surface-2: #322A42;
+      --ink: #F3EFF8;
+      --ink-2: #C3BBD5;
+      --muted: #948CA9;
+      --accent: #DCC06B;
+      --accent-line: #C9A84C;
+      --rule: #3B3350;
+      --warn-bg: #382C18;
+      --warn-ink: #EDD59C;
+      --warn-rule: #5A4822;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.22);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #201A2C;
+    --surface: #2A2338;
+    --surface-2: #322A42;
+    --ink: #F3EFF8;
+    --ink-2: #C3BBD5;
+    --muted: #948CA9;
+    --accent: #DCC06B;
+    --accent-line: #C9A84C;
+    --rule: #3B3350;
+    --warn-bg: #382C18;
+    --warn-ink: #EDD59C;
+    --warn-rule: #5A4822;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.22);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Tajawal', 'Segoe UI', 'Noto Sans Arabic', sans-serif;
+    font-size: 17px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 72px 24px 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+  }
+  a { color: var(--accent); text-underline-offset: 3px; }
+  a:hover { color: var(--ink); }
+
+  .masthead { display: flex; flex-direction: column; gap: 14px; }
+  .wordmark {
+    font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+    font-size: 26px; font-weight: 600; letter-spacing: 8px;
+    color: var(--ink); padding-inline-start: 8px;
+  }
+  .rule-gold { height: 2px; width: 64px; background: var(--accent-line); border-radius: 2px; }
+  h1 {
+    margin: 0; font-size: 40px; font-weight: 900; line-height: 1.2;
+    letter-spacing: -.01em; text-wrap: balance;
+  }
+  .standfirst { margin: 0; color: var(--ink-2); font-weight: 300; font-size: 19px; max-width: 62ch; text-wrap: pretty; }
+
+  section { display: flex; flex-direction: column; gap: 20px; }
+  .eyebrow {
+    font-size: 13px; font-weight: 700; letter-spacing: 3px;
+    color: var(--accent); margin: 0;
+  }
+  h2 { margin: 0; font-size: 27px; font-weight: 900; line-height: 1.3; text-wrap: balance; }
+  h3 { margin: 0; font-size: 19px; font-weight: 700; }
+  p { margin: 0; color: var(--ink-2); max-width: 65ch; text-wrap: pretty; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--surface-2);
+  }
+  .card-title { display: flex; flex-direction: column; gap: 2px; }
+  .card-for { font-size: 13px; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .copy-body {
+    margin: 0; padding: 22px 20px;
+    white-space: pre-wrap;
+    font-family: inherit; font-size: 16.5px; line-height: 1.85;
+    color: var(--ink);
+  }
+
+  button.copy {
+    font-family: inherit; font-size: 14px; font-weight: 700;
+    color: var(--ink); background: var(--surface);
+    border: 1px solid var(--rule); border-radius: 8px;
+    padding: 7px 16px; cursor: pointer;
+    transition: border-color .15s, color .15s;
+  }
+  button.copy:hover { border-color: var(--accent-line); color: var(--accent); }
+  button.copy:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 2px; }
+  button.copy[data-state="done"] { color: var(--accent); border-color: var(--accent-line); }
+
+  .callout {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-rule);
+    border-radius: 12px;
+    padding: 24px 24px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .callout h2, .callout h3 { color: var(--warn-ink); }
+  .callout p, .callout li { color: var(--warn-ink); }
+  .callout .eyebrow { color: var(--warn-ink); opacity: .8; }
+
+  ul { margin: 0; padding-inline-start: 22px; display: flex; flex-direction: column; gap: 9px; }
+  li { color: var(--ink-2); }
+  li strong { color: var(--ink); font-weight: 700; }
+  .callout li strong { color: var(--warn-ink); }
+
+  .no { color: #A03535; font-weight: 700; }
+  .yes { color: #2F6B44; font-weight: 700; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .no { color: #E88A8A; }
+    :root:not([data-theme="light"]) .yes { color: #86D0A2; }
+  }
+  :root[data-theme="dark"] .no { color: #E88A8A; }
+  :root[data-theme="dark"] .yes { color: #86D0A2; }
+
+  .tags {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    padding: 20px; margin: 0;
+    direction: rtl;
+  }
+  .tag {
+    font-size: 15px; font-weight: 500;
+    padding: 5px 13px; border-radius: 999px;
+    background: var(--surface-2); border: 1px solid var(--rule);
+    color: var(--ink-2);
+    unicode-bidi: isolate;
+  }
+
+  .channels { display: flex; flex-direction: column; gap: 12px; }
+  .channel {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 14px 18px; border: 1px solid var(--rule);
+    border-radius: 10px; background: var(--surface);
+  }
+  .channel-label { font-weight: 700; min-width: 6.5em; }
+  .channel-value { color: var(--ink-2); word-break: break-all; }
+
+  footer { border-top: 1px solid var(--rule); padding-top: 24px; }
+  footer p { font-size: 14.5px; color: var(--muted); }
+
+  @media (max-width: 560px) {
+    .page { padding: 44px 16px 80px; gap: 44px; }
+    h1 { font-size: 31px; }
+    h2 { font-size: 23px; }
+    body { font-size: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+
+<div class="page" dir="rtl">
+
+  <header class="masthead">
+    <div class="wordmark">MONTANA</div>
+    <div class="rule-gold"></div>
+    <h1>نصوص إعلانات مونتانا</h1>
+    <p class="standfirst">نصوص جاهزة للنسخ — واحد للريل، وستة للصور المنفصلة، مع الهاشتاجات ونسخة معدّلة للإعلان الممول.</p>
+  </header>
+
+  <section class="callout">
+    <p class="eyebrow">اقرأ ده الأول</p>
+    <h2>ليه فيه نسختين من النص؟</h2>
+    <p>سياسة «الخصائص الشخصية» في ميتا بتمنع أي إعلان بيوحي إنك عارف حاجة عن صحة الشخص أو شكله. ده أكتر سبب بترفض بيه إعلانات العناية بالبشرة في مصر — والرفض بيتسجّل على الحساب الإعلاني.</p>
+    <ul>
+      <li><span class="no">بيترفض:</span> «بتعاني من حب الشباب؟» · «عندك تصبغات؟» · «بشرتك باهتة؟»</li>
+      <li><span class="yes">بيعدّي:</span> «غسول للبشرة المعرضة للحبوب» · «كريم يساعد على توحيد لون البشرة»</li>
+    </ul>
+    <p>الفرق إنك بتوصف <strong>المنتج</strong>، مش بتوصف <strong>الشخص</strong>. عشان كده النصوص اللي تحت مكتوبة بصيغة آمنة من الأول.</p>
+    <p>وحاجة تانية: <strong>الادعاءات بمدة زمنية</strong> زي «خلال ١٤ يوم» أو «في يومين» مقبولة في البوست العادي، لكن في الإعلان الممول بتتراجع كـ ادعاء نتائج. شيلتها من نسخة الإعلان.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">قنوات البيع</p>
+    <h2>الثلاث طرق اللي في كل نص</h2>
+    <div class="channels">
+      <div class="channel"><span class="channel-label">المتجر</span><span class="channel-value">montana.com.eg</span></div>
+      <div class="channel"><span class="channel-label">جوميا</span><span class="channel-value">jumia.com.eg/ar/montana</span></div>
+      <div class="channel"><span class="channel-label">الصفحة</span><span class="channel-value">رسالة مباشرة على فيسبوك أو انستجرام</span></div>
+    </div>
+    <p>لينك جوميا الكامل: <a href="https://www.jumia.com.eg/ar/montana/">https://www.jumia.com.eg/ar/montana/</a> — في نص الانستجرام مش هيبقى قابل للضغط، عشان كده مكتوب مختصر مع جملة «اللينك في البايو».</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">البوست الرئيسي</p>
+    <h2>نص الريل</h2>
+    <p>ده النص اللي يتحط مع فيديو الريل — بيغطي كل المنتجات والعروض.</p>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <h3>الريل — كل المنتجات</h3>
+          <span class="card-for">montana-products-reel.mp4</span>
+        </div>
+        <button class="copy" type="button">نسخ</button>
+      </div>
+      <p class="copy-body">عناية بالبشرة… مصنوعة في مصر 🌿
+
+خط مونتانا الكامل — كل منتج ليه شغلانة واضحة:
+
+◾ غسول علاج حب الشباب — للبشرة المختلطة والدهنية والمعرضة للحبوب · ٣٢٩ ج
+◾ غسول التفتيح — للبقع الداكنة وتفاوت لون البشرة · ٢٩٩ ج
+◾ كريم التفتيح — للكلف والتصبغات وآثار الحبوب · ٢٤٩ ج
+◾ لوشن اليدين والجسم — ترطيب غني وتركيبة غير دهنية · ٢٢٩ ج
+◾ كريم ما بعد الليزر — لتهدئة البشرة ودعم تعافيها بعد الجلسات · ٣٦٩ ج
+
+وعروض الروتين بشحن مجاني:
+• روتين التفتيح (غسول + كريم + لوشن) — ٧٧٧ ج
+• عناية ما بعد الليزر (كريم الليزر + كريم التفتيح) — ٦١٨ ج
+• عناية الوش والجسم (غسول الحبوب + لوشن) — ٥٥٨ ج
+
+تطلبي منين؟
+🛒 المتجر: montana.com.eg
+🛍️ جوميا: jumia.com.eg/ar/montana
+💬 أو ابعتيلنا رسالة هنا على الصفحة
+
+الشحن مجاني على عروض الروتين وعلى أي أوردر من ٣ منتجات.
+—
+دواعي استعمال تجميلية للعناية بالبشرة. استشيري طبيب الجلدية عند الحاجة.
+
+#مونتانا #Montana #العناية_بالبشرة #روتين_العناية_بالبشرة #تفتيح_البشرة #كريم_تفتيح #غسول_وجه #العناية_بالجسم #صنع_في_مصر #تسوق_اونلاين_مصر #جوميا_مصر #skincareegypt #madeinegypt</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">الصور المنفصلة</p>
+    <h2>ستة نصوص — واحد لكل صورة</h2>
+    <p>الأرقام هنا هي نفس أرقام ملفات الصور في مجلد <code>ads-out/stories</code>.</p>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <h3>غسول علاج حب الشباب</h3>
+          <span class="card-for">montana-01-acne-cleanser</span>
+        </div>
+        <button class="copy" type="button">نسخ</button>
+      </div>
+      <p class="copy-body">أول تركيبة غسول كريمي في مصر 🌿
+
+غسول يومي للبشرة المختلطة إلى الدهنية والمعرضة للحبوب — بينضّف بعمق من غير ما ينشّف البشرة أو يسبب شد.
+
+بيُستخدم لـ: حب الشباب · الرؤوس السوداء والبيضاء · انسداد المسام · آثار الحبوب
+المكوّنات الفعّالة: حمض الساليسيليك · زنك PCA · نياسيناميد B3 · زيت الأرجان
+
+السعر: ٣٢٩ ج
+
+تطلبي منين؟
+🛒 montana.com.eg
+🛍️ jumia.com.eg/ar/montana
+💬 أو رسالة على الصفحة
+
+شحن مجاني على أي أوردر من ٣ منتجات.
+—
+دواعي استعمال تجميلية للعناية بالبشرة. استشيري طبيب الجلدية عند الحاجة.
+
+#مونتانا #Montana #حب_الشباب #غسول_وجه #البشرة_الدهنية #العناية_بالبشرة #روتين_العناية_بالبشرة #ساليسيليك #نياسيناميد #صنع_في_مصر #skincareegypt #acnecare</p>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <h3>غسول التفتيح</h3>
+          <span class="card-for">montana-02-whitening-cleanser</span>
+        </div>
+        <button class="copy" type="button">نسخ</button>
+      </div>
+      <p class="copy-body">غسول واحد… للوجه والجسم والمناطق الحساسة 🌿
+
+غسول يومي يساعد على تنظيف البشرة بلُطف ودعم مظهر أكتر إشراقاً وتجانساً من أول خطوة في الروتين.
+
+بيُستخدم لـ: البقع الداكنة · عدم توحّد لون البشرة · الكلف الخفيف · تصبغات الشمس · آثار ما بعد الحبوب
+المكوّنات الفعّالة: خلاصة العرقسوس · نياسيناميد · فيتامين C · زيت شجرة الشاي
+
+السعر: ٢٩٩ ج
+
+تطلبي منين؟
+🛒 montana.com.eg
+🛍️ jumia.com.eg/ar/montana
+💬 أو رسالة على الصفحة
+
+شحن مجاني على أي أوردر من ٣ منتجات.
+—
+دواعي استعمال تجميلية للعناية بالبشرة. استشيري طبيب الجلدية عند الحاجة.
+
+#مونتانا #Montana #تفتيح_البشرة #غسول_تفتيح #توحيد_لون_البشرة #التصبغات #الكلف #العناية_بالبشرة #فيتامين_سي #صنع_في_مصر #skincareegypt #brightening</p>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <h3>كريم التفتيح</h3>
+          <span class="card-for">montana-03-whitening-cream</span>
+        </div>
+        <button class="copy" type="button">نسخ</button>
+      </div>
+      <p class="copy-body">كريم يكشف الإشراقة الطبيعية 🌿
+
+للوجه والرقبة وتحت الإبط والأكواع والركب — يساعد على تحسين مظهر البقع وتوحيد لون البشرة مع الاستخدام المنتظم.
+
+بيُستخدم لـ: الكلف · التصبغات · آثار حب الشباب · بقع الشمس · اسمرار تحت الإبط
+المكوّنات الفعّالة: ألفا أربوتين · مستخلص العرقسوس · نياسيناميد · حمض اللاكتيك
+
+السعر: ٢٤٩ ج
+
+تطلبي منين؟
+🛒 montana.com.eg
+🛍️ jumia.com.eg/ar/montana
+💬 أو رسالة على الصفحة
+
+شحن مجاني على أي أوردر من ٣ منتجات.
+—
+دواعي استعمال تجميلية للعناية بالبشرة. استشيري طبيب الجلدية عند الحاجة.
+
+#مونتانا #Montana #كريم_تفتيح #تفتيح_البشرة #الكلف #التصبغات #آثار_الحبوب #تفتيح_تحت_الابط #ألفا_أربوتين #العناية_بالبشرة #صنع_في_مصر #skincareegypt</p>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <h3>لوشن اليدين والجسم</h3>
+          <span class="card-for">montana-04-body-lotion</span>
+        </div>
+        <button class="copy" type="button">نسخ</button>
+      </div>
+      <p class="copy-body">ترطيب يفضل معاكي طول اليوم 🌿
+
+لوشن غني بتركيبة غير دهنية — بينعّم البشرة ويدعم الحاجز الجلدي، ومناسب للإيدين اللي بتتغسل كتير.
+
+بيُستخدم لـ: جفاف الجلد · خشونة الجلد · ضعف الحاجز الجلدي · نقص الترطيب
+المكوّنات الفعّالة: زبدة الشيا · زبدة الكاكاو · زيت الجوجوبا · فيتامين E
+
+السعر: ٢٢٩ ج
+
+تطلبي منين؟
+🛒 montana.com.eg
+🛍️ jumia.com.eg/ar/montana
+💬 أو رسالة على الصفحة
+
+شحن مجاني على أي أوردر من ٣ منتجات.
+—
+دواعي استعمال تجميلية للعناية بالبشرة. استشيري طبيب الجلدية عند الحاجة.
+
+#مونتانا #Montana #لوشن_الجسم #ترطيب_البشرة #العناية_بالجسم #زبدة_الشيا #جفاف_البشرة #العناية_باليدين #العناية_بالبشرة #صنع_في_مصر #skincareegypt #bodycare</p>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <h3>كريم ما بعد الليزر</h3>
+          <span class="card-for">montana-05-post-laser-cream</span>
+        </div>
+        <button class="copy" type="button">نسخ</button>
+      </div>
+      <p class="copy-body">الخطوة اللي بعد الجلسة 🌿
+
+كريم خفيف يساعد على تهدئة البشرة وترطيبها ودعم تعافيها بعد جلسات الليزر والتقشير، ويقوّي حاجز البشرة.
+
+بيُستخدم لـ: بعد جلسات الليزر · بعد التقشير · الاحمرار والتهيّج · الحرقان والوخز · البشرة الحساسة
+المكوّنات الفعّالة: بانثينول B5 · ألانتوين · ألوفيرا · مستخلص الشاي الأخضر
+
+السعر: ٣٦٩ ج
+
+تطلبي منين؟
+🛒 montana.com.eg
+🛍️ jumia.com.eg/ar/montana
+💬 أو رسالة على الصفحة
+
+شحن مجاني على أي أوردر من ٣ منتجات.
+—
+دواعي استعمال تجميلية للعناية بالبشرة. استشيري طبيب الجلدية عند الحاجة.
+
+#مونتانا #Montana #بعد_الليزر #العناية_بعد_الليزر #تهدئة_البشرة #البشرة_الحساسة #بانثينول #الوفيرا #العناية_بالبشرة #صنع_في_مصر #skincareegypt #postlasercare</p>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <h3>عروض الروتين</h3>
+          <span class="card-for">montana-06-bundles</span>
+        </div>
+        <button class="copy" type="button">نسخ</button>
+      </div>
+      <p class="copy-body">روتين كامل… بشحن مجاني 🌿
+
+بدل ما تختاري منتج منتج، خدي الروتين كامل بنفس أسعار الموقع — والشحن علينا.
+
+• روتين التفتيح — غسول التفتيح + كريم التفتيح + لوشن اليدين والجسم · ٧٧٧ ج
+• عناية ما بعد الليزر — كريم ما بعد الليزر + كريم التفتيح · ٦١٨ ج
+• عناية الوش والجسم — غسول حب الشباب + لوشن اليدين والجسم · ٥٥٨ ج
+
+نفس أسعار المنتجات على الموقع — الميزة هي الشحن المجاني، وكمان على أي أوردر من ٣ منتجات.
+
+تطلبي منين؟
+🛒 montana.com.eg
+🛍️ jumia.com.eg/ar/montana
+💬 أو رسالة على الصفحة
+—
+دواعي استعمال تجميلية للعناية بالبشرة. استشيري طبيب الجلدية عند الحاجة.
+
+#مونتانا #Montana #عروض #شحن_مجاني #روتين_العناية_بالبشرة #تفتيح_البشرة #العناية_بالبشرة #عروض_مصر #تسوق_اونلاين_مصر #صنع_في_مصر #skincareegypt #skincareroutine</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">الإعلان الممول</p>
+    <h2>النص المجمّع</h2>
+    <p>ده النص اللي يتحط في خانة «النص الرئيسي» في مدير الإعلانات — بيغطي كل المنتجات والعروض والثلاث قنوات، ومكتوب من الأول بصيغة متوافقة مع سياسات ميتا.</p>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <h3>النص الرئيسي — المجمّع</h3>
+          <span class="card-for">Primary text</span>
+        </div>
+        <button class="copy" type="button">نسخ</button>
+      </div>
+      <p class="copy-body">مونتانا — عناية بالبشرة مصنوعة في مصر 🌿
+
+خط متكامل للعناية اليومية بالوش والجسم:
+
+◾ غسول حب الشباب — للبشرة المختلطة إلى الدهنية والمعرضة للحبوب · ٣٢٩ ج
+◾ غسول التفتيح — للوجه والجسم والمناطق الحساسة · ٢٩٩ ج
+◾ كريم التفتيح — يساعد على تحسين مظهر البقع وتوحيد لون البشرة · ٢٤٩ ج
+◾ لوشن اليدين والجسم — ترطيب غني بتركيبة غير دهنية · ٢٢٩ ج
+◾ كريم ما بعد الليزر — يساعد على تهدئة البشرة ودعم تعافيها بعد الجلسات · ٣٦٩ ج
+
+عروض الروتين — بشحن مجاني:
+• روتين التفتيح (غسول التفتيح + كريم التفتيح + لوشن) — ٧٧٧ ج
+• عناية ما بعد الليزر (كريم الليزر + كريم التفتيح) — ٦١٨ ج
+• عناية الوش والجسم (غسول الحبوب + لوشن) — ٥٥٨ ج
+
+والشحن مجاني كمان على أي أوردر من ٣ منتجات.
+
+اطلبي من:
+🛒 المتجر الإلكتروني — montana.com.eg
+🛍️ متجرنا على جوميا — jumia.com.eg/ar/montana
+💬 أو رسالة مباشرة على الصفحة
+
+دواعي استعمال تجميلية للعناية بالبشرة. استشيري طبيب الجلدية عند الحاجة.</p>
+    </div>
+
+    <h3>ليه النص ده بالذات يعدّي</h3>
+    <ul>
+      <li><strong>بيوصف المنتج مش الشخص</strong> — مفيش «إنتِ عندك» ولا «بتعاني من». كل سطر بيقول المنتج بيعمل إيه، مش بيقول للناس هما شكلهم إيه.</li>
+      <li><strong>مفيش وعد بمدة</strong> — شيلت «خلال ١٤ يوم» و«في يومين» اللي موجودين في نصوص البوستات العضوية.</li>
+      <li><strong>«يساعد على» مش «بيعالج»</strong> — وكتبت «غسول حب الشباب» بدل الاسم الرسمي «غسول علاج حب الشباب»، لأن كلمة «علاج» بتحوّل منتج تجميلي لادعاء طبي.</li>
+      <li><strong>مفيش قبل وبعد</strong> — ولا أي صورة أو جملة توحي بمقارنة.</li>
+      <li><strong>شيلت «أول تركيبة غسول كريمي في مصر»</strong> — ادعاء أولوية مطلق ممكن يتطلب إثبات. سيبها في البوست العضوي عادي.</li>
+    </ul>
+
+    <h3>نسخة أقصر</h3>
+    <p>لو بتشغّل إعلان على مجموعة منتجات (Catalog) أو عايز نص خفيف للاختبار:</p>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <h3>النص الرئيسي — مختصر</h3>
+          <span class="card-for">Primary text · قصير</span>
+        </div>
+        <button class="copy" type="button">نسخ</button>
+      </div>
+      <p class="copy-body">عناية بالبشرة مصنوعة في مصر — غسول وكريم تفتيح، لوشن جسم، وكريم لما بعد الليزر.
+
+روتين كامل بشحن مجاني من ٥٥٨ ج، والشحن مجاني كمان على أي أوردر من ٣ منتجات.
+
+اطلبي من المتجر montana.com.eg أو من متجرنا على جوميا.</p>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <h3>العنوان والوصف</h3>
+          <span class="card-for">Headline + Description</span>
+        </div>
+        <button class="copy" type="button">نسخ</button>
+      </div>
+      <p class="copy-body">العنوان: مونتانا — عناية بالبشرة من مصر
+الوصف: شحن مجاني على عروض الروتين
+زر الحث: تسوّق الآن
+الوجهة: https://www.montana.com.eg/</p>
+    </div>
+    <p><strong>ملحوظة:</strong> الهاشتاجات مالهاش أي تأثير على وصول الإعلان الممول — دي للبوستات العضوية بس. سيبها بره نص الإعلان عشان يفضل مختصر.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">الهاشتاجات</p>
+    <h2>بنك الهاشتاجات</h2>
+    <p>انستجرام بيسمح بـ ٣٠ هاشتاج، لكن الأفضل من ١٠ لـ ١٥ مرتبطين فعلاً بالمحتوى. فيسبوك أقل — من ٣ لـ ٥ كفاية.</p>
+
+    <div class="card">
+      <div class="card-head"><div class="card-title"><h3>البراند والفئة</h3></div></div>
+      <div class="tags">
+        <span class="tag">#مونتانا</span><span class="tag">#Montana</span><span class="tag">#العناية_بالبشرة</span><span class="tag">#روتين_العناية_بالبشرة</span><span class="tag">#منتجات_العناية_بالبشرة</span><span class="tag">#سكين_كير</span><span class="tag">#skincare</span><span class="tag">#skincareroutine</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-title"><h3>حسب المشكلة</h3></div></div>
+      <div class="tags">
+        <span class="tag">#تفتيح_البشرة</span><span class="tag">#كريم_تفتيح</span><span class="tag">#غسول_وجه</span><span class="tag">#حب_الشباب</span><span class="tag">#آثار_الحبوب</span><span class="tag">#الكلف</span><span class="tag">#التصبغات</span><span class="tag">#توحيد_لون_البشرة</span><span class="tag">#البشرة_الدهنية</span><span class="tag">#ترطيب_البشرة</span><span class="tag">#بعد_الليزر</span><span class="tag">#العناية_بالجسم</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-title"><h3>مصر والتسوّق</h3></div></div>
+      <div class="tags">
+        <span class="tag">#صنع_في_مصر</span><span class="tag">#مصر</span><span class="tag">#القاهرة</span><span class="tag">#الاسكندرية</span><span class="tag">#تسوق_اونلاين_مصر</span><span class="tag">#جوميا_مصر</span><span class="tag">#شحن_مجاني</span><span class="tag">#skincareegypt</span><span class="tag">#egyptbeauty</span><span class="tag">#madeinegypt</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-title"><h3>المكوّنات</h3></div></div>
+      <div class="tags">
+        <span class="tag">#نياسيناميد</span><span class="tag">#ساليسيليك</span><span class="tag">#ألفا_أربوتين</span><span class="tag">#فيتامين_سي</span><span class="tag">#زبدة_الشيا</span><span class="tag">#بانثينول</span><span class="tag">#العرقسوس</span><span class="tag">#niacinamide</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>الأسعار والمكوّنات مسحوبة من داتا المتجر — لو غيّرت سعر على الموقع، النصوص دي محتاجة تتحدّث معاه. الجملة الأخيرة عن الاستعمال التجميلي موجودة في كل نص عن قصد؛ سيبها.</p>
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('button.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var block = btn.closest('.card').querySelector('.copy-body');
+      var reset = function (label) {
+        btn.textContent = label;
+        btn.dataset.state = 'done';
+        setTimeout(function () { btn.textContent = 'نسخ'; btn.dataset.state = ''; }, 2400);
+      };
+      var selectIt = function () {
+        var range = document.createRange();
+        range.selectNodeContents(block);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        reset('محدد — اضغط Ctrl+C');
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(block.textContent).then(function () {
+          reset('تم النسخ');
+        }, selectIt);
+      } else {
+        selectIt();
+      }
+    });
+  });
+</script>

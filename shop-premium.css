@@ -135,6 +135,26 @@ body.mnt-shop .page-action {
     color: rgba(255, 255, 255, .9) !important;
     text-decoration: none;
     transition: background .2s, transform .15s;
+    position: relative;
+}
+
+body.mnt-shop .page-action .cart-badge,
+body.mnt-shop .page-action .badge,
+.page-action-btn.page-cart .cart-badge,
+.page-action-btn.page-cart .badge {
+    position: absolute;
+    top: -4px;
+    inset-inline-end: -4px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #c9a84c;
+    color: #1a1224;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 16px;
+    text-align: center;
 }
 
 body.mnt-shop .page-action:active,
@@ -219,13 +239,20 @@ body.mnt-shop .product-card {
     box-shadow: 0 8px 32px rgba(0, 0, 0, .22) !important;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    opacity: 0;
-    transform: translateY(16px);
+    /* Default visible — never leave the shop looking "stuck loading".
+       Fade-in only while JS marks cards as pending-reveal. */
+    opacity: 1;
+    transform: none;
     transition: opacity .5s ease, transform .5s ease, border-color .25s, box-shadow .25s;
 }
 
+body.mnt-shop .product-card.is-pending-reveal:not(.is-visible) {
+    opacity: 0;
+    transform: translateY(16px);
+}
+
 body.mnt-shop .product-card.is-visible {
-    opacity: 1;
+    opacity: 1 !important;
     transform: translateY(0);
 }
 

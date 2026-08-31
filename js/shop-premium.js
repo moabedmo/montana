@@ -8,11 +8,14 @@
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add('is-visible');
+            entry.target.classList.remove('is-pending-reveal');
             window.__montanaCardObserver.unobserve(entry.target);
           }
         });
       },
-      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+      // Generous margin so cards near the fold still reveal (was -40px and
+      // left some cards stuck invisible = empty/"loading" store).
+      { threshold: 0.01, rootMargin: '120px 0px 120px 0px' }
     );
   }
 

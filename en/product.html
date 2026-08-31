@@ -6,15 +6,19 @@
     <meta name="theme-color" content="#9B6CB8">
     <title>Montana | Product Details</title>
     <link rel="icon" href="/images/logo.png" type="image/png">
-    <script src="..//js/seo.js" defer></script>
+    <script src="/js/seo.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="..//styles.css">
-    <link rel="stylesheet" href="..//app.css">
-    <link rel="stylesheet" href="..//pages.css">
-    <link rel="stylesheet" href="..//premium.css">
-    <link rel="stylesheet" href="..//dark-theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
+    <!-- Absolute paths required: pretty URL /en/product/:slug breaks relative ../ assets -->
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/app.css">
+    <link rel="stylesheet" href="/pages.css">
+    <link rel="stylesheet" href="/premium.css">
+    <link rel="stylesheet" href="/css/ltr-en.css?v=1">
+    <link rel="stylesheet" href="/dark-theme.css">
     <style>.pd-loading,.pd-error{padding:60px 20px;text-align:center;color:var(--text-muted)}</style>
 </head>
 <body class="mnt-en">
@@ -24,15 +28,21 @@
     <a href="/en/category.html" class="page-back"><i class="fas fa-arrow-left"></i></a>
     <h2>Product details</h2>
     <div class="page-header-actions">
-        <button class="page-action-btn"><i class="far fa-heart"></i></button>
-        <button class="page-action-btn"><i class="fas fa-share-alt"></i></button>
+        <button class="page-action-btn" type="button" aria-label="Wishlist"><i class="far fa-heart"></i></button>
+        <button class="page-action-btn" type="button" aria-label="Share"><i class="fas fa-share-alt"></i></button>
+        <a href="/en/checkout.html" class="page-action-btn page-cart" title="Cart" aria-label="Cart">
+            <i class="fas fa-shopping-bag"></i>
+            <span class="badge cart-badge" style="display:none">0</span>
+        </a>
     </div>
 </div>
 
 <div id="pdRoot"><div class="pd-loading"><i class="fas fa-spinner fa-spin"></i> Loading…</div></div>
 
-<script src="..//components.js"></script>
-<script src="..//js/cart.js"></script>
+<script src="/js/meta-pixel.js?v=15"></script>
+<script src="/js/metaEvents.js?v=16"></script>
+<script src="/components.js"></script>
+<script src="/js/cart.js"></script>
 <script src="/js/lang-switch.js?v=2"></script>
 <script type="module">
 import { products as productsApi, ingredients as ingredientsApi, reviews as reviewsApi } from '/js/store-api.js';
@@ -40,6 +50,32 @@ import { getProductIndications, PRODUCT_NAMES, COSMETIC_DISCLAIMER } from '/js/i
 import { localizeProduct, formatPrice, getLocale, productUrl } from '/js/i18n/locale.js?v=3';
 import { UI_STRINGS, PRODUCT_COPY, COSMETIC_DISCLAIMER as EN_DISCLAIMER } from '/js/i18n/en.js';
 import { escapeHtml } from '/js/escape-html.js';
+
+/** Wait until MontanaMeta is ready — product module can finish before deferred inject. */
+function fireViewContentWhenReady(payload) {
+    const tryFire = () => {
+        if (!window.MontanaMeta || typeof window.MontanaMeta.trackViewContent !== 'function') return false;
+        if (typeof window.fbq !== 'function') return false;
+        console.log('[Montana Meta] ViewContent →', JSON.stringify('ViewContent'), payload);
+        window.MontanaMeta.trackViewContent(payload);
+        return true;
+    };
+    if (tryFire()) return;
+    let tries = 0;
+    const timer = setInterval(() => {
+        if (tryFire() || ++tries > 100) {
+            clearInterval(timer);
+            if (tries > 100) {
+                if (window.MontanaMeta?.trackViewContent) {
+                    console.warn('[Montana Meta] ViewContent firing without fbq stub');
+                    window.MontanaMeta.trackViewContent(payload);
+                } else {
+                    console.error('Meta ViewContent: MontanaMeta never loaded');
+                }
+            }
+        }
+    }, 50);
+}
 
 const L = () => (getLocale() === 'en' ? UI_STRINGS.product : null);
 
@@ -233,6 +269,16 @@ function renderProduct(p, related, ingredientsList, reviewList) {
         this.innerHTML = getLocale() === 'en' ? '<i class="fas fa-check"></i> Added to bag' : '<i class="fas fa-check"></i> Added to bag';
         setTimeout(() => { this.innerHTML = original; }, 1500);
     });
+
+    try {
+        fireViewContentWhenReady({
+            content_ids: [String(p.id)],
+            content_name: p.name,
+            content_type: 'product',
+            value: Number(p.price) || 0,
+            currency: 'EGP',
+        });
+    } catch (_) { /* ignore */ }
 
     document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();

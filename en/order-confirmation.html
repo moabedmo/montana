@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="../css/ltr-en.css?v=1">
     <link rel="stylesheet" href="../dark-theme.css">
     <script src="../js/seo.js" defer></script>
+    <script src="../js/meta-pixel.js?v=15"></script>
+    <script src="../js/metaEvents.js?v=16"></script>
 </head>
 <body class="mnt-en">
 
@@ -115,6 +117,10 @@ function renderConfirmation() {
   const dateStr = new Date(order.created_at).toLocaleDateString(isEn ? 'en-GB' : 'ar-EG', { day: 'numeric', month: 'long', year: 'numeric' });
   const points = Math.round((order.total || 0) / 10);
   const addrSep = isEn ? ', ' : '، ';
+
+  try {
+    window.MontanaMeta?.trackPurchaseOnce?.(order, items);
+  } catch (_) { /* ignore */ }
 
   page.innerHTML = `
         <div class="conf-success">

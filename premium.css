@@ -1256,18 +1256,6 @@ footer::before, .footer::before {
     50%      { box-shadow: 0 6px 24px rgba(201,168,76,.45), 0 0 0 8px rgba(201,168,76,.0); }
 }
 
-/* 6. App section — styled */
-.app-screen,
-[class*="app-screen"] {
-    background: rgba(255,255,255,.05) !important;
-    border: 1px solid rgba(255,255,255,.1) !important;
-    border-radius: 24px !important;
-    backdrop-filter: blur(10px) !important;
-    box-shadow: 0 20px 60px rgba(0,0,0,.3),
-                inset 0 1px 0 rgba(255,255,255,.08) !important;
-    overflow: hidden !important;
-}
-
 .app-offer-btn,
 [class*="app-offer-btn"] {
     background: linear-gradient(135deg, var(--gold), var(--gold-light)) !important;

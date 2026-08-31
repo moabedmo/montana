@@ -10,12 +10,12 @@ import { enrichHeroSlideEn } from './i18n/hero-meta-en.js';
 const CYCLE_MS = 5500;
 
 const AR_PRODUCTS = [
-  { img: 'images/p1.webp', en: 'ACNE FACIAL CLEANSER', name: 'غسول الوجه لعلاج حب الشباب', tag: 'تنظيف لطيف وعميق للبشرة المعرضة للحبوب', price: 285, mood: '#453f64', scale: 1.16, slug: 'acne-facial-cleanser' },
-  { img: 'images/p2.webp', en: 'WHITENING CLEANSER', name: 'غسول التفتيح والتوحيد', tag: 'إشراقة يومية وتوحيد فوري للون البشرة', price: 310, mood: '#4f3f5c', scale: 1.16, slug: 'whitening-cleanser' },
-  { img: 'images/p3.webp', en: 'WHITENING CREAM', name: 'كريم التفتيح', tag: 'تفتيح ملحوظ وترطيب يدوم طوال اليوم', price: 240, mood: '#543d67', slug: 'whitening-cream' },
-  { img: 'images/p4.webp', en: 'HAND & BODY LOTION', name: 'لوشن اليدين والجسم', tag: 'نعومة حريرية لجسمك من أول استخدام', price: 195, mood: '#503f60', slug: 'hand-body-lotion' },
-  { img: 'images/p5.webp', en: 'POST-LASER CREAM', name: 'كريم ما بعد الليزر', tag: 'تهدئة وترميم البشرة بعد الجلسات', price: 265, mood: '#5a4358', slug: 'post-laser-cream' },
-  { img: 'images/p6.webp', en: 'ANTI-SCAR SILICONE GEL', name: 'جل السيليكون لعلاج الندبات', tag: 'تحسين مظهر الندبات الحديثة والقديمة', price: 340, mood: '#493d58', slug: 'anti-scar-gel' },
+  { img: 'images/p1.webp', en: 'ACNE FACIAL CLEANSER', name: 'غسول الوجه لعلاج حب الشباب', tag: 'تنظيف لطيف وعميق للبشرة المعرضة للحبوب', price: 329, mood: '#453f64', scale: 1.16, slug: 'acne-facial-cleanser' },
+  { img: 'images/p2.webp', en: 'WHITENING CLEANSER', name: 'غسول التفتيح والتوحيد', tag: 'إشراقة يومية وتوحيد فوري للون البشرة', price: 299, mood: '#4f3f5c', scale: 1.16, slug: 'whitening-cleanser' },
+  { img: 'images/p3.webp', en: 'WHITENING CREAM', name: 'كريم التفتيح', tag: 'تفتيح ملحوظ وترطيب يدوم طوال اليوم', price: 249, mood: '#543d67', slug: 'whitening-cream' },
+  { img: 'images/p4.webp', en: 'HAND & BODY LOTION', name: 'لوشن اليدين والجسم', tag: 'نعومة حريرية لجسمك من أول استخدام', price: 229, mood: '#503f60', slug: 'hand-body-lotion' },
+  { img: 'images/p5.webp', en: 'POST-LASER CREAM', name: 'كريم ما بعد الليزر', tag: 'تهدئة وترميم البشرة بعد الجلسات', price: 369, mood: '#5a4358', slug: 'post-laser-cream' },
+  { img: 'images/p6.webp', en: 'ANTI-SCAR SILICONE GEL', name: 'جل السيليكون لعلاج الندبات', tag: 'تحسين مظهر الندبات الحديثة والقديمة', price: 950, mood: '#493d58', slug: 'anti-scar-gel' },
 ];
 
 function assetUrl(path) {
@@ -305,6 +305,17 @@ if (!hero || !imgA || !dotsWrap) {
   }
 
   const nextPos = () => (heroVpos + 1) % heroVideoList.length;
+  const playBtn = document.getElementById('hero-play-btn');
+  let heroUserPlaying = false;
+
+  function setPlayUi(playing) {
+    heroUserPlaying = playing;
+    hero.classList.toggle('hero-is-playing', playing);
+    if (playBtn) {
+      playBtn.hidden = playing;
+      playBtn.setAttribute('aria-hidden', playing ? 'true' : 'false');
+    }
+  }
 
   // Buffer the following clip into the idle layer so the fade can start instantly
   // (no waiting → no freeze on the current clip's last frame).
@@ -315,20 +326,40 @@ if (!hero || !imgA || !dotsWrap) {
     heroIdle.classList.remove('is-active');
   }
 
-  // Paint the given clip on the active layer immediately (first frame / no fade).
-  function showHeroVideo(pos) {
+  // Show the first decoded frame without autoplay — customer taps play.
+  function revealFrame(vid, { autoplay = false } = {}) {
+    const show = () => {
+      vid.classList.add('is-active');
+      // Drop JPEG poster so a bright product still never covers the copy.
+      vid.removeAttribute('poster');
+      if (autoplay) playVid(vid);
+      else {
+        try { vid.pause(); } catch (_) { /* ignore */ }
+        if (vid.currentTime < 0.05 && vid.readyState >= 2) {
+          try { vid.currentTime = 0.05; } catch (_) { /* ignore */ }
+        }
+      }
+    };
+    if (vid.readyState >= 2) { show(); return; }
+    vid.addEventListener('loadeddata', show, { once: true });
+  }
+
+  function showHeroVideo(pos, { autoplay = false } = {}) {
     heroVpos = (pos + heroVideoList.length) % heroVideoList.length;
     const { src } = heroVideoList[heroVpos];
     applyHeroVideoText(false);
     if (heroActive.getAttribute('src') !== src) {
-      heroActive.src = src; heroActive.load();
-      heroActive.classList.add('is-active');
-      playVid(heroActive);
+      heroActive.classList.remove('is-active');
+      heroActive.src = src;
+      heroActive.load();
+      revealFrame(heroActive, { autoplay });
     } else {
-      // Already the right clip: if it's already autoplaying, leave it running —
-      // resetting currentTime here would seek/restart it and flash the poster frame.
       heroActive.classList.add('is-active');
-      if (heroActive.paused) { heroActive.currentTime = 0; playVid(heroActive); }
+      if (autoplay) {
+        if (heroActive.paused) { heroActive.currentTime = 0; playVid(heroActive); }
+      } else {
+        try { heroActive.pause(); } catch (_) { /* ignore */ }
+      }
     }
     preloadNext();
   }
@@ -337,7 +368,7 @@ if (!hero || !imgA || !dotsWrap) {
   // still playing — started slightly before the current clip ends, so it never
   // stops on its last frame.
   function crossfadeToNext() {
-    if (heroTransitioning || heroVideoList.length < 2) return;
+    if (heroTransitioning || heroVideoList.length < 2 || !heroUserPlaying) return;
     heroTransitioning = true;
     heroVpos = nextPos();
     heroIdle.currentTime = 0;
@@ -358,30 +389,54 @@ if (!hero || !imgA || !dotsWrap) {
   }
 
   async function setupHeroVideoPlaylist() {
-    const found = [];
-    for (const f of HERO_VIDEO_FILES) {
-      try {
-        const r = await fetch(f.src, { method: 'HEAD' });
-        if (r.ok) found.push(f);
-      } catch (_) { /* missing → skip */ }
-    }
-    if (!found.length) { hero.classList.remove('hero-has-video'); restart(); return; }
-    heroVideoList = found;
+    // Trust deployed playlist — do NOT await HEAD probes first.
+    // Sequential HEAD used to hang on flaky mobile networks and left the
+    // visible play button with no click handler (looked "broken").
+    heroVideoList = HERO_VIDEO_FILES.slice();
+    hero.classList.add('hero-has-video');
+    setPlayUi(false);
 
-    showHeroVideo(0);
-    if (found.length > 1) {
+    const startPlayback = (e) => {
+      e?.preventDefault?.();
+      e?.stopPropagation?.();
+      if (!heroVideoList.length) return;
+      setPlayUi(true);
+      // Ensure a source is loaded before play (first tap).
+      if (!heroActive.getAttribute('src')) {
+        showHeroVideo(0, { autoplay: true });
+      } else {
+        playVid(heroActive);
+      }
+    };
+    const pausePlayback = () => {
+      try { heroActive.pause(); } catch (_) { /* ignore */ }
+      try { heroIdle?.pause(); } catch (_) { /* ignore */ }
+      setPlayUi(false);
+    };
+
+    // Wire play immediately so the first tap always works.
+    playBtn?.addEventListener('click', startPlayback);
+    hero.addEventListener('click', (e) => {
+      if (e.target.closest('a, button, .sc-cta-row, .hero-play-btn')) return;
+      if (!heroUserPlaying) return;
+      pausePlayback();
+    });
+
+    // Load first clip paused — no autoplay (saves mobile data; play icon invites tap).
+    showHeroVideo(0, { autoplay: false });
+
+    if (heroVideoList.length > 1) {
       heroVideoEl.loop = false;
       heroVidB.loop = false;
-      // Begin the fade FADE_LEAD seconds before the clip ends so the outgoing clip
-      // keeps playing through the transition instead of pausing on its last frame.
       const onTime = (e) => {
         const v = e.target;
-        if (v !== heroActive || heroTransitioning || !v.duration) return;
+        if (v !== heroActive || heroTransitioning || !v.duration || !heroUserPlaying) return;
         if (v.currentTime >= v.duration - FADE_LEAD) crossfadeToNext();
       };
-      // Safety net: if a clip somehow reaches the very end, advance immediately.
       const onEnded = (e) => {
-        if (e.target === heroActive && !heroTransitioning) crossfadeToNext();
+        if (e.target !== heroActive || heroTransitioning) return;
+        if (heroUserPlaying) crossfadeToNext();
+        else setPlayUi(false);
       };
       [heroVideoEl, heroVidB].forEach((v) => {
         v.addEventListener('timeupdate', onTime);
@@ -392,19 +447,9 @@ if (!hero || !imgA || !dotsWrap) {
     }
   }
 
-  // Skip the autoplay video playlist on mobile/reduced-motion (isLite) —
-  // it was fetching 2 full video clips (~3-4MB) within seconds of page
-  // load on every device, including mobile data. Those visitors get the
-  // existing static-image carousel instead (the same fallback already used
-  // when no video files are found at all), desktop keeps the video hero.
-  if (heroVideoEl && heroVidB && !isLite) {
-    hero.classList.add('hero-has-video');
+  // Videos on every viewport (incl. mobile): tap-to-play only — never autoplay.
+  if (heroVideoEl && heroVidB) {
     setupHeroVideoPlaylist();
-    // Mobile browsers sometimes block autoplay (low battery / data saver).
-    // A single tap anywhere on the hero should resume the active layer.
-    hero.addEventListener('click', () => {
-      if (heroActive.paused) playVid(heroActive);
-    });
   }
 
   restart();

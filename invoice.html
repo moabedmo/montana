@@ -26,8 +26,15 @@
             padding: 24px;
         }
 
+        @page {
+            size: A4 portrait;
+            margin: 10mm;
+        }
+
         .invoice {
-            max-width: 800px;
+            width: 210mm;
+            max-width: 210mm;
+            min-height: 297mm;
             flex: 1;
             min-width: 0;
             margin: 0 auto;
@@ -412,8 +419,22 @@
         }
 
         @media print {
-            body { background: #fff; padding: 0; margin: 0; }
-            .invoice { box-shadow: none; border-radius: 0; max-width: 100%; }
+            html, body {
+                width: 210mm;
+                min-height: auto;
+                margin: 0;
+                padding: 0;
+            }
+            body { background: #fff; }
+            .inv-layout { display: block; max-width: none; margin: 0; }
+            .invoice {
+                box-shadow: none;
+                border-radius: 0;
+                width: 100%;
+                max-width: none;
+                min-height: auto;
+                margin: 0;
+            }
             .no-print { display: none !important; }
             .del-btn { display: none !important; }
             .inv-header {
@@ -458,7 +479,6 @@
             .inv-info-block p { font-size: 10px; line-height: 1.6; }
             .inv-stamp-circle { width: 60px; height: 60px; font-size: 8px; }
             .inv-watermark { padding: 10px; font-size: 9px; }
-            @page { size: A4; margin: 8mm; }
         }
     </style>
 </head>

@@ -20,6 +20,7 @@ const HOME_BUNDLE = [
   'premium.css',
   'home-premium.css',
   'css/perf.css',
+  'css/bundles.css',
 ];
 
 const SHOP_BUNDLE = [
@@ -30,6 +31,7 @@ const SHOP_BUNDLE = [
   'dark-theme.css',
   'shop-premium.css',
   'css/perf.css',
+  'css/bundles.css',
 ];
 
 function bundle(name, files) {

@@ -81,6 +81,57 @@ async function syncHeroFromDb() {
   } catch { /* static hero remains */ }
 }
 
+function formatOfferPrice(n) {
+  const num = Math.round(Number(n) || 0);
+  return getLocale() === 'en'
+    ? `${num.toLocaleString('en-EG')} EGP`
+    : `${num.toLocaleString('ar-EG')} ج.م`;
+}
+
+function productHref(slug) {
+  return getLocale() === 'en'
+    ? `/en/product/${encodeURIComponent(slug)}`
+    : `/product/${encodeURIComponent(slug)}`;
+}
+
+/** Live "عروض اليوم" — same catalog source as category.html. Hide OOS. */
+function renderTodaysOffers(all) {
+  const mount = document.getElementById('todaysOffers');
+  if (!mount) return;
+
+  const offers = (all || [])
+    .filter((p) => (p.stock ?? 0) > 0)
+    .filter((p) => !/^anti-scar/i.test(p.slug || ''))
+    .sort((a, b) => (b.review_count || 0) - (a.review_count || 0))
+    .slice(0, 4)
+    .map((p) => localizeProduct(p) || p);
+
+  if (!offers.length) {
+    mount.innerHTML = '';
+    return;
+  }
+
+  mount.innerHTML = offers.map((p) => {
+    const discountPct = p.old_price
+      ? Math.round((1 - Number(p.price) / Number(p.old_price)) * 100)
+      : null;
+    const img = resolveAssetUrl(p.image_url);
+    return `
+    <a href="${productHref(p.slug)}" class="app-offer-card" style="text-decoration:none;color:inherit">
+      ${discountPct ? `<div class="app-offer-discount">-${discountPct}%</div>` : ''}
+      <img loading="lazy" decoding="async" src="${img}" alt="${p.name}">
+      <div class="app-offer-details">
+        <span class="app-offer-brand">Montaña</span>
+        <h4>${p.name}</h4>
+        <div class="app-offer-prices">
+          <span class="app-price-new">${formatOfferPrice(p.price)}</span>
+          ${p.old_price ? `<span class="app-price-old">${formatOfferPrice(p.old_price)}</span>` : ''}
+        </div>
+      </div>
+    </a>`;
+  }).join('');
+}
+
 async function initHome() {
   try {
     const all = await productsApi.list();
@@ -104,6 +155,7 @@ async function initHome() {
       }
     }
 
+    renderTodaysOffers(all);
     applyCategoryTabs(all);
     loadCategoryCount();
     loadAppBanners();

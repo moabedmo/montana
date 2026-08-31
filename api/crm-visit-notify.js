@@ -30,11 +30,16 @@ module.exports = async function handler(req, res) {
       // Review reminders only need daily granularity (3-4 day window), so
       // this rides the existing daily cron tick instead of needing its own
       // externally-triggered job like cart-reminder does.
-      const [overdue, reviews] = await Promise.all([
+      // The owner's daily digest rides this same tick — the Hobby plan's two
+      // cron slots are both spoken for, and a once-a-day summary needs no
+      // schedule of its own.
+      const { sendDailyDigest } = require('../lib/dailyDigest');
+      const [overdue, reviews, digest] = await Promise.all([
         notifyOverdueInvoices(),
         sendReviewReminders(),
+        sendDailyDigest(),
       ]);
-      return res.status(200).json({ ok: true, ...overdue, reviewReminders: reviews });
+      return res.status(200).json({ ok: true, ...overdue, reviewReminders: reviews, dailyDigest: digest });
     } catch (err) {
       return res.status(500).json({ ok: false, error: err.message || 'Server error' });
     }

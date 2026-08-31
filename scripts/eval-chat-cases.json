@@ -1,0 +1,729 @@
+{
+  "description": "Real customer regressions — every live failure must land here. Run: node scripts/eval-chat.js",
+  "cases": [
+    {
+      "id": "shahenda-routine",
+      "steps": [
+        "ممكن اعرف الروتين"
+      ],
+      "expect": {
+        "allThreeOffers": true,
+        "notFake": true
+      }
+    },
+    {
+      "id": "shahenda-price-follow",
+      "steps": [
+        "ممكن اعرف الروتين",
+        "وسعره كام"
+      ],
+      "expect": {
+        "asksWhichOffer": true,
+        "notFullOffersRedump": true,
+        "notFake": true
+      }
+    },
+    {
+      "id": "shahenda-bikini",
+      "steps": [
+        "فى تفتيح البكينى"
+      ],
+      "expect": {
+        "brighteningRoutine": true,
+        "notSingleWhiteningCream": true
+      }
+    },
+    {
+      "id": "bikini-alt",
+      "steps": [
+        "في تفتيح البكيني"
+      ],
+      "expect": {
+        "brighteningRoutine": true,
+        "notSingleWhiteningCream": true
+      }
+    },
+    {
+      "id": "underarm",
+      "steps": [
+        "عندكم حاجة لتفتيح تحت الإبط"
+      ],
+      "expect": {
+        "brighteningRoutine": true,
+        "notSingleWhiteningCream": true
+      }
+    },
+    {
+      "id": "om-arm-after-bkam",
+      "steps": [
+        "بكام",
+        "عايزة عرض تفتيح الارم"
+      ],
+      "expect": {
+        "brighteningRoutine": true,
+        "notSingleWhiteningCream": true,
+        "notFullOffersRedump": true
+      }
+    },
+    {
+      "id": "arm-brightening",
+      "steps": [
+        "عايزة تفتيح الذراع"
+      ],
+      "expect": {
+        "brighteningRoutine": true,
+        "notSingleWhiteningCream": true
+      }
+    },
+    {
+      "id": "offers-list",
+      "steps": [
+        "ايه العروض"
+      ],
+      "expect": {
+        "allThreeOffers": true
+      }
+    },
+    {
+      "id": "pick-first-order",
+      "steps": [
+        "ايه العروض",
+        "العرض الاول",
+        "اوك اعمل اوردر"
+      ],
+      "expect": {
+        "postLaserBundle": true,
+        "notSingleSkuTrap": true
+      }
+    },
+    {
+      "id": "slang-awelany",
+      "steps": [
+        "ايه العروض",
+        "الاولاني",
+        "يلا سجلي الأوردر"
+      ],
+      "expect": {
+        "postLaserBundle": true
+      }
+    },
+    {
+      "id": "bkam",
+      "steps": [
+        "بكم"
+      ],
+      "expect": {
+        "allThreeOffers": true,
+        "notFake": true,
+        "noHair": true
+      }
+    },
+    {
+      "id": "ad-bkam-brightening",
+      "selectedBundle": "brightening",
+      "steps": [
+        "بكام"
+      ],
+      "expect": {
+        "onlyAdBundle": true,
+        "adKey": "brightening",
+        "brighteningRoutine": true
+      }
+    },
+    {
+      "id": "ad-bkam-post-laser",
+      "selectedBundle": "post-laser",
+      "steps": [
+        "بكم"
+      ],
+      "expect": {
+        "onlyAdBundle": true,
+        "adKey": "post-laser",
+        "postLaserBundle": true
+      }
+    },
+    {
+      "id": "whole-set",
+      "steps": [
+        "مجموعه كلها"
+      ],
+      "expect": {
+        "allThreeOffers": true,
+        "noHair": true
+      }
+    },
+    {
+      "id": "empty-checkout",
+      "steps": [
+        "عايزة أطلب دلوقتي"
+      ],
+      "expect": {
+        "allThreeOffers": true
+      }
+    },
+    {
+      "id": "points-mid-checkout",
+      "steps": [
+        "ايه العروض",
+        "العرض الاول",
+        "اوك اعمل اوردر",
+        "نكمل",
+        "ماشي البرنامج اي"
+      ],
+      "expect": {
+        "explainsPoints": true
+      }
+    },
+    {
+      "id": "multi-first-and-third",
+      "steps": [
+        "ايه العروض",
+        "عاوز العرض الاول والتالت"
+      ],
+      "expect": {
+        "postLaserBundle": true,
+        "faceBodyBundle": true,
+        "multiOffersAdded": true
+      }
+    },
+    {
+      "id": "benefits-after-brightening",
+      "steps": [
+        "عايزة تفتيح الذراع",
+        "طيب له فوائد"
+      ],
+      "expect": {
+        "answersBenefits": true,
+        "notOfferRepitch": true
+      }
+    },
+    {
+      "id": "abrseel-underarm-loop",
+      "steps": [
+        "نا عايزه تحت الابط",
+        "طيب  له فوائد",
+        "طيب له ضمانه لو صار فيني شيء",
+        "انا عايزه تفتيح"
+      ],
+      "expect": {
+        "brighteningRoutine": true,
+        "notOfferRepitch": true,
+        "addedOrClosing": true
+      }
+    },
+    {
+      "id": "guarantee-moh",
+      "steps": [
+        "طيب له ضمانه لو صار فيني شيء"
+      ],
+      "expect": {
+        "ministryApproval": true,
+        "notFourteenDayReturn": true
+      }
+    },
+    {
+      "id": "results-timeline",
+      "steps": [
+        "عايزة تفتيح الذراع",
+        "امتى يطلع النتائج"
+      ],
+      "expect": {
+        "resultsIn14Days": true,
+        "notOfferRepitch": true
+      }
+    },
+    {
+      "id": "faq-franco-benefits",
+      "steps": [
+        "عايزة تحت الإبط",
+        "طيب فوايده ايه بالظبط"
+      ],
+      "expect": {
+        "answersBenefits": true,
+        "notOfferRepitch": true
+      }
+    },
+    {
+      "id": "faq-return-explicit",
+      "steps": [
+        "لو عايزة أرجع المنتج"
+      ],
+      "expect": {
+        "returnPolicy": true
+      }
+    },
+    {
+      "id": "zohra-bikini-suitability",
+      "steps": [
+        "تفتيح الاندر آرم بكام",
+        "النتيجه هتبان بعد كام يوم",
+        "وبينفع للبكيني برضوا"
+      ],
+      "expect": {
+        "answersSuitability": true,
+        "notOfferRepitch": true,
+        "notReAddBundle": true
+      }
+    },
+    {
+      "id": "pregnancy-suitability",
+      "steps": [
+        "تفتيح الاندر آرم بكام",
+        "نفع للحوامل"
+      ],
+      "expect": {
+        "answersPregnancy": true,
+        "notReAddBundle": true
+      }
+    },
+    {
+      "id": "ingredients-followup-multi",
+      "steps": [
+        "تفتيح الاندر آرم بكام",
+        "ممكن اعرف مكوناته",
+        "الغسول والكريم واللوشن",
+        "والغسول والكريم"
+      ],
+      "expect": {
+        "answersIngredientsFollowup": true,
+        "notOfferRepitch": true,
+        "notReAddBundle": true
+      }
+    },
+    {
+      "id": "address-feisal-detail",
+      "steps": [
+        "ايه العروض",
+        "العرض الاول",
+        "اوك اعمل اوردر",
+        "هنا",
+        "محمد أحمد علي",
+        "01012345678",
+        "اول فيصل قريب من الميترو أمام مدينه الشباب شارع ترعه عبد العال عماره 25 الطابق الثامن في العماره مطعم الفيومي الدمشقي ك معلم"
+      ],
+      "expect": {
+        "asksGovernorate": true,
+        "notReaskAddress": true
+      }
+    },
+    {
+      "id": "address-mashi-recover",
+      "steps": [
+        "ايه العروض",
+        "العرض التاني",
+        "اوك اعمل اوردر",
+        "هنا",
+        "سارة محمد علي",
+        "01098765432",
+        "اول فيصل قريب من الميترو أمام مدينه الشباب شارع ترعه عبد العال عماره 25 الطابق الثامن مطعم الفيومي معلم",
+        "ماشيء"
+      ],
+      "expect": {
+        "asksGovernorate": true,
+        "notShortAddressNag": true
+      }
+    },
+    {
+      "id": "gov-reject-address-paste",
+      "steps": [
+        "ايه العروض",
+        "العرض التالت",
+        "اوك اعمل اوردر",
+        "هنا",
+        "نور أحمد حسن",
+        "01123456789",
+        "المعادي شارع 9 عمارة 12 دور 3 جنب مترو المعادي",
+        "المعادي شارع 9 عمارة 12 دور 3 جنب مترو المعادي علامة المول"
+      ],
+      "expect": {
+        "asksGovernorateOnly": true,
+        "notGovNotFound": true
+      }
+    },
+    {
+      "id": "post-order-tamam-no-offers",
+      "steps": [
+        "ايه العروض",
+        "العرض الاول",
+        "اوك اعمل اوردر",
+        "هنا",
+        "علي محمود سعيد",
+        "01559887766",
+        "فيصل شارع ترعة عبد العال عمارة 25 الدور 8 أمام مدينة الشباب",
+        "الجيزة",
+        "تمام"
+      ],
+      "expect": {
+        "orderPlaced": true,
+        "softCloseAfterOrder": true,
+        "notFullOffersRedump": true
+      }
+    },
+    {
+      "id": "eta-mid-checkout-ask-missing",
+      "steps": [
+        "ايه العروض",
+        "العرض الاول",
+        "اوك اعمل اوردر",
+        "هنا",
+        "هند كمال فؤاد",
+        "01033334444",
+        "متئ بيوصل"
+      ],
+      "expect": {
+        "etaThenAskAddress": true
+      }
+    },
+    {
+      "id": "doaa-cairo-not-address",
+      "steps": [
+        "ايه العروض",
+        "العرض التاني",
+        "اوك اعمل اوردر",
+        "هنا",
+        "دعاء ابراهيم موسي",
+        "01229743649",
+        "القاهره"
+      ],
+      "expect": {
+        "asksDetailedAddress": true,
+        "notOrderPlaced": true
+      }
+    },
+    {
+      "id": "doaa-natural-faq",
+      "steps": [
+        "روتين التفتيح",
+        "هو المنتج ده طبيعي"
+      ],
+      "expect": {
+        "answersNatural": true,
+        "notOfferRepitch": true
+      }
+    },
+    {
+      "id": "doaa-results-vary",
+      "steps": [
+        "روتين التفتيح",
+        "لكل الناس ولا في ناس وناس"
+      ],
+      "expect": {
+        "answersResultsVary": true,
+        "notMinistryOnly": true
+      }
+    },
+    {
+      "id": "hnaa-ander-arm",
+      "steps": [
+        "تفتيح الاندر ارم"
+      ],
+      "expect": {
+        "brighteningRoutine": true,
+        "notSingleWhiteningCream": true
+      }
+    },
+    {
+      "id": "hnaa-severity-followup",
+      "steps": [
+        "تفتيح الاندر ارم",
+        "اسود جدا جدا"
+      ],
+      "expect": {
+        "brighteningPrice777": true,
+        "notSingleWhiteningCream": true
+      }
+    },
+    {
+      "id": "hnaa-course-ship-price",
+      "steps": [
+        "تفتيح الاندر ارم",
+        "ياعنى الكورس الكريم والغسول ومصاريف الشحن بكام"
+      ],
+      "expect": {
+        "brighteningRoutine": true,
+        "freeShippingMention": true,
+        "notSingleWhiteningCream": true
+      }
+    },
+    {
+      "id": "hnaa-ghosol-lateneen",
+      "steps": [
+        "تفتيح الاندر ارم",
+        "بكام الغسول واللاتنين دول"
+      ],
+      "expect": {
+        "twoProductUnitPrices": true,
+        "freeShipFrom3Note": true,
+        "notFullOffersRedump": true
+      }
+    },
+    {
+      "id": "hnaa-both-plus-shipping",
+      "steps": [
+        "تفتيح الاندر ارم",
+        "بكام الغسول والكريم",
+        "الاتنين بكام",
+        "ومصاريف الشحن حضرتك"
+      ],
+      "expect": {
+        "shippingPolicy": true,
+        "notFullOffersRedump": true
+      }
+    },
+    {
+      "id": "sara-cleanser-alone",
+      "steps": [
+        "بكام الغسول لوحده"
+      ],
+      "expect": {
+        "cleanserUnitPrice": true,
+        "freeShipFrom3Note": true,
+        "notFullOffersRedump": true
+      }
+    },
+    {
+      "id": "sara-whitening-cleanser-body",
+      "steps": [
+        "غسول التفتيح للبشره والجسم"
+      ],
+      "expect": {
+        "whiteningCleanserPrice": true,
+        "notSingleWhiteningCream": true,
+        "notFullOffersRedump": true
+      }
+    },
+    {
+      "id": "sara-ship-beni-suef",
+      "steps": [
+        "بكام الغسول لوحده",
+        "غسول التفتيح",
+        "والشحن لمحافظة بنى سويف بكام"
+      ],
+      "expect": {
+        "namedGovShipping": true,
+        "notSuitability": true,
+        "notFullOffersRedump": true
+      }
+    },
+    {
+      "id": "sara-cleanser-bas-after-whitening",
+      "steps": [
+        "غسول التفتيح للبشره والجسم",
+        "الغسول بس"
+      ],
+      "expect": {
+        "whiteningCleanserPrice": true,
+        "notAskWhichCleanser": true
+      }
+    },
+    {
+      "id": "eman-compose-after-add",
+      "steps": [
+        "ايوه عاوزا اوردر",
+        "عباره عن ايه"
+      ],
+      "selectedBundle": "brightening",
+      "expect": {
+        "explainsRoutineComposition": true,
+        "notAskWhichProduct": true,
+        "notReRegisterPitch": true
+      }
+    },
+    {
+      "id": "eman-sensitive-after-cart",
+      "steps": [
+        "ايوه عاوزا اوردر",
+        "تفتيح الاماكن الحساسه"
+      ],
+      "selectedBundle": "brightening",
+      "expect": {
+        "bundleAlreadyInCart": true,
+        "notReRegisterPitch": true
+      }
+    },
+    {
+      "id": "om-full-offer-with-ad",
+      "selectedBundle": "brightening",
+      "steps": [
+        "لو سمحت العرض كامل بكام"
+      ],
+      "expect": {
+        "onlyAdBundle": true,
+        "adKey": "brightening",
+        "brighteningRoutine": true,
+        "notFullOffersRedump": true
+      }
+    },
+    {
+      "id": "om-cleanser-cream-price",
+      "steps": [
+        "طب الغسول والكريم التفتيح عامل كام"
+      ],
+      "expect": {
+        "cleanserAndCreamUnitPrices": true,
+        "freeShipFrom3Note": true,
+        "notBrighteningRoutinePitch": true,
+        "notFullOffersRedump": true
+      }
+    },
+    {
+      "id": "show-products-after-pitch",
+      "steps": [
+        "اوزة أعرف سعر كورس كامل لتفتيح الأماكن الحساسة",
+        "وريني شكل المنتجات كد"
+      ],
+      "expect": {
+        "sendsSiteOrBundleLink": true,
+        "notReRegisterPitch": true
+      }
+    },
+    {
+      "id": "jeje-price-typo-hamza",
+      "steps": [
+        "ءعر"
+      ],
+      "expect": {
+        "allThreeOffers": true,
+        "notFake": true,
+        "notProductCatalogDump": true
+      }
+    },
+    {
+      "id": "jeje-price-typo-sghr",
+      "steps": [
+        "سغر"
+      ],
+      "expect": {
+        "allThreeOffers": true,
+        "notFake": true,
+        "notProductCatalogDump": true
+      }
+    },
+    {
+      "id": "jeje-confused-after-offers",
+      "steps": [
+        "سغر",
+        "؟؟؟؟؟؟؟"
+      ],
+      "expect": {
+        "asksWhichOffer": true,
+        "notProductCatalogDump": true,
+        "notFake": true
+      }
+    },
+    {
+      "id": "jeje-emoji-after-offers",
+      "steps": [
+        "ايه العروض",
+        "😀😀"
+      ],
+      "expect": {
+        "softClarifyOrOffers": true,
+        "notProductCatalogDump": true
+      }
+    },
+    {
+      "id": "amira-unit-prices-after-offers",
+      "steps": [
+        "ممكن العروض",
+        "ممكن اسعار المنتجات لوحدها"
+      ],
+      "expect": {
+        "unitProductsPriceList": true,
+        "notFullOffersRedump": true,
+        "asksWhichOffer": false
+      }
+    },
+    {
+      "id": "amira-product-alone-clarify",
+      "steps": [
+        "ممكن العروض",
+        "اقصد لو عايزه منتج لوحده"
+      ],
+      "expect": {
+        "unitProductsPriceList": true
+      }
+    },
+    {
+      "id": "amira-cleanser-face-vs-sensitive",
+      "steps": [
+        "غسول التفتيح دا للوجه ولا سينسيتيف اريا؟"
+      ],
+      "expect": {
+        "faceAndSensitiveSuitability": true,
+        "notPriceOnlyForSuitability": true
+      }
+    },
+    {
+      "id": "menna-usage-after-brightening",
+      "steps": [
+        "افضل عرض لى منطقة الاندر ارم والبيكيني",
+        "طيب طريقه الاستخدام"
+      ],
+      "expect": {
+        "usageSteps": true,
+        "notRoutineBlurbsOnly": true
+      }
+    },
+    {
+      "id": "amatallah-order-not-arrived",
+      "steps": [
+        "السلام عليكم",
+        "لو سمحتم الاوردر موصلش لحد الان"
+      ],
+      "expect": {
+        "handsOrderIssueToCs": true,
+        "notOffersForMissingDelivery": true
+      }
+    },
+    {
+      "id": "yasmine-discount-600",
+      "steps": [
+        "روتين التفتيح",
+        "ينفع تحسبيه ب 600"
+      ],
+      "expect": {
+        "declinesExtraDiscount": true,
+        "notFullOffersRedump": true
+      }
+    },
+    {
+      "id": "yasmine-walkaway-expensive",
+      "steps": [
+        "روتين التفتيح",
+        "نكمل",
+        "غالي جدا متشكره جدا خلاص مش هينفع اطلبه"
+      ],
+      "expect": {
+        "walkAwaySoftClose": true
+      }
+    },
+    {
+      "id": "order-problem-generic",
+      "steps": [
+        "عندي مشكلة في الاوردر"
+      ],
+      "expect": {
+        "handsOrderIssueToCs": true
+      }
+    },
+    {
+      "id": "order-arrived-incomplete",
+      "steps": [
+        "الطلب وصل ناقص"
+      ],
+      "expect": {
+        "handsOrderIssueToCs": true
+      }
+    },
+    {
+      "id": "order-late",
+      "steps": [
+        "الاوردر اتأخر"
+      ],
+      "expect": {
+        "handsOrderIssueToCs": true
+      }
+    }
+  ]
+}

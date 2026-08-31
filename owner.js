@@ -408,9 +408,19 @@ window.printOwnerPiInvoice = () => {
         return;
     }
     const styles = `
+      @page{size:A4 portrait;margin:10mm}
       *{box-sizing:border-box;margin:0;padding:0}
-      body{font-family:'Tajawal',Segoe UI,Tahoma,sans-serif;background:#fff;padding:12px;direction:rtl;color:#2D1B3D}
-      .owner-pi-invoice{max-width:800px;margin:0 auto;background:#fff;overflow:hidden}
+      html,body{
+        width:210mm;min-height:297mm;margin:0;padding:0;
+        font-family:'Tajawal',Segoe UI,Tahoma,sans-serif;
+        background:#fff;direction:rtl;color:#2D1B3D;
+        -webkit-print-color-adjust:exact;print-color-adjust:exact;
+      }
+      .owner-pi-invoice{
+        width:100%;max-width:none;min-height:calc(297mm - 20mm);
+        margin:0;background:#fff;overflow:hidden;
+        display:flex;flex-direction:column;
+      }
       .pi-inv-header{background:linear-gradient(135deg,#2D1B3D,#9B6CB8);color:#fff;padding:28px 36px;display:flex;justify-content:space-between;align-items:center}
       .pi-inv-logo h1{font-size:26px;font-weight:900;letter-spacing:3px;margin:0 0 4px}
       .pi-inv-logo span{font-size:11px;opacity:.7;letter-spacing:2px}
@@ -441,7 +451,15 @@ window.printOwnerPiInvoice = () => {
       .pi-inv-footer-info{font-size:11px;color:#8888a0;line-height:1.8}
       .pi-inv-stamp{border:2px solid #9B6CB8;color:#9B6CB8;border-radius:12px;padding:10px 16px;font-size:12px;font-weight:800;text-align:center;line-height:1.4}
       .pi-inv-watermark{text-align:center;padding:12px;font-size:11px;color:#8888a0;border-top:1px dashed #E8DFF0}
+      @media print{
+        html,body{width:210mm;height:auto;margin:0;padding:0}
+        .owner-pi-invoice{width:100%;min-height:auto}
+        .pi-inv-header,.pi-inv-meta,.pi-inv-footer,th,.disc{
+          -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
+        }
+      }
     `;
+    frame.style.cssText = 'position:fixed;left:0;top:0;width:210mm;height:297mm;border:0;opacity:0;z-index:99999;pointer-events:none';
     const doc = frame.contentDocument || frame.contentWindow.document;
     doc.open();
     doc.write(`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>فاتورة صيدلية</title>
@@ -494,6 +512,281 @@ function renderRecentOrders(orders) {
     `).join('') : '<p class="empty">لا توجد طلبات بعد</p>';
 }
 
+/* ═══════════════════════════════════════════
+   طلبات أمازون — SP-API Egypt
+   ═══════════════════════════════════════════ */
+function fmtAmazonDate(v) {
+    if (!v) return '—';
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) return String(v);
+    return d.toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' });
+}
+
+function renderAmazonOrdersList(el, orders, meta = {}) {
+    if (!el) return;
+    if (!orders?.length) {
+        el.innerHTML = `<p class="empty">لا توجد طلبات أمازون في الفترة المحددة${meta.error ? ` — ${meta.error}` : ''}</p>`;
+        return;
+    }
+    el.innerHTML = `<div class="owner-channel-table">
+        <div class="owner-channel-head"><span>رقم الطلب</span><span>القناة</span><span>الإجمالي</span><span>الحالة</span><span>التاريخ</span></div>
+        ${orders.map((o) => {
+            const total = o.total != null ? `${fmtNum(o.total)} ${o.currency || 'EGP'}` : '—';
+            return `<div class="owner-channel-row">
+                <span dir="ltr"><strong>${o.id}</strong></span>
+                <span>${o.fulfillment || '—'}</span>
+                <span>${total}</span>
+                <span>${o.status || '—'}</span>
+                <span>${fmtAmazonDate(o.created_at)}</span>
+            </div>`;
+        }).join('')}
+    </div>
+    <p class="owner-dash-hint">عُرض ${orders.length} طلب${meta.created_after ? ` · من ${fmtAmazonDate(meta.created_after)}` : ''} · Amazon SP-API (مصر)</p>`;
+}
+
+async function loadOwnerAmazonOrders() {
+    const el = document.getElementById('ownerAmazonOrders');
+    if (!el) return;
+    el.innerHTML = '<p class="empty">جارٍ سحب الطلبات من أمازون…</p>';
+    const days = Number(document.getElementById('ownerAmazonDays')?.value || 30);
+    try {
+        const headers = await authHeaders();
+        const res = await fetch(`/api/integrations-status?action=amazon-orders&days=${days}&size=50`, { headers });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || `HTTP ${res.status}`);
+        renderAmazonOrdersList(el, data.orders || [], data.rawMeta || {});
+    } catch (e) {
+        console.error(e);
+        el.innerHTML = `<p class="empty">تعذّر سحب طلبات أمازون: ${e.message || e}</p>`;
+    }
+}
+
+function bindOwnerAmazonUi() {
+    document.getElementById('ownerAmazonRefreshBtn')?.addEventListener('click', () => loadOwnerAmazonOrders());
+    document.getElementById('ownerAmazonDays')?.addEventListener('change', () => loadOwnerAmazonOrders());
+    document.getElementById('ownerAmazonStockRefreshBtn')?.addEventListener('click', () => loadOwnerAmazonStock());
+    document.getElementById('ownerAmazonStockPushBtn')?.addEventListener('click', () => pushOwnerAmazonStock());
+}
+
+function renderAmazonStockCompare(el, metaEl, data) {
+    if (!el) return;
+    const rows = data.rows || [];
+    const s = data.summary || {};
+    if (metaEl) {
+        metaEl.textContent = `مونتانيا ${s.montana_count ?? 0} · أمازون ${s.amazon_count ?? 0} · مربوط ${s.matched ?? 0} · فروقات ${s.mismatched ?? 0} · قابل للدفع ${s.pushable ?? 0}`;
+        if (data.errors?.listings) metaEl.textContent += ` · تنبيه: ${data.errors.listings}`;
+    }
+    if (!rows.length) {
+        el.innerHTML = '<p class="empty">لا توجد أصناف للمقارنة</p>';
+        return;
+    }
+    el.innerHTML = `<div class="owner-channel-table">
+        <div class="owner-channel-head"><span>المنتج</span><span>مونتانيا</span><span>أمازون SKU</span><span>أمازون</span><span>فرق</span><span>الربط</span></div>
+        ${rows.map((r) => {
+            const delta = r.delta == null ? '—' : (r.delta > 0 ? `+${r.delta}` : String(r.delta));
+            const title = r.montana_name || r.amazon_name || r.slug || r.amazon_sellerSku || '—';
+            const sub = [r.slug, r.amazon_asin].filter(Boolean).join(' · ');
+            return `<div class="owner-channel-row">
+                <span><strong>${title}</strong>${sub ? `<br><small dir="ltr">${sub}</small>` : ''}</span>
+                <span>${r.montana_stock != null ? fmtNum(r.montana_stock) : '—'}</span>
+                <span dir="ltr">${r.amazon_sellerSku || '—'}</span>
+                <span>${r.amazon_stock != null ? fmtNum(r.amazon_stock) : '—'}</span>
+                <span>${delta}</span>
+                <span>${matchLabel(r.match)}${r.can_push ? '' : ' · ناقص'}</span>
+            </div>`;
+        }).join('')}
+    </div>`;
+}
+
+async function loadOwnerAmazonStock() {
+    const el = document.getElementById('ownerAmazonStock');
+    const meta = document.getElementById('ownerAmazonStockMeta');
+    if (!el) return;
+    el.innerHTML = '<p class="empty">جارٍ مقارنة المخزون مع أمازون…</p>';
+    try {
+        const headers = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=amazon-stock', { headers });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || `HTTP ${res.status}`);
+        window.__ownerAmazonStock = data;
+        renderAmazonStockCompare(el, meta, data);
+    } catch (e) {
+        console.error(e);
+        el.innerHTML = `<p class="empty">تعذّر مقارنة مخزون أمازون: ${e.message || e}</p>`;
+        if (meta) meta.textContent = '';
+    }
+}
+
+async function pushOwnerAmazonStock() {
+    if (!confirm('هتدفع مخزون الموقع لأمازون (الفروقات فقط). متأكد؟')) return;
+    const btn = document.getElementById('ownerAmazonStockPushBtn');
+    if (btn) btn.disabled = true;
+    try {
+        const headers = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=amazon-stock-push', {
+            method: 'POST',
+            headers: { ...headers, 'Content-Type': 'application/json' },
+            body: '{}',
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || `HTTP ${res.status}`);
+        toast(
+            data.pushed
+                ? `تم تحديث ${data.pushed} صنف على أمازون${data.failed ? ` · فشل ${data.failed}` : ''}`
+                : (data.message || 'لا فروقات'),
+            data.failed ? 'error' : 'success'
+        );
+        await loadOwnerAmazonStock();
+    } catch (e) {
+        console.error(e);
+        toast(e.message || 'فشل دفع المخزون لأمازون', 'error');
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+/* ═══════════════════════════════════════════
+   طلبات جوميا — Vendor API live pull
+   ═══════════════════════════════════════════ */
+function fmtJumiaDate(v) {
+    if (!v) return '—';
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) return String(v);
+    return d.toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' });
+}
+
+function renderJumiaOrdersList(el, orders, meta = {}) {
+    if (!el) return;
+    if (!orders?.length) {
+        el.innerHTML = `<p class="empty">لا توجد طلبات جوميا في الفترة المحددة${meta.error ? ` — ${meta.error}` : ''}</p>`;
+        return;
+    }
+    const head = `<div class="owner-channel-table">
+        <div class="owner-channel-head"><span>رقم الطلب</span><span>العميل</span><span>الإجمالي</span><span>الحالة</span><span>التاريخ</span></div>
+        ${orders.map((o) => {
+            const total = o.total != null ? `${fmtNum(o.total)} ${o.currency || 'EGP'}` : '—';
+            return `<div class="owner-channel-row">
+                <span dir="ltr"><strong>${o.id}</strong></span>
+                <span>${o.customer_name || '—'}${o.customer_phone ? ` · <span dir="ltr">${o.customer_phone}</span>` : ''}</span>
+                <span>${total}</span>
+                <span>${o.status || '—'}</span>
+                <span>${fmtJumiaDate(o.created_at)}</span>
+            </div>`;
+        }).join('')}
+    </div>
+    <p class="owner-dash-hint">عُرض ${orders.length} طلب${meta.created_after ? ` · من ${fmtJumiaDate(meta.created_after)}` : ''} · جوميا Vendor API</p>`;
+    el.innerHTML = head;
+}
+
+async function loadOwnerJumiaOrders() {
+    const el = document.getElementById('ownerJumiaOrders');
+    if (!el) return;
+    el.innerHTML = '<p class="empty">جارٍ سحب الطلبات من جوميا…</p>';
+    const days = Number(document.getElementById('ownerJumiaDays')?.value || 30);
+    try {
+        const headers = await authHeaders();
+        const res = await fetch(`/api/integrations-status?action=jumia-orders&days=${days}&size=50`, { headers });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || `HTTP ${res.status}`);
+        renderJumiaOrdersList(el, data.orders || [], data.rawMeta || {});
+    } catch (e) {
+        console.error(e);
+        el.innerHTML = `<p class="empty">تعذّر سحب طلبات جوميا: ${e.message || e}</p>`;
+    }
+}
+
+function bindOwnerJumiaUi() {
+    document.getElementById('ownerJumiaRefreshBtn')?.addEventListener('click', () => loadOwnerJumiaOrders());
+    document.getElementById('ownerJumiaDays')?.addEventListener('change', () => loadOwnerJumiaOrders());
+    document.getElementById('ownerJumiaStockRefreshBtn')?.addEventListener('click', () => loadOwnerJumiaStock());
+    document.getElementById('ownerJumiaStockPushBtn')?.addEventListener('click', () => pushOwnerJumiaStock());
+}
+
+function matchLabel(m) {
+    const map = {
+        manual: 'يدوي',
+        alias: 'تلقائي',
+        slug: 'slug',
+        fuzzy: 'تقريبي',
+        name: 'بالاسم',
+        'manual-unresolved': 'SKU يدوي ناقص',
+    };
+    return map[m] || (m ? m : '—');
+}
+
+function renderJumiaStockCompare(el, metaEl, data) {
+    if (!el) return;
+    const rows = data.rows || [];
+    const s = data.summary || {};
+    if (metaEl) {
+        metaEl.textContent = `مونتانيا ${s.montana_count ?? 0} · جوميا ${s.jumia_count ?? 0} · مربوط ${s.matched ?? 0} · فروقات ${s.mismatched ?? 0} · قابل للدفع ${s.pushable ?? 0}`;
+        if (data.errors?.stock || data.errors?.products) {
+            metaEl.textContent += ` · تنبيه API: ${[data.errors.stock, data.errors.products].filter(Boolean).join(' / ')}`;
+        }
+    }
+    if (!rows.length) {
+        el.innerHTML = '<p class="empty">لا توجد أصناف للمقارنة</p>';
+        return;
+    }
+    el.innerHTML = `<div class="owner-channel-table">
+        <div class="owner-channel-head"><span>المنتج</span><span>مونتانيا</span><span>جوميا</span><span>فرق</span><span>الربط</span></div>
+        ${rows.map((r) => {
+            const delta = r.delta == null ? '—' : (r.delta > 0 ? `+${r.delta}` : String(r.delta));
+            const deltaClass = r.delta == null ? '' : (r.delta === 0 ? '' : 'warn');
+            const title = r.montana_name || r.jumia_name || r.slug || r.jumia_sellerSku || '—';
+            const sub = [r.slug, r.jumia_sellerSku].filter(Boolean).join(' · ');
+            return `<div class="owner-channel-row ${deltaClass}">
+                <span><strong>${title}</strong>${sub ? `<br><small dir="ltr">${sub}</small>` : ''}</span>
+                <span>${r.montana_stock != null ? fmtNum(r.montana_stock) : '—'}</span>
+                <span>${r.jumia_stock != null ? fmtNum(r.jumia_stock) : '—'}</span>
+                <span>${delta}</span>
+                <span>${matchLabel(r.match)}${r.can_push ? '' : ' · ناقص SID'}</span>
+            </div>`;
+        }).join('')}
+    </div>`;
+}
+
+async function loadOwnerJumiaStock() {
+    const el = document.getElementById('ownerJumiaStock');
+    const meta = document.getElementById('ownerJumiaStockMeta');
+    if (!el) return;
+    el.innerHTML = '<p class="empty">جارٍ مقارنة المخزون…</p>';
+    try {
+        const headers = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=jumia-stock', { headers });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || `HTTP ${res.status}`);
+        window.__ownerJumiaStock = data;
+        renderJumiaStockCompare(el, meta, data);
+    } catch (e) {
+        console.error(e);
+        el.innerHTML = `<p class="empty">تعذّر مقارنة المخزون: ${e.message || e}</p>`;
+    }
+}
+
+async function pushOwnerJumiaStock() {
+    if (!confirm('هتدفع مخزون الموقع لجوميا للأصناف اللي فيها فرق فقط. متأكد؟')) return;
+    const btn = document.getElementById('ownerJumiaStockPushBtn');
+    if (btn) btn.disabled = true;
+    try {
+        const headers = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=jumia-stock-push', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ onlyMismatched: true }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || `HTTP ${res.status}`);
+        toast(data.pushed ? `تم إرسال ${data.pushed} صنف لجوميا (Feed: ${data.feedId || '—'})` : (data.message || 'لا فروقات'), 'success');
+        await loadOwnerJumiaStock();
+    } catch (e) {
+        console.error(e);
+        toast(e.message || 'فشل دفع المخزون', 'error');
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
 function renderOwnerLowStock(rows, inv) {
     const box = document.getElementById('lowStockAlert');
     const list = document.getElementById('lowStockList');
@@ -513,5 +806,599 @@ function renderOwnerLowStock(rows, inv) {
     html += `<a href="${adminPage('products')}" class="btn-primary btn-outline owner-action-link"><i class="fas fa-box"></i> فتح المنتجات</a>`;
     list.innerHTML = html;
 }
+
+/* ═══════════════════════════════════════════
+   أوراق الشركة — private docs for the owner
+   ═══════════════════════════════════════════ */
+let pendingOwnerDocFiles = [];
+
+async function ownerDocsApi(path, { method = 'GET', body } = {}) {
+    const headers = await authHeaders();
+    const opts = { method, headers };
+    if (body !== undefined) opts.body = JSON.stringify(body);
+    const qs = path.startsWith('?') ? path.slice(1) : path;
+    const res = await fetch(`/api/integrations-status?action=owner-company-docs&${qs}`, opts);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.ok === false) {
+        throw new Error(data.error || `HTTP ${res.status}`);
+    }
+    return data;
+}
+
+function ownerDocIconClass(mime, name) {
+    const m = (mime || '').toLowerCase();
+    const n = (name || '').toLowerCase();
+    if (m.includes('pdf') || n.endsWith('.pdf')) return 'pdf';
+    if (m.startsWith('image/') || /\.(jpe?g|png|webp|gif)$/.test(n)) return 'image';
+    if (m.includes('sheet') || m.includes('excel') || /\.(xlsx?|csv)$/.test(n)) return 'sheet';
+    return '';
+}
+
+function ownerDocIcon(mime, name) {
+    const cls = ownerDocIconClass(mime, name);
+    if (cls === 'pdf') return 'fa-file-pdf';
+    if (cls === 'image') return 'fa-file-image';
+    if (cls === 'sheet') return 'fa-file-excel';
+    return 'fa-file-alt';
+}
+
+function fmtBytes(n) {
+    const b = Number(n) || 0;
+    if (b < 1024) return `${b} ب`;
+    if (b < 1024 * 1024) return `${(b / 1024).toFixed(0)} ك.ب`;
+    return `${(b / (1024 * 1024)).toFixed(1)} م.ب`;
+}
+
+function guessOwnerDocCategory(name) {
+    const t = String(name || '');
+    if (/ضريب|vat|tax/i.test(t)) return 'ضرائب';
+    if (/سجل|ترخيص|commercial|license/i.test(t)) return 'سجل وتراخيص';
+    if (/عقد|contract/i.test(t)) return 'عقود';
+    if (/بنك|حساب|bank/i.test(t)) return 'بنوك';
+    return null;
+}
+
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const s = String(reader.result || '');
+            const i = s.indexOf(',');
+            resolve(i >= 0 ? s.slice(i + 1) : s);
+        };
+        reader.onerror = () => reject(new Error('تعذّر قراءة الملف'));
+        reader.readAsDataURL(file);
+    });
+}
+
+async function loadOwnerDocuments() {
+    const el = document.getElementById('ownerDocsList');
+    if (!el) return;
+    el.innerHTML = '<p class="empty">جارٍ التحميل…</p>';
+    try {
+        const data = await ownerDocsApi('docsAction=list');
+        renderOwnerDocuments(data.docs || []);
+    } catch (e) {
+        console.error('[owner docs]', e);
+        el.innerHTML = `<p class="empty">تعذّر تحميل الأوراق${e?.message ? `: ${escHtml(e.message)}` : ''}</p>`;
+    }
+}
+
+function renderOwnerDocuments(rows) {
+    const el = document.getElementById('ownerDocsList');
+    if (!el) return;
+    if (!rows.length) {
+        el.innerHTML = '<p class="empty">لا توجد أوراق بعد — ارفع أول ملف من زر «رفع أوراق»</p>';
+        return;
+    }
+    el.innerHTML = `<div class="owner-docs-list">${rows.map((d) => {
+        const iconCls = ownerDocIconClass(d.mime_type, d.file_name);
+        const icon = ownerDocIcon(d.mime_type, d.file_name);
+        const when = d.created_at ? new Date(d.created_at).toLocaleDateString('ar-EG') : '';
+        const id = String(d.id || '').replace(/'/g, '');
+        return `<div class="owner-doc-row" data-id="${escHtml(d.id)}">
+            <div class="owner-doc-icon ${iconCls}"><i class="fas ${icon}"></i></div>
+            <div class="owner-doc-meta">
+                <h4>${escHtml(d.title || d.file_name)} <span class="owner-doc-cat">${escHtml(d.category || 'عام')}</span></h4>
+                <span>الملف: ${escHtml(d.file_name)} · ${fmtBytes(d.file_size)} · ${when}${d.notes ? ` · ${escHtml(d.notes)}` : ''}</span>
+            </div>
+            <div class="owner-doc-actions">
+                <button type="button" onclick="viewOwnerDocument('${id}')"><i class="fas fa-eye"></i> عرض</button>
+                <button type="button" onclick="downloadOwnerDocument('${id}')"><i class="fas fa-download"></i> تنزيل</button>
+                <button type="button" class="danger" onclick="deleteOwnerDocument('${id}')"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>`;
+    }).join('')}</div>`;
+}
+
+async function ownerDocSigned(id, download) {
+    const q = `docsAction=url&id=${encodeURIComponent(id)}${download ? '&download=1' : ''}`;
+    return ownerDocsApi(q);
+}
+
+window.viewOwnerDocument = async function viewOwnerDocument(id) {
+    try {
+        const { url, doc } = await ownerDocSigned(id, false);
+        const dlData = await ownerDocSigned(id, true);
+        const modal = document.getElementById('ownerDocPreviewModal');
+        const body = document.getElementById('ownerDocPreviewBody');
+        const title = document.getElementById('ownerDocPreviewTitle');
+        const dl = document.getElementById('ownerDocPreviewDownload');
+        if (title) title.textContent = doc.title || doc.file_name;
+        if (dl) {
+            dl.href = dlData.url;
+            dl.setAttribute('download', doc.file_name || 'document');
+        }
+        const mime = (doc.mime_type || '').toLowerCase();
+        const name = (doc.file_name || '').toLowerCase();
+        if (mime.startsWith('image/') || /\.(jpe?g|png|webp|gif)$/.test(name)) {
+            body.innerHTML = `<img src="${url}" alt="${escHtml(doc.title || '')}">`;
+        } else if (mime.includes('pdf') || name.endsWith('.pdf')) {
+            body.innerHTML = `<iframe src="${url}" title="معاينة PDF"></iframe>`;
+        } else {
+            body.innerHTML = `<div class="owner-doc-preview-fallback">
+                <p>المعاينة غير متاحة لهذا النوع — نزّل الملف لفتحه على الهاتف.</p>
+                <p style="margin-top:12px"><a class="btn-primary" href="${dlData.url}" download="${escHtml(doc.file_name)}"><i class="fas fa-download"></i> تنزيل ${escHtml(doc.file_name)}</a></p>
+            </div>`;
+        }
+        modal?.classList.remove('hidden');
+    } catch (e) {
+        console.error(e);
+        toast(e.message || 'تعذّر فتح الملف', 'error');
+    }
+};
+
+window.closeOwnerDocPreview = function closeOwnerDocPreview() {
+    document.getElementById('ownerDocPreviewModal')?.classList.add('hidden');
+    const body = document.getElementById('ownerDocPreviewBody');
+    if (body) body.innerHTML = '';
+};
+
+window.downloadOwnerDocument = async function downloadOwnerDocument(id) {
+    try {
+        const { url, doc } = await ownerDocSigned(id, true);
+        const a = document.createElement('a');
+        a.href = url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.download = doc.file_name || 'document';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        toast('جاري التنزيل…');
+    } catch (e) {
+        console.error(e);
+        toast(e.message || 'تعذّر التنزيل', 'error');
+    }
+};
+
+window.deleteOwnerDocument = async function deleteOwnerDocument(id) {
+    if (!confirm('حذف هذه الورقة نهائيًا؟')) return;
+    try {
+        await ownerDocsApi('docsAction=delete', { method: 'POST', body: { docsAction: 'delete', id } });
+        toast('تم حذف الورقة');
+        loadOwnerDocuments();
+    } catch (e) {
+        console.error(e);
+        toast(e.message || 'تعذّر الحذف', 'error');
+    }
+};
+
+function showOwnerDocUploadForm(files) {
+    pendingOwnerDocFiles = Array.from(files || []).filter(Boolean);
+    const form = document.getElementById('ownerDocsForm');
+    const title = document.getElementById('ownerDocTitle');
+    const notes = document.getElementById('ownerDocNotes');
+    const cat = document.getElementById('ownerDocCategory');
+    const pending = document.getElementById('ownerDocsPending');
+    if (!pendingOwnerDocFiles.length) return;
+    if (pending) {
+        pending.textContent = pendingOwnerDocFiles.length === 1
+            ? `الملف المختار: ${pendingOwnerDocFiles[0].name} (${fmtBytes(pendingOwnerDocFiles[0].size)})`
+            : `${pendingOwnerDocFiles.length} ملفات جاهزة: ${pendingOwnerDocFiles.map((f) => f.name).join(' · ')}`;
+    }
+    if (title) {
+        // Leave blank so the owner types the display name — don't overwrite with filename
+        title.value = '';
+        title.placeholder = pendingOwnerDocFiles.length > 1
+            ? 'اسم موحّد اختياري — أو سيبه فاضي لاسم كل ملف'
+            : 'اكتب اسم الورقة هنا (مثلاً: البطاقة الضريبية)';
+        setTimeout(() => title.focus(), 50);
+    }
+    if (notes) notes.value = '';
+    if (cat) {
+        const guessed = guessOwnerDocCategory(pendingOwnerDocFiles[0]?.name || '');
+        cat.value = guessed || 'عام';
+    }
+    form?.removeAttribute('hidden');
+}
+
+function hideOwnerDocUploadForm() {
+    pendingOwnerDocFiles = [];
+    const form = document.getElementById('ownerDocsForm');
+    form?.setAttribute('hidden', '');
+    const input = document.getElementById('ownerDocFile');
+    if (input) input.value = '';
+    const pending = document.getElementById('ownerDocsPending');
+    if (pending) pending.textContent = '';
+}
+
+async function uploadOneOwnerDoc(file, { title, category, notes }) {
+    const DIRECT_MAX = 3.2 * 1024 * 1024;
+    if (file.size > 50 * 1024 * 1024) throw new Error(`${file.name}: الحد الأقصى 50 ميجا`);
+    const typed = (title || '').trim();
+    const docTitle = typed || (file.name || '').replace(/\.[^.]+$/, '') || file.name;
+    const docCategory = guessOwnerDocCategory(typed || file.name) || category || 'عام';
+
+    if (file.size <= DIRECT_MAX) {
+        const fileBase64 = await fileToBase64(file);
+        await ownerDocsApi('docsAction=upload', {
+            method: 'POST',
+            body: {
+                docsAction: 'upload',
+                title: docTitle,
+                category: docCategory,
+                notes,
+                fileName: file.name,
+                mimeType: file.type || 'application/octet-stream',
+                fileBase64,
+            },
+        });
+        return;
+    }
+
+    const prepared = await ownerDocsApi('docsAction=prepare', {
+        method: 'POST',
+        body: {
+            docsAction: 'prepare',
+            title: docTitle,
+            category: docCategory,
+            notes,
+            fileName: file.name,
+            mimeType: file.type || 'application/octet-stream',
+            fileSize: file.size,
+        },
+    });
+    if (!prepared.signedUrl && !prepared.token) throw new Error(`${file.name}: تعذّر إنشاء رابط الرفع`);
+    let uploaded = false;
+    if (prepared.token && window.__ownerSb?.storage?.from) {
+        const up = await window.__ownerSb.storage
+            .from('montana')
+            .uploadToSignedUrl(prepared.path || prepared.storage_path, prepared.token, file, {
+                contentType: file.type || 'application/octet-stream',
+            });
+        if (!up.error) uploaded = true;
+    }
+    if (!uploaded) {
+        const put = await fetch(prepared.signedUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': file.type || 'application/octet-stream' },
+            body: file,
+        });
+        if (!put.ok) throw new Error(`${file.name}: فشل الرفع (${put.status})`);
+    }
+    // Ensure typed title wins even if prepare echoed filename
+    const meta = { ...prepared.meta, title: docTitle, category: docCategory, notes };
+    await ownerDocsApi('docsAction=confirm', {
+        method: 'POST',
+        body: { docsAction: 'confirm', meta },
+    });
+}
+
+async function confirmOwnerDocUpload() {
+    if (!pendingOwnerDocFiles.length) return;
+    const files = pendingOwnerDocFiles.slice();
+    const typedTitle = (document.getElementById('ownerDocTitle')?.value || '').trim();
+    const category = document.getElementById('ownerDocCategory')?.value || 'عام';
+    const notes = (document.getElementById('ownerDocNotes')?.value || '').trim() || null;
+    const btn = document.getElementById('ownerDocConfirmUpload');
+    if (!typedTitle && files.length === 1) {
+        toast('اكتب اسم الورقة قبل الرفع', 'error');
+        document.getElementById('ownerDocTitle')?.focus();
+        return;
+    }
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الرفع…'; }
+    let ok = 0;
+    const errors = [];
+    try {
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            if (btn) btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${i + 1}/${files.length}`;
+            try {
+                await uploadOneOwnerDoc(file, {
+                    // Single file: always the typed name. Multi: typed name applies to all if provided.
+                    title: typedTitle || null,
+                    category,
+                    notes,
+                });
+                ok += 1;
+            } catch (e) {
+                console.error(e);
+                errors.push(e.message || file.name);
+            }
+        }
+        if (ok) {
+            toast(ok === 1 ? 'تم رفع الورقة' : `تم رفع ${ok} أوراق`);
+            hideOwnerDocUploadForm();
+            loadOwnerDocuments();
+        }
+        if (errors.length) {
+            toast(errors[0], 'error');
+        }
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> تأكيد الرفع'; }
+    }
+}
+
+function bindOwnerDocumentsUi() {
+    const fileInput = document.getElementById('ownerDocFile');
+    fileInput?.addEventListener('change', () => {
+        const files = fileInput.files;
+        if (files?.length) showOwnerDocUploadForm(files);
+        // allow selecting the same file again later
+        fileInput.value = '';
+    });
+    document.getElementById('ownerDocConfirmUpload')?.addEventListener('click', confirmOwnerDocUpload);
+    document.getElementById('ownerDocCancelUpload')?.addEventListener('click', hideOwnerDocUploadForm);
+    document.getElementById('ownerLinksSaveBtn')?.addEventListener('click', saveOwnerCompanyLinks);
+    document.getElementById('ownerLinksGrid')?.addEventListener('input', (e) => {
+        const input = e.target?.closest?.('input[data-link-key]');
+        if (!input) return;
+        const row = input.closest('.owner-link-row');
+        const open = row?.querySelector('a.owner-link-open');
+        if (!open) return;
+        const url = normalizeOwnerLinkUrl(input.value);
+        if (url) {
+            open.href = url;
+            open.classList.remove('is-disabled');
+        } else {
+            open.removeAttribute('href');
+            open.classList.add('is-disabled');
+        }
+    });
+}
+
+function normalizeOwnerLinkUrl(raw) {
+    const v = String(raw || '').trim();
+    if (!v) return '';
+    if (/^https?:\/\//i.test(v)) return v;
+    return `https://${v}`;
+}
+
+function linkBrandIcon(key, icon) {
+    if (key === 'facebook' || key === 'instagram' || key === 'amazon') {
+        return `fab ${icon}`;
+    }
+    return `fas ${icon || 'fa-link'}`;
+}
+
+function renderOwnerCompanyLinks(links) {
+    const el = document.getElementById('ownerLinksGrid');
+    if (!el) return;
+    const rows = Array.isArray(links) ? links : [];
+    if (!rows.length) {
+        el.innerHTML = '<p class="empty">لا توجد لينكات</p>';
+        return;
+    }
+    el.innerHTML = rows.map((l) => {
+        const url = String(l.url || '').trim();
+        const href = url ? normalizeOwnerLinkUrl(url) : '';
+        const iconClass = linkBrandIcon(l.key, l.icon);
+        return `<div class="owner-link-row" data-key="${escHtml(l.key)}">
+            <i class="${iconClass}" aria-hidden="true"></i>
+            <label>${escHtml(l.label || l.key)}</label>
+            <input type="url" data-link-key="${escHtml(l.key)}" data-link-label="${escHtml(l.label || '')}" data-link-icon="${escHtml(l.icon || '')}" placeholder="https://..." value="${escHtml(url)}" dir="ltr">
+            <a class="owner-link-open${href ? '' : ' is-disabled'}" ${href ? `href="${escHtml(href)}" target="_blank" rel="noopener"` : ''}><i class="fas fa-external-link-alt"></i> فتح</a>
+        </div>`;
+    }).join('');
+}
+
+async function loadOwnerCompanyLinks() {
+    const el = document.getElementById('ownerLinksGrid');
+    if (!el) return;
+    el.innerHTML = '<p class="empty">جارٍ التحميل…</p>';
+    try {
+        const data = await ownerDocsApi('docsAction=links');
+        renderOwnerCompanyLinks(data.links || []);
+    } catch (e) {
+        console.error('[owner links]', e);
+        el.innerHTML = `<p class="empty">تعذّر تحميل اللينكات${e?.message ? `: ${escHtml(e.message)}` : ''}</p>`;
+    }
+}
+
+async function saveOwnerCompanyLinks() {
+    const btn = document.getElementById('ownerLinksSaveBtn');
+    const inputs = [...document.querySelectorAll('#ownerLinksGrid input[data-link-key]')];
+    const links = inputs.map((input) => ({
+        key: input.getAttribute('data-link-key'),
+        label: input.getAttribute('data-link-label') || input.getAttribute('data-link-key'),
+        icon: input.getAttribute('data-link-icon') || 'fa-link',
+        url: String(input.value || '').trim(),
+    }));
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ…'; }
+    try {
+        const data = await ownerDocsApi('docsAction=links-save', {
+            method: 'POST',
+            body: { docsAction: 'links-save', links },
+        });
+        renderOwnerCompanyLinks(data.links || links);
+        toast('تم حفظ لينكات الشركة');
+    } catch (e) {
+        console.error(e);
+        toast(e.message || 'فشل حفظ اللينكات', 'error');
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> حفظ اللينكات'; }
+    }
+}
+
+/* ── صيدليات التوفر (stockists) ── */
+let ownerStockistCache = [];
+
+function ownerStockistFilterQuery() {
+    return {
+        q: String(document.getElementById('ownerStockistSearch')?.value || '').trim().toLowerCase(),
+        region: String(document.getElementById('ownerStockistRegionFilter')?.value || '').trim(),
+    };
+}
+
+function filteredOwnerStockists() {
+    const { q, region } = ownerStockistFilterQuery();
+    return ownerStockistCache.filter((p) => {
+        if (region && String(p.region || '') !== region) return false;
+        if (!q) return true;
+        const hay = `${p.name || ''} ${p.region || ''} ${p.link || ''} ${p.notes || ''}`.toLowerCase();
+        return hay.includes(q);
+    });
+}
+
+function renderOwnerStockists() {
+    const el = document.getElementById('ownerStockistList');
+    if (!el) return;
+    const rows = filteredOwnerStockists();
+    if (!ownerStockistCache.length) {
+        el.innerHTML = '<p class="empty">لا توجد صيدليات بعد — أضف أول صيدلية</p>';
+        return;
+    }
+    if (!rows.length) {
+        el.innerHTML = '<p class="empty">لا نتائج للبحث</p>';
+        return;
+    }
+    el.innerHTML = rows.map((p) => {
+        const href = p.link ? normalizeOwnerLinkUrl(p.link) : '';
+        return `<div class="owner-stockist-row" data-id="${escHtml(p.id)}">
+            <strong>${escHtml(p.name)}</strong>
+            <span class="region">${escHtml(p.region || 'أخرى')}</span>
+            <input type="url" data-stockist-link="${escHtml(p.id)}" placeholder="https://..." value="${escHtml(p.link || '')}" dir="ltr">
+            <div class="owner-stockist-actions">
+                <a class="${href ? '' : 'is-disabled'}" ${href ? `href="${escHtml(href)}" target="_blank" rel="noopener"` : ''}><i class="fas fa-external-link-alt"></i></a>
+                <button type="button" data-stockist-save="${escHtml(p.id)}" title="حفظ اللينك"><i class="fas fa-save"></i></button>
+                <button type="button" class="danger" data-stockist-del="${escHtml(p.id)}" title="حذف"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+async function loadOwnerStockists() {
+    const el = document.getElementById('ownerStockistList');
+    if (!el) return;
+    el.innerHTML = '<p class="empty">جارٍ التحميل…</p>';
+    try {
+        const data = await ownerDocsApi('docsAction=pharmacies');
+        ownerStockistCache = Array.isArray(data.pharmacies) ? data.pharmacies : [];
+        const regions = [...new Set(ownerStockistCache.map((p) => p.region).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ar'));
+        const sel = document.getElementById('ownerStockistRegionFilter');
+        const dl = document.getElementById('ownerStockistRegionList');
+        if (sel) {
+            const cur = sel.value;
+            sel.innerHTML = `<option value="">كل المناطق</option>` + regions.map((r) => `<option value="${escHtml(r)}">${escHtml(r)}</option>`).join('');
+            if (cur) sel.value = cur;
+        }
+        if (dl) {
+            dl.innerHTML = regions.map((r) => `<option value="${escHtml(r)}"></option>`).join('');
+        }
+        renderOwnerStockists();
+    } catch (e) {
+        console.error('[owner stockists]', e);
+        el.innerHTML = `<p class="empty">تعذّر تحميل الصيدليات${e?.message ? `: ${escHtml(e.message)}` : ''}</p>`;
+    }
+}
+
+async function addOwnerStockist() {
+    const name = String(document.getElementById('ownerStockistName')?.value || '').trim();
+    const region = String(document.getElementById('ownerStockistRegion')?.value || '').trim() || 'أخرى';
+    const link = String(document.getElementById('ownerStockistLink')?.value || '').trim();
+    if (!name) {
+        toast('اكتب اسم الصيدلية', 'error');
+        return;
+    }
+    const btn = document.getElementById('ownerStockistAddBtn');
+    if (btn) btn.disabled = true;
+    try {
+        const data = await ownerDocsApi('docsAction=pharmacies-upsert', {
+            method: 'POST',
+            body: { docsAction: 'pharmacies-upsert', pharmacy: { name, region, link } },
+        });
+        ownerStockistCache = data.pharmacies || [];
+        document.getElementById('ownerStockistName').value = '';
+        document.getElementById('ownerStockistLink').value = '';
+        renderOwnerStockists();
+        toast('تمت إضافة الصيدلية');
+        await loadOwnerStockists();
+    } catch (e) {
+        console.error(e);
+        toast(e.message || 'فشل الإضافة', 'error');
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+async function saveOwnerStockistLink(id) {
+    const input = document.querySelector(`input[data-stockist-link="${CSS.escape(id)}"]`);
+    const row = ownerStockistCache.find((p) => p.id === id);
+    if (!row) return;
+    const link = String(input?.value || '').trim();
+    try {
+        const data = await ownerDocsApi('docsAction=pharmacies-upsert', {
+            method: 'POST',
+            body: { docsAction: 'pharmacies-upsert', pharmacy: { ...row, link } },
+        });
+        ownerStockistCache = data.pharmacies || [];
+        renderOwnerStockists();
+        toast('تم حفظ لينك الصيدلية');
+    } catch (e) {
+        toast(e.message || 'فشل الحفظ', 'error');
+    }
+}
+
+async function deleteOwnerStockist(id) {
+    if (!confirm('حذف الصيدلية من قائمة التوفر؟')) return;
+    try {
+        const data = await ownerDocsApi('docsAction=pharmacies-delete', {
+            method: 'POST',
+            body: { docsAction: 'pharmacies-delete', id },
+        });
+        ownerStockistCache = data.pharmacies || [];
+        renderOwnerStockists();
+        toast('تم الحذف');
+        await loadOwnerStockists();
+    } catch (e) {
+        toast(e.message || 'فشل الحذف', 'error');
+    }
+}
+
+function bindOwnerStockistsUi() {
+    document.getElementById('ownerStockistAddBtn')?.addEventListener('click', () => addOwnerStockist());
+    document.getElementById('ownerStockistSearch')?.addEventListener('input', () => renderOwnerStockists());
+    document.getElementById('ownerStockistRegionFilter')?.addEventListener('change', () => renderOwnerStockists());
+    document.getElementById('ownerStockistList')?.addEventListener('click', (e) => {
+        const saveBtn = e.target.closest('[data-stockist-save]');
+        if (saveBtn) {
+            saveOwnerStockistLink(saveBtn.getAttribute('data-stockist-save'));
+            return;
+        }
+        const delBtn = e.target.closest('[data-stockist-del]');
+        if (delBtn) deleteOwnerStockist(delBtn.getAttribute('data-stockist-del'));
+    });
+    ['ownerStockistName', 'ownerStockistRegion', 'ownerStockistLink'].forEach((id) => {
+        document.getElementById(id)?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addOwnerStockist();
+            }
+        });
+    });
+}
+
+bindOwnerDocumentsUi();
+loadOwnerDocuments();
+loadOwnerCompanyLinks();
+bindOwnerStockistsUi();
+loadOwnerStockists();
+bindOwnerAmazonUi();
+loadOwnerAmazonOrders();
+loadOwnerAmazonStock();
+bindOwnerJumiaUi();
+loadOwnerJumiaOrders();
+loadOwnerJumiaStock();
 
 loadOwnerDashboard();

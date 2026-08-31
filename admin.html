@@ -22,6 +22,8 @@
             <a href="#" class="nav-link active" data-page="dashboard"><i class="fas fa-chart-line"></i> الرئيسية</a>
             <a href="#" class="nav-link" data-page="products"><i class="fas fa-box"></i> المنتجات</a>
             <a href="#" class="nav-link" data-page="orders"><i class="fas fa-shopping-cart"></i> الطلبات <span class="nav-count" id="ordersCount">0</span></a>
+            <a href="#" class="nav-link" data-page="jumia"><i class="fas fa-store"></i> طلبات جوميا</a>
+            <a href="#" class="nav-link" data-page="amazon"><i class="fab fa-amazon"></i> طلبات أمازون</a>
             <a href="#" class="nav-link" data-page="customers"><i class="fas fa-users"></i> العملاء</a>
             <a href="#" class="nav-link" data-page="categories"><i class="fas fa-th-large"></i> الأقسام</a>
             <a href="#" class="nav-link" data-page="coupons"><i class="fas fa-ticket-alt"></i> الكوبونات</a>
@@ -88,18 +90,97 @@
 
             <!-- ===== ORDERS ===== -->
             <div class="page" id="page-orders">
-                <div class="filter-bar">
-                    <button class="filter-btn active" data-status="all">الكل</button>
-                    <button class="filter-btn" data-status="pending">قيد الانتظار</button>
-                    <button class="filter-btn" data-status="confirmed">مؤكد</button>
-                    <button class="filter-btn" data-status="shipped">تم الشحن</button>
-                    <button class="filter-btn" data-status="delivered">تم التوصيل</button>
-                    <button class="filter-btn" data-status="cancelled">ملغي</button>
+                <div class="page-actions" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+                    <div class="filter-bar" style="margin:0">
+                        <button class="filter-btn active" data-status="all">الكل</button>
+                        <button class="filter-btn" data-status="pending">قيد الانتظار</button>
+                        <button class="filter-btn" data-status="confirmed">مؤكد</button>
+                        <button class="filter-btn" data-status="shipped">تم الشحن</button>
+                        <button class="filter-btn" data-status="delivered">تم التوصيل</button>
+                        <button class="filter-btn" data-status="cancelled">ملغي</button>
+                    </div>
+                    <button class="btn-primary" type="button" onclick="openManualOrderModal()"><i class="fas fa-plus"></i> إضافة طلب يدوي</button>
                 </div>
                 <div class="table-wrap">
                     <table class="data-table">
-                        <thead><tr><th>رقم الطلب</th><th>العميل</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+                        <thead><tr><th>رقم الطلب</th><th>العميل</th><th>الإجمالي</th><th>الحالة</th><th>بوسطة</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
                         <tbody id="ordersTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== JUMIA ORDERS ===== -->
+            <div class="page" id="page-jumia">
+                <div class="page-actions" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                        <select id="adminJumiaDays" title="الفترة">
+                            <option value="7">آخر 7 أيام</option>
+                            <option value="30" selected>آخر 30 يوم</option>
+                            <option value="90">آخر 90 يوم</option>
+                        </select>
+                        <button class="btn-primary" type="button" id="adminJumiaRefreshBtn"><i class="fas fa-sync"></i> تحديث الطلبات</button>
+                    </div>
+                    <span id="adminJumiaMeta" style="font-size:13px;opacity:.75"></span>
+                </div>
+                <p style="margin:0 0 12px;font-size:13px;opacity:.8">طلبات متجر جوميا مباشرة من Vendor API.</p>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>رقم الطلب</th><th>العميل</th><th>الهاتف</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+                        <tbody id="jumiaOrdersTable"><tr><td colspan="6" class="empty">اضغط تحديث لسحب الطلبات</td></tr></tbody>
+                    </table>
+                </div>
+
+                <div class="page-actions" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:28px">
+                    <h3 style="margin:0;font-size:16px"><i class="fas fa-boxes-stacked"></i> مزامنة المخزون</h3>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap">
+                        <button class="btn-primary btn-outline" type="button" id="adminJumiaStockRefreshBtn"><i class="fas fa-sync"></i> مقارنة</button>
+                        <button class="btn-primary" type="button" id="adminJumiaStockPushBtn"><i class="fas fa-cloud-upload-alt"></i> ادفع المخزون لجوميا</button>
+                    </div>
+                </div>
+                <p style="margin:0 0 8px;font-size:13px;opacity:.8">المصدر = مخزون الموقع. يرفع الفروقات فقط عبر Feed جوميا.</p>
+                <p id="adminJumiaStockMeta" style="font-size:13px;opacity:.75;margin:0 0 10px"></p>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>المنتج</th><th>Slug</th><th>مونتانيا</th><th>جوميا SKU</th><th>جوميا</th><th>فرق</th><th>الربط</th></tr></thead>
+                        <tbody id="jumiaStockTable"><tr><td colspan="7" class="empty">اضغط مقارنة</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== AMAZON ORDERS ===== -->
+            <div class="page" id="page-amazon">
+                <div class="page-actions" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                        <select id="adminAmazonDays" title="الفترة">
+                            <option value="7">آخر 7 أيام</option>
+                            <option value="30" selected>آخر 30 يوم</option>
+                            <option value="90">آخر 90 يوم</option>
+                        </select>
+                        <button class="btn-primary" type="button" id="adminAmazonRefreshBtn"><i class="fas fa-sync"></i> تحديث الطلبات</button>
+                    </div>
+                    <span id="adminAmazonMeta" style="font-size:13px;opacity:.75"></span>
+                </div>
+                <p style="margin:0 0 12px;font-size:13px;opacity:.8">طلبات أمازون مصر من Selling Partner API.</p>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>رقم الطلب</th><th>القناة</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+                        <tbody id="amazonOrdersTable"><tr><td colspan="5" class="empty">اضغط تحديث لسحب الطلبات</td></tr></tbody>
+                    </table>
+                </div>
+
+                <div class="page-actions" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:28px">
+                    <h3 style="margin:0;font-size:16px"><i class="fas fa-boxes-stacked"></i> مزامنة المخزون</h3>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap">
+                        <button class="btn-primary btn-outline" type="button" id="adminAmazonStockRefreshBtn"><i class="fas fa-sync"></i> مقارنة</button>
+                        <button class="btn-primary" type="button" id="adminAmazonStockPushBtn"><i class="fas fa-cloud-upload-alt"></i> ادفع المخزون لأمازون</button>
+                    </div>
+                </div>
+                <p style="margin:0 0 8px;font-size:13px;opacity:.8">المصدر = مخزون الموقع. يحدّث كمية MFN عبر Listings Items API.</p>
+                <p id="adminAmazonStockMeta" style="font-size:13px;opacity:.75;margin:0 0 10px"></p>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>المنتج</th><th>Slug</th><th>مونتانيا</th><th>أمازون SKU</th><th>أمازون</th><th>فرق</th><th>الربط</th></tr></thead>
+                        <tbody id="amazonStockTable"><tr><td colspan="7" class="empty">اضغط مقارنة</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -277,7 +358,7 @@
                         <div class="form-group"><label>الشعار</label><input type="text" id="set_site_tagline" value="Premium Care"></div>
                         <div class="form-group"><label>الهاتف</label><input type="text" id="set_phone" dir="ltr"></div>
                         <div class="form-group"><label>البريد</label><input type="email" id="set_email" dir="ltr"></div>
-                        <div class="form-group"><label>واتساب</label><input type="text" id="set_whatsapp" dir="ltr" placeholder="2010123456789"><small style="color:var(--muted);font-size:11px">يُستخدم في Footer وزر wa.me</small></div>
+                        <div class="form-group"><label>واتساب</label><input type="text" id="set_whatsapp" dir="ltr" placeholder="01019787225 أو 201019787225"><small style="color:var(--muted);font-size:11px">رقم مصري — الموقع يحوّله تلقائياً لـ wa.me (كود الدولة 20)</small></div>
                         <div class="form-group"><label>العنوان</label><input type="text" id="set_address"></div>
                         <div class="form-group"><label>ساعات العمل</label><input type="text" id="set_working_hours"></div>
                     </div>
@@ -322,6 +403,14 @@
                         </p>
                     </div>
                     <div class="card">
+                        <h3><i class="fas fa-truck"></i> الشحن — Bosta</h3>
+                        <p style="font-size:12px;color:var(--muted);margin-bottom:12px">إرسال الطلبات لبوسطة من تفاصيل الطلب في لوحة الأوردرات</p>
+                        <div id="bostaStatus" class="integration-status">جارٍ التحقق…</div>
+                        <p style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.7">
+                            Vercel env: <code>BOSTA_API_KEY</code>, <code>BOSTA_PICKUP_LOCATION_ID</code>, <code>BOSTA_WEBHOOK_SECRET</code>
+                        </p>
+                    </div>
+                    <div class="card">
                         <h3><i class="fas fa-plug"></i> ربط القنوات والإشعارات</h3>
                         <p style="font-size:12px;color:var(--muted);margin-bottom:12px">البوت والطلبات مش من روابط Facebook/Instagram في «السوشيال» — الربط من <strong>Meta Developers</strong> + Vercel (تحت)</p>
                         <div id="webhookUrls" class="webhook-urls" style="font-size:11px;line-height:1.8;margin-bottom:14px;padding:12px;background:var(--bg);border-radius:10px"></div>
@@ -348,34 +437,60 @@
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
+    <div id="adminBootError" style="display:none;position:fixed;inset:0;z-index:99999;background:#f5f3f8;padding:24px;font-family:Tajawal,sans-serif;text-align:center">
+      <div style="max-width:420px;margin:15vh auto;background:#fff;border:1px solid #e8dff0;border-radius:14px;padding:24px">
+        <h2 style="margin:0 0 10px;font-size:18px;color:#2D1B3D">تعذّر تحميل لوحة التحكم</h2>
+        <p id="adminBootErrorMsg" style="margin:0 0 16px;color:#8888a0;font-size:14px;line-height:1.6"></p>
+        <button type="button" onclick="location.reload()" style="background:#9B6CB8;color:#fff;border:0;border-radius:10px;padding:10px 18px;font-weight:700;cursor:pointer;font-family:inherit">إعادة المحاولة</button>
+        <button type="button" onclick="location.href='admin-login.html'" style="margin-right:8px;background:transparent;color:#9B6CB8;border:2px solid #9B6CB8;border-radius:10px;padding:8px 16px;font-weight:700;cursor:pointer;font-family:inherit">تسجيل الدخول</button>
+      </div>
+    </div>
+
     <script type="module">
-    // Auth gate — admin.js only ever loads after a verified store-admin
-    // session exists, so it never races the redirect below with real
-    // fetch() calls against RLS-protected tables.
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-    const SUPABASE_URL = 'https://ikryeyqrithikabwidov.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrcnlleXFyaXRoaWthYndpZG92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MzY1ODcsImV4cCI6MjA5NzMxMjU4N30.kNfHPxV4fq67cOF8uFsTrLOxPYcLcmmDO3ScIHzI9Uo';
-    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
-    window.__adminSb = sb;
+    // Auth gate — admin.js only loads after a verified store-admin / owner session.
+    // Local supabase vendor (not jsDelivr) so restricted devices still boot.
+    function showAdminBootError(msg) {
+      const box = document.getElementById('adminBootError');
+      const t = document.getElementById('adminBootErrorMsg');
+      if (t) t.textContent = msg || 'تحقق من الإنترنت وحدّث الصفحة.';
+      if (box) box.style.display = 'block';
+    }
+    try {
+      const { createClient } = await import('/js/vendor/supabase.js');
+      const SUPABASE_URL = 'https://ikryeyqrithikabwidov.supabase.co';
+      const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrcnlleXFyaXRoaWthYndpZG92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MzY1ODcsImV4cCI6MjA5NzMxMjU4N30.kNfHPxV4fq67cOF8uFsTrLOxPYcLcmmDO3ScIHzI9Uo';
+      const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+      window.__adminSb = sb;
 
-    window.adminLogout = async () => { await sb.auth.signOut(); location.href = 'admin-login.html'; };
+      window.adminLogout = async () => { await sb.auth.signOut(); location.href = 'admin-login.html'; };
 
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) { location.href = 'admin-login.html'; }
-    else {
-      const [{ data: isAdmin }, { data: isOwner }] = await Promise.all([
-        sb.rpc('is_store_admin'),
-        sb.rpc('is_owner'),
+      const session = await Promise.race([
+        sb.auth.getSession().then((r) => r.data?.session || null),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('انتهت مهلة التحقق من الجلسة')), 15000)),
       ]);
-      // Owner may open store admin (invoices etc.) without a second login.
-      // Never signOut here — that would kill the owner session too.
-      if (!isAdmin && !isOwner) { location.href = 'admin-login.html'; }
+      if (!session) { location.href = 'admin-login.html'; }
       else {
-        window.__ADMIN_TOKEN__ = session.access_token;
-        const s = document.createElement('script');
-        s.src = 'admin.js';
-        document.body.appendChild(s);
+        const roles = await Promise.race([
+          Promise.all([
+            sb.rpc('is_store_admin'),
+            sb.rpc('is_owner'),
+          ]),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('انتهت مهلة التحقق من الصلاحيات')), 15000)),
+        ]);
+        const isAdmin = roles[0]?.data;
+        const isOwner = roles[1]?.data;
+        if (!isAdmin && !isOwner) { location.href = 'admin-login.html'; }
+        else {
+          window.__ADMIN_TOKEN__ = session.access_token;
+          const s = document.createElement('script');
+          s.src = 'admin.js?v=boot3';
+          s.onerror = () => showAdminBootError('فشل تحميل ملفات لوحة التحكم.');
+          document.body.appendChild(s);
+        }
       }
+    } catch (e) {
+      console.error('[admin boot]', e);
+      showAdminBootError(e?.message || String(e));
     }
     </script>
 </body>

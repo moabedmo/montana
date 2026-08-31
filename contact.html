@@ -114,6 +114,7 @@
 import { contact as contactApi, settings as settingsApi } from '/js/store-api.js';
 import { getLocale } from '/js/i18n/locale.js?v=3';
 import { UI_STRINGS } from '/js/i18n/en.js';
+import { toWaMeHref } from '/js/site-settings.js?v=c2';
 
 const CONTACT_MSG = {
   ar: {
@@ -157,17 +158,20 @@ document.getElementById('contactForm').addEventListener('submit', async (e) => {
     const s = await settingsApi.getMany(['phone', 'email', 'whatsapp', 'address', 'working_hours', 'facebook_url', 'instagram_url', 'tiktok_url']);
     if (s.phone) document.querySelector('.contact-card[href^="tel"] span').textContent = s.phone;
     if (s.phone) document.querySelector('.contact-card[href^="tel"]').href = 'tel:' + s.phone.replace(/\s/g, '');
-    if (s.whatsapp) document.querySelector('.contact-card[href*="wa.me"]').href = 'https://wa.me/' + s.whatsapp.replace(/\D/g, '');
+    const waHref = toWaMeHref(s.whatsapp);
+    if (waHref) document.querySelector('.contact-card[href*="wa.me"]').href = waHref;
     if (s.email) document.querySelector('.contact-card[href^="mailto"] span').textContent = s.email;
     if (s.email) document.querySelector('.contact-card[href^="mailto"]').href = 'mailto:' + s.email;
     if (s.working_hours) document.querySelector('.contact-hours span').textContent = s.working_hours;
     if (s.address) document.querySelector('.contact-location p').textContent = s.address;
     const social = document.querySelectorAll('.contact-social-links a');
-    const urls = [s.facebook_url, s.instagram_url, s.tiktok_url, s.whatsapp ? 'https://wa.me/' + s.whatsapp.replace(/\D/g, '') : ''];
-    social.forEach((a, i) => { if (urls[i]) a.href = urls[i]; });
+    const urls = [s.facebook_url, s.instagram_url, s.tiktok_url, waHref];
+    social.forEach((a, i) => {
+      if (urls[i]) { a.href = urls[i]; a.target = '_blank'; a.rel = 'noopener noreferrer'; }
+    });
   } catch { /* keep placeholders */ }
 })();
 </script>
-<script type="module" src="js/site-settings.js"></script>
+<script type="module" src="js/site-settings.js?v=c2"></script>
 </body>
 </html>

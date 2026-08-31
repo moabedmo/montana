@@ -7,14 +7,54 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <title>Montana CRM — Admin</title>
+<script>
+/* Kill stale Service Workers / caches that leave CRM blank or unclickable. */
+(function () {
+  if (!('serviceWorker' in navigator)) return;
+  var FLAG = 'crm_admin_sw_push_only_v1';
+  if (sessionStorage.getItem(FLAG)) return;
+  var hadController = !!navigator.serviceWorker.controller;
+  Promise.all([
+    caches.keys().then(function (keys) {
+      return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+    }).catch(function () {}),
+    navigator.serviceWorker.getRegistrations().then(function (regs) {
+      return Promise.all(regs.map(function (r) { return r.unregister(); }));
+    }).catch(function () {})
+  ]).then(function () {
+    sessionStorage.setItem(FLAG, '1');
+    if (hadController) location.reload();
+  });
+})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/crm/css/crm.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<link rel="stylesheet" href="/crm/css/crm.css?v=20260812boot">
 <style>
+/* Safety: never leave invisible blockers if crm.css fails to load */
+.modal-overlay.hidden,
+.viewer-overlay.hidden,
+.week-plan-overlay.hidden { display: none !important; pointer-events: none !important; }
+.mobile-overlay:not(.show) { pointer-events: none !important; }
+#crmBootError {
+  display: none; position: fixed; inset: 0; z-index: 99999;
+  background: #FAF8F4; padding: 24px; text-align: center; font-family: Jost, sans-serif;
+}
+#crmBootError.show { display: block; }
+#crmBootError .box {
+  max-width: 420px; margin: 15vh auto; background: #fff;
+  border: 1px solid rgba(35,24,64,.12); border-radius: 14px; padding: 24px;
+}
+#crmBootError h2 { margin: 0 0 10px; font-size: 18px; color: #231840; }
+#crmBootError p { margin: 0 0 16px; color: #4a3f5c; font-size: 14px; line-height: 1.6; }
+#crmBootError button {
+  background: #6D4ADB; color: #fff; border: 0; border-radius: 10px;
+  padding: 10px 18px; font-weight: 700; cursor: pointer; font-family: inherit; margin: 0 4px;
+}
+#crmBootError button.ghost {
+  background: transparent; color: #6D4ADB; border: 2px solid #6D4ADB;
+}
+
 /* ── Admin-specific styles ── */
 .page { display: none; }
 .page.active { display: block; }
@@ -136,6 +176,55 @@ body.owner-pharmacy-only .mobile-topbar,
 body.owner-pharmacy-only .sidebar,
 body.owner-pharmacy-only .mobile-botnav,
 body.owner-pharmacy-only .mobile-overlay { display: none !important; }
+#m-pharmacy-invoice .pi-inv-form-modal { overflow: visible; }
+#m-pharmacy-invoice .pi-inv-form-scroll {
+  max-height: min(58vh, 520px);
+  overflow-y: auto;
+  overflow-x: visible;
+}
+.pi-loc-block { display: flex; flex-direction: column; gap: 6px; }
+.pi-loc-block select { width: 100%; }
+.pi-add-link {
+  align-self: flex-start; border: none; background: none; padding: 0;
+  font-size: 13px; font-weight: 500; color: var(--mauve); cursor: pointer;
+  font-family: inherit; text-decoration: none;
+}
+.pi-add-link:hover { text-decoration: underline; color: #7c5cad; }
+.pi-add-link:disabled { opacity: .45; cursor: not-allowed; text-decoration: none; }
+.pi-mini-add {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  padding: 10px 12px; border-radius: 10px;
+  background: rgba(139, 107, 175, .08); border: 1px solid rgba(139, 107, 175, .22);
+}
+.pi-mini-add.hidden { display: none !important; }
+.pi-mini-add input {
+  flex: 1; min-width: 140px; padding: 9px 11px; border-radius: 8px;
+  border: 1px solid var(--panel-b); font-family: inherit; font-size: 14px;
+}
+.pi-mini-add .btn { padding: 8px 14px; font-size: 13px; }
+.pi-client-picker-wrap { position: relative; z-index: 2; }
+.pi-client-btn:disabled { opacity: .55; cursor: not-allowed; }
+.pi-client-drop {
+  position: absolute; z-index: 650; background: #fff; border: 1px solid var(--panel-b);
+  border-radius: 12px; box-shadow: 0 12px 36px rgba(35,24,64,.18);
+  padding: 8px; display: flex; flex-direction: column; gap: 6px;
+  left: 0; right: 0; margin-top: 4px;
+}
+.pi-client-drop.hidden { display: none !important; }
+.pi-client-drop input[type=search] {
+  width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--panel-b);
+  font-family: inherit; font-size: 14px;
+}
+.pi-client-list { overflow-y: auto; max-height: min(50vh, 280px); }
+.pi-client-item {
+  display: block; width: 100%; text-align: left; padding: 10px 12px; border: none;
+  background: transparent; border-radius: 8px; cursor: pointer; font-family: inherit;
+  font-size: 14px; color: var(--text);
+}
+.pi-client-item:hover, .pi-client-item:focus { background: rgba(139,107,175,.12); }
+.pi-client-item .sub { font-size: 12px; color: var(--dim); margin-top: 2px; }
+.pi-inv-row { cursor: pointer; }
+.pi-inv-row td:last-child { cursor: default; }
 body.owner-pharmacy-only .crm-layout { display: block; }
 body.owner-pharmacy-only .crm-main {
   margin: 0 !important;
@@ -245,6 +334,14 @@ body.owner-pharmacy-only .crm-main > #p-pharmacy-invoices {
   </button>
   <div class="mt-logo">MONTANA<span>.</span></div>
   <div class="av" id="admin-av-mobile">AD</div>
+</div>
+<div id="crmBootError" aria-live="assertive">
+  <div class="box">
+    <h2>CRM failed to load</h2>
+    <p id="crmBootErrorMsg">Check the connection and try again.</p>
+    <button type="button" onclick="location.reload()">Retry</button>
+    <button type="button" class="ghost" onclick="location.href='/crm/'">Sign in again</button>
+  </div>
 </div>
 <div class="mobile-overlay" id="mobile-overlay" onclick="closeDrawer()"></div>
 <div class="sidebar-hotzone" id="sidebar-hotzone" aria-hidden="true" title="Menu"></div>
@@ -536,24 +633,24 @@ body.owner-pharmacy-only .crm-main > #p-pharmacy-invoices {
           <p>Pharmacy stock — current quantity = <b>old prices</b> · new invoices will be added at <b>new prices</b></p>
         </div>
         <div class="topbar-right" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <select id="pi-price-filter" onchange="loadPharmacyInvoices()" style="padding:8px 10px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:var(--text)">
+          <select id="pi-price-filter" onchange="onPiFilterChange()" style="padding:8px 10px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:var(--text)">
             <option value="">All price lists</option>
             <option value="old">Old prices</option>
             <option value="new">New prices</option>
           </select>
           <button class="btn btn-sm" onclick="openPiRegionsModal()">⚙ Regions</button>
-          <select id="pi-region-filter" onchange="loadPharmacyInvoices()" style="padding:8px 10px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:var(--text)">
+          <select id="pi-region-filter" onchange="onPiFilterChange()" style="padding:8px 10px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:var(--text)">
             <option value="">All governorates</option>
           </select>
-          <select id="pi-date-field" onchange="loadPharmacyInvoices()" title="Date type" style="padding:8px 10px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:var(--text)">
+          <select id="pi-date-field" onchange="onPiFilterChange()" title="Date type" style="padding:8px 10px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:var(--text)">
             <option value="invoice_date">Invoice date</option>
             <option value="due_date">Due date</option>
           </select>
           <label class="text-dim text-sm" style="display:inline-flex;align-items:center;gap:6px;margin:0">From
-            <input type="date" id="pi-date-from" onchange="loadPharmacyInvoices()" style="padding:7px 8px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:var(--text)">
+            <input type="date" id="pi-date-from" onchange="onPiFilterChange()" style="padding:7px 8px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:var(--text)">
           </label>
           <label class="text-dim text-sm" style="display:inline-flex;align-items:center;gap:6px;margin:0">To
-            <input type="date" id="pi-date-to" onchange="loadPharmacyInvoices()" style="padding:7px 8px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:var(--text)">
+            <input type="date" id="pi-date-to" onchange="onPiFilterChange()" style="padding:7px 8px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:var(--text)">
           </label>
           <select id="pi-period-preset" onchange="applyPiPeriodPreset()" style="padding:8px 10px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:var(--text)">
             <option value="">Period…</option>
@@ -562,15 +659,15 @@ body.owner-pharmacy-only .crm-main > #p-pharmacy-invoices {
             <option value="this_year">This year</option>
             <option value="clear">All periods</option>
           </select>
-          <select id="pi-filter" onchange="loadPharmacyInvoices()" style="padding:8px 10px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:var(--text)">
+          <select id="pi-filter" onchange="onPiFilterChange()" style="padding:8px 10px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:var(--text)">
             <option value="">All statuses</option>
             <option value="open">Open (balance due)</option>
             <option value="overdue">Overdue</option>
             <option value="no_date">No due date</option>
             <option value="paid">Paid</option>
           </select>
-          <input id="pi-search" placeholder="Search pharmacy / number…" oninput="loadPharmacyInvoices()" style="padding:8px 10px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:var(--text);min-width:160px">
-          <button class="btn btn-sm" onclick="loadPharmacyInvoices()">↻</button>
+          <input id="pi-search" placeholder="Search pharmacy / number…" oninput="onPiSearchInput()" style="padding:8px 10px;border-radius:8px;border:1px solid var(--panel-b);background:var(--panel);color:var(--text);min-width:160px">
+          <button class="btn btn-sm" onclick="loadPharmacyInvoices(true)" title="Refresh from server">↻</button>
           <button class="btn btn-sm btn-gold" onclick="openPiExportModal()" title="Export Excel for a set period, matching the sheet's colors">↓ Export Excel</button>
           <button class="btn btn-sm" onclick="importLegacyPharmacyInvoices()">↑ Import Excel file</button>
           <button class="btn btn-gold btn-sm" onclick="openPharmacyInvoiceModal()">+ New invoice</button>
@@ -797,7 +894,7 @@ body.owner-pharmacy-only .crm-main > #p-pharmacy-invoices {
 <!-- Add / Edit Doctor Modal -->
 <!-- Pharmacy invoice modal -->
 <div class="modal-overlay hidden" id="m-pharmacy-invoice">
-  <div class="modal modal-scroll" style="width:min(640px,94vw)" onclick="event.stopPropagation()">
+  <div class="modal modal-scroll pi-inv-form-modal" style="width:min(640px,94vw)">
     <div class="modal-head">
       <div>
         <h2 id="pi-modal-title">New pharmacy invoice</h2>
@@ -806,13 +903,29 @@ body.owner-pharmacy-only .crm-main > #p-pharmacy-invoices {
       <button type="button" class="modal-close" id="pi-close-btn" onclick="closePharmacyInvoiceModal()" aria-label="Close" title="Close">✕</button>
     </div>
     <input type="hidden" id="pi-edit-id" value="">
-    <div class="form-grid">
+    <div class="form-grid pi-inv-form-scroll">
       <div class="form-group full">
-        <label>Location <span class="text-dim" style="font-weight:400">(Governorate → brick → client type)</span></label>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px">
-          <select id="pi-region-gov" onchange="onPiGovChange()"><option value="">Governorate / محافظة…</option></select>
-          <select id="pi-brick" onchange="onPiBrickChange()" disabled><option value="">Brick / بريك…</option></select>
-          <select id="pi-client-type" onchange="onPiClientTypeChange()" disabled>
+        <label>Location <span class="text-dim" style="font-weight:400">(Governorate → city → client type)</span></label>
+        <div style="display:grid;gap:12px">
+          <div class="pi-loc-block">
+            <select id="pi-region-gov" onchange="onPiGovChange()"><option value="">Governorate / محافظة…</option></select>
+            <button type="button" class="pi-add-link" onclick="openPiQuickAdd('gov')">+ Add governorate / إضافة محافظة</button>
+            <div id="pi-add-gov-panel" class="pi-mini-add hidden">
+              <input id="pi-add-gov-name" type="text" placeholder="e.g. Giza / الجيزة" autocomplete="off">
+              <button type="button" class="btn btn-sm btn-gold" onclick="confirmPiQuickAdd('gov')">Save</button>
+              <button type="button" class="btn btn-sm" onclick="closePiQuickAdd()">Cancel</button>
+            </div>
+          </div>
+          <div class="pi-loc-block">
+            <select id="pi-area" onchange="onPiAreaChange()" disabled><option value="">City / مدينة…</option></select>
+            <button type="button" id="pi-add-area-link" class="pi-add-link" onclick="openPiQuickAdd('area')" disabled>+ Add city / إضافة مدينة</button>
+            <div id="pi-add-area-panel" class="pi-mini-add hidden">
+              <input id="pi-add-area-name" type="text" placeholder="e.g. 6 October / المهندسين" autocomplete="off">
+              <button type="button" class="btn btn-sm btn-gold" onclick="confirmPiQuickAdd('area')">Save</button>
+              <button type="button" class="btn btn-sm" onclick="closePiQuickAdd()">Cancel</button>
+            </div>
+          </div>
+          <select id="pi-client-type" onchange="onPiClientTypeChange()" disabled style="width:100%">
             <option value="">Client type / النوع…</option>
             <option value="pharmacy">Pharmacy / صيدلية</option>
             <option value="doctor">Doctor / دكتور</option>
@@ -820,14 +933,19 @@ body.owner-pharmacy-only .crm-main > #p-pharmacy-invoices {
             <option value="drug_depot">Drug depot / دراج ديبوت</option>
           </select>
         </div>
+        <div id="pi-area-hint" class="text-dim text-sm" style="display:none;margin-top:6px"></div>
       </div>
-      <div class="form-group full">
-        <label>Client <span class="text-dim" style="font-weight:400">(from CRM — same brick)</span></label>
-        <select id="pi-client" onchange="onPiClientPicked()" disabled>
-          <option value="">Choose client…</option>
-        </select>
-        <input type="hidden" id="pi-pharmacy-search">
-        <datalist id="pi-pharmacy-datalist" style="display:none"></datalist>
+      <div class="form-group full pi-client-picker-wrap">
+        <label>Client name <span style="color:#c9502f">*</span> <span class="text-dim" style="font-weight:400">(type freely — or pick from CRM)</span></label>
+        <div style="display:flex;gap:8px;align-items:stretch;flex-wrap:wrap">
+          <input type="text" id="pi-pharmacy-search" placeholder="Pharmacy / doctor / store name…" autocomplete="off" style="flex:1;min-width:180px" oninput="onPiClientNameTyped()">
+          <button type="button" id="pi-client-btn" class="btn btn-sm" onclick="togglePiClientPicker()" disabled title="Optional — fill from CRM list">📋 From list</button>
+        </div>
+        <input type="hidden" id="pi-client" value="">
+        <div id="pi-client-drop" class="pi-client-drop hidden">
+          <input type="search" id="pi-client-search" placeholder="Search CRM…" oninput="renderPiClientPickerList()">
+          <div id="pi-client-list" class="pi-client-list"></div>
+        </div>
         <input type="hidden" id="pi-pharmacy-id">
         <input type="hidden" id="pi-brick-id">
       </div>
@@ -1016,7 +1134,7 @@ body.owner-pharmacy-only .crm-main > #p-pharmacy-invoices {
 
 <!-- Pharmacy invoice detail — Montana invoice layout -->
 <div class="modal-overlay hidden" id="m-pi-view" onclick="if(event.target===this)closeModal('m-pi-view')">
-  <div class="modal modal-scroll" style="width:min(820px,96vw);padding:0;background:transparent;box-shadow:none;border:none;max-height:94vh">
+  <div class="modal modal-scroll" style="width:min(calc(210mm + 24px),96vw);padding:0;background:transparent;box-shadow:none;border:none;max-height:94vh">
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px;flex-wrap:wrap" class="no-print-pi">
       <button type="button" class="btn btn-sm btn-gold" id="piv-edit-btn" onclick="if(PI_VIEW_ID)openPharmacyInvoiceEdit(PI_VIEW_ID)">✎ Edit</button>
       <button type="button" class="btn btn-sm" id="piv-due-btn" onclick="if(PI_VIEW_ID){const r=PI_CACHE[PI_VIEW_ID];openPiDueDate(PI_VIEW_ID,r?.due_date||'',r?.pharmacy_name||'')}">Due date</button>
@@ -1028,7 +1146,7 @@ body.owner-pharmacy-only .crm-main > #p-pharmacy-invoices {
     <div id="piv-body"></div>
   </div>
 </div>
-<iframe id="pi-print-frame" title="print" style="position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0;pointer-events:none" aria-hidden="true"></iframe>
+<iframe id="pi-print-frame" title="print" style="position:fixed;left:0;top:0;width:210mm;height:297mm;border:0;opacity:0;z-index:-1;pointer-events:none" aria-hidden="true"></iframe>
 
 <style>
 #m-pi-view .pi-invoice {
@@ -1038,7 +1156,9 @@ body.owner-pharmacy-only .crm-main > #p-pharmacy-invoices {
   --pi-muted: #8888a0;
   --pi-border: #E8DFF0;
   font-family: 'Tajawal', 'Segoe UI', Tahoma, sans-serif;
-  max-width: 800px;
+  width: 210mm;
+  max-width: 210mm;
+  min-height: 297mm;
   margin: 0 auto;
   background: #fff;
   border-radius: 16px;
@@ -1140,6 +1260,37 @@ body.owner-pharmacy-only .crm-main > #p-pharmacy-invoices {
   #m-pi-view .pi-inv-info { flex-direction: column; gap: 16px; }
   #m-pi-view .pi-inv-header { padding: 20px; }
   #m-pi-view .pi-inv-table { padding: 0 12px; overflow-x: auto; }
+}
+@media print {
+  @page { size: A4 portrait; margin: 10mm; }
+  body > *:not(#m-pi-view) { display: none !important; }
+  #m-pi-view {
+    position: fixed !important; inset: 0 !important; z-index: 999999 !important;
+    display: block !important; background: #fff !important; overflow: visible !important;
+    padding: 0 !important; margin: 0 !important;
+  }
+  #m-pi-view .modal-overlay { position: static !important; background: none !important; padding: 0 !important; }
+  #m-pi-view .modal {
+    width: 100% !important; max-width: none !important; max-height: none !important;
+    margin: 0 !important; padding: 0 !important; box-shadow: none !important; border: none !important;
+    background: transparent !important; overflow: visible !important;
+  }
+  .no-print-pi { display: none !important; }
+  #m-pi-view .pi-invoice {
+    max-width: none !important; width: 100% !important; min-height: calc(297mm - 20mm);
+    margin: 0 !important; border-radius: 0 !important; box-shadow: none !important;
+    display: flex !important; flex-direction: column !important;
+  }
+  #m-pi-view .pi-inv-table { flex: 1 1 auto; }
+  #m-pi-view .pi-inv-bottom { margin-top: auto; }
+  #m-pi-view .pi-inv-header,
+  #m-pi-view .pi-inv-meta,
+  #m-pi-view .pi-inv-footer,
+  #m-pi-view .pi-inv-table th,
+  #m-pi-view .pi-inv-table .disc {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 }
 </style>
 
@@ -1344,13 +1495,45 @@ import {
   auth, doctors, geo, plans, visits, products, materials,
   leaderboard, samplesReport, sampleCustody, reps, invoiceIntegration, SUPABASE_URL, SUPABASE_KEY, isCrmAdminAccess, isOwnerAccess,
   adminPush, getPharmacyCreditStatus, getRepMonthKpis, weekPlans, pharmacyInvoices, pharmacyRegions, printCards
-} from '/crm/js/crm-api.js?v=20260720picker';
+} from '/crm/js/crm-api.js?v=20260720perf';
+
+const _lazyScripts = {};
+function loadScriptOnce(src) {
+  if (_lazyScripts[src]) return _lazyScripts[src];
+  _lazyScripts[src] = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error('Failed to load ' + src));
+    document.head.appendChild(s);
+  });
+  return _lazyScripts[src];
+}
+async function ensureLeaflet() {
+  if (typeof L !== 'undefined') return;
+  if (!document.querySelector('link[href*="leaflet.css"]')) {
+    const l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(l);
+  }
+  await loadScriptOnce('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js');
+}
+async function ensureXlsx() {
+  if (typeof XLSX !== 'undefined') return;
+  await loadScriptOnce('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js');
+}
+async function ensureExcelJS() {
+  if (typeof ExcelJS !== 'undefined') return;
+  await loadScriptOnce('https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js');
+}
 
 window.invoiceIntegration = invoiceIntegration;
 
 // ── State ─────────────────────────────────────────────────
 let ALL_DOCTORS = [], ALL_REPS = [], ALL_PRODUCTS = [], ALL_VISITS = [], BRICKS = [], STORE_PRODUCTS = [];
 let REP_BRICK_COUNTS = {}, VISIT_STATS = null;
+let DR_FILTER_TIMER = null;
 
 function clientTypeLabel(t) {
   if (t === 'pharmacy') return 'Pharmacy';
@@ -1449,20 +1632,49 @@ const PAGE_LOADERS = {
 };
 
 // ── Init ──────────────────────────────────────────────────
+function showCrmBootError(msg) {
+  const box = document.getElementById('crmBootError');
+  const t = document.getElementById('crmBootErrorMsg');
+  if (t) t.textContent = msg || 'Check the connection and try again.';
+  box?.classList.add('show');
+}
+
+function clearStuckOverlays() {
+  document.querySelectorAll('.modal-overlay, .viewer-overlay, .week-plan-overlay').forEach((el) => {
+    el.classList.add('hidden');
+  });
+  document.getElementById('mobile-overlay')?.classList.remove('show');
+  document.body.classList.remove('drawer-open');
+}
+
 async function init() {
   try {
-    const me = await auth.me();
+    clearStuckOverlays();
+    const hops = Number(sessionStorage.getItem('crm_auth_hops') || 0);
+    if (hops > 4) {
+      sessionStorage.removeItem('crm_auth_hops');
+      showCrmBootError('Login loop detected. Sign out and sign in again.');
+      return;
+    }
+    sessionStorage.setItem('crm_auth_hops', String(hops + 1));
+
+    const me = await Promise.race([
+      auth.me(),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('Auth timeout — refresh and try again')), 15000)),
+    ]);
     if (!me?.user) { location.href = '/crm/'; return; }
-    const canAdmin = await isCrmAdminAccess();
+    const [rpcAdmin, asOwner] = await Promise.all([isCrmAdminAccess(), isOwnerAccess()]);
+    // Honor CRM rep.role=admin even if RPCs flake (prevents admin↔rep redirect loop)
+    const canAdmin = rpcAdmin || asOwner || me.rep?.role === 'admin';
     if (!canAdmin) {
       if (me.rep) location.href = '/crm/rep/';
       else location.href = '/crm/';
       return;
     }
+    sessionStorage.removeItem('crm_auth_hops');
 
     const params = new URLSearchParams(location.search);
     const wantStandalone = params.get('standalone') === '1' || params.get('page') === 'pharmacy-invoices';
-    const asOwner = await isOwnerAccess();
     // Owner (or explicit standalone / pharmacy deep-link) → pharmacy invoices only, no CRM chrome
     const pharmacyOnly = asOwner || params.get('standalone') === '1';
     if (pharmacyOnly) {
@@ -1486,7 +1698,7 @@ async function init() {
       refreshAdminPushButton();
       weekPlans.listForAdmin('pending').then(p => refreshWeekPlansBadge(p.length)).catch(() => {});
     } else {
-      BRICKS = [];
+      try { BRICKS = await geo.bricks(); } catch { BRICKS = []; }
       ALL_PRODUCTS = [];
       STORE_PRODUCTS = [];
     }
@@ -1514,6 +1726,7 @@ async function init() {
     }
   } catch (e) {
     console.error(e);
+    showCrmBootError(e?.message || String(e));
   }
 }
 
@@ -1683,6 +1896,7 @@ const CLASS_VISIT_DEFAULTS = { AB1: 4, AB2: 3, BB1: 2, BB2: 1 };
 async function loadMap() {
   const hint = document.getElementById('map-empty-hint');
   try {
+    await ensureLeaflet();
     if (!ALL_DOCTORS.length) ALL_DOCTORS = await doctors.list();
     MAP_FLAGGED = await visits.adminAll({ flagged: true });
     const withGps = ALL_DOCTORS.filter(d => d.lat && d.lng);
@@ -1789,18 +2003,21 @@ function renderDoctors(data) {
 }
 
 window.filterDoctors = () => {
-  const q = document.getElementById('dr-search').value.toLowerCase();
-  const cl = document.getElementById('dr-class').value;
-  const ap = document.getElementById('dr-pending').value;
-  const br = document.getElementById('dr-brick')?.value || '';
-  const ac = document.getElementById('dr-active')?.value || '';
-  renderDoctors(ALL_DOCTORS.filter(d =>
-    (!q || d.name.toLowerCase().includes(q) || (d.address||'').toLowerCase().includes(q)) &&
-    (!cl || d.class === cl) &&
-    (ap === '' || String(d.approved) === ap) &&
-    (!br || d.brick_id === br) &&
-    (ac === '' || String(d.is_active !== false) === ac)
-  ));
+  clearTimeout(DR_FILTER_TIMER);
+  DR_FILTER_TIMER = setTimeout(() => {
+    const q = document.getElementById('dr-search').value.toLowerCase();
+    const cl = document.getElementById('dr-class').value;
+    const ap = document.getElementById('dr-pending').value;
+    const br = document.getElementById('dr-brick')?.value || '';
+    const ac = document.getElementById('dr-active')?.value || '';
+    renderDoctors(ALL_DOCTORS.filter(d =>
+      (!q || d.name.toLowerCase().includes(q) || (d.address||'').toLowerCase().includes(q)) &&
+      (!cl || d.class === cl) &&
+      (ap === '' || String(d.approved) === ap) &&
+      (!br || d.brick_id === br) &&
+      (ac === '' || String(d.is_active !== false) === ac)
+    ));
+  }, 200);
 };
 
 window.toggleDoctorActive = async (id, next) => {
@@ -1966,8 +2183,9 @@ window.parseImportFile = () => {
   if (!file) return;
   document.getElementById('imp-file-label').textContent = file.name;
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = async (e) => {
     try {
+      await ensureXlsx();
       const wb = XLSX.read(e.target.result, { type: 'array' });
       const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
       const brickByName = Object.fromEntries(BRICKS.map(b => [b.name.trim().toLowerCase(), b.id]));
@@ -2064,21 +2282,12 @@ async function loadRepKpis(repId) {
   }
 }
 
-async function loadReps() {
-  ALL_REPS = await reps.list();
-  const lb = await leaderboard.get();
-  const lbMap = Object.fromEntries(lb.map(r => [r.rep_id, r]));
-  REP_BRICK_COUNTS = await reps.brickCounts();
-  const kpiMap = {};
-  await Promise.all(ALL_REPS.map(async (r) => {
-    try { kpiMap[r.id] = await getRepMonthKpis(r.id); } catch { /* migration 059 */ }
-  }));
-
-  // Populate rep filter in visits page (field reps only)
+function renderRepsList(lbMap, kpiMap = {}) {
   const sel = document.getElementById('vr-rep');
-  sel.innerHTML = '<option value="">All reps</option>' +
-    ALL_REPS.filter(r => r.role !== 'admin').map(r => `<option value="${r.id}">${r.name}</option>`).join('');
-
+  if (sel) {
+    sel.innerHTML = '<option value="">All reps</option>' +
+      ALL_REPS.filter(r => r.role !== 'admin').map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+  }
   document.getElementById('reps-list').innerHTML = ALL_REPS.map(r => {
     const stats = lbMap[r.id];
     const kpi = kpiMap[r.id];
@@ -2098,7 +2307,7 @@ async function loadReps() {
           <span>📦 ${kpi.total_units ?? 0} units</span>
           <span>✓ ${kpi.actual_visits ?? 0} actual</span>
           <span>${kpi.total_visits ?? 0} visits</span>
-        </div>` : ''}
+        </div>` : (!isAdmin && !Object.keys(kpiMap).length ? '<div class="rep-meta text-dim">Loading KPIs…</div>' : '')}
         ${!isAdmin && stats ? `<div style="display:flex;gap:12px;margin-top:6px">
           <span class="text-sm text-dim">${stats.total_visits} visits (leaderboard)</span>
           <span class="text-sm text-dim">${stats.coverage_pct || 0}% coverage</span>
@@ -2111,6 +2320,20 @@ async function loadReps() {
       </div>
     </div>`;
   }).join('') || '<div class="text-dim text-sm">No accounts yet.</div>';
+}
+
+async function loadReps() {
+  ALL_REPS = await reps.list();
+  const [lb, brickCounts] = await Promise.all([leaderboard.get(), reps.brickCounts()]);
+  const lbMap = Object.fromEntries(lb.map(r => [r.rep_id, r]));
+  REP_BRICK_COUNTS = brickCounts;
+  renderRepsList(lbMap);
+
+  const kpiMap = {};
+  await Promise.all(ALL_REPS.map(async (r) => {
+    try { kpiMap[r.id] = await getRepMonthKpis(r.id); } catch { /* migration 059 */ }
+  }));
+  renderRepsList(lbMap, kpiMap);
 }
 
 window.toggleBrickRequirement = (prefix) => {
@@ -2507,7 +2730,7 @@ window.loadB2bQueue = loadB2bQueue;
 
 // ── Pharmacy invoices ─────────────────────────────────────
 const PI_PRESETS = [
-  { sku: 'post-laser', name: 'Post-Laser', unit_price: 349 },
+  { sku: 'post-laser', name: 'Post-Laser', unit_price: 369 },
   { sku: 'lotion', name: 'Lotion', unit_price: 229 },
   { sku: 'w-cleanser', name: 'W.cleanser', unit_price: 299 },
   { sku: 'acne', name: 'Acne', unit_price: 329 },
@@ -2573,6 +2796,10 @@ let PI_REGION_BY_ID = {};
 let PI_CACHE = {}; // id → invoice row
 let PI_VIEW_ID = null;
 let PI_EXPORT_ROWS = []; // last filtered table rows
+let PI_RAW_LIST = null;
+let PI_RAW_AT = 0;
+const PI_RAW_TTL_MS = 120000;
+let PI_FILTER_TIMER = null;
 
 function piEsc(s) {
   return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -2623,6 +2850,35 @@ function piInvoiceGovId(r) {
 }
 
 let PI_REGION_BRICK_IDS = {};
+let PI_REGIONS_LOADED = false;
+let PI_SEARCH_TIMER = null;
+
+async function ensurePiGeoData() {
+  if (!BRICKS.length) {
+    try { BRICKS = await geo.bricks(); } catch { BRICKS = []; }
+  }
+  if (!ALL_DOCTORS.length) {
+    try { ALL_DOCTORS = await doctors.list(); } catch { ALL_DOCTORS = []; }
+  }
+}
+
+window.onPiSearchInput = () => {
+  clearTimeout(PI_SEARCH_TIMER);
+  PI_SEARCH_TIMER = setTimeout(() => applyPharmacyInvoiceFilters(), 280);
+};
+
+window.onPiFilterChange = () => {
+  clearTimeout(PI_FILTER_TIMER);
+  PI_FILTER_TIMER = setTimeout(() => applyPharmacyInvoiceFilters(), 150);
+};
+
+async function ensurePiRawInvoices(force = false) {
+  const stale = !PI_RAW_LIST || Date.now() - PI_RAW_AT > PI_RAW_TTL_MS;
+  if (!force && !stale) return PI_RAW_LIST;
+  PI_RAW_LIST = await pharmacyInvoices.list({ status: null });
+  PI_RAW_AT = Date.now();
+  return PI_RAW_LIST;
+}
 
 async function loadPiRegionBricks() {
   try {
@@ -2694,84 +2950,265 @@ function piDetectClientType(doc) {
 }
 
 function piResolvedRegionId() {
-  return document.getElementById('pi-region-gov')?.value || null;
+  return document.getElementById('pi-area')?.value
+    || document.getElementById('pi-region-gov')?.value
+    || null;
 }
 
 function piRegionLabelFromForm() {
   const govId = document.getElementById('pi-region-gov')?.value;
-  const brickId = document.getElementById('pi-brick')?.value;
+  const areaId = document.getElementById('pi-area')?.value;
   const parts = [];
   if (govId && PI_REGION_BY_ID[govId]) parts.push(PI_REGION_BY_ID[govId].name);
-  const brick = (BRICKS || []).find(b => b.id === brickId);
-  if (brick) parts.push(brick.name);
+  if (areaId && PI_REGION_BY_ID[areaId]) parts.push(PI_REGION_BY_ID[areaId].name);
   return parts.join(' / ') || null;
 }
 
-function fillPiBrickSelect(govId, selectedBrickId) {
-  const el = document.getElementById('pi-brick');
-  if (!el) return;
-  const bricks = piBricksForGov(govId).sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-  el.innerHTML = '<option value="">Brick / بريك…</option>' +
-    bricks.map(b => `<option value="${b.id}">${piEsc(b.name)}</option>`).join('');
-  el.disabled = !govId || !bricks.length;
-  if (selectedBrickId) el.value = selectedBrickId;
+function piAreaIdFromRegionId(id) {
+  const r = id ? PI_REGION_BY_ID[id] : null;
+  if (!r) return null;
+  if (r.region_type === 'area') return r.id;
+  if (r.region_type === 'pharmacy') return r.parent_id;
+  return null;
 }
 
-function fillPiClientSelect(brickId, clientType, selectedId) {
-  const el = document.getElementById('pi-client');
+function piBrickIdsForGov(govId) {
+  return new Set(piBricksForGov(govId).map(b => b.id));
+}
+
+function piClientCandidates(govId, clientType) {
+  if (!govId || !clientType) return [];
+  const brickIds = piBrickIdsForGov(govId);
+  return (ALL_DOCTORS || [])
+    .filter(d => brickIds.has(d.brick_id) && piMatchClientType(d, clientType))
+    .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar'));
+}
+
+function fillPiAreaSelect(govId, selectedAreaId) {
+  const el = document.getElementById('pi-area');
   if (!el) return;
-  if (!brickId || !clientType) {
-    el.innerHTML = '<option value="">Choose client…</option>';
-    el.disabled = true;
+  const areas = piRegionChildren(govId, 'area');
+  el.innerHTML = '<option value="">City / مدينة…</option>' +
+    areas.map(a => `<option value="${a.id}">${piEsc(a.name)}</option>`).join('');
+  el.disabled = !govId;
+  if (selectedAreaId) el.value = selectedAreaId;
+  const hint = document.getElementById('pi-area-hint');
+  if (hint) {
+    if (govId && !areas.length) {
+      hint.textContent = 'No cities yet — press + to add (October, Mohandessin, …).';
+      hint.style.display = 'block';
+    } else {
+      hint.style.display = 'none';
+      hint.textContent = '';
+    }
+  }
+}
+
+function setPiClientPickerLabel(name) {
+  const inp = document.getElementById('pi-pharmacy-search');
+  if (inp && name != null) inp.value = name;
+}
+
+window.onPiClientNameTyped = () => {
+  // Free-text name — unlink CRM id unless user picks again from the list
+  document.getElementById('pi-client').value = '';
+  document.getElementById('pi-pharmacy-id').value = '';
+};
+
+function syncPiClientPickerEnabled() {
+  const govId = document.getElementById('pi-region-gov')?.value || '';
+  const areaId = document.getElementById('pi-area')?.value || '';
+  const clientType = document.getElementById('pi-client-type')?.value || '';
+  const btn = document.getElementById('pi-client-btn');
+  // List picker is optional; enable when location+type are set
+  const ready = !!(govId && areaId && clientType);
+  if (btn) btn.disabled = !ready;
+}
+
+function renderPiClientPickerList() {
+  const listEl = document.getElementById('pi-client-list');
+  if (!listEl) return;
+  const govId = document.getElementById('pi-region-gov')?.value || '';
+  const clientType = document.getElementById('pi-client-type')?.value || '';
+  const q = (document.getElementById('pi-client-search')?.value || '').trim().toLowerCase();
+  let clients = piClientCandidates(govId, clientType);
+  if (q) clients = clients.filter(d => (d.name || '').toLowerCase().includes(q));
+  if (!clients.length) {
+    listEl.innerHTML = '<div class="text-dim text-sm" style="padding:10px">No clients in this governorate for this type.</div>';
     return;
   }
-  const clients = (ALL_DOCTORS || [])
-    .filter(d => d.brick_id === brickId && piMatchClientType(d, clientType))
-    .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar'));
-  el.innerHTML = '<option value="">Choose client…</option>' +
-    clients.map(d => `<option value="${d.id}">${piEsc(d.name)}</option>`).join('');
-  el.disabled = !clients.length;
-  if (selectedId) el.value = selectedId;
+  listEl.innerHTML = clients.map(d => {
+    const brick = (BRICKS || []).find(b => b.id === d.brick_id)?.name || d.crm_bricks?.name || '';
+    return `<button type="button" class="pi-client-item" onclick="pickPiClient('${d.id}')">
+      ${piEsc(d.name || '—')}
+      ${brick ? `<div class="sub">${piEsc(brick)}</div>` : ''}
+    </button>`;
+  }).join('');
 }
 
-function resetPiClientCascade(fromLevel) {
-  const typeEl = document.getElementById('pi-client-type');
-  const clientEl = document.getElementById('pi-client');
-  if (fromLevel === 'gov') {
-    fillPiBrickSelect('', null);
-    if (typeEl) { typeEl.value = ''; typeEl.disabled = true; }
+window.togglePiClientPicker = () => {
+  const drop = document.getElementById('pi-client-drop');
+  const btn = document.getElementById('pi-client-btn');
+  const wrap = document.querySelector('.pi-client-picker-wrap');
+  if (!drop || !btn || btn.disabled) return;
+  if (!drop.classList.contains('hidden')) {
+    drop.classList.add('hidden');
+    return;
   }
-  if (fromLevel === 'gov' || fromLevel === 'brick') {
-    if (clientEl) { clientEl.innerHTML = '<option value="">Choose client…</option>'; clientEl.disabled = true; }
-    if (fromLevel === 'brick' && typeEl) { typeEl.value = ''; typeEl.disabled = !document.getElementById('pi-brick')?.value; }
+  renderPiClientPickerList();
+  // Anchor under the name field / wrap (not fixed to viewport coords only)
+  if (wrap) {
+    const r = wrap.getBoundingClientRect();
+    drop.style.position = 'absolute';
+    drop.style.top = '100%';
+    drop.style.left = '0';
+    drop.style.right = '0';
+    drop.style.width = 'auto';
+    drop.style.marginTop = '4px';
+    drop.style.zIndex = '20';
+  } else {
+    const r = btn.getBoundingClientRect();
+    drop.style.top = `${Math.min(r.bottom + 4, window.innerHeight - 320)}px`;
+    drop.style.left = `${r.left}px`;
+    drop.style.width = `${Math.max(r.width, 280)}px`;
   }
+  drop.classList.remove('hidden');
+  setTimeout(() => document.getElementById('pi-client-search')?.focus(), 30);
+};
+
+window.closePiClientPicker = () => {
+  document.getElementById('pi-client-drop')?.classList.add('hidden');
+};
+
+window.pickPiClient = (id) => {
+  document.getElementById('pi-client').value = id || '';
+  onPiClientPicked();
+  closePiClientPicker();
+};
+
+function clearPiClientPick() {
+  document.getElementById('pi-client').value = '';
   document.getElementById('pi-pharmacy-id').value = '';
   document.getElementById('pi-pharmacy-search').value = '';
   document.getElementById('pi-brick-id').value = '';
 }
 
+function resetPiClientCascade(fromLevel) {
+  const typeEl = document.getElementById('pi-client-type');
+  if (fromLevel === 'gov') {
+    fillPiAreaSelect('', null);
+    if (typeEl) { typeEl.value = ''; typeEl.disabled = true; }
+  }
+  if (fromLevel === 'gov' || fromLevel === 'area') {
+    clearPiClientPick();
+    if (fromLevel === 'area' && typeEl) {
+      typeEl.value = '';
+      typeEl.disabled = !document.getElementById('pi-area')?.value;
+    }
+  }
+  syncPiClientPickerEnabled();
+}
+
+function piErrMsg(e) {
+  const msg = e?.message || e?.details || String(e || '');
+  if (/already exists/i.test(msg)) return 'الاسم موجود already — choose another name';
+  if (/not authorized/i.test(msg)) return 'No permission — sign in as admin';
+  if (/parent/i.test(msg)) return 'Select governorate first / اختار المحافظة الأول';
+  return msg || 'Save failed';
+}
+
+function syncPiAreaAddLink() {
+  const link = document.getElementById('pi-add-area-link');
+  const govId = document.getElementById('pi-region-gov')?.value || '';
+  if (link) link.disabled = !govId;
+}
+
+window.closePiQuickAdd = () => {
+  document.getElementById('pi-add-gov-panel')?.classList.add('hidden');
+  document.getElementById('pi-add-area-panel')?.classList.add('hidden');
+};
+
+window.openPiQuickAdd = (kind) => {
+  closePiQuickAdd();
+  if (kind === 'area') {
+    const govId = document.getElementById('pi-region-gov')?.value || '';
+    if (!govId) { toast('Select governorate first / اختار المحافظة', 'err'); return; }
+    const panel = document.getElementById('pi-add-area-panel');
+    const input = document.getElementById('pi-add-area-name');
+    panel?.classList.remove('hidden');
+    if (input) { input.value = ''; setTimeout(() => input.focus(), 30); }
+    return;
+  }
+  const panel = document.getElementById('pi-add-gov-panel');
+  const input = document.getElementById('pi-add-gov-name');
+  panel?.classList.remove('hidden');
+  if (input) { input.value = ''; setTimeout(() => input.focus(), 30); }
+};
+
+window.confirmPiQuickAdd = async (kind) => {
+  const btn = kind === 'area'
+    ? document.querySelector('#pi-add-area-panel .btn-gold')
+    : document.querySelector('#pi-add-gov-panel .btn-gold');
+  if (btn?.disabled) return;
+  try {
+    if (kind === 'gov') {
+      const name = document.getElementById('pi-add-gov-name')?.value?.trim();
+      if (!name) { toast('Enter governorate name', 'err'); return; }
+      if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+      const row = await pharmacyRegions.create({ name, region_type: 'governorate' });
+      await loadPiRegions(true);
+      document.getElementById('pi-region-gov').value = row.id;
+      onPiGovChange();
+      closePiQuickAdd();
+      toast('Governorate added ✓', 'ok');
+    } else {
+      const govId = document.getElementById('pi-region-gov')?.value || '';
+      const name = document.getElementById('pi-add-area-name')?.value?.trim();
+      if (!govId) { toast('Select governorate first', 'err'); return; }
+      if (!name) { toast('Enter city name', 'err'); return; }
+      if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+      const row = await pharmacyRegions.create({
+        parent_id: govId,
+        name,
+        region_type: 'area',
+      });
+      await loadPiRegions(true);
+      fillPiAreaSelect(govId, row.id);
+      document.getElementById('pi-area').value = row.id;
+      onPiAreaChange();
+      closePiQuickAdd();
+      toast('City added ✓', 'ok');
+    }
+  } catch (e) {
+    toast(piErrMsg(e), 'err');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Save'; }
+  }
+};
+
 window.onPiGovChange = () => {
   const govId = document.getElementById('pi-region-gov')?.value || '';
   resetPiClientCascade('gov');
-  fillPiBrickSelect(govId, null);
+  fillPiAreaSelect(govId, null);
   const typeEl = document.getElementById('pi-client-type');
   if (typeEl) typeEl.disabled = true;
+  syncPiClientPickerEnabled();
+  syncPiAreaAddLink();
+  closePiQuickAdd();
 };
 
-window.onPiBrickChange = () => {
-  const brickId = document.getElementById('pi-brick')?.value || '';
-  resetPiClientCascade('brick');
-  document.getElementById('pi-brick-id').value = brickId;
+window.onPiAreaChange = () => {
+  resetPiClientCascade('area');
+  const areaId = document.getElementById('pi-area')?.value || '';
   const typeEl = document.getElementById('pi-client-type');
-  if (typeEl) typeEl.disabled = !brickId;
+  if (typeEl) typeEl.disabled = !areaId;
+  syncPiClientPickerEnabled();
 };
 
 window.onPiClientTypeChange = () => {
-  const brickId = document.getElementById('pi-brick')?.value || '';
-  const clientType = document.getElementById('pi-client-type')?.value || '';
-  fillPiClientSelect(brickId, clientType, null);
-  document.getElementById('pi-pharmacy-id').value = '';
-  document.getElementById('pi-pharmacy-search').value = '';
+  clearPiClientPick();
+  syncPiClientPickerEnabled();
+  renderPiClientPickerList();
 };
 
 window.onPiClientPicked = () => {
@@ -2779,32 +3216,37 @@ window.onPiClientPicked = () => {
   const doc = (ALL_DOCTORS || []).find(d => d.id === id);
   document.getElementById('pi-pharmacy-id').value = doc?.id || '';
   document.getElementById('pi-pharmacy-search').value = doc?.name || '';
-  document.getElementById('pi-brick-id').value = doc?.brick_id || document.getElementById('pi-brick')?.value || '';
+  document.getElementById('pi-brick-id').value = doc?.brick_id || '';
+  setPiClientPickerLabel(doc?.name || '');
   if (doc?.phone) document.getElementById('pi-phone').value = doc.phone;
   if (doc?.address) document.getElementById('pi-address').value = doc.address;
 };
 
 function setPiLocationFromInvoice(r) {
   const govId = piInvoiceGovId(r) || (r.region_id && PI_REGION_BY_ID[r.region_id]?.region_type === 'governorate' ? r.region_id : null);
+  const areaId = piAreaIdFromRegionId(r.region_id) || null;
   fillPiRegionGovSelect(govId || null);
-  const brickId = r.brick_id || r.crm_doctors?.brick_id || r.crm_bricks?.id || '';
-  fillPiBrickSelect(govId, brickId || null);
+  fillPiAreaSelect(govId, areaId);
   const doc = r.pharmacy_id ? (ALL_DOCTORS || []).find(d => d.id === r.pharmacy_id) : null;
   const clientType = piDetectClientType(doc);
   const typeEl = document.getElementById('pi-client-type');
   if (typeEl) {
-    typeEl.disabled = !brickId;
+    typeEl.disabled = !areaId && !govId;
     typeEl.value = clientType || '';
   }
-  fillPiClientSelect(brickId, clientType, r.pharmacy_id || null);
-  if (r.pharmacy_id) onPiClientPicked();
-  else {
+  if (r.pharmacy_id) {
+    document.getElementById('pi-client').value = r.pharmacy_id;
+    onPiClientPicked();
+  } else {
+    clearPiClientPick();
     document.getElementById('pi-pharmacy-search').value = r.pharmacy_name || '';
-    document.getElementById('pi-brick-id').value = brickId || '';
+    setPiClientPickerLabel(r.pharmacy_name || '');
+    document.getElementById('pi-brick-id').value = r.brick_id || r.crm_doctors?.brick_id || '';
   }
+  syncPiClientPickerEnabled();
 }
 
-async function loadPiRegions() {
+async function loadPiRegions(refreshFilters = false) {
   try {
     PI_REGIONS_FLAT = await pharmacyRegions.listAll();
   } catch {
@@ -2812,8 +3254,11 @@ async function loadPiRegions() {
   }
   PI_REGION_BY_ID = Object.fromEntries(PI_REGIONS_FLAT.map(r => [r.id, r]));
   await loadPiRegionBricks();
-  fillPiRegionFilter();
-  fillPiRegionGovSelect();
+  if (refreshFilters || !PI_REGIONS_LOADED) {
+    fillPiRegionFilter();
+    fillPiRegionGovSelect();
+    PI_REGIONS_LOADED = true;
+  }
 }
 
 function fillPiRegionFilter() {
@@ -2880,7 +3325,7 @@ function piRegionOptionsHtml(selected) {
 }
 
 window.openPiRegionsModal = async () => {
-  await loadPiRegions();
+  await loadPiRegions(true);
   fillPirParentSelect();
   renderPiRegionsTree();
   document.getElementById('m-pi-regions').classList.remove('hidden');
@@ -2970,7 +3415,7 @@ window.savePiRegionNode = async () => {
     document.getElementById('pir-name').value = '';
     document.getElementById('pir-phone').value = '';
     document.getElementById('pir-address').value = '';
-    await loadPiRegions();
+    await loadPiRegions(true);
     fillPirParentSelect();
     renderPiRegionsTree();
     toast('Region added ✓', 'ok');
@@ -2983,7 +3428,7 @@ window.deletePiRegionNode = async (id) => {
   if (!confirm('Delete this region and all children? Invoices will keep their text label.')) return;
   try {
     await pharmacyRegions.remove(id);
-    await loadPiRegions();
+    await loadPiRegions(true);
     fillPirParentSelect();
     renderPiRegionsTree();
     toast('Deleted', 'ok');
@@ -3037,96 +3482,107 @@ function filterPiByPeriod(rows) {
   });
 }
 
-async function loadPharmacyInvoices() {
-  const tbody = document.getElementById('pi-tbody');
+function applyPharmacyInvoiceFilters() {
   const kpis = document.getElementById('pi-kpis');
   const alertEl = document.getElementById('pi-alert');
-  if (tbody) tbody.innerHTML = '<tr><td colspan="12" class="text-dim text-sm">Loading…</td></tr>';
-  try {
-    await loadPiRegions();
-    const region = document.getElementById('pi-region-filter')?.value || '';
-    const priceList = document.getElementById('pi-price-filter')?.value || '';
-    const filter = document.getElementById('pi-filter')?.value ?? '';
-    const q = document.getElementById('pi-search')?.value?.trim() || null;
-    const from = document.getElementById('pi-date-from')?.value || '';
-    const to = document.getElementById('pi-date-to')?.value || '';
-    const dateField = document.getElementById('pi-date-field')?.value || 'invoice_date';
-    const periodLabel = (from || to)
-      ? `${dateField === 'due_date' ? 'Due' : 'Invoice'}: ${from || '…'} → ${to || '…'}`
-      : '';
+  if (!PI_RAW_LIST) {
+    loadPharmacyInvoices();
+    return;
+  }
 
-    let all = await pharmacyInvoices.list({ status: null, q });
-    all = all.map(r => ({ ...r, _cs: piCollectionStatus(r), _bal: piBalance(r) }));
-    PI_CACHE = {};
-    all.forEach(r => { PI_CACHE[r.id] = r; });
+  const region = document.getElementById('pi-region-filter')?.value || '';
+  const priceList = document.getElementById('pi-price-filter')?.value || '';
+  const filter = document.getElementById('pi-filter')?.value ?? '';
+  const q = document.getElementById('pi-search')?.value?.trim().toLowerCase() || '';
+  const from = document.getElementById('pi-date-from')?.value || '';
+  const to = document.getElementById('pi-date-to')?.value || '';
+  const dateField = document.getElementById('pi-date-field')?.value || 'invoice_date';
+  const periodLabel = (from || to)
+    ? `${dateField === 'due_date' ? 'Due' : 'Invoice'}: ${from || '…'} → ${to || '…'}`
+    : '';
 
-    // Refresh legacy region list from live data (export modal)
-    const regionsInData = [...new Set(all.map(r => piInvoiceRegionLabel(r)).filter(Boolean))];
-    fillRegionSelects(regionsInData);
-    if (region) document.getElementById('pi-region-filter').value = region;
+  let all = PI_RAW_LIST.map(r => ({ ...r, _cs: piCollectionStatus(r), _bal: piBalance(r) }));
+  if (q) {
+    all = all.filter(r =>
+      (r.pharmacy_name || '').toLowerCase().includes(q)
+      || (r.invoice_number || '').toLowerCase().includes(q)
+      || (r.region || '').toLowerCase().includes(q)
+      || (r.pharmacy_phone || '').toLowerCase().includes(q)
+      || (r.pharmacy_address || '').toLowerCase().includes(q)
+    );
+  }
+  PI_CACHE = {};
+  all.forEach(r => { PI_CACHE[r.id] = r; });
 
-    if (region) {
-      all = all.filter(r => piInvoiceGovId(r) === region);
+  const regionsInData = [...new Set(all.map(r => piInvoiceRegionLabel(r)).filter(Boolean))];
+  if (regionsInData.length) {
+    PI_REGIONS = [...new Set([...(PI_REGIONS || []), ...regionsInData])]
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b, 'en'));
+  }
+  if (region) document.getElementById('pi-region-filter').value = region;
+
+  if (region) all = all.filter(r => piInvoiceGovId(r) === region);
+  if (priceList) all = all.filter(r => piPriceListOf(r) === priceList);
+  all = filterPiByPeriod(all);
+
+  const invoiceCount = all.length;
+  const collected = all.reduce((s, r) => s + (Number(r.amount_paid) || 0), 0);
+  const owed = all.reduce((s, r) => s + r._bal, 0);
+  const bottlesSum = all.reduce((s, r) => s + piBottles(r), 0);
+  const overdueList = all.filter(r => r._cs === 'overdue');
+  refreshPharmInvBadge(overdueList.length + all.filter(r => r._cs === 'no_date').length);
+
+  if (alertEl) {
+    if (overdueList.length) {
+      const names = [...new Set(overdueList.map(r => r.pharmacy_name))].slice(0, 8);
+      const more = overdueList.length > names.length ? ` +${overdueList.length - names.length}` : '';
+      const owedOver = overdueList.reduce((s, r) => s + r._bal, 0);
+      alertEl.style.display = 'block';
+      alertEl.innerHTML = `⚠ <b>${overdueList.length} overdue invoice(s)</b> · you need to collect <b>${Math.round(owedOver).toLocaleString()} EGP</b><br>
+        <span style="font-size:13px">${names.join(' · ')}${more}</span>
+        <button type="button" class="btn btn-sm" style="margin-top:8px" onclick="document.getElementById('pi-filter').value='overdue';onPiFilterChange()">Show overdue only</button>`;
+    } else {
+      alertEl.style.display = 'none';
+      alertEl.innerHTML = '';
     }
-    if (priceList) {
-      all = all.filter(r => piPriceListOf(r) === priceList);
-    }
-    all = filterPiByPeriod(all);
+  }
 
-    const invoiceCount = all.length;
-    const collected = all.reduce((s, r) => s + (Number(r.amount_paid) || 0), 0);
-    const owed = all.reduce((s, r) => s + r._bal, 0);
-    const bottlesSum = all.reduce((s, r) => s + piBottles(r), 0);
-    const overdueList = all.filter(r => r._cs === 'overdue');
-    const noDateN = all.filter(r => r._cs === 'no_date').length;
-    refreshPharmInvBadge(overdueList.length + noDateN);
+  if (kpis) {
+    kpis.innerHTML = `
+      ${periodLabel ? `<div class="text-dim text-sm" style="grid-column:1/-1;margin-bottom:2px">Selected period: <b style="color:var(--text)">${periodLabel}</b></div>` : ''}
+      <div class="mini-card mc-violet"><div class="mc-lbl">Invoice count</div><div class="mc-val">${invoiceCount}</div></div>
+      <div class="mini-card mc-violet"><div class="mc-lbl">Bottle count</div><div class="mc-val">${Number(bottlesSum).toLocaleString()}</div></div>
+      <div class="mini-card mc-green"><div class="mc-lbl">Collected</div><div class="mc-val">${Number(collected).toLocaleString(undefined,{maximumFractionDigits:2})} <span style="font-size:14px">EGP</span></div></div>
+      <div class="mini-card mc-gold"><div class="mc-lbl">Owed (balance)</div><div class="mc-val">${Number(owed).toLocaleString(undefined,{maximumFractionDigits:2})} <span style="font-size:14px">EGP</span></div></div>
+      <div class="mini-card ${overdueList.length ? '' : 'mc-green'}" style="${overdueList.length ? 'border-color:rgba(201,80,47,.35);background:rgba(240,153,123,.1)' : ''}">
+        <div class="mc-lbl">Overdue</div><div class="mc-val" style="${overdueList.length ? 'color:#c45c4a' : ''}">${overdueList.length}</div>
+      </div>`;
+  }
 
-    if (alertEl) {
-      if (overdueList.length) {
-        const names = [...new Set(overdueList.map(r => r.pharmacy_name))].slice(0, 8);
-        const more = overdueList.length > names.length ? ` +${overdueList.length - names.length}` : '';
-        const owedOver = overdueList.reduce((s, r) => s + r._bal, 0);
-        alertEl.style.display = 'block';
-        alertEl.innerHTML = `⚠ <b>${overdueList.length} overdue invoice(s)</b> · you need to collect <b>${Math.round(owedOver).toLocaleString()} EGP</b><br>
-          <span style="font-size:13px">${names.join(' · ')}${more}</span>
-          <button type="button" class="btn btn-sm" style="margin-top:8px" onclick="document.getElementById('pi-filter').value='overdue';loadPharmacyInvoices()">Show overdue only</button>`;
-      } else {
-        alertEl.style.display = 'none';
-        alertEl.innerHTML = '';
-      }
-    }
+  let rows = all;
+  if (filter === 'open') rows = rows.filter(r => r._bal > 0);
+  else if (filter === 'overdue') rows = rows.filter(r => r._cs === 'overdue');
+  else if (filter === 'no_date') rows = rows.filter(r => r._cs === 'no_date');
+  else if (filter === 'paid') rows = rows.filter(r => r._cs === 'paid' || r._bal <= 0);
 
-    if (kpis) {
-      kpis.innerHTML = `
-        ${periodLabel ? `<div class="text-dim text-sm" style="grid-column:1/-1;margin-bottom:2px">Selected period: <b style="color:var(--text)">${periodLabel}</b></div>` : ''}
-        <div class="mini-card mc-violet"><div class="mc-lbl">Invoice count</div><div class="mc-val">${invoiceCount}</div></div>
-        <div class="mini-card mc-violet"><div class="mc-lbl">Bottle count</div><div class="mc-val">${Number(bottlesSum).toLocaleString()}</div></div>
-        <div class="mini-card mc-green"><div class="mc-lbl">Collected</div><div class="mc-val">${Number(collected).toLocaleString(undefined,{maximumFractionDigits:2})} <span style="font-size:14px">EGP</span></div></div>
-        <div class="mini-card mc-gold"><div class="mc-lbl">Owed (balance)</div><div class="mc-val">${Number(owed).toLocaleString(undefined,{maximumFractionDigits:2})} <span style="font-size:14px">EGP</span></div></div>
-        <div class="mini-card ${overdueList.length ? '' : 'mc-green'}" style="${overdueList.length ? 'border-color:rgba(201,80,47,.35);background:rgba(240,153,123,.1)' : ''}">
-          <div class="mc-lbl">Overdue</div><div class="mc-val" style="${overdueList.length ? 'color:#c45c4a' : ''}">${overdueList.length}</div>
-        </div>`;
-    }
+  PI_EXPORT_ROWS = rows;
+  renderPiInvoiceTable(rows);
+}
 
-    let rows = all;
-    if (filter === 'open') rows = rows.filter(r => r._bal > 0);
-    else if (filter === 'overdue') rows = rows.filter(r => r._cs === 'overdue');
-    else if (filter === 'no_date') rows = rows.filter(r => r._cs === 'no_date');
-    else if (filter === 'paid') rows = rows.filter(r => r._cs === 'paid' || r._bal <= 0);
+function renderPiInvoiceTable(rows) {
+  const tbody = document.getElementById('pi-tbody');
+  if (!tbody) return;
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="12" class="text-dim text-sm" style="padding:16px 0">No invoices match this filter.</td></tr>';
+    return;
+  }
 
-    PI_EXPORT_ROWS = rows;
-
-    if (!tbody) return;
-    if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="12" class="text-dim text-sm" style="padding:16px 0">No invoices match this filter.</td></tr>';
-      return;
-    }
-
-    tbody.innerHTML = rows.map(r => {
+  tbody.innerHTML = rows.map(r => {
       const rowStyle = r._cs === 'overdue' ? 'background:rgba(240,153,123,.08)' : '';
       const dateVal = r.invoice_date ? String(r.invoice_date).slice(0, 10) : '';
       const pl = piPriceListOf(r);
-      return `<tr class="tr-hover" style="${rowStyle}">
+      return `<tr class="tr-hover pi-inv-row" style="${rowStyle}" onclick="openPharmacyInvoiceView('${r.id}')" title="Click to view invoice">
         <td onclick="event.stopPropagation()">
           <input type="text" value="${piEsc(r.invoice_number || '')}"
             title="Edit invoice number"
@@ -3201,10 +3657,22 @@ async function loadPharmacyInvoices() {
       </tr>`;
     }).join('');
 
-    const viewId = new URLSearchParams(location.search).get('view');
-    if (viewId && PI_CACHE[viewId]) {
-      setTimeout(() => openPharmacyInvoiceView(viewId), 60);
-    }
+  const viewId = new URLSearchParams(location.search).get('view');
+  if (viewId && PI_CACHE[viewId]) {
+    setTimeout(() => openPharmacyInvoiceView(viewId), 60);
+  }
+}
+
+async function loadPharmacyInvoices(force = false) {
+  const tbody = document.getElementById('pi-tbody');
+  const kpis = document.getElementById('pi-kpis');
+  const alertEl = document.getElementById('pi-alert');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="12" class="text-dim text-sm">Loading…</td></tr>';
+  try {
+    if (!PI_REGIONS_LOADED) await loadPiRegions();
+    if (force) { PI_RAW_LIST = null; PI_RAW_AT = 0; }
+    await ensurePiRawInvoices(force);
+    applyPharmacyInvoiceFilters();
   } catch (e) {
     PI_EXPORT_ROWS = [];
     if (kpis) kpis.innerHTML = '';
@@ -3373,9 +3841,7 @@ window.confirmPiExport = async () => {
 
 /** Build & download colored Excel (same look as pharmacies-per-bottle sheet). */
 async function exportPharmacyInvoicesSheet(opts = {}) {
-  if (typeof ExcelJS === 'undefined') {
-    throw new Error('Excel library not loaded — refresh the page (Ctrl+F5)');
-  }
+  await ensureExcelJS();
 
   const from = opts.from ?? '';
   const to = opts.to ?? '';
@@ -3709,83 +4175,83 @@ window.printPiInvoice = () => {
   if (!frame) { toast('Print component unavailable', 'err'); return; }
 
   const styles = `
+    @page{size:A4 portrait;margin:10mm}
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Tajawal',Segoe UI,Tahoma,sans-serif;background:#fff;padding:0;direction:ltr;color:#2D1B3D}
-    .pi-invoice{max-width:800px;margin:0 auto;background:#fff;overflow:hidden}
-    .pi-inv-header{background:linear-gradient(135deg,#2D1B3D,#9B6CB8);color:#fff;padding:28px 36px;display:flex;justify-content:space-between;align-items:center}
+    html,body{
+      width:210mm;min-height:297mm;margin:0;padding:0;
+      font-family:'Tajawal',Segoe UI,Tahoma,sans-serif;
+      background:#fff;direction:ltr;color:#2D1B3D;
+      -webkit-print-color-adjust:exact;print-color-adjust:exact;
+    }
+    body{display:flex;flex-direction:column}
+    .pi-invoice{
+      width:100%;max-width:none;margin:0;flex:1;
+      min-height:calc(297mm - 20mm);
+      display:flex;flex-direction:column;
+      background:#fff;overflow:visible;
+    }
+    .pi-inv-header{
+      background:linear-gradient(135deg,#2D1B3D,#9B6CB8);color:#fff;
+      padding:22px 28px;display:flex;justify-content:space-between;align-items:center;
+    }
     .pi-inv-logo h1{font-size:26px;font-weight:900;letter-spacing:3px;margin:0 0 4px}
     .pi-inv-logo span{font-size:11px;opacity:.7;letter-spacing:2px}
-    .pi-inv-logo img{height:40px;filter:brightness(0) invert(1)}
+    .pi-inv-logo img{height:44px;filter:brightness(0) invert(1)}
     .pi-inv-title{text-align:left}
     .pi-inv-title h2{font-size:28px;font-weight:900;letter-spacing:2px;margin:0}
-    .pi-inv-info{display:flex;justify-content:space-between;gap:32px;padding:24px 36px;border-bottom:1px solid #E8DFF0}
+    .pi-inv-info{
+      display:flex;justify-content:space-between;gap:28px;
+      padding:20px 28px;border-bottom:1px solid #E8DFF0;
+    }
     .pi-inv-info h3{font-size:11px;font-weight:700;color:#9B6CB8;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px}
-    .pi-inv-info p{font-size:13px;line-height:1.8;margin:0}
+    .pi-inv-info p{font-size:13px;line-height:1.75;margin:0}
     .lbl{color:#8888a0;font-size:11px}
-    .pi-inv-meta{display:flex;padding:16px 28px;background:#F8F5FB;border-bottom:1px solid #E8DFF0;flex-wrap:wrap}
-    .pi-inv-meta-item{flex:1;min-width:110px;text-align:center;padding:10px 8px;border-left:1px solid #E8DFF0}
-    .pi-inv-meta-item .lbl{font-size:10px;font-weight:700;margin-bottom:4px;color:#8888a0}
+    .pi-inv-meta{
+      display:flex;padding:14px 20px;background:#F8F5FB;
+      border-bottom:1px solid #E8DFF0;flex-wrap:wrap;
+    }
+    .pi-inv-meta-item{flex:1;min-width:90px;text-align:center;padding:8px 6px;border-left:1px solid #E8DFF0}
+    .pi-inv-meta-item:first-child{border-left:none}
+    .pi-inv-meta-item .lbl{font-size:10px;font-weight:700;margin-bottom:4px;color:#8888a0;text-transform:uppercase}
     .pi-inv-meta-item .val{font-size:14px;font-weight:800;color:#2D1B3D}
-    .pi-inv-table{padding:0 28px}
-    table{width:100%;border-collapse:collapse;margin:18px 0}
-    th{background:#2D1B3D;color:#fff;padding:11px 14px;font-size:11px;text-align:left}
-    td{padding:12px 14px;font-size:13px;border-bottom:1px solid #E8DFF0;vertical-align:top}
+    .pi-inv-table{padding:0 20px;flex:1 1 auto;width:100%}
+    table{width:100%;border-collapse:collapse;margin:16px 0}
+    th{background:#2D1B3D;color:#fff;padding:10px 12px;font-size:11px;font-weight:700;text-align:left}
+    td{padding:11px 12px;font-size:13px;border-bottom:1px solid #E8DFF0;vertical-align:top}
     .pname{font-weight:700;color:#2D1B3D}
     .disc{background:rgba(155,108,184,.1);color:#9B6CB8;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700}
     .rtot{font-weight:800;color:#9B6CB8}
-    .pi-inv-totals{padding:0 28px 22px;display:flex;justify-content:flex-end}
-    .pi-inv-totals-box{width:280px}
-    .pi-inv-totals-row{display:flex;justify-content:space-between;padding:8px 0;font-size:13px;color:#8888a0}
+    .pi-inv-bottom{margin-top:auto;width:100%}
+    .pi-inv-totals{padding:0 20px 18px;display:flex;justify-content:flex-end}
+    .pi-inv-totals-box{width:300px}
+    .pi-inv-totals-row{display:flex;justify-content:space-between;padding:7px 0;font-size:13px;color:#8888a0}
     .pi-inv-totals-row.total{border-top:2px solid #2D1B3D;margin-top:8px;padding-top:12px;font-size:18px;font-weight:900;color:#2D1B3D}
     .pi-inv-totals-row.total span:last-child{color:#9B6CB8}
-    .pi-inv-footer{background:#F8F5FB;padding:20px 36px;border-top:1px solid #E8DFF0;display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .pi-inv-footer{
+      background:#F8F5FB;padding:18px 28px;border-top:1px solid #E8DFF0;
+      display:flex;justify-content:space-between;align-items:center;gap:12px;
+    }
     .pi-inv-footer-info{font-size:11px;color:#8888a0;line-height:1.8}
     .pi-inv-footer-info strong{color:#2D1B3D}
-    .pi-inv-stamp{width:72px;height:72px;flex-shrink:0;border:3px solid #9B6CB8;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:9px;font-weight:800;color:#9B6CB8;transform:rotate(-15deg);opacity:.65;line-height:1.3}
-    .pi-inv-watermark{text-align:center;padding:14px;font-size:10px;color:#8888a0;border-top:1px solid #E8DFF0}
-    .pi-inv-watermark strong{color:#9B6CB8}
+    .pi-inv-stamp{
+      width:72px;height:72px;flex-shrink:0;border:3px solid #9B6CB8;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;text-align:center;
+      font-size:9px;font-weight:800;color:#9B6CB8;transform:rotate(-15deg);opacity:.65;line-height:1.3;
+    }
+    .pi-inv-thanks{display:block;margin-top:6px;padding-top:6px;border-top:1px solid #E8DFF0;font-size:10px;color:#8888a0}
+    .pi-inv-thanks strong{color:#9B6CB8}
     @media print{
-      @page{size:A4 portrait;margin:5mm 7mm}
-      html,body{width:100%;height:auto;overflow:visible}
-      body{padding:0}
-      .pi-invoice{
-        max-width:none;width:100%;
-      }
+      html,body{width:210mm;height:auto;overflow:visible;margin:0;padding:0}
+      .pi-invoice{width:100%!important;max-width:none!important;min-height:auto}
       .pi-inv-header,.pi-inv-meta,.pi-inv-footer,th,.disc{
         -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
       }
-      .pi-inv-header{padding:10px 14px}
-      .pi-inv-logo h1{font-size:18px;letter-spacing:2px;margin:0}
-      .pi-inv-logo span{font-size:9px}
-      .pi-inv-logo img{height:26px}
-      .pi-inv-title h2{font-size:20px;letter-spacing:1px}
-      .pi-inv-info{padding:8px 14px;gap:14px}
-      .pi-inv-info h3{font-size:9px;margin:0 0 4px}
-      .pi-inv-info p{font-size:10px;line-height:1.35}
-      .lbl{font-size:9px}
-      .pi-inv-meta{padding:6px 10px;gap:0}
-      .pi-inv-meta-item{min-width:0;flex:1 1 12%;padding:4px 3px}
-      .pi-inv-meta-item .lbl{font-size:8px;margin-bottom:2px}
-      .pi-inv-meta-item .val{font-size:10px}
-      .pi-inv-table{padding:0 10px}
-      table{margin:6px 0}
-      th{padding:5px 6px;font-size:9px}
-      td{padding:4px 6px;font-size:9px;line-height:1.25}
-      td div{font-size:8px!important}
-      .pi-inv-totals{padding:0 10px 6px}
-      .pi-inv-totals-box{width:220px}
-      .pi-inv-totals-row{padding:2px 0;font-size:10px}
-      .pi-inv-totals-row.total{margin-top:4px;padding-top:6px;font-size:13px}
-      .pi-inv-footer{padding:8px 14px}
-      .pi-inv-footer-info{font-size:9px;line-height:1.45}
-      .pi-inv-stamp{width:48px;height:48px;font-size:7px;border-width:2px}
-      .pi-inv-thanks{display:block;margin-top:4px;padding-top:4px;border-top:1px solid #E8DFF0;font-size:8px;line-height:1.3}
-      .pi-inv-thanks strong{color:#9B6CB8}
       .pi-inv-bottom{page-break-inside:avoid;break-inside:avoid-page}
       tr,thead,tfoot{page-break-inside:avoid;break-inside:avoid}
     }
   `;
 
+  frame.style.cssText = 'position:fixed;left:0;top:0;width:210mm;height:297mm;border:0;opacity:0;z-index:99999;pointer-events:none';
   const doc = frame.contentDocument || frame.contentWindow.document;
   doc.open();
   doc.write(`<!DOCTYPE html><html lang="en" dir="ltr"><head><meta charset="utf-8"><title>Invoice</title>
@@ -3809,10 +4275,10 @@ window.savePiInvoiceDate = async (id, value) => {
     await pharmacyInvoices.update(id, { invoice_date: value });
     if (PI_CACHE[id]) PI_CACHE[id].invoice_date = value;
     toast('Invoice date updated', 'ok');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   } catch (e) {
     toast(e.message || 'Failed to update date', 'err');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   }
 };
 
@@ -3833,15 +4299,6 @@ window.onPharmacyPicked = () => {
   document.getElementById('pi-pharmacy-id').value = match?.id || '';
   document.getElementById('pi-brick-id').value = match?.brick_id || '';
 };
-
-function piRegionOptionsHtml(selected) {
-  const cur = selected || '';
-  const opts = [...new Set([...(PI_REGIONS || PI_DEFAULT_REGIONS), cur].filter(Boolean))];
-  const list = opts.length ? opts : PI_DEFAULT_REGIONS;
-  return list.map(reg =>
-    `<option value="${piEsc(reg)}" ${reg === cur ? 'selected' : ''}>${piEsc(reg)}</option>`
-  ).join('');
-}
 
 window.addPharmacyLine = (preset = null) => {
   const wrap = document.getElementById('pi-lines');
@@ -3900,17 +4357,19 @@ window.recalcPharmacyInvoice = () => {
 };
 
 window.openPharmacyInvoiceModal = async () => {
-  if (!ALL_DOCTORS.length) {
-    try { ALL_DOCTORS = await doctors.list(); } catch { /* */ }
-  }
+  await ensurePiGeoData();
   await loadPiRegions();
   document.getElementById('pi-edit-id').value = '';
   document.getElementById('pi-modal-title').textContent = 'New pharmacy invoice';
   const subEl = document.getElementById('pi-modal-sub');
-  if (subEl) subEl.textContent = 'Governorate → brick → client type → client · phone required';
+  if (subEl) subEl.textContent = 'Governorate → city → type · type client name freely · phone required';
   document.getElementById('pi-pharmacy-search').value = '';
   document.getElementById('pi-pharmacy-id').value = '';
   document.getElementById('pi-brick-id').value = '';
+  clearPiClientPick();
+  closePiClientPicker();
+  closePiQuickAdd();
+  syncPiAreaAddLink();
   const numEl = document.getElementById('pi-invoice-number');
   if (numEl) { numEl.value = ''; numEl.placeholder = 'Auto on create'; }
   const rf = document.getElementById('pi-region-filter')?.value || '';
@@ -3947,9 +4406,7 @@ window.openPharmacyInvoiceModal = async () => {
 window.openPharmacyInvoiceEdit = async (id, opts = {}) => {
   const r = PI_CACHE[id];
   if (!r) { toast('Invoice not found — refresh the page', 'err'); return; }
-  if (!ALL_DOCTORS.length) {
-    try { ALL_DOCTORS = await doctors.list(); } catch { /* */ }
-  }
+  await ensurePiGeoData();
   await loadPiRegions();
   if (r.region && !PI_REGIONS.includes(r.region)) PI_REGIONS = [...PI_REGIONS, r.region];
   fillRegionSelects(PI_REGIONS);
@@ -4005,7 +4462,7 @@ window.openPharmacyInvoiceEdit = async (id, opts = {}) => {
 window.savePharmacyInvoice = async () => {
   const editId = document.getElementById('pi-edit-id')?.value || '';
   const name = document.getElementById('pi-pharmacy-search').value.trim();
-  if (!name) { toast('Pharmacy name is required', 'err'); return; }
+  if (!name) { toast('Client name is required', 'err'); return; }
   const { subtotal, paid, disc, bottlesFromLines, calcSubtotal, bonusFromLines } = recalcPharmacyInvoice();
   const line_items = [];
   document.querySelectorAll('#pi-lines .pi-line').forEach(row => {
@@ -4038,11 +4495,10 @@ window.savePharmacyInvoice = async () => {
   const phone = document.getElementById('pi-phone')?.value?.trim() || '';
   if (!isLegacy && !phone) { toast('Phone number is required', 'err'); return; }
   const regionId = piResolvedRegionId();
-  if (!regionId) { toast('Select governorate', 'err'); return; }
-  const brickId = document.getElementById('pi-brick')?.value || '';
-  if (!isLegacy && !brickId) { toast('Select brick', 'err'); return; }
-  const clientId = document.getElementById('pi-client')?.value || '';
-  if (!isLegacy && !clientId) { toast('Choose a client from the list', 'err'); return; }
+  if (!regionId) { toast('Select governorate and city', 'err'); return; }
+  const areaId = document.getElementById('pi-area')?.value || '';
+  if (!isLegacy && !areaId) { toast('Select city / area', 'err'); return; }
+  const brickId = document.getElementById('pi-brick-id')?.value || '';
   const regionPath = piRegionLabelFromForm() || PI_REGION_BY_ID[regionId]?.name || '';
   const invNum = document.getElementById('pi-invoice-number')?.value?.trim() || '';
   const bottlesEl = document.getElementById('pi-bottles')?.value;
@@ -4083,7 +4539,7 @@ window.savePharmacyInvoice = async () => {
     if (editId) {
       if (invNum) payload.invoice_number = invNum;
       await pharmacyInvoices.update(editId, payload);
-      await loadPharmacyInvoices();
+      await loadPharmacyInvoices(true);
       toast('Saved ✓ — keep editing or press ✕ Close', 'ok');
       // Stay open after save — only ✕ Close closes the modal
       if (PI_CACHE[editId]) await openPharmacyInvoiceEdit(editId, { keepOpen: true });
@@ -4094,7 +4550,7 @@ window.savePharmacyInvoice = async () => {
         return;
       }
       const created = await pharmacyInvoices.create(payload);
-      await loadPharmacyInvoices();
+      await loadPharmacyInvoices(true);
       toast('Invoice saved ✓ — keep editing or press ✕ Close', 'ok');
       const newId = created?.id;
       if (newId && PI_CACHE[newId]) {
@@ -4109,8 +4565,28 @@ window.savePharmacyInvoice = async () => {
 };
 
 window.closePharmacyInvoiceModal = () => {
+  closePiClientPicker();
   closeModal('m-pharmacy-invoice');
 };
+
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter') return;
+  if (!document.getElementById('pi-add-gov-panel')?.classList.contains('hidden')) {
+    e.preventDefault();
+    confirmPiQuickAdd('gov');
+  } else if (!document.getElementById('pi-add-area-panel')?.classList.contains('hidden')) {
+    e.preventDefault();
+    confirmPiQuickAdd('area');
+  }
+});
+
+document.addEventListener('click', (e) => {
+  const drop = document.getElementById('pi-client-drop');
+  const btn = document.getElementById('pi-client-btn');
+  if (!drop || drop.classList.contains('hidden')) return;
+  if (drop.contains(e.target) || btn?.contains(e.target)) return;
+  closePiClientPicker();
+});
 
 window.deletePharmacyInvoice = async (id) => {
   const r = PI_CACHE[id];
@@ -4121,7 +4597,7 @@ window.deletePharmacyInvoice = async (id) => {
     closeModal('m-pi-view');
     closeModal('m-pharmacy-invoice');
     toast('Invoice deleted', 'ok');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   } catch (e) {
     toast(e.message || 'Delete failed', 'err');
   }
@@ -4135,42 +4611,42 @@ window.savePiDueDateInline = async (id, value) => {
       await pharmacyInvoices.setDueDate(id, value);
     }
     toast('Due date updated', 'ok');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   } catch (e) {
     toast(e.message || 'Failed to update due date', 'err');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   }
 };
 
 window.savePiPaidInline = async (id, value) => {
   const paid = Number(value);
-  if (Number.isNaN(paid) || paid < 0) { toast('Invalid amount', 'err'); await loadPharmacyInvoices(); return; }
+  if (Number.isNaN(paid) || paid < 0) { toast('Invalid amount', 'err'); await loadPharmacyInvoices(true); return; }
   try {
     await pharmacyInvoices.update(id, { amount_paid: paid });
     toast('Amount paid updated', 'ok');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   } catch (e) {
     toast(e.message || 'Failed to update paid amount', 'err');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   }
 };
 
 window.savePiBottlesInline = async (id, value) => {
   const bottles = Number(value);
-  if (Number.isNaN(bottles) || bottles < 0) { toast('Invalid bottles', 'err'); await loadPharmacyInvoices(); return; }
+  if (Number.isNaN(bottles) || bottles < 0) { toast('Invalid bottles', 'err'); await loadPharmacyInvoices(true); return; }
   try {
     await pharmacyInvoices.update(id, { bottles });
     toast('Bottles updated', 'ok');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   } catch (e) {
     toast(e.message || 'Failed to update bottles', 'err');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   }
 };
 
 window.savePiBonusInline = async (id, value) => {
   const bonus = Number(value);
-  if (Number.isNaN(bonus) || bonus < 0) { toast('Invalid bonus', 'err'); await loadPharmacyInvoices(); return; }
+  if (Number.isNaN(bonus) || bonus < 0) { toast('Invalid bonus', 'err'); await loadPharmacyInvoices(true); return; }
   try {
     // Display-only total when no per-product bonus_qty — does not deduct stock.
     // Use Edit all → Bonus column per product to deduct warehouse.
@@ -4178,10 +4654,10 @@ window.savePiBonusInline = async (id, value) => {
     toast(bonus > 0
       ? 'Bonus saved (display). To deduct warehouse, set Bonus per product in Edit all.'
       : 'Bonus cleared', 'ok');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   } catch (e) {
     toast(e.message || 'Failed to update bonus', 'err');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   }
 };
 
@@ -4192,49 +4668,49 @@ window.savePiRegionInline = async (id, value) => {
       : { region: value || null, region_id: null };
     await pharmacyInvoices.update(id, patch);
     toast('Region updated', 'ok');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   } catch (e) {
     toast(e.message || 'Failed to update region', 'err');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   }
 };
 
 window.savePiPharmacyNameInline = async (id, value) => {
   const name = String(value || '').trim();
-  if (!name) { toast('Pharmacy name is required', 'err'); await loadPharmacyInvoices(); return; }
+  if (!name) { toast('Pharmacy name is required', 'err'); await loadPharmacyInvoices(true); return; }
   try {
     await pharmacyInvoices.update(id, { pharmacy_name: name });
     toast('Pharmacy name updated', 'ok');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   } catch (e) {
     toast(e.message || 'Failed to update pharmacy', 'err');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   }
 };
 
 window.savePiNumberInline = async (id, value) => {
   const num = String(value || '').trim();
-  if (!num) { toast('Invoice number is required', 'err'); await loadPharmacyInvoices(); return; }
+  if (!num) { toast('Invoice number is required', 'err'); await loadPharmacyInvoices(true); return; }
   try {
     await pharmacyInvoices.update(id, { invoice_number: num });
     toast('Invoice number updated', 'ok');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   } catch (e) {
     toast(e.message || 'Failed to update number', 'err');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   }
 };
 
 window.savePiTotalInline = async (id, value) => {
   const total = Number(value);
-  if (Number.isNaN(total) || total < 0) { toast('Invalid total', 'err'); await loadPharmacyInvoices(); return; }
+  if (Number.isNaN(total) || total < 0) { toast('Invalid total', 'err'); await loadPharmacyInvoices(true); return; }
   try {
     await pharmacyInvoices.update(id, { total, subtotal: total });
     toast('Total updated', 'ok');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   } catch (e) {
     toast(e.message || 'Failed to update total', 'err');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   }
 };
 
@@ -4242,10 +4718,10 @@ window.savePiPriceListInline = async (id, value) => {
   try {
     await pharmacyInvoices.update(id, { price_list: value === 'old' ? 'old' : 'new' });
     toast('Price list updated', 'ok');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   } catch (e) {
     toast(e.message || 'Failed to update price list', 'err');
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
   }
 };
 
@@ -4287,7 +4763,7 @@ window.confirmPiAction = async () => {
     }
     closeModal('m-pi-action');
     const viewId = PI_VIEW_ID;
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
     if (viewId && PI_CACHE[viewId] && !document.getElementById('m-pi-view')?.classList.contains('hidden')) {
       openPharmacyInvoiceView(viewId);
     }
@@ -4349,7 +4825,7 @@ window.importLegacyPharmacyInvoices = async () => {
         console.warn(number, e);
       }
     }
-    await loadPharmacyInvoices();
+    await loadPharmacyInvoices(true);
     const collected = rows.reduce((s, r) => s + (Number(r.amount_paid) || 0), 0);
     const owed = rows.reduce((s, r) => s + ((Number(r.total) || 0) - (Number(r.amount_paid) || 0)), 0);
     const regions = [...new Set(rows.map(r => r.region).filter(Boolean))];

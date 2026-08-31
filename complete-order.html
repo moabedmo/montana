@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="pages.css">
     <link rel="stylesheet" href="premium.css">
     <link rel="stylesheet" href="dark-theme.css">
+    <script src="js/meta-pixel.js?v=15"></script>
+    <script src="js/metaEvents.js?v=16"></script>
     <style>
         .co-wrap { padding:16px 20px 40px; max-width:520px; margin:0 auto; }
         .co-intro { font-size:13px; color:var(--text-muted); line-height:1.8; margin-bottom:16px; }
@@ -65,13 +67,13 @@
 
     <div id="coFormBox">
         <div id="coCartSummary"></div>
-        <p class="co-intro">المنتجات اللي اخترتيها من الشات جاهزة تحت. كمّلي بياناتك عشان نسجّل طلبك — وبرنامج <strong>نقاط مونتانيا</strong> مربوط برقم موبايلك 🎁</p>
+        <p class="co-intro">المنتجات اللي اخترتيها من الشات جاهزة تحت. كمّلي بياناتك بلطف عشان نسجّل طلبك — وبرنامج <strong>نقاط مونتانيا</strong> مربوط برقم موبايلك 🎁<br><span id="coShipIntro"><strong>الشحن حسب المحافظة</strong></span> · الدفع كاش عند الاستلام · <strong>من غير مقدّم 200 ج.م</strong></p>
         <form class="co-form" id="coForm">
-            <input type="text" id="coName" placeholder="الاسم بالكامل" required>
+            <input type="text" id="coName" placeholder="الاسم الثلاثي" required>
             <input type="tel" id="coPhone" placeholder="رقم الموبايل (01xxxxxxxxx)" dir="ltr" required>
-            <p class="co-points-note">🎁 برنامج نقاط مونتانيا: بتكسبي نقطة لكل 10 ج.م في كل عملية شراء، وتقدري تستبدليها بخصومات وهدايا وشحن مجاني — مربوط برقم موبايلك.</p>
+            <p class="co-points-note">🎁 برنامج نقاط مونتانيا: بتكسبي نقطة لكل 10 ج.م، وتقدري تستبدليها بخصومات وهدايا — مربوط برقم موبايلك.</p>
             <p class="co-points-balance" id="coPointsBalance"></p>
-            <textarea id="coAddress" placeholder="العنوان بالتفصيل (المنطقة + الشارع)" required></textarea>
+            <textarea id="coAddress" placeholder="العنوان بالتفصيل (المنطقة · الشارع · علامة مميزة)" required></textarea>
             <div class="co-gov-row">
                 <select id="coGov" required><option value="">جارٍ تحميل المحافظات…</option></select>
                 <span class="co-gov-cost" id="coGovCost"></span>
@@ -135,12 +137,21 @@ if (!sid) {
     document.getElementById('coFormBox').style.display = 'none';
 }
 
+let coFreeShipping = false;
+let coSubtotal = 0;
+
 async function loadGovernorates() {
     const sel = document.getElementById('coGov');
     try {
         const rates = await shippingApi.list();
         sel.innerHTML = '<option value="">اختاري المحافظة</option>' +
-            rates.map(r => `<option value="${r.governorate}" data-cost="${r.cost}">${r.governorate} — ${Math.round(r.cost)} ج.م شحن</option>`).join('');
+            rates.map(r => {
+                const cost = coFreeShipping ? 0 : (Number(r.cost) || 0);
+                const label = cost > 0
+                    ? `${r.governorate} — شحن ${Math.round(cost)} ج.م`
+                    : `${r.governorate} — شحن مجاني 🎁`;
+                return `<option value="${r.governorate}" data-cost="${cost}">${label}</option>`;
+            }).join('');
     } catch (e) {
         sel.innerHTML = '<option value="">تعذّر تحميل المحافظات</option>';
     }
@@ -157,8 +168,20 @@ async function loadCartSummary() {
         const data = await res.json();
         const cart = Array.isArray(data.cart) ? data.cart : [];
         if (!cart.length) return;
+        coFreeShipping = !!data.freeShipping;
+        coSubtotal = Number(data.subtotal) || 0;
+        const intro = document.getElementById('coShipIntro');
+        if (intro) {
+            intro.innerHTML = coFreeShipping
+                ? '<strong>الشحن مجاني</strong> (من 3 منتجات أو عرض روتين)'
+                : '<strong>الشحن حسب المحافظة</strong> — مجاني من 3 منتجات';
+        }
+        const btn = document.getElementById('coSubmitBtn');
+        if (btn) btn.textContent = coFreeShipping ? 'تأكيد الطلب · شحن مجاني' : 'تأكيد الطلب';
         const items = cart.map(i => `<div class="co-cart-item"><span>${i.name} × ${i.qty}</span><span>${Math.round(i.price * i.qty)} ج.م</span></div>`).join('');
-        box.innerHTML = `<div class="co-cart">${items}<div class="co-cart-total"><span>الإجمالي (قبل الشحن)</span><span>${Math.round(data.subtotal)} ج.م</span></div></div>`;
+        const shipLabel = coFreeShipping ? 'مجاني 🎁' : 'حسب المحافظة';
+        box.innerHTML = `<div class="co-cart">${items}<div class="co-cart-total"><span>المنتجات</span><span>${Math.round(coSubtotal)} ج.م</span></div><div class="co-cart-total" style="font-weight:600;color:var(--accent)"><span>الشحن</span><span id="coCartShip">${shipLabel}</span></div><div class="co-cart-total"><span>الإجمالي المتوقع</span><span id="coCartGrand">${Math.round(coSubtotal)} ج.م</span></div></div>`;
+        await loadGovernorates();
     } catch (e) { /* summary is a nice-to-have — form still works without it */ }
 }
 
@@ -166,8 +189,11 @@ async function loadCartSummary() {
     if (!sid) return;
     const hasOrder = await checkExistingOrder();
     if (hasOrder) return;
-    loadGovernorates();
-    loadCartSummary();
+    await loadCartSummary();
+    if (!document.getElementById('coGov').options.length || document.getElementById('coGov').options[0]?.value === '') {
+        // cart empty / failed — still load gov list with paid rates by default
+        if (!coFreeShipping) await loadGovernorates();
+    }
 })();
 
 let pointsLookupTimer = null;
@@ -199,22 +225,39 @@ document.getElementById('coPhone').addEventListener('input', (e) => {
 
 document.getElementById('coGov').addEventListener('change', (e) => {
     const opt = e.target.selectedOptions[0];
-    document.getElementById('coGovCost').textContent = opt?.dataset.cost ? `${Math.round(opt.dataset.cost)} ج.م شحن` : '';
+    const cost = coFreeShipping ? 0 : (Number(opt?.dataset?.cost) || 0);
+    const costEl = document.getElementById('coGovCost');
+    const shipEl = document.getElementById('coCartShip');
+    const grandEl = document.getElementById('coCartGrand');
+    if (!opt?.value) {
+        costEl.textContent = '';
+        return;
+    }
+    costEl.textContent = cost > 0 ? `شحن ${Math.round(cost)} ج.م` : 'شحن مجاني 🎁';
+    if (shipEl) shipEl.textContent = cost > 0 ? `${Math.round(cost)} ج.م` : 'مجاني 🎁';
+    if (grandEl) grandEl.textContent = `${Math.round(coSubtotal + cost)} ج.م`;
 });
 
 function renderSuccess(order) {
     document.getElementById('coFormBox').style.display = 'none';
     const box = document.getElementById('coSuccessBox');
     box.style.display = '';
+    const ship = Number(order.shipping) || 0;
+    const shipTxt = ship > 0 ? `شحن ${Math.round(ship)} ج.م` : 'شحن مجاني';
     box.innerHTML = `
         <div class="co-order-num">
             <span>رقم الطلب</span>
             <strong>${order.order_number}</strong>
         </div>
         <div class="co-deposit-box">
-            <p style="text-align:center">الإجمالي <strong>${Math.round(order.total)} ج.م</strong></p>
-            <p style="text-align:center;margin-top:8px">الدفع كاش عند الاستلام — بدون مقدّم. هنراجع الطلب ونكلمك قريب لتأكيد التوصيل 💜</p>
+            <p style="text-align:center">الإجمالي <strong>${Math.round(order.total)} ج.م</strong> · ${shipTxt}</p>
+            <p style="text-align:center;margin-top:8px">الدفع كاش عند الاستلام — بدون مقدّم. هيظهر عندنا في الأدمن وهنكلّمك قريب لتأكيد التوصيل 💜</p>
         </div>`;
+
+    // Meta Purchase for chat→website COD (complete-order.html) after order is in Supabase.
+    try {
+        window.MontanaMeta?.trackPurchaseOnce?.(order, order.items || []);
+    } catch (_) { /* ignore */ }
 }
 
 function fileToBase64(file) {

@@ -12,7 +12,7 @@
    served stale HTML/JS and left the page stuck on "Loading…" until Ctrl+F5. */
 (function () {
   if (!('serviceWorker' in navigator)) return;
-  var FLAG = 'crm_sw_push_only_v6';
+  var FLAG = 'crm_sw_push_only_v7';
   if (sessionStorage.getItem(FLAG)) return;
   var hadController = !!navigator.serviceWorker.controller;
   Promise.all([
@@ -113,7 +113,8 @@ b,strong,.vc-name,.hi-name,.board-name,.ci-card-head h3{font-weight:700;color:va
 .week-plan-card.rejected{background:rgba(240,153,123,.12);border-color:rgba(240,153,123,.4);}
 .week-plan-card h3{font-size:16px;font-weight:500;margin-bottom:4px;color:#231840;}
 .week-plan-card p{font-size:13px;color:var(--dim);line-height:1.5;margin-bottom:12px;}
-.week-plan-card .btn-create{
+.week-plan-card .btn-create,
+.btn-create{
   width:100%;padding:12px;border:none;border-radius:12px;cursor:pointer;
   font-family:'Jost',sans-serif;font-weight:500;font-size:15px;
   background:linear-gradient(90deg,var(--vd),var(--violet));color:#fff;
@@ -436,6 +437,10 @@ b,strong,.vc-name,.hi-name,.board-name,.ci-card-head h3{font-weight:700;color:va
   background:#fff;color:var(--text);font-size:17px;width:100%;font-family:inherit;}
 .pharm-rm{width:36px;height:44px;border-radius:10px;border:1px solid rgba(240,153,123,.4);
   background:rgba(240,153,123,.12);color:var(--bad);font-size:20px;cursor:pointer;font-family:inherit;}
+#rpi-detail-sheet{
+  position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.72);display:flex;align-items:flex-end;justify-content:center;}
+#rpi-detail-sheet.hidden{display:none !important;}
+.rpi-card:active{opacity:.85;transform:scale(.99)}
 #pharm-pick-sheet{
   /* Higher than #walkin-sheet — this picker can be opened from within it,
      and must render on top, not behind it. */
@@ -706,24 +711,27 @@ textarea:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 3px rgba
         <div style="display:flex;align-items:center;gap:10px">
           <span id="day-status-icon" style="font-size:20px">🗓️</span>
           <div>
-            <div style="font-size:13px;font-weight:500" id="day-status-label">Set today's status</div>
-            <div style="font-size:12px;color:var(--dim)" id="day-status-sub">Tap to update</div>
+            <div style="font-size:13px;font-weight:500" id="day-status-label">حالة اليوم · Set today's status</div>
+            <div style="font-size:12px;color:var(--dim)" id="day-status-sub">اضغط للتحديث</div>
           </div>
         </div>
         <span style="color:var(--dim);font-size:17px">›</span>
       </div>
 
-      <!-- Today's / week's visits — tap to write the report -->
-      <div class="section-head" style="margin-bottom:8px">
-        <h2>Week's Visits</h2>
-        <span style="font-size:12px;color:var(--dim)">Tap to write the report</span>
-      </div>
-      <div id="week-visits-list" style="margin-bottom:16px">
-        <div style="color:var(--dim);font-size:13px;padding:12px 0">Loading weekly plan…</div>
+      <!-- Weekly plan FIRST so "Create Plan" is never below the fold -->
+      <div id="week-plan-card" class="week-plan-card">
+        <h3>الخطة الأسبوعية · Week Plan</h3>
+        <p>جاري التحميل…</p>
       </div>
 
-      <!-- Weekly plan (Sat→Fri) builder / locked summary -->
-      <div id="week-plan-card" class="week-plan-card hidden"></div>
+      <!-- Today's / week's visits — tap to write the report -->
+      <div class="section-head" style="margin-bottom:8px">
+        <h2>زيارات الأسبوع · Week's Visits</h2>
+        <span style="font-size:12px;color:var(--dim)">اضغط لكتابة التقرير</span>
+      </div>
+      <div id="week-visits-list" style="margin-bottom:16px">
+        <div style="color:var(--dim);font-size:13px;padding:12px 0">جاري تحميل الخطة…</div>
+      </div>
 
       <!-- Hidden stub — kept so error handlers / legacy helpers don't throw -->
       <div id="plan-list" class="hidden" aria-hidden="true"></div>
@@ -1011,6 +1019,14 @@ textarea:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 3px rgba
       <div id="rpi-list"><div style="color:var(--dim);font-size:14px">Loading…</div></div>
     </div>
 
+    <div class="hidden" id="rpi-detail-sheet" onclick="if(event.target===this)closeRepPharmInv()">
+      <div class="pharm-pick-panel" onclick="event.stopPropagation()" style="max-height:88vh">
+        <h3 id="rpi-detail-title">Invoice</h3>
+        <div id="rpi-detail-body" style="font-size:14px;line-height:1.65;color:var(--text)"></div>
+        <button type="button" class="btn btn-gold" style="width:100%;margin-top:14px" onclick="closeRepPharmInv()">Close</button>
+      </div>
+    </div>
+
     <!-- History -->
     <div class="screen" id="s-history">
       <h2 style="font-family:'Playfair Display',serif;font-weight:400;margin-bottom:14px">Visit history</h2>
@@ -1059,7 +1075,7 @@ textarea:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 3px rgba
   <div class="botnav">
     <button class="botnav-item active" data-screen="plan" onclick="showScreen('plan',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M9 22V9"/></svg>
-      Plan
+      الخطة
     </button>
     <button class="botnav-item" data-screen="pharm-inv" onclick="showScreen('pharm-inv',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h6"/></svg>
@@ -1097,13 +1113,13 @@ textarea:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 3px rgba
 <div class="week-plan-overlay hidden" id="week-plan-overlay">
   <div class="wpo-top">
     <div>
-      <div style="font-size:15px;font-weight:500">Create Weekly Plan</div>
-      <div style="font-size:12px;color:var(--dim)" id="wpo-range">Sat → Thu</div>
+      <div style="font-size:15px;font-weight:500">إنشاء الخطة الأسبوعية</div>
+      <div style="font-size:12px;color:var(--dim)" id="wpo-range">سبت → خميس</div>
     </div>
     <button type="button" class="viewer-close" onclick="closeWeekPlanBuilder()" style="background:none;border:none;color:var(--text);font-size:20px;cursor:pointer">✕</button>
   </div>
   <div class="wpo-body" id="wpo-days"></div>
-  <button type="button" class="wpo-save" id="wpo-save-btn" onclick="submitWeekPlan()">Submit for Approval — Admin must approve before it appears</button>
+  <button type="button" class="wpo-save" id="wpo-save-btn" onclick="submitWeekPlan()">إرسال للموافقة · Submit for Approval</button>
 </div>
 
 <script type="module">
@@ -1113,7 +1129,7 @@ import {
   getCurrentPosition, haversineMeters, GPS_THRESHOLD_M,
   offlineQueue, geo, push, isCrmAdminAccess, notifyVisitSubmitted, getPharmacyCreditStatus, getRepMonthKpis,
   sampleCustody, repInvoices, notifyDiscountRequest, reps, pharmacyInvoices,
-} from '../js/crm-api.js?v=20260720brick';
+} from '../js/crm-api.js?v=20260728plan';
 
 // Push-only SW (no HTML/JS caching). Old cache SWs caused soft-refresh hangs.
 if ('serviceWorker' in navigator) {
@@ -1125,6 +1141,7 @@ if ('serviceWorker' in navigator) {
 
 // ── State ─────────────────────────────────────────────────
 let ME = null, PLAN = null, PRODUCTS = [], MATERIALS = [];
+let PRODUCTS_SYNCED_AT = 0, STOCK_LOADED_AT = 0;
 let CURRENT_DOCTOR = null, CURRENT_ITEM = null;
 let ALL_TERRITORY_DOCS = [];
 let WEEK_PLAN = null;
@@ -1204,7 +1221,8 @@ function greet() {
   return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
 }
 
-async function syncCrmProductsFromStore() {
+async function syncCrmProductsFromStore(force = false) {
+  if (!force && PRODUCTS.length && Date.now() - PRODUCTS_SYNCED_AT < 300000) return;
   try {
     await products.ensureFromStore();
     const fresh = await products.list();
@@ -1212,6 +1230,7 @@ async function syncCrmProductsFromStore() {
       PRODUCTS = fresh;
       PRODUCTS.forEach((p) => { if (SAMPLE_QTY[p.id] == null) SAMPLE_QTY[p.id] = 0; });
       MATERIALS = PRODUCTS.flatMap((p) => (p.crm_materials || []).map((m) => ({ ...m, productName: p.name })));
+      PRODUCTS_SYNCED_AT = Date.now();
     }
   } catch (e) {
     console.warn('syncCrmProductsFromStore:', e);
@@ -1255,9 +1274,9 @@ async function init() {
     document.getElementById('greeting').textContent = greet();
     document.getElementById('rep-fullname').textContent = rep?.name || '';
 
-    try { PRODUCTS = await products.list(); } catch { PRODUCTS = []; }
     await syncCrmProductsFromStore();
     PRODUCTS.forEach((p) => { SAMPLE_QTY[p.id] = 0; });
+    reps.listManagers().then(m => { CRM_MANAGERS = m || []; }).catch(() => {});
 
     await loadPlan();
     await refreshWeekPlanCard();
@@ -1988,9 +2007,9 @@ async function refreshWeekPlanCard() {
       </div>`;
     }).join('');
     card.innerHTML = `
-      <h3>✅ Weekly Plan Approved</h3>
-      <p>${weekPlanRangeLabel(weekStart, weekEnd)} — Tap any visit to write the report</p>
-      <div class="week-days">${rows || '<div class="td-muted">No visits</div>'}</div>`;
+      <h3>✅ الخطة معتمدة · Plan Approved</h3>
+      <p>${weekPlanRangeLabel(weekStart, weekEnd)} — اضغط على أي زيارة لكتابة التقرير</p>
+      <div class="week-days">${rows || '<div class="td-muted">مفيش زيارات</div>'}</div>`;
     return;
   }
 
@@ -1998,27 +2017,27 @@ async function refreshWeekPlanCard() {
     card.classList.add('pending');
     const n = (WEEK_PLAN.crm_week_plan_days || []).length;
     card.innerHTML = `
-      <h3>⏳ Awaiting Admin Approval</h3>
-      <p>Week ${weekPlanRangeLabel(weekStart, weekEnd)} · ${n} visit(s).<br>
-      The plan won't appear here for execution until the admin approves it.</p>`;
+      <h3>⏳ في انتظار موافقة الأدمن</h3>
+      <p>أسبوع ${weekPlanRangeLabel(weekStart, weekEnd)} · ${n} زيارة.<br>
+      الخطة مش هتظهر للتنفيذ غير لما الأدمن يوافق.</p>`;
     return;
   }
 
   if (status === 'rejected') {
     card.classList.add('rejected');
-    const note = WEEK_PLAN.rejection_note ? `<br>Reason: ${WEEK_PLAN.rejection_note}` : '';
+    const note = WEEK_PLAN.rejection_note ? `<br>السبب: ${WEEK_PLAN.rejection_note}` : '';
     card.innerHTML = `
-      <h3>✗ Plan Rejected</h3>
-      <p>The admin rejected this week's plan.${note}<br>Create a new plan from scratch.</p>
-      <button type="button" class="btn-create" onclick="openWeekPlanBuilder()">Create New Plan</button>`;
+      <h3>✗ الخطة مرفوضة</h3>
+      <p>الأدمن رفض خطة الأسبوع.${note}<br>اعمل خطة جديدة من الأول.</p>
+      <button type="button" class="btn-create" onclick="openWeekPlanBuilder()">إنشاء خطة جديدة · Create New Plan</button>`;
     return;
   }
 
   card.innerHTML = `
-    <h3>Create Plan</h3>
-    <p>Week ${weekPlanRangeLabel(weekStart, weekEnd)} (Sat–Thu · Friday off).<br>
-    Plan one day or more — you don’t need to fill every day. Then submit for approval.</p>
-    <button type="button" class="btn-create" onclick="openWeekPlanBuilder()">Create Plan</button>`;
+    <h3>إنشاء الخطة الأسبوعية</h3>
+    <p>أسبوع ${weekPlanRangeLabel(weekStart, weekEnd)} (سبت–خميس · الجمعة أجازة).<br>
+    خطّط يوم أو أكتر — مش لازم تملى كل الأيام. بعدين ابعتها للموافقة.</p>
+    <button type="button" class="btn-create" onclick="openWeekPlanBuilder()">＋ إضافة بلان · Create Plan</button>`;
 }
 
 function clientTypeShort(t) {
@@ -2064,12 +2083,16 @@ function renderWeekVisitsList() {
 
   const usable = WEEK_PLAN && (WEEK_PLAN.status === 'approved' || WEEK_PLAN.status === 'locked');
   if (!usable) {
+    const canCreate = !WEEK_PLAN || WEEK_PLAN.status === 'draft' || WEEK_PLAN.status === 'rejected';
     const msg = WEEK_PLAN?.status === 'pending'
-      ? 'The plan is awaiting admin approval — visits will appear here once approved.'
+      ? 'الخطة مستنية موافقة الأدمن — الزيارات هتظهر هنا بعد الموافقة.'
       : WEEK_PLAN?.status === 'rejected'
-        ? 'The plan was rejected. Create a new plan from "Create New Plan".'
-        : 'No approved plan for this week. Use "Create Plan", and once the admin approves it you can write reports.';
-    el.innerHTML = `<div style="background:var(--panel);border:1px solid var(--b);border-radius:14px;padding:16px;color:var(--dim);font-size:13px;line-height:1.6">${msg}</div>`;
+        ? 'الخطة اترفعت. اعمل خطة جديدة من الزر تحت.'
+        : 'مفيش خطة معتمدة للأسبوع ده. اضغط «إضافة بلان» تحت عشان تعمل الخطة.';
+    const btn = canCreate
+      ? `<button type="button" class="btn-create" style="margin-top:12px" onclick="openWeekPlanBuilder()">＋ إضافة بلان · Create Plan</button>`
+      : '';
+    el.innerHTML = `<div style="background:var(--panel);border:1px solid var(--b);border-radius:14px;padding:16px;color:var(--dim);font-size:13px;line-height:1.6">${msg}${btn}</div>`;
     return;
   }
 
@@ -2163,6 +2186,15 @@ window.openWeekPlanBuilder = async () => {
         time_of_day: d.time_of_day === 'PM' ? 'PM' : 'AM',
       });
     });
+    if (!WEEK_DOCTORS.length) {
+      document.getElementById('wpo-days').innerHTML = `
+        <div style="background:rgba(240,153,123,.12);border:1px solid rgba(240,153,123,.4);border-radius:14px;padding:16px;line-height:1.7;font-size:14px;color:#231840">
+          <b>مفيش عملاء ظاهرين ليك</b><br>
+          لازم الأدمن يعيّنلك مناطق (Bricks) ويفعّل الدكاترة/الصيدليات (Active).<br>
+          <span style="color:var(--dim);font-size:13px">No clients in your territory — ask admin to assign bricks and set doctors Active.</span>
+        </div>`;
+      return;
+    }
     renderWeekPlanBuilder(weekStart);
   } catch (e) {
     toast(e.message, 'err');
@@ -2277,7 +2309,7 @@ window.submitWeekPlan = async () => {
     toast(e.message || 'Failed to send', 'err');
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Submit for Approval — Admin must approve before it appears';
+    btn.textContent = 'إرسال للموافقة · Submit for Approval';
   }
 };
 
@@ -2337,7 +2369,8 @@ function custodyFor(pid) {
   return c === null || c === undefined ? 0 : Number(c);
 }
 
-async function loadProductStock() {
+async function loadProductStock(force = false) {
+  if (!force && STOCK_LOADED_AT && Date.now() - STOCK_LOADED_AT < 120000) return;
   PRODUCT_STORE = {};
   let rows = [];
   try {
@@ -2387,6 +2420,7 @@ async function loadProductStock() {
   // Legacy map for any code still reading PRODUCT_STOCK
   PRODUCT_STOCK = {};
   PRODUCTS.forEach((p) => { PRODUCT_STOCK[p.id] = stockFor(p.id); });
+  STOCK_LOADED_AT = Date.now();
 }
 
 function updateSampleTotal() {
@@ -3026,7 +3060,9 @@ window.openCheckinFromSchedule = async (scheduleId, dateKey) => {
 };
 
 window.openCheckin = async (itemId, docId, opts = {}) => {
-  CURRENT_DOCTOR = await doctors.get(docId);
+  const planItem = (PLAN?.items || []).find((i) => i.id === itemId);
+  const embedded = planItem?.crm_doctors;
+  CURRENT_DOCTOR = (embedded?.id === docId ? embedded : null) || await doctors.get(docId);
   CURRENT_ITEM = itemId;
   CURRENT_SCHEDULE = opts.scheduledDate
     ? { dateKey: opts.scheduledDate, scheduleId: opts.scheduleId, timeOfDay: opts.timeOfDay }
@@ -3065,7 +3101,6 @@ window.openCheckin = async (itemId, docId, opts = {}) => {
     b2bChk.disabled = b2bAuto;
   }
 
-  const planItem = (PLAN?.items || []).find((i) => i.id === itemId);
   VISIT_AMPM = opts.timeOfDay || (planItem?.preferred_time === 'PM' ? 'PM' : 'AM');
   VISIT_TYPE = 'actual';
   VISIT_MANAGER_ID = null;
@@ -3416,7 +3451,7 @@ function renderRepPharmInv() {
     const due = r.due_date ? String(r.due_date).slice(0, 10) : '—';
     const phone = r.pharmacy_phone || '—';
     const addr = r.pharmacy_address || '';
-    return `<div class="visit-card" style="padding:14px;margin-bottom:10px">
+    return `<div class="visit-card rpi-card" style="padding:14px;margin-bottom:10px;cursor:pointer" onclick="openRepPharmInv('${r.id}')" role="button" tabindex="0">
       <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
         <div>
           <div style="font-weight:700;font-size:15px">${r.pharmacy_name || '—'}</div>
@@ -3442,6 +3477,34 @@ window.filterRepPharmInv = (type, el) => {
   document.querySelectorAll('.rpi-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   renderRepPharmInv();
+};
+
+window.openRepPharmInv = (id) => {
+  const r = REP_PHARM_INV.find(x => x.id === id);
+  if (!r) return;
+  const bal = rpiBalance(r);
+  const due = r.due_date ? String(r.due_date).slice(0, 10) : '—';
+  const brick = r.crm_bricks?.name || '—';
+  document.getElementById('rpi-detail-title').textContent = r.pharmacy_name || 'Invoice';
+  document.getElementById('rpi-detail-body').innerHTML = `
+    <div style="margin-bottom:10px"><b>${r.invoice_number || '—'}</b> · ${brick}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <div><span style="color:var(--dim);font-size:12px">Total</span><br><b>${Math.round(Number(r.total) || 0).toLocaleString()} EGP</b></div>
+      <div><span style="color:var(--dim);font-size:12px">Balance</span><br><b style="color:var(--gl)">${Math.round(bal).toLocaleString()} EGP</b></div>
+      <div><span style="color:var(--dim);font-size:12px">Collected</span><br>${Math.round(Number(r.amount_paid) || 0).toLocaleString()} EGP</div>
+      <div><span style="color:var(--dim);font-size:12px">Due</span><br>${due}</div>
+    </div>
+    <div style="color:var(--dim);font-size:13px;line-height:1.7">
+      📞 ${r.pharmacy_phone || '—'}<br>
+      ${r.pharmacy_address ? `📍 ${r.pharmacy_address}<br>` : ''}
+      Bottles: ${r.bottles ?? '—'} · Bonus: ${r.bonus ?? 0}
+    </div>`;
+  const sheet = document.getElementById('rpi-detail-sheet');
+  sheet?.classList.remove('hidden');
+};
+
+window.closeRepPharmInv = () => {
+  document.getElementById('rpi-detail-sheet')?.classList.add('hidden');
 };
 
 // ── History ───────────────────────────────────────────────
@@ -3726,6 +3789,10 @@ function ciEffectiveStep(step) {
 
 async function loadManagersForDoubleVisit() {
   const list = document.getElementById('ci-managers-list');
+  if (CRM_MANAGERS.length) {
+    renderManagersList();
+    return;
+  }
   try {
     CRM_MANAGERS = await reps.listManagers();
   } catch (e) {

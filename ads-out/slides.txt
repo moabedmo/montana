@@ -1,0 +1,8 @@
+file '01-problem.jpg'
+duration 4
+file '02-product.jpg'
+duration 4
+file '03-cta.jpg'
+duration 4
+file '03-cta.jpg'
+duration 0.1

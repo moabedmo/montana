@@ -295,6 +295,22 @@ if (headerMain) {
 }
 
 // ==================== APP SCREEN NAVIGATION ====================
+let appScreenScrollY = 0;
+
+function lockAppScreenScroll() {
+    appScreenScrollY = window.scrollY || window.pageYOffset || 0;
+    document.documentElement.classList.add('app-screen-open');
+    document.body.classList.add('app-screen-open');
+    document.body.style.top = `-${appScreenScrollY}px`;
+}
+
+function unlockAppScreenScroll() {
+    document.documentElement.classList.remove('app-screen-open');
+    document.body.classList.remove('app-screen-open');
+    document.body.style.top = '';
+    window.scrollTo(0, appScreenScrollY);
+}
+
 function switchScreen(screen) {
     if (window.innerWidth > 768) return;
 
@@ -307,22 +323,69 @@ function switchScreen(screen) {
     bottomLinks.forEach(l => l.classList.remove('active'));
 
     if (screen === 'home') {
+        unlockAppScreenScroll();
         homeElements.forEach(el => el.style.display = '');
         if (header) header.style.display = '';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        bottomLinks[0].classList.add('active');
+        bottomLinks[0]?.classList.add('active');
     } else {
+        lockAppScreenScroll();
         homeElements.forEach(el => el.style.display = 'none');
         if (header) header.style.display = 'none';
         const target = document.getElementById('screen-' + screen);
-        if (target) target.classList.add('active');
+        if (target) {
+            target.classList.add('active');
+            target.scrollTop = 0;
+        }
 
-        if (screen === 'categories') bottomLinks[1].classList.add('active');
-        if (screen === 'offers') bottomLinks[2].classList.add('active');
-        if (screen === 'favorites') { bottomLinks[3].classList.add('active'); window.renderAppFavorites?.(); }
-        if (screen === 'cart') { bottomLinks[4].classList.add('active'); window.renderAppCart?.(); }
+        if (screen === 'categories') bottomLinks[1]?.classList.add('active');
+        if (screen === 'offers') bottomLinks[2]?.classList.add('active');
+        if (screen === 'favorites') { bottomLinks[3]?.classList.add('active'); window.renderAppFavorites?.(); }
+        if (screen === 'cart') { bottomLinks[4]?.classList.add('active'); window.renderAppCart?.(); }
     }
 }
+
+/** Story rings above Offers — were decorative only; wire to real destinations. */
+function goAppStory(story) {
+    if (window.innerWidth > 768) return;
+    const scrollToSel = (sel) => {
+        if (document.body.classList.contains('app-screen-open')) switchScreen('home');
+        requestAnimationFrame(() => {
+            const el = document.querySelector(sel);
+            if (!el) return;
+            const top = el.getBoundingClientRect().top + window.scrollY - 72;
+            window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+        });
+    };
+    switch (story) {
+        case 'offers':
+            switchScreen('offers');
+            break;
+        case 'new':
+            scrollToSel('.new-arrivals');
+            break;
+        case 'best':
+            scrollToSel('#trending');
+            break;
+        case 'tips':
+            scrollToSel('#ingredients');
+            break;
+        case 'concern':
+            scrollToSel('#shop-by-concern');
+            break;
+        default:
+            break;
+    }
+}
+
+document.querySelectorAll('.app-story[data-story]').forEach((el) => {
+    if (el.tagName === 'A') return; // care → category.html via href
+    el.addEventListener('click', (e) => {
+        e.preventDefault();
+        goAppStory(el.dataset.story);
+    });
+});
+
+window.goAppStory = goAppStory;
 
 // Bottom nav click handlers
 const bottomNavLinks = document.querySelectorAll('.mobile-bottom-nav a');

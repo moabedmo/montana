@@ -175,8 +175,26 @@
     scope.querySelectorAll('.product-card').forEach(el => {
       if (el.dataset.observed) return;
       el.dataset.observed = '1';
-      el.style.opacity = '0';
-      if (window.__montanaCardObserver) window.__montanaCardObserver.observe(el);
+      // Shop pages: optional fade-in via IntersectionObserver — but NEVER leave
+      // cards stuck at opacity:0 (IO can miss cards below the fold / with
+      // aggressive rootMargin, which looked like an infinite "loading" store).
+      if (window.__montanaCardObserver) {
+        el.classList.add('is-pending-reveal');
+        window.__montanaCardObserver.observe(el);
+        // Failsafe: reveal quickly even if IntersectionObserver never fires
+        // (aggressive rootMargin / offscreen cards used to stay invisible forever).
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            if (!el.classList.contains('is-visible')) {
+              el.classList.add('is-visible');
+              el.classList.remove('is-pending-reveal');
+              try { window.__montanaCardObserver.unobserve(el); } catch { /* ignore */ }
+            }
+          }, 80);
+        });
+      } else {
+        el.classList.add('is-visible');
+      }
     });
 
     if (typeof window.bindQuickView === 'function') window.bindQuickView(scope);
