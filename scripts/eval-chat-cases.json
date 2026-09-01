@@ -770,6 +770,24 @@
       "expect": {
         "notPostLaserCream": true
       }
+    },
+    {
+      "id": "pregnancy-defer-to-doctor",
+      "steps": [
+        "انا حامل ينفع استخدمه"
+      ],
+      "expect": {
+        "defersPregnancyToDoctor": true
+      }
+    },
+    {
+      "id": "breastfeeding-defer-to-doctor",
+      "steps": [
+        "بارضع ينفع استخدم كريم التفتيح"
+      ],
+      "expect": {
+        "defersPregnancyToDoctor": true
+      }
     }
   ]
 }

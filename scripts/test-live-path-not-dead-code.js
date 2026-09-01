@@ -43,6 +43,7 @@ const mustBeLive = [
   ['lightening degree answer', 'answer the degree question directly'],
   ['dark area → brightening', 'Dark underarm / elbows / knees'],
   ['laser denial → ask concern', 'with nothing else asked → ask what she needs'],
+  ['pregnancy → her doctor', 'Pregnancy / breastfeeding → her doctor decides'],
 ];
 
 for (const [label, marker] of mustBeLive) {
