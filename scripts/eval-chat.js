@@ -58,6 +58,14 @@ function check(expect, reply, prevReply) {
   ) {
     fails.push('re-dumped full offers list');
   }
+  // "مش بعمل ليزر" — she ruled the laser cream out in the same breath. A real
+  // customer said exactly this about a dark underarm and was pitched the
+  // post-laser cream at 369 anyway.
+  if (expect.notPostLaserCream) {
+    if (/ما\s*بعد\s*الليزر|بعد\s*الليزر/.test(reply) && /369/.test(reply)) {
+      fails.push('pitched the post-laser cream after she said she does not do laser');
+    }
+  }
   if (expect.brighteningRoutine) {
     // Substance, not phrasing: the model legitimately writes the routine as
     // "روتين التفتيح الكامل (غسول + كريم + لوشن)" — demanding the exact string

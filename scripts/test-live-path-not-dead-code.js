@@ -41,6 +41,7 @@ const mustBeLive = [
   ['walk-away soft close', 'Walk-away / cancel BEFORE checkout wizard'],
   ['empty cart + wants to order', 'عايزة أطلب" with nothing chosen yet'],
   ['lightening degree answer', 'answer the degree question directly'],
+  ['dark area → brightening', 'Dark underarm / elbows / knees'],
 ];
 
 for (const [label, marker] of mustBeLive) {

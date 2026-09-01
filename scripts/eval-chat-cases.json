@@ -751,6 +751,25 @@
       "expect": {
         "answersLighteningDegree": true
       }
+    },
+    {
+      "id": "mona-no-laser-dark-underarm",
+      "steps": [
+        "انا مش بعمل ليزر بس عندي الاندر ارم غامق"
+      ],
+      "expect": {
+        "brighteningRoutine": true,
+        "notPostLaserCream": true
+      }
+    },
+    {
+      "id": "no-laser-negation-only",
+      "steps": [
+        "مش بعمل ليزر"
+      ],
+      "expect": {
+        "notPostLaserCream": true
+      }
     }
   ]
 }
