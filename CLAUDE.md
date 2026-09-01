@@ -73,12 +73,17 @@ for t in scripts/test-*.js; do node "$t" >/dev/null 2>&1 && echo "PASS $t" || ec
 
 ## Deploying
 
+**Commit first, then deploy.** Since the project gained a GitHub remote
+(`montanahala32/montana2`), a deploy ships the last committed state — not the
+working tree. Uncommitted edits deploy successfully and change nothing, which
+looks exactly like a broken deploy and cost an afternoon to spot.
+
 ```bash
+git add -A && git commit -m "…"
 vercel deploy --prod
 ```
 
-Deploys the whole working directory. There is **no git remote** — the working
-tree is the only copy of the current state, and it is what production runs.
+If a change doesn't show up live, check `git status` before suspecting Vercel.
 
 Roll back instantly:
 ```bash
