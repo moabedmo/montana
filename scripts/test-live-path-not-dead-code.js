@@ -40,6 +40,7 @@ const mustBeLive = [
   ['caller-number check for money calls', 'verify the caller against our official line'],
   ['walk-away soft close', 'Walk-away / cancel BEFORE checkout wizard'],
   ['empty cart + wants to order', 'عايزة أطلب" with nothing chosen yet'],
+  ['lightening degree answer', 'answer the degree question directly'],
 ];
 
 for (const [label, marker] of mustBeLive) {

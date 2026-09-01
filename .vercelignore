@@ -10,3 +10,14 @@ supabase/
 .env*
 # lib/ must NOT be ignored — api/chat and webhooks require ../lib/* at runtime.
 # Public HTTP access to /lib/ is blocked in vercel.json (404), not via .vercelignore.
+
+
+# The git history is 174 MB and grew the upload from 117 MB to 291 MB the
+# moment this project got a GitHub remote — deploys went from 20s to stuck.
+# Vercel never needs it.
+.git/
+
+# Design/marketing source the site never serves.
+ads-out/
+design/
+mm/

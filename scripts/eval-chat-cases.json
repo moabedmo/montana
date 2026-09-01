@@ -724,6 +724,33 @@
       "expect": {
         "handsOrderIssueToCs": true
       }
+    },
+    {
+      "id": "how-much-lightening",
+      "steps": [
+        "بيفتحو فاد اي"
+      ],
+      "expect": {
+        "answersLighteningDegree": true
+      }
+    },
+    {
+      "id": "how-much-lightening-clean",
+      "steps": [
+        "كريم التفتيح بيفتح قد ايه"
+      ],
+      "expect": {
+        "answersLighteningDegree": true
+      }
+    },
+    {
+      "id": "how-long-until-results",
+      "steps": [
+        "النتيجه بتبان امتى"
+      ],
+      "expect": {
+        "answersLighteningDegree": true
+      }
     }
   ]
 }
