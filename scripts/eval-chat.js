@@ -58,6 +58,16 @@ function check(expect, reply, prevReply) {
   ) {
     fails.push('re-dumped full offers list');
   }
+  // "ازاي استخدم روتين التفتيح" names the offer, and that was enough to get it
+  // answered with the 777 price instead of the steps she asked for.
+  if (expect.usageStepsNotPrice) {
+    if (!/(اغسلي|طبّقي|طبقي|رطّبي|رطبي|١\)|1\))/.test(reply)) {
+      fails.push('expected the usage steps');
+    }
+    if (/777/.test(reply) && !/اغسلي/.test(reply)) {
+      fails.push('answered a usage question with the offer price');
+    }
+  }
   // Pregnancy / breastfeeding is a medical question, not a sales one. The bot
   // was answering "منتجاتنا كلها آمنة ومناسبة للحوامل" on its own — a safety
   // claim the brand has not made, about products containing salicylic acid.

@@ -788,6 +788,24 @@
       "expect": {
         "defersPregnancyToDoctor": true
       }
+    },
+    {
+      "id": "usage-steps-not-price",
+      "steps": [
+        "ازاي استخدم روتين التفتيح"
+      ],
+      "expect": {
+        "usageStepsNotPrice": true
+      }
+    },
+    {
+      "id": "usage-steps-bare",
+      "steps": [
+        "طريقة الاستخدام"
+      ],
+      "expect": {
+        "usageStepsNotPrice": true
+      }
     }
   ]
 }
