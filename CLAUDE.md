@@ -85,6 +85,20 @@ vercel deploy --prod
 
 If a change doesn't show up live, check `git status` before suspecting Vercel.
 
+**The commit author email must belong to a real GitHub account.** Vercel blocks
+a deployment whose commit author it cannot match, and the CLI reports this only
+as a deployment that never leaves `UNKNOWN` — no error, no failure, it just
+never goes live. The owner's account is `moabedmo` / `mo-abed5@outlook.com`;
+`git config user.email` must stay on that. When a deploy hangs, the reason is
+on the deployment's page under **Deployment Blocked**, not in the terminal:
+
+```bash
+vercel inspect <deployment-url>   # then open the Inspect link it prints
+```
+
+Blocked deployments also queue behind each other — clear them with
+`vercel remove <url> --yes --safe` before retrying.
+
 Roll back instantly:
 ```bash
 vercel rollback <previous-deployment-url>
