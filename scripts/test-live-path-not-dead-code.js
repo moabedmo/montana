@@ -42,6 +42,7 @@ const mustBeLive = [
   ['empty cart + wants to order', 'عايزة أطلب" with nothing chosen yet'],
   ['lightening degree answer', 'answer the degree question directly'],
   ['dark area → brightening', 'Dark underarm / elbows / knees'],
+  ['laser denial → ask concern', 'with nothing else asked → ask what she needs'],
 ];
 
 for (const [label, marker] of mustBeLive) {
