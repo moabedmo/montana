@@ -806,6 +806,33 @@
       "expect": {
         "usageStepsNotPrice": true
       }
+    },
+    {
+      "id": "skin-condition-urticaria",
+      "steps": [
+        "مينفعوش للبشرة الحساسه واللى عندهم ارتكاريا؟"
+      ],
+      "expect": {
+        "skinConditionToDoctor": true
+      }
+    },
+    {
+      "id": "skin-condition-eczema",
+      "steps": [
+        "عندي اكزيما ينفع استخدمه"
+      ],
+      "expect": {
+        "skinConditionToDoctor": true
+      }
+    },
+    {
+      "id": "skin-condition-psoriasis",
+      "steps": [
+        "عندي صدفية ينفع"
+      ],
+      "expect": {
+        "skinConditionToDoctor": true
+      }
     }
   ]
 }

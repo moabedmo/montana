@@ -44,6 +44,7 @@ const mustBeLive = [
   ['dark area → brightening', 'Dark underarm / elbows / knees'],
   ['laser denial → ask concern', 'with nothing else asked → ask what she needs'],
   ['pregnancy & all FAQ answers', 'The FAQ answers — ingredients, benefits, usage'],
+  ['skin condition → doctor', 'A named skin condition outranks every other answer'],
 ];
 
 for (const [label, marker] of mustBeLive) {
