@@ -147,6 +147,46 @@ pressed **Start** on the bot (or deleted the chat) — Telegram refuses to deliv
 until they do. `?telegram=whoami` lists the chats that have messaged the bot, so
 the real id can be recovered.
 
+## The storefront is a light theme
+
+White canvas, plum ink, gold accents. Two places are deliberately dark and stay
+that way: the **hero photograph** and the **footer** (plus the thin promo strip).
+
+CSS is hand-written and bundled — edit the source file, never `css/*.bundle.css`:
+
+```bash
+npm run build:css    # styles/app/premium/home-premium/shop-premium → css/*.bundle.css
+npm run build:en     # index.html → en/index.html (never edit en/ by hand)
+```
+
+Bump the `?v=` on `css/home.bundle.css` in `index.html` when the bundle changes,
+or returning visitors keep the old one.
+
+- **Section backgrounds come from `--mnt-surface*`, text from the ink ramp**
+  (`--mnt-ink`, `-body`, `-muted`, `-faint`). The plum tokens are brand ink and
+  the dark chrome — painting a section with one is what made the site purple.
+- `--mnt-gold` (#C9A84C) is for fills and glows. Gold **text** on white must use
+  `--mnt-gold-ink`; the bright gold is unreadable on a light surface.
+- Tokens live in `premium.css` because it is in **both** bundles.
+  `home-premium.css` is homepage-only — tokens defined only there leave every
+  shop page with undefined colours.
+- Anything added to `.showcase-info` needs a colour in the **HERO COPY** block at
+  the bottom of `home-premium.css`. `premium.css` sets `h1..h6 { color: var(--mnt-ink)
+  !important }` site-wide, so hero text without an override comes out dark on the
+  dark photo and is invisible.
+- `dark-theme.css` is now the *light* theme for inner pages. The name stayed
+  because ~30 pages link it directly.
+
+### The hero is six stills, not six videos
+
+`images/hero-slide-{1..6}.webp` cross-fade on the carousel's own timer
+(`js/hero-showcase.js`), mapped to products **by slug** — the DB order does not
+match the file numbering. `videos/p*.mp4` (11 MB) is no longer referenced.
+
+A full-bleed backdrop must not carry `width`/`height` attributes: `css/perf.css`
+has `img[width][height] { height: auto }`, which outranks a class selector and
+silently collapsed the hero to a 165px letterbox.
+
 ## Known-good facts
 
 - Products and prices live in Supabase; the bot must read them with its tools,

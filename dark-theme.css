@@ -1,39 +1,52 @@
 /* ═══════════════════════════════════════════════════════
-   MONTANA DARK THEME — makes inner pages (checkout, product,
-   account, etc.) match the homepage's dark purple/gold theme.
+   MONTANA THEME — inner pages (checkout, product, account,
+   search, wishlist, …) follow the homepage.
    Load AFTER styles.css/pages.css/premium.css.
 ═══════════════════════════════════════════════════════ */
 
+/* This file used to be the dark theme: it repointed every base token to a
+   white-on-plum ramp and then chased "pages.css hardcoded light literals"
+   back to dark one by one. The site is a light theme now, so the token
+   values below are the light ones and the chase is gone — pages.css and
+   styles.css are already light, and letting them through is the point.
+
+   The filename stays because roughly thirty pages link it directly; renaming
+   it would mean editing all of them and silently breaking any that were
+   missed. What it contains, not what it is called, is what changed. */
+
 :root {
-    --primary: #2D1B4E;
+    --primary: #2D1B3D;
     --primary-light: #3D2460;
-    --accent: #C9A84C;
-    --accent-light: #E8D48A;
-    --accent-dark: #B8943D;
-    --text: rgba(255,255,255,.92);
-    --text-light: rgba(255,255,255,.68);
-    --text-muted: rgba(255,255,255,.45);
-    --bg: rgba(255,255,255,.06);
-    --bg-light: rgba(255,255,255,.05);
-    --bg-warm: rgba(255,255,255,.05);
-    --border: rgba(255,255,255,.16);
-    --border-light: rgba(255,255,255,.1);
+    --accent: #9B6CB8;
+    --accent-light: #b48bcc;
+    --accent-dark: #7d53a0;
+    --text: #2D1B3D;
+    --text-light: #55436B;
+    --text-muted: #7A6C8B;
+    --bg: #ffffff;
+    --bg-light: #FAF8FC;
+    --bg-warm: #F4EFF9;
+    --border: rgba(45, 27, 61, .12);
+    --border-light: rgba(45, 27, 61, .08);
 }
 
 body {
-    background: #342f44 !important;
+    background: #ffffff !important;
 }
 
-/* ── pages.css hardcoded light literals ── */
+/* premium.css paints the page chrome for the whole site; these are the few
+   panels on inner pages that need to be brought back to a light surface. */
 .page-header,
 .pd-bottom-bar {
-    background: rgba(56, 48, 76,.85) !important;
-    border-color: rgba(255,255,255,.08) !important;
+    background: rgba(255, 255, 255, .92) !important;
+    border-color: rgba(45, 27, 61, .10) !important;
 }
 
 .page-back,
-.page-action-btn {
-    background: rgba(255,255,255,.08) !important;
+.page-action-btn,
+.cat-wishlist {
+    background: rgba(45, 27, 61, .05) !important;
+    color: #2D1B3D !important;
 }
 
 .cat-product-card,
@@ -41,13 +54,16 @@ body {
 .auth-tab.active,
 .auth-divider span,
 .auth-social {
-    background: rgba(255,255,255,.06) !important;
+    background: #ffffff !important;
 }
 
 .form-group input,
 .form-group select,
-.form-group textarea {
-    background: rgba(255,255,255,.05) !important;
+.form-group textarea,
+.auth-tabs,
+.srch-bar,
+.faq-search {
+    background: #FAF8FC !important;
     color: var(--text) !important;
 }
 
@@ -56,20 +72,7 @@ body {
     color: var(--text-muted) !important;
 }
 
-.auth-tabs {
-    background: rgba(255,255,255,.05) !important;
-}
-
 .cat-product-img,
 .pd-gallery {
-    background: rgba(255,255,255,.04) !important;
-}
-
-.cat-wishlist {
-    background: rgba(56, 48, 76,.7) !important;
-}
-
-.srch-bar,
-.faq-search {
-    background: rgba(255,255,255,.05) !important;
+    background: linear-gradient(160deg, #FBF9FD 0%, #F1EAF7 100%) !important;
 }

@@ -33,7 +33,9 @@ html { scroll-behavior: smooth; }
 body {
     font-family: 'Tajawal', sans-serif;
     color: var(--text);
-    background: url('images/silk-bg.jpg') center center / cover fixed;
+    /* The silk photograph used to sit behind every page and is what made the
+       whole site read purple — the theme is white, so the canvas is plain. */
+    background: #ffffff;
     line-height: 1.7;
     overflow-x: hidden;
 }
@@ -525,7 +527,9 @@ header.header {
 .hero-silk {
     position: absolute;
     inset: 0;
-    background: url('images/silk-bg-web.jpg') center/cover no-repeat;
+    /* Root-absolute: this file is served from /css/*.bundle.css, where the
+       relative path resolved to /css/images/… and 404'd on every page load. */
+    background: url('/images/silk-bg-web.jpg') center/cover no-repeat;
     opacity: .16;
     mix-blend-mode: soft-light;
 }
@@ -2130,8 +2134,8 @@ header.header {
 /* ==================== REWARDS ==================== */
 .rewards-section {
     padding: 100px 0;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-    color: #fff;
+    background: linear-gradient(135deg, var(--mnt-surface-alt) 0%, var(--mnt-surface) 100%);
+    color: var(--mnt-ink);
 }
 
 .rewards-content {
@@ -2146,8 +2150,8 @@ header.header {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(255,255,255,0.15);
-    color: #D4AF37;
+    background: rgba(201, 168, 76, 0.14);
+    color: var(--mnt-gold-ink);
     padding: 8px 20px;
     border-radius: 50px;
     font-size: 14px;
@@ -2159,12 +2163,12 @@ header.header {
     font-family: 'Playfair Display', serif;
     font-size: 40px;
     margin-bottom: 16px;
-    color: #fff;
+    color: var(--mnt-ink);
 }
 
 .rewards-text p {
     font-size: 16px;
-    color: rgba(255,255,255,0.8);
+    color: var(--mnt-ink-body);
     margin-bottom: 32px;
     line-height: 1.8;
 }
@@ -2185,7 +2189,7 @@ header.header {
 }
 
 .perk i {
-    color: #D4AF37;
+    color: var(--mnt-gold-ink);
     font-size: 18px;
 }
 

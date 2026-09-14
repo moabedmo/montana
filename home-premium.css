@@ -2,7 +2,11 @@
    MONTANA — Homepage Premium Layer (Phase 1–3)
 ═══════════════════════════════════════════════════════ */
 
-/* ── Unified palette (single source of truth) ── */
+/* ── Unified palette (single source of truth) ──
+   The homepage is a LIGHT theme. The plum tokens below are the brand ink and
+   the deep accents (hero backdrop, gold-on-plum chips); the surface tokens are
+   what sections are actually painted with. Section backgrounds must come from
+   --mnt-surface*, never from a plum — that is what made the page dark before. */
 :root {
     --mnt-plum: #2D1B3D;
     --mnt-plum-hero: #453f64;
@@ -12,10 +16,26 @@
     --mnt-accent: #9B6CB8;
     --mnt-gold: #C9A84C;
     --mnt-gold-light: #E8D48A;
+    /* Gold reads as a pale wash on white, so text and hairlines use the deeper
+       one; fills and glows keep --mnt-gold. */
+    --mnt-gold-ink: #9A7A23;
     --mnt-gold-dim: rgba(201, 168, 76, .2);
-    --mnt-surface: #f8f6fc;
-    --mnt-surface-alt: #f3eef8;
+
+    /* Light canvas — plain white page, tinted bands for rhythm */
+    --mnt-canvas: #ffffff;
+    --mnt-surface: #FAF8FC;
+    --mnt-surface-alt: #F4EFF9;
+    --mnt-surface-deep: #ECE4F3;
     --mnt-surface-white: #ffffff;
+
+    /* Ink scale — replaces the white-on-dark text ramp */
+    --mnt-ink: #2D1B3D;
+    --mnt-ink-body: #55436B;
+    --mnt-ink-muted: #7A6C8B;
+    --mnt-ink-faint: rgba(45, 27, 61, .45);
+    --mnt-ink-ghost: rgba(45, 27, 61, .06);
+    --mnt-line: rgba(45, 27, 61, .10);
+
     --mnt-text: #2D1B3D;
     --mnt-text-body: #5C4A6B;
     --mnt-text-muted: #6B6080;
@@ -28,47 +48,53 @@
     display: none;
 }
 
-/* Full-page dark canvas — no silk-bg / white bleed */
+/* Full-page white canvas — the silk-bg photograph is what used to tint
+   every section purple, so it is off here, not merely covered. */
 html:has(body.mnt-home) {
-    background: #342f44;
+    background: var(--mnt-canvas);
 }
 body.mnt-home {
-    background: #342f44 !important;
+    background: var(--mnt-canvas) !important;
     background-image: none !important;
+    color: var(--mnt-ink);
 }
 
-/* Mobile quick-actions + stories — labels must read on dark canvas */
+/* Mobile quick-actions + stories */
 .mnt-home .app-action span,
 .mnt-home .app-story span {
-    color: rgba(245, 240, 250, 0.94) !important;
+    color: var(--mnt-ink) !important;
     font-size: 11px;
     font-weight: 700;
-    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55);
+    text-shadow: none;
 }
 
 .mnt-home .app-action:hover span,
 .mnt-home .app-action:focus-visible span {
-    color: var(--mnt-gold-light) !important;
+    color: var(--mnt-gold-ink) !important;
 }
 
-/* Kill premium.css white product-card override on homepage */
+/* Product cards — white panels with a hairline, on the white canvas */
 .mnt-home .product-card {
-    background: rgba(56, 48, 76, .72) !important;
-    border-color: rgba(201, 168, 76, .14) !important;
+    background: var(--mnt-surface-white) !important;
+    border-color: var(--mnt-line) !important;
+    box-shadow: 0 2px 14px rgba(45, 27, 61, .05);
+}
+.mnt-home .product-card:hover {
+    box-shadow: 0 10px 34px rgba(45, 27, 61, .10);
 }
 .mnt-home .product-img {
-    background: linear-gradient(160deg, var(--mnt-plum-mid) 0%, var(--mnt-plum-dark) 100%) !important;
+    background: linear-gradient(160deg, #FBF9FD 0%, #F1EAF7 100%) !important;
 }
 .mnt-home .product-card .product-info h3,
 .mnt-home .product-card h3,
 .mnt-home .product-card .product-name {
-    color: #fff !important;
+    color: var(--mnt-ink) !important;
 }
 .mnt-home .product-card .current-price {
-    color: #fff !important;
+    color: var(--mnt-ink) !important;
 }
 .mnt-home .product-card .old-price {
-    color: rgba(255, 255, 255, .45) !important;
+    color: var(--mnt-ink-faint) !important;
 }
 
 /* ── Hero polish (v2 — editorial + luxury motion) ── */
@@ -404,8 +430,9 @@ html[dir="rtl"] .mnt-home .showcase-info {
 .lux-bridge {
     position: relative;
     padding: clamp(48px, 8vw, 88px) 0 clamp(56px, 9vw, 96px);
-    /* Stay dark — premium.css sets section { background: transparent !important } */
-    background: linear-gradient(180deg, var(--mnt-plum-hero) 0%, var(--mnt-plum-mid) 55%, var(--mnt-plum) 100%) !important;
+    /* premium.css sets section { background: transparent !important } — this
+       band has to win it back to soften the step out of the hero photo. */
+    background: linear-gradient(180deg, var(--mnt-surface-deep) 0%, var(--mnt-surface-alt) 55%, var(--mnt-canvas) 100%) !important;
     text-align: center;
     overflow: hidden;
 }
@@ -422,7 +449,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     font-family: 'Playfair Display', serif;
     font-size: clamp(22px, 3.2vw, 34px);
     font-weight: 500;
-    color: #fff;
+    color: var(--mnt-ink);
     line-height: 1.55;
     max-width: 720px;
     margin: 0 auto 36px;
@@ -438,12 +465,12 @@ html[dir="rtl"] .mnt-home .showcase-info {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: rgba(255, 255, 255, .88);
+    color: var(--mnt-ink);
     font-size: 16px;
     font-weight: 500;
 }
 .lux-trust-icon {
-    color: var(--mnt-gold-light);
+    color: var(--mnt-gold-ink);
     font-size: 11px;
     line-height: 1;
 }
@@ -453,21 +480,21 @@ html[dir="rtl"] .mnt-home .showcase-info {
     padding: clamp(56px, 8vw, 96px) 0;
 }
 .lux-section--dark {
-    background: linear-gradient(165deg, var(--mnt-plum-dark) 0%, #1e0f3a 50%, var(--mnt-plum-mid) 100%) !important;
-    color: #fff;
+    background: linear-gradient(165deg, var(--mnt-surface) 0%, var(--mnt-surface-alt) 50%, var(--mnt-surface) 100%) !important;
+    color: var(--mnt-ink);
 }
 .lux-section--light {
     background: transparent !important;
 }
 .lux-section--warm {
-    background: linear-gradient(180deg, var(--mnt-plum-dark) 0%, var(--mnt-plum-mid) 100%) !important;
+    background: linear-gradient(180deg, var(--mnt-canvas) 0%, var(--mnt-surface-alt) 100%) !important;
 }
 .lux-eyebrow {
     display: block;
     font-family: 'Playfair Display', serif;
     font-size: 12px;
     letter-spacing: .32em;
-    color: var(--mnt-gold);
+    color: var(--mnt-gold-ink);
     margin-bottom: 14px;
     text-transform: uppercase;
 }
@@ -475,7 +502,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     color: var(--mnt-accent) !important;
 }
 .lux-section--dark .lux-eyebrow {
-    color: var(--mnt-gold-light);
+    color: var(--mnt-gold-ink);
 }
 .lux-section-head {
     text-align: center;
@@ -493,7 +520,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
 }
 .lux-section-head p {
     font-size: clamp(15px, 1.6vw, 18px);
-    color: rgba(255, 255, 255, .72);
+    color: var(--mnt-ink-body);
     line-height: 1.7;
 }
 .lux-section--light .lux-section-head p,
@@ -518,7 +545,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     overflow: hidden;
     aspect-ratio: 4 / 5;
     max-height: 520px;
-    box-shadow: 0 24px 64px rgba(12, 5, 25, .35);
+    box-shadow: 0 18px 48px rgba(45, 27, 61, .14);
 }
 .lux-brand-visual img {
     width: 100%;
@@ -529,7 +556,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(56, 48, 76, .55), transparent 50%);
+    background: linear-gradient(to top, rgba(45, 27, 61, .28), transparent 50%);
 }
 .lux-brand-copy h2 {
     font-family: 'Cormorant Garamond', 'Playfair Display', serif;
@@ -537,10 +564,10 @@ html[dir="rtl"] .mnt-home .showcase-info {
     font-weight: 600;
     line-height: 1.25;
     margin-bottom: 20px;
-    color: #fff;
+    color: var(--mnt-ink);
 }
 .lux-brand-copy p {
-    color: rgba(255, 255, 255, .78);
+    color: var(--mnt-ink-body);
     line-height: 1.85;
     font-size: 16px;
     margin-bottom: 16px;
@@ -558,13 +585,13 @@ html[dir="rtl"] .mnt-home .showcase-info {
     font-family: 'Playfair Display', serif;
     font-size: clamp(28px, 3vw, 36px);
     font-weight: 700;
-    color: var(--mnt-gold-light);
+    color: var(--mnt-gold-ink);
     line-height: 1;
     margin-bottom: 6px;
 }
 .lux-stat-label {
     font-size: 13px;
-    color: rgba(255, 255, 255, .65);
+    color: var(--mnt-ink-muted);
 }
 
 /* ── Ritual ── */
@@ -576,7 +603,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
 .lux-ritual-step {
     text-align: center;
     padding: clamp(24px, 3vw, 36px) 20px;
-    background: rgba(255, 255, 255, .04);
+    background: var(--mnt-ink-ghost);
     border: 1px solid rgba(201, 168, 76, .15);
     border-radius: 20px;
     transition: border-color .35s ease, transform .35s ease;
@@ -589,7 +616,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     font-family: 'Playfair Display', serif;
     font-size: 11px;
     letter-spacing: .25em;
-    color: #C9A84C;
+    color: var(--mnt-gold-ink);
     margin-bottom: 16px;
 }
 .lux-ritual-img {
@@ -609,12 +636,12 @@ html[dir="rtl"] .mnt-home .showcase-info {
     font-family: 'Tajawal', sans-serif;
     font-size: 18px;
     font-weight: 700;
-    color: #fff;
+    color: var(--mnt-ink);
     margin-bottom: 8px;
 }
 .lux-ritual-step p {
     font-size: 14px;
-    color: rgba(255, 255, 255, .65);
+    color: var(--mnt-ink-muted);
     line-height: 1.6;
 }
 
@@ -628,7 +655,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     display: grid;
     grid-template-columns: 1fr minmax(120px, 42%);
     align-items: stretch;
-    background: rgba(56, 48, 76, .72);
+    background: var(--mnt-surface-white);
     border-radius: 18px;
     padding: 0;
     border: 1px solid rgba(201, 168, 76, .14);
@@ -650,7 +677,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     background: transparent;
 }
 .lux-ing-visual {
-    background: linear-gradient(160deg, var(--mnt-plum-mid) 0%, var(--mnt-plum-dark) 100%);
+    background: linear-gradient(160deg, #FBF9FD 0%, #F1EAF7 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -666,7 +693,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
 .lux-ing-product {
     font-size: 11px;
     letter-spacing: .15em;
-    color: var(--mnt-gold-light);
+    color: var(--mnt-gold-ink);
     text-transform: uppercase;
     margin-bottom: 12px;
     font-weight: 700;
@@ -681,9 +708,9 @@ html[dir="rtl"] .mnt-home .showcase-info {
     align-items: center;
     gap: 10px;
     padding: 8px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, .08);
+    border-bottom: 1px solid var(--mnt-line);
     font-size: 14px;
-    color: rgba(255, 255, 255, .78);
+    color: var(--mnt-ink-body);
 }
 .lux-ing-list li:last-child { border-bottom: none; }
 .lux-ing-dot {
@@ -696,13 +723,13 @@ html[dir="rtl"] .mnt-home .showcase-info {
 .lux-ing-link {
     font-size: 13px;
     font-weight: 700;
-    color: var(--mnt-gold-light);
+    color: var(--mnt-gold-ink);
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 6px;
 }
-.lux-ing-link:hover { color: #fff; }
+.lux-ing-link:hover { color: var(--mnt-ink); }
 
 /* ── Shop by concern (indications.docx) ── */
 .lux-concerns-grid {
@@ -711,7 +738,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     gap: 20px;
 }
 .lux-concern-card {
-    background: rgba(56, 48, 76, .72);
+    background: var(--mnt-surface-white);
     border: 1px solid rgba(201, 168, 76, .14);
     border-radius: 18px;
     padding: 24px 22px;
@@ -730,7 +757,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     align-items: center;
     justify-content: center;
     background: rgba(201, 168, 76, .12);
-    color: var(--mnt-gold-light);
+    color: var(--mnt-gold-ink);
     font-size: 18px;
     margin-bottom: 14px;
 }
@@ -738,13 +765,13 @@ html[dir="rtl"] .mnt-home .showcase-info {
     font-family: 'Tajawal', sans-serif;
     font-size: 19px;
     font-weight: 800;
-    color: #fff;
+    color: var(--mnt-ink);
     margin-bottom: 10px;
 }
 .lux-concern-text {
     font-size: 15px;
     line-height: 1.65;
-    color: rgba(255, 255, 255, .72);
+    color: var(--mnt-ink-body);
     margin-bottom: 16px;
 }
 .lux-concern-products {
@@ -759,33 +786,33 @@ html[dir="rtl"] .mnt-home .showcase-info {
     border-radius: 999px;
     background: rgba(155, 108, 184, .18);
     border: 1px solid rgba(155, 108, 184, .35);
-    color: rgba(255, 255, 255, .88);
+    color: var(--mnt-ink);
     text-decoration: none;
     transition: background .25s ease, border-color .25s ease;
 }
 .lux-concern-chip:hover {
     background: rgba(201, 168, 76, .2);
     border-color: rgba(201, 168, 76, .45);
-    color: #fff;
+    color: var(--mnt-ink);
 }
 .lux-concerns-disclaimer {
     margin-top: 28px;
     text-align: center;
     font-size: 13px;
     line-height: 1.6;
-    color: rgba(255, 255, 255, .45);
+    color: var(--mnt-ink-faint);
     max-width: 640px;
     margin-left: auto;
     margin-right: auto;
 }
 .mnt-home #shop-by-concern.lux-section--dark {
-    background: linear-gradient(180deg, #342f44 0%, #38304c 50%, #342f44 100%) !important;
+    background: linear-gradient(180deg, var(--mnt-surface) 0%, var(--mnt-surface-alt) 50%, var(--mnt-surface) 100%) !important;
 }
 .mnt-home #shop-by-concern .lux-section-head h2 {
-    color: #fff;
+    color: var(--mnt-ink);
 }
 .mnt-home #shop-by-concern .lux-section-head p {
-    color: rgba(255, 255, 255, .65);
+    color: var(--mnt-ink-muted);
 }
 @media (max-width: 992px) {
     .lux-concerns-grid {
@@ -815,7 +842,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
 }
 .lux-reviews-score span {
     font-size: 22px;
-    color: #C9A84C;
+    color: var(--mnt-gold-ink);
 }
 .lux-reviews-count {
     font-size: 14px;
@@ -828,14 +855,14 @@ html[dir="rtl"] .mnt-home .showcase-info {
     gap: 24px;
 }
 .lux-review-card {
-    background: rgba(56, 48, 76, .72);
+    background: var(--mnt-surface-white);
     border-radius: 18px;
     padding: 28px;
     border: 1px solid rgba(201, 168, 76, .12);
     box-shadow: 0 8px 32px rgba(0, 0, 0, .2);
 }
 .lux-review-stars {
-    color: #C9A84C;
+    color: var(--mnt-gold-ink);
     font-size: 13px;
     margin-bottom: 14px;
     letter-spacing: 2px;
@@ -843,7 +870,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
 .lux-review-text {
     font-size: 15px;
     line-height: 1.75;
-    color: rgba(255, 255, 255, .75);
+    color: var(--mnt-ink-body);
     margin-bottom: 20px;
     font-style: italic;
 }
@@ -860,18 +887,18 @@ html[dir="rtl"] .mnt-home .showcase-info {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--mnt-gold-light);
+    color: var(--mnt-gold-ink);
     font-weight: 700;
     font-size: 16px;
 }
 .lux-review-name {
     font-weight: 700;
     font-size: 14px;
-    color: #fff;
+    color: var(--mnt-ink);
 }
 .lux-review-meta {
     font-size: 12px;
-    color: rgba(255, 255, 255, .45);
+    color: var(--mnt-ink-faint);
 }
 
 /* ── Product cards upgrade ── */
@@ -883,7 +910,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     border: 1px solid rgba(201, 168, 76, .14) !important;
     border-radius: 18px !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, .22) !important;
-    background: rgba(56, 48, 76, .72) !important;
+    background: var(--mnt-surface-white) !important;
     backdrop-filter: blur(10px);
 }
 .products-section .product-card:hover {
@@ -896,7 +923,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     background: transparent !important;
 }
 .products-section .product-img {
-    background: linear-gradient(160deg, var(--mnt-plum-mid) 0%, var(--mnt-plum-dark) 100%) !important;
+    background: linear-gradient(160deg, #FBF9FD 0%, #F1EAF7 100%) !important;
     aspect-ratio: 1 !important;
 }
 .products-section .product-img img {
@@ -911,13 +938,13 @@ html[dir="rtl"] .mnt-home .showcase-info {
 .products-section .product-brand {
     letter-spacing: .2em !important;
     font-size: 10px !important;
-    color: #C9A84C !important;
+    color: var(--mnt-gold-ink) !important;
 }
 .products-section .product-badges .badge-sale,
 .products-section .product-badges .badge-new,
 .products-section .product-badges .badge-best {
     background: rgba(45, 27, 61, .88) !important;
-    color: #E8D48A !important;
+    color: var(--mnt-gold-ink) !important;
     border: 1px solid rgba(232, 212, 138, .35) !important;
     font-size: 11px !important;
     font-weight: 600 !important;
@@ -954,18 +981,18 @@ html[dir="rtl"] .mnt-home .showcase-info {
 
 /* Features bar — dark glass, not white strip */
 .mnt-home .features-bar {
-    background: linear-gradient(180deg, rgba(56, 48, 76, .96) 0%, rgba(52, 47, 68, .98) 100%) !important;
+    background: var(--mnt-canvas) !important;
     border-top: 1px solid rgba(201, 168, 76, .12);
     border-bottom: 1px solid rgba(201, 168, 76, .12);
 }
 .mnt-home .features-bar .feature-item h4 {
-    color: #fff !important;
+    color: var(--mnt-ink) !important;
 }
 .mnt-home .features-bar .feature-item p {
-    color: rgba(255, 255, 255, .55) !important;
+    color: var(--mnt-ink-muted) !important;
 }
 .mnt-home .features-bar .feature-item i {
-    color: var(--mnt-gold) !important;
+    color: var(--mnt-gold-ink) !important;
     filter: none;
 }
 
@@ -975,17 +1002,17 @@ html[dir="rtl"] .mnt-home .showcase-info {
 
 /* Ingredients → shop handoff (dark, not flat white) */
 .mnt-home #ingredients.lux-section--warm {
-    background: linear-gradient(180deg, var(--mnt-plum-dark) 0%, var(--mnt-plum-mid) 55%, var(--mnt-plum) 100%) !important;
+    background: linear-gradient(180deg, var(--mnt-canvas) 0%, var(--mnt-surface) 55%, var(--mnt-surface-alt) 100%) !important;
 }
 .mnt-home #ingredients .lux-section-head h2 {
-    color: #fff !important;
+    color: var(--mnt-ink) !important;
 }
 .mnt-home #ingredients .lux-section-head p {
-    color: rgba(255, 255, 255, .55) !important;
+    color: var(--mnt-ink-muted) !important;
 }
 
 .mnt-home .categories-section {
-    background: linear-gradient(180deg, var(--mnt-plum-mid) 0%, var(--mnt-plum-dark) 100%) !important;
+    background: linear-gradient(180deg, var(--mnt-surface-alt) 0%, var(--mnt-canvas) 100%) !important;
 }
 
 .mnt-home .products-section,
@@ -996,11 +1023,11 @@ html[dir="rtl"] .mnt-home .showcase-info {
 }
 
 .mnt-home .before-after-section {
-    background: linear-gradient(180deg, var(--mnt-plum-dark) 0%, #342f44 50%, var(--mnt-plum-dark) 100%) !important;
+    background: linear-gradient(180deg, var(--mnt-surface) 0%, var(--mnt-surface-alt) 50%, var(--mnt-surface) 100%) !important;
 }
 
 .mnt-home .newsletter-section {
-    background: linear-gradient(180deg, #342f44 0%, var(--mnt-plum-dark) 100%) !important;
+    background: linear-gradient(180deg, var(--mnt-surface-alt) 0%, var(--mnt-surface-deep) 100%) !important;
 }
 
 /* Headings on dark shop canvas */
@@ -1010,7 +1037,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
 .mnt-home .reviews-section .section-header h2,
 .mnt-home .new-arrivals .section-header h2,
 .mnt-home .newsletter-section .newsletter-content h2 {
-    color: #fff !important;
+    color: var(--mnt-ink) !important;
 }
 
 .mnt-home .categories-section .section-header p,
@@ -1019,28 +1046,28 @@ html[dir="rtl"] .mnt-home .showcase-info {
 .mnt-home .reviews-section .section-header p,
 .mnt-home .new-arrivals .section-header p,
 .mnt-home .newsletter-section .newsletter-content p {
-    color: rgba(255, 255, 255, .55) !important;
+    color: var(--mnt-ink-muted) !important;
 }
 
 .mnt-home .reviews-section .lux-eyebrow--accent {
-    color: var(--mnt-gold-light) !important;
+    color: var(--mnt-gold-ink) !important;
 }
 
 .mnt-home .category-card h3 {
-    color: #fff !important;
+    color: var(--mnt-ink) !important;
 }
 .mnt-home .category-link {
-    color: var(--mnt-gold-light) !important;
+    color: var(--mnt-gold-ink) !important;
 }
 .mnt-home .category-link:hover {
-    color: var(--mnt-gold) !important;
+    color: var(--mnt-gold-ink) !important;
 }
 
 /* Tab pills on dark */
 .mnt-home .section-tabs .tab-btn {
-    color: rgba(255, 255, 255, .55) !important;
-    border-color: rgba(255, 255, 255, .12) !important;
-    background: rgba(255, 255, 255, .04);
+    color: var(--mnt-ink-muted) !important;
+    border-color: var(--mnt-ink-ghost) !important;
+    background: var(--mnt-ink-ghost);
 }
 .mnt-home .section-tabs .tab-btn.active {
     background: linear-gradient(135deg, var(--mnt-plum) 0%, var(--mnt-plum-mid) 100%) !important;
@@ -1050,12 +1077,12 @@ html[dir="rtl"] .mnt-home .showcase-info {
 
 /* Rewards — align gold with brand tokens */
 .mnt-home .rewards-section {
-    background: linear-gradient(135deg, var(--mnt-plum-dark) 0%, var(--mnt-plum) 55%, var(--mnt-plum-soft) 100%) !important;
+    background: linear-gradient(135deg, var(--mnt-surface-alt) 0%, var(--mnt-surface) 55%, var(--mnt-surface-deep) 100%) !important;
 }
 .mnt-home .rewards-badge,
 .mnt-home .rewards-badge i,
 .mnt-home .perk i {
-    color: var(--mnt-gold-light) !important;
+    color: var(--mnt-gold-ink) !important;
 }
 .mnt-home .rewards-card {
     background: linear-gradient(135deg, var(--mnt-gold) 0%, #a8873a 100%) !important;
@@ -1066,52 +1093,52 @@ html[dir="rtl"] .mnt-home .showcase-info {
 .mnt-home .products-section .product-card .product-name,
 .mnt-home .products-section .product-card h3,
 .mnt-home .products-section .product-card .current-price {
-    color: #fff !important;
+    color: var(--mnt-ink) !important;
 }
 .mnt-home .products-section .product-card .old-price,
 .mnt-home .products-section .product-rating span {
-    color: rgba(255, 255, 255, .5) !important;
+    color: var(--mnt-ink-muted) !important;
 }
 
 /* Before/after cards — no white panels */
 .mnt-home .ba-card {
-    background: rgba(56, 48, 76, .72) !important;
+    background: var(--mnt-surface-white) !important;
     border-color: rgba(201, 168, 76, .12) !important;
 }
 .mnt-home .ba-info h3 {
-    color: #fff !important;
+    color: var(--mnt-ink) !important;
 }
 .mnt-home .ba-info p {
-    color: rgba(255, 255, 255, .55) !important;
+    color: var(--mnt-ink-muted) !important;
 }
 
 /* Reviews summary on dark */
 .mnt-home .lux-reviews-score {
-    color: #fff !important;
+    color: var(--mnt-ink) !important;
 }
 .mnt-home .lux-reviews-score span,
 .mnt-home .lux-review-stars {
-    color: var(--mnt-gold) !important;
+    color: var(--mnt-gold-ink) !important;
 }
 .mnt-home .lux-reviews-count {
-    color: rgba(255, 255, 255, .5) !important;
+    color: var(--mnt-ink-muted) !important;
 }
 
 .mnt-home .newsletter-section .newsletter-content > i {
-    color: var(--mnt-gold) !important;
+    color: var(--mnt-gold-ink) !important;
 }
 
 /* Newsletter form — glass on dark */
 .mnt-home .newsletter-form {
-    background: rgba(255, 255, 255, .07) !important;
+    background: var(--mnt-ink-ghost) !important;
     border-color: rgba(201, 168, 76, .28) !important;
 }
 .mnt-home .newsletter-form input {
     background: transparent !important;
-    color: #fff !important;
+    color: var(--mnt-ink) !important;
 }
 .mnt-home .newsletter-form input::placeholder {
-    color: rgba(255, 255, 255, .42);
+    color: var(--mnt-ink-faint);
 }
 .mnt-home .newsletter-form button {
     background: linear-gradient(135deg, var(--mnt-gold) 0%, #a8873a 100%) !important;
@@ -1121,18 +1148,18 @@ html[dir="rtl"] .mnt-home .showcase-info {
 /* Roadmap teaser on dark */
 .mnt-home .lux-roadmap {
     border-color: rgba(201, 168, 76, .25);
-    background: rgba(255, 255, 255, .04);
+    background: var(--mnt-ink-ghost);
 }
 .mnt-home .lux-roadmap p {
-    color: rgba(255, 255, 255, .5) !important;
+    color: var(--mnt-ink-muted) !important;
 }
 .mnt-home .lux-roadmap strong {
-    color: var(--mnt-gold-light);
+    color: var(--mnt-gold-ink);
 }
 
 /* Ingredient cards — text on dark glass (not white panels) */
 .mnt-home .lux-ing-list li {
-    color: rgba(255, 255, 255, .78) !important;
+    color: var(--mnt-ink-body) !important;
 }
 
 /* Dark lux sections — keep typography white */
@@ -1140,11 +1167,11 @@ html[dir="rtl"] .mnt-home .showcase-info {
 .mnt-home .lux-section--dark h2,
 .mnt-home .lux-section--dark h3,
 .mnt-home .lux-section--dark .lux-section-head h2 {
-    color: #fff !important;
+    color: var(--mnt-ink) !important;
 }
 
 .mnt-home .product-card .old-price {
-    color: rgba(255, 255, 255, .45) !important;
+    color: var(--mnt-ink-faint) !important;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -1308,7 +1335,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
 /* Override app.css mobile — kills white sections on homepage */
 @media (max-width: 768px) {
     body.mnt-home {
-        background: #342f44 !important;
+        background: var(--mnt-canvas) !important;
         background-image: none !important;
     }
     .mnt-home .new-arrivals,
@@ -1320,4 +1347,55 @@ html[dir="rtl"] .mnt-home .showcase-info {
     .mnt-home .newsletter-section {
         background: transparent !important;
     }
+}
+
+/* ═══════════════════════════════════════════════════════
+   HERO COPY — the one place that is still light-on-dark
+   ═══════════════════════════════════════════════════════
+   The hero backdrop is a photograph shot on deep plum, so its copy has to
+   stay white while the rest of the page is ink on white. premium.css sets
+   `h1..h6 { color: var(--mnt-ink) !important }` site-wide, which reaches in
+   here too — hence the !important on the way back out. Anything added to
+   .showcase-info from now on needs a colour in this block, or it will come
+   out dark-on-dark and be invisible against the photo. */
+.mnt-home .hero-showcase .showcase-info h1,
+.mnt-home .hero-showcase .showcase-info h1.sc-hero-title {
+    color: #fff !important;
+}
+.mnt-home .hero-showcase .showcase-info .sc-product-name {
+    color: rgba(255, 255, 255, .94) !important;
+}
+.mnt-home .hero-showcase .showcase-info .sc-tagline {
+    color: rgba(255, 255, 255, .82) !important;
+}
+.mnt-home .hero-showcase .showcase-info .sc-en {
+    color: var(--mnt-gold-light) !important;
+}
+.mnt-home .hero-showcase .showcase-info .sc-concerns {
+    color: rgba(232, 212, 138, .88) !important;
+}
+.mnt-home .hero-showcase .showcase-info .sc-trust-pill {
+    background: rgba(255, 255, 255, .1) !important;
+    border-color: rgba(255, 255, 255, .2) !important;
+    color: rgba(255, 255, 255, .9) !important;
+}
+.mnt-home .hero-showcase .sc-cta-ghost {
+    color: #fff !important;
+    border-color: rgba(255, 255, 255, .45) !important;
+}
+.mnt-home .hero-showcase .sc-price-chip,
+.mnt-home .hero-showcase .sc-price-chip small {
+    color: var(--mnt-gold-light) !important;
+}
+.mnt-home .hero-showcase .hero-scroll-label,
+.mnt-home .hero-showcase .hero-video-scroll {
+    color: rgba(255, 255, 255, .8) !important;
+}
+.mnt-home .hero-showcase .chip-line { color: #fff !important; }
+.mnt-home .hero-showcase .chip-sub { color: var(--mnt-gold-light) !important; }
+/* The store shortcut floats over the photo, not over the page */
+.mnt-home .floating-store-btn {
+    color: #fff !important;
+    background: rgba(18, 10, 36, .55) !important;
+    border: 1px solid rgba(255, 255, 255, .25) !important;
 }

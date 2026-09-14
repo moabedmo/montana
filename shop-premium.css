@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════
    MONTANA — Premium Shop (category, search, wishlist)
-   Dark luxury canvas — matches homepage mnt-home theme
+   Light canvas — matches homepage mnt-home theme
 ═══════════════════════════════════════════════════════ */
 
 :root {
@@ -10,7 +10,7 @@
     --mnt-plum-mid: #4c3d65;
     --mnt-gold: #C9A84C;
     --mnt-gold-light: #E8D48A;
-    --mnt-shop-bg: #342f44;
+    --mnt-shop-bg: #ffffff;
 }
 
 html:has(body.mnt-shop) {
@@ -20,7 +20,7 @@ html:has(body.mnt-shop) {
 body.mnt-shop {
     background: var(--mnt-shop-bg) !important;
     background-image: none !important;
-    color: rgba(255, 255, 255, .92);
+    color: var(--mnt-ink);
 }
 
 /* Hide injected promo strip on shop — editorial hero replaces it */
@@ -35,8 +35,8 @@ body.mnt-shop .promo-banner {
     text-align: center;
     overflow: hidden;
     background:
-        radial-gradient(ellipse 80% 60% at 50% -20%, rgba(155, 108, 184, .22) 0%, transparent 55%),
-        linear-gradient(180deg, var(--mnt-plum-mid) 0%, var(--mnt-plum-dark) 70%, var(--mnt-shop-bg) 100%);
+        radial-gradient(ellipse 80% 60% at 50% -20%, rgba(155, 108, 184, .12) 0%, transparent 55%),
+        linear-gradient(180deg, var(--mnt-surface-alt) 0%, var(--mnt-surface) 70%, var(--mnt-shop-bg) 100%);
     border-bottom: 1px solid rgba(201, 168, 76, .1);
 }
 
@@ -60,7 +60,7 @@ body.mnt-shop .promo-banner {
     font-weight: 700;
     letter-spacing: .28em;
     text-transform: uppercase;
-    color: var(--mnt-gold-light);
+    color: var(--mnt-gold-ink);
     margin: 0 0 10px;
     opacity: .9;
 }
@@ -69,7 +69,7 @@ body.mnt-shop .promo-banner {
     font-family: 'Cormorant Garamond', 'Playfair Display', serif;
     font-size: clamp(32px, 5vw, 48px);
     font-weight: 600;
-    color: #fff;
+    color: var(--mnt-ink);
     margin: 0 0 8px;
     line-height: 1.15;
     letter-spacing: .02em;
@@ -77,7 +77,7 @@ body.mnt-shop .promo-banner {
 
 .shop-sub {
     font-size: clamp(14px, 1.6vw, 16px);
-    color: rgba(255, 255, 255, .55);
+    color: var(--mnt-ink-muted);
     margin: 0;
     line-height: 1.6;
 }
@@ -89,8 +89,8 @@ body.mnt-shop .promo-banner {
     justify-content: center;
     gap: 8px 20px;
     padding: 14px 16px;
-    background: rgba(56, 48, 76, .65);
-    border-bottom: 1px solid rgba(255, 255, 255, .06);
+    background: var(--mnt-surface-white);
+    border-bottom: 1px solid var(--mnt-line);
 }
 
 .shop-trust-item {
@@ -99,28 +99,28 @@ body.mnt-shop .promo-banner {
     gap: 8px;
     font-size: 12px;
     font-weight: 600;
-    color: rgba(255, 255, 255, .62);
+    color: var(--mnt-ink-muted);
     white-space: nowrap;
 }
 
 .shop-trust-item i {
-    color: var(--mnt-gold);
+    color: var(--mnt-gold-ink);
     font-size: 13px;
 }
 
 /* ── Page header (mobile sticky) ── */
 body.mnt-shop .page-header {
-    background: rgba(56, 48, 76, .92) !important;
+    background: var(--mnt-surface-white) !important;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255, 255, 255, .08) !important;
+    border-bottom: 1px solid var(--mnt-line) !important;
 }
 
 body.mnt-shop .page-header h2 {
     font-family: 'Cormorant Garamond', 'Playfair Display', serif;
     font-size: 18px;
     font-weight: 600;
-    color: #fff !important;
+    color: var(--mnt-ink) !important;
 }
 
 body.mnt-shop .page-back,
@@ -131,8 +131,8 @@ body.mnt-shop .page-action {
     align-items: center;
     justify-content: center;
     border-radius: 12px;
-    background: rgba(255, 255, 255, .08) !important;
-    color: rgba(255, 255, 255, .9) !important;
+    background: var(--mnt-ink-ghost) !important;
+    color: var(--mnt-ink) !important;
     text-decoration: none;
     transition: background .2s, transform .15s;
     position: relative;
@@ -175,9 +175,9 @@ body.mnt-shop .cat-sub {
     border-radius: 999px;
     font-size: 13px;
     font-weight: 600;
-    border: 1px solid rgba(255, 255, 255, .12);
-    background: rgba(255, 255, 255, .04);
-    color: rgba(255, 255, 255, .58);
+    border: 1px solid var(--mnt-line);
+    background: var(--mnt-ink-ghost);
+    color: var(--mnt-ink-muted);
     transition: all .25s ease;
 }
 
@@ -190,34 +190,34 @@ body.mnt-shop .cat-sub.active {
 
 body.mnt-shop .cat-sub:not(.active):hover {
     border-color: rgba(201, 168, 76, .25);
-    color: rgba(255, 255, 255, .85);
+    color: var(--mnt-ink);
 }
 
 /* ── Toolbar ── */
 body.mnt-shop .cat-toolbar {
     padding: 10px 16px 14px;
-    border-bottom: 1px solid rgba(255, 255, 255, .06);
+    border-bottom: 1px solid var(--mnt-line);
 }
 
 body.mnt-shop .cat-count {
     font-size: 13px;
-    color: rgba(255, 255, 255, .45);
+    color: var(--mnt-ink-faint);
     letter-spacing: .02em;
 }
 
 body.mnt-shop .cat-sort select {
     font-size: 13px;
-    color: var(--mnt-gold-light);
+    color: var(--mnt-gold-ink);
     cursor: pointer;
     padding: 6px 8px;
     border-radius: 8px;
-    background: rgba(255, 255, 255, .05);
-    border: 1px solid rgba(255, 255, 255, .1);
+    background: var(--mnt-ink-ghost);
+    border: 1px solid var(--mnt-line);
 }
 
 body.mnt-shop .cat-sort select option {
     background: var(--mnt-plum-dark);
-    color: #fff;
+    color: var(--mnt-ink);
 }
 
 /* ── Product grid container ── */
@@ -233,7 +233,7 @@ body.mnt-shop .products-grid {
 
 /* ── Premium product cards (override premium.css white) ── */
 body.mnt-shop .product-card {
-    background: rgba(56, 48, 76, .72) !important;
+    background: var(--mnt-surface-white) !important;
     border: 1px solid rgba(201, 168, 76, .14) !important;
     border-radius: 18px !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, .22) !important;
@@ -267,7 +267,7 @@ body.mnt-shop .product-card::before {
 }
 
 body.mnt-shop .product-img {
-    background: linear-gradient(160deg, var(--mnt-plum-mid) 0%, var(--mnt-plum-dark) 100%) !important;
+    background: linear-gradient(160deg, #FBF9FD 0%, #F1EAF7 100%) !important;
     aspect-ratio: 1 !important;
 }
 
@@ -289,43 +289,43 @@ body.mnt-shop .product-card h4,
 body.mnt-shop .product-card p,
 body.mnt-shop .product-card span,
 body.mnt-shop .product-card .product-name {
-    color: #fff !important;
+    color: var(--mnt-ink) !important;
 }
 
 body.mnt-shop .product-card .product-brand {
-    color: var(--mnt-gold) !important;
+    color: var(--mnt-gold-ink) !important;
     letter-spacing: .2em !important;
     font-size: 10px !important;
 }
 
 body.mnt-shop .product-card .current-price {
-    color: #fff !important;
+    color: var(--mnt-ink) !important;
     font-family: 'Playfair Display', serif !important;
     font-size: 18px !important;
     font-weight: 700 !important;
 }
 
 body.mnt-shop .product-card .old-price {
-    color: rgba(255, 255, 255, .45) !important;
+    color: var(--mnt-ink-faint) !important;
 }
 
 body.mnt-shop .product-rating span {
-    color: rgba(255, 255, 255, .45) !important;
+    color: var(--mnt-ink-faint) !important;
 }
 
 body.mnt-shop .product-badges .badge-sale,
 body.mnt-shop .product-badges .badge-new,
 body.mnt-shop .product-badges .badge-best {
     background: rgba(45, 27, 61, .88) !important;
-    color: var(--mnt-gold-light) !important;
+    color: var(--mnt-gold-ink) !important;
     border: 1px solid rgba(232, 212, 138, .35) !important;
     box-shadow: none !important;
 }
 
 body.mnt-shop .wishlist-btn {
-    background: rgba(56, 48, 76, .75) !important;
-    border: 1px solid rgba(255, 255, 255, .12);
-    color: rgba(255, 255, 255, .7) !important;
+    background: rgba(255, 255, 255, .9) !important;
+    border: 1px solid var(--mnt-line);
+    color: var(--mnt-ink-body) !important;
     box-shadow: none !important;
 }
 
@@ -334,9 +334,9 @@ body.mnt-shop .wishlist-btn:hover {
 }
 
 body.mnt-shop .quick-view {
-    background: rgba(255, 255, 255, .1) !important;
-    color: #fff !important;
-    border: 1px solid rgba(255, 255, 255, .15);
+    background: var(--mnt-ink-ghost) !important;
+    color: var(--mnt-ink) !important;
+    border: 1px solid var(--mnt-line);
 }
 
 body.mnt-shop .add-to-cart-btn {
@@ -347,7 +347,7 @@ body.mnt-shop .add-to-cart-btn {
 
 /* Legacy cat-product-card fallback */
 body.mnt-shop .cat-product-card {
-    background: rgba(56, 48, 76, .72) !important;
+    background: var(--mnt-surface-white) !important;
     border: 1px solid rgba(201, 168, 76, .14);
     border-radius: 18px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, .22);
@@ -355,15 +355,15 @@ body.mnt-shop .cat-product-card {
 
 body.mnt-shop .cat-product-info h3,
 body.mnt-shop .cat-brand {
-    color: #fff !important;
+    color: var(--mnt-ink) !important;
 }
 
 body.mnt-shop .cat-brand {
-    color: var(--mnt-gold) !important;
+    color: var(--mnt-gold-ink) !important;
 }
 
 body.mnt-shop .cat-price-new {
-    color: #fff !important;
+    color: var(--mnt-ink) !important;
     font-family: 'Playfair Display', serif;
 }
 
@@ -374,19 +374,19 @@ body.mnt-shop .cat-price-new {
     padding: 56px 24px;
     border: 1px dashed rgba(201, 168, 76, .25);
     border-radius: 20px;
-    background: rgba(255, 255, 255, .03);
+    background: var(--mnt-ink-ghost);
 }
 
 .shop-empty i {
     font-size: 32px;
-    color: var(--mnt-gold);
+    color: var(--mnt-gold-ink);
     margin-bottom: 16px;
     opacity: .7;
 }
 
 .shop-empty p {
     font-size: 15px;
-    color: rgba(255, 255, 255, .55);
+    color: var(--mnt-ink-muted);
     margin: 0 0 16px;
     line-height: 1.6;
 }
@@ -411,44 +411,44 @@ body.mnt-shop .search-page {
 }
 
 body.mnt-shop .srch-bar {
-    background: rgba(255, 255, 255, .06) !important;
-    border: 1px solid rgba(255, 255, 255, .1);
+    background: var(--mnt-ink-ghost) !important;
+    border: 1px solid var(--mnt-line);
 }
 
 body.mnt-shop .srch-bar input {
-    color: #fff !important;
+    color: var(--mnt-ink) !important;
 }
 
 body.mnt-shop .srch-bar input::placeholder {
-    color: rgba(255, 255, 255, .35);
+    color: var(--mnt-ink-faint);
 }
 
 body.mnt-shop .srch-section h3 {
-    color: #fff !important;
+    color: var(--mnt-ink) !important;
     font-family: 'Cormorant Garamond', 'Playfair Display', serif;
     font-size: 17px;
 }
 
 body.mnt-shop .srch-tag {
-    background: rgba(255, 255, 255, .06) !important;
-    border: 1px solid rgba(255, 255, 255, .1);
-    color: rgba(255, 255, 255, .7) !important;
+    background: var(--mnt-ink-ghost) !important;
+    border: 1px solid var(--mnt-line);
+    color: var(--mnt-ink-body) !important;
 }
 
 body.mnt-shop .srch-trend-item {
-    border-bottom-color: rgba(255, 255, 255, .06) !important;
-    color: rgba(255, 255, 255, .85) !important;
+    border-bottom-color: var(--mnt-ink-ghost) !important;
+    color: var(--mnt-ink) !important;
 }
 
 body.mnt-shop .srch-rank {
-    background: rgba(255, 255, 255, .08) !important;
-    color: var(--mnt-gold-light) !important;
+    background: var(--mnt-ink-ghost) !important;
+    color: var(--mnt-gold-ink) !important;
 }
 
 body.mnt-shop .srch-cat-chip {
     background: rgba(201, 168, 76, .08) !important;
     border: 1px solid rgba(201, 168, 76, .2);
-    color: var(--mnt-gold-light) !important;
+    color: var(--mnt-gold-ink) !important;
 }
 
 /* ── Desktop layout ── */
@@ -518,46 +518,46 @@ body.mnt-shop .srch-cat-chip {
 
 /* ── Injected site header/footer — dark on shop pages (desktop) ── */
 body.mnt-shop header.header {
-    background: rgba(56, 48, 76, .95) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, .08);
+    background: rgba(255, 255, 255, .96) !important;
+    border-bottom: 1px solid var(--mnt-line);
     backdrop-filter: blur(16px);
 }
 
 body.mnt-shop .header-main {
-    border-bottom-color: rgba(255, 255, 255, .08) !important;
+    border-bottom-color: var(--mnt-ink-ghost) !important;
 }
 
 body.mnt-shop .search-bar input {
-    background: rgba(255, 255, 255, .06) !important;
-    border-color: rgba(255, 255, 255, .12) !important;
-    color: #fff !important;
+    background: var(--mnt-ink-ghost) !important;
+    border-color: var(--mnt-ink-ghost) !important;
+    color: var(--mnt-ink) !important;
 }
 
 body.mnt-shop .search-bar input:focus {
-    background: rgba(255, 255, 255, .08) !important;
+    background: var(--mnt-ink-ghost) !important;
     box-shadow: 0 0 0 4px rgba(201, 168, 76, .12) !important;
 }
 
 body.mnt-shop .search-bar input::placeholder {
-    color: rgba(255, 255, 255, .35);
+    color: var(--mnt-ink-faint);
 }
 
 body.mnt-shop .header-action,
 body.mnt-shop .header-action small {
-    color: rgba(255, 255, 255, .75) !important;
+    color: var(--mnt-ink-body) !important;
 }
 
 body.mnt-shop .header-action:hover {
-    color: var(--mnt-gold-light) !important;
+    color: var(--mnt-gold-ink) !important;
 }
 
 body.mnt-shop .main-nav {
-    background: rgba(52, 47, 68, .98) !important;
-    border-top: 1px solid rgba(255, 255, 255, .06);
+    background: rgba(255, 255, 255, .96) !important;
+    border-top: 1px solid var(--mnt-line);
 }
 
 body.mnt-shop .nav-links a {
-    color: rgba(255, 255, 255, .7) !important;
+    color: var(--mnt-ink-body) !important;
 }
 
 body.mnt-shop .nav-links a:hover,

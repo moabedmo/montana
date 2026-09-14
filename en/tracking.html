@@ -6,8 +6,10 @@
     <meta name="theme-color" content="#9B6CB8">
     <title>Montana | Track order</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../app.css">
     <link rel="stylesheet" href="../pages.css">
@@ -24,6 +26,14 @@
         .trk-pay-badge { display:inline-block; font-size:11px; padding:4px 10px; border-radius:20px; margin-top:8px; }
         .trk-pay-awaiting { background:rgba(212,175,55,.15); color:#D4AF37; }
         .trk-pay-confirmed { background:rgba(39,174,96,.12); color:#27ae60; }
+        .trk-proof { padding:16px; border:1.5px dashed var(--border); border-radius:14px; text-align:center; margin:0 20px 16px; }
+        .trk-proof p { margin:0 0 10px; font-size:13px; color:var(--text-muted); }
+        .trk-proof label { display:inline-block; padding:10px 20px; border-radius:12px; background:var(--accent,#9B6CB8); color:#fff; font-weight:700; cursor:pointer; font-size:14px; }
+        .trk-proof label.disabled { opacity:.55; cursor:not-allowed; pointer-events:none; }
+        .trk-proof input[type=file] { display:none; }
+        .trk-proof .trk-proof-msg { font-size:13px; margin-top:8px; }
+        .trk-proof .trk-proof-msg.ok { color:#27ae60; }
+        .trk-proof .trk-proof-msg.err { color:#EF5350; }
     </style>
     <script src="../js/seo.js" defer></script>
 </head>
@@ -94,6 +104,14 @@ function renderOrder(data) {
       ? `<span class="trk-pay-badge trk-pay-awaiting"><i class="fas fa-clock"></i> ${PAYMENT_STATUS.awaiting_review}</span>`
       : '');
 
+  const proofHtml = (data.payment_status === 'pending') ? `
+    <div class="trk-proof" id="proofBox">
+      <p>لسه محولتيش مقدّم الحجز؟ ارفعي صورة الإيصال هنا وهنراجعها 💜</p>
+      <label for="proofFile" id="proofLabel"><i class="fas fa-camera"></i> ارفعي صورة الإيصال</label>
+      <input type="file" id="proofFile" accept="image/*">
+      <div class="trk-proof-msg" id="proofMsg"></div>
+    </div>` : '';
+
   const itemsHtml = (data.items || []).map(it => `
     <div class="conf-item">
       <img src="${it.product_image || ''}" alt="" onerror="this.style.display='none'">
@@ -124,6 +142,7 @@ function renderOrder(data) {
       <p>${status === 'cancelled' ? 'تم إلغاء هذا الطلب' : 'آخر تحديث: ' + fmtDate(data.created_at)}</p>
     </div>
     <div class="trk-timeline">${timeline}</div>
+    ${proofHtml}
     <div class="trk-details">
       <h3>تفاصيل التوصيل</h3>
       <div class="trk-detail-row"><i class="fas fa-map-marker-alt"></i><span>${data.address || ''}${data.city ? '، ' + data.city : ''}${data.governorate ? ' — ' + data.governorate : ''}</span></div>
@@ -135,7 +154,106 @@ function renderOrder(data) {
       ${itemsHtml || '<p class="trk-empty">لا توجد تفاصيل</p>'}
     </div>
     <div class="trk-help"><a href="/en/contact.html"><i class="fas fa-headset"></i> هل تحتاج مساعدة؟ Contact us</a></div>`;
+
+  const proofInput = document.getElementById('proofFile');
+  if (proofInput) {
+    proofInput.addEventListener('change', () => uploadProof(data.order_number, data.customer_phone));
+  }
 }
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadProof(orderNumber, phone) {
+  const input = document.getElementById('proofFile');
+  const label = document.getElementById('proofLabel');
+  const msgEl = document.getElementById('proofMsg');
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 4_000_000) {
+    msgEl.textContent = 'الصورة كبيرة أوي، جرّبي صورة أصغر من 4 ميجا';
+    msgEl.className = 'trk-proof-msg err';
+    return;
+  }
+  // Disable the picker while a request is in flight — it stayed clickable
+  // before, so re-picking a file mid-upload could race two uploads against
+  // the same order.
+  label?.classList.add('disabled');
+  input.disabled = true;
+  msgEl.textContent = 'بترفع الصورة...';
+  msgEl.className = 'trk-proof-msg';
+  try {
+    const base64 = await fileToBase64(file);
+    const res = await fetch('/api/send-telegram', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(25000),
+      body: JSON.stringify({
+        attach_proof: true,
+        order_number: orderNumber,
+        phone,
+        customer_phone: phone,
+        proof_base64: base64,
+        proof_mime: file.type || 'image/jpeg',
+      }),
+    });
+    const result = await res.json();
+    if (!result.ok) {
+      msgEl.textContent = 'حصلت مشكلة، حاولي تاني 🙏';
+      msgEl.className = 'trk-proof-msg err';
+      label?.classList.remove('disabled');
+      input.disabled = false;
+      return;
+    }
+    msgEl.textContent = 'تمام! ✅ استلمنا الصورة وهنراجعها قريب';
+    msgEl.className = 'trk-proof-msg ok';
+    const fresh = await ordersApi.getStatus(orderNumber, phone);
+    if (fresh.found) {
+      lastSignature = statusSignature(fresh);
+      renderOrder(fresh);
+    }
+  } catch (e) {
+    msgEl.textContent = e?.name === 'AbortError' ? 'الاتصال بطيء، حاولي تاني' : 'تعذّر رفع الصورة، حاولي تاني';
+    msgEl.className = 'trk-proof-msg err';
+    label?.classList.remove('disabled');
+    input.disabled = false;
+  }
+}
+
+// Auto-refresh while the page is open — an admin confirming the order (or
+// the courier updating its status) happens server-side with no way to push
+// to the browser, so we poll instead of asking the customer to reload.
+let pollTimer = null;
+let lastSignature = null;
+
+function statusSignature(data) {
+  return `${data.status}|${data.payment_status}|${data.updated_at || ''}`;
+}
+
+function startPolling(orderNumber, phone) {
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(async () => {
+    try {
+      const fresh = await ordersApi.getStatus(orderNumber, phone);
+      if (!fresh.found) return;
+      const sig = statusSignature(fresh);
+      if (sig !== lastSignature) {
+        lastSignature = sig;
+        renderOrder(fresh);
+      }
+    } catch { /* transient network error — try again next tick */ }
+  }, 10_000);
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+});
 
 document.getElementById('lookupForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -151,8 +269,10 @@ document.getElementById('lookupForm').addEventListener('submit', async (e) => {
       document.getElementById('trackingResult').style.display = 'none';
       return;
     }
+    lastSignature = statusSignature(data);
     renderOrder(data);
     sessionStorage.setItem('montana_track', JSON.stringify({ orderNumber, phone }));
+    startPolling(orderNumber, phone);
   } catch {
     errEl.textContent = 'تعذّر Search، حاول مرة أخرى';
     errEl.style.display = 'block';

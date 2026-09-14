@@ -24,7 +24,10 @@
   aspect-ratio: 1 / 1;
 }
 
-/* Reserve space before images load (reduces CLS) */
-img[width][height] {
+/* Reserve space before images load (reduces CLS).
+   Skips full-bleed backdrops: those are position:absolute with height:100%,
+   and this rule outranks a plain class selector, so it silently collapsed
+   the hero slide to a 165px letterbox. An absolute image shifts nothing. */
+img[width][height]:not(.hero-bg-slide) {
   height: auto;
 }

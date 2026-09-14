@@ -26,53 +26,42 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    <link rel="preload" href="../css/home.bundle.css?v=16" as="style">
-    <link rel="preload" href="../images/p1.webp" as="image" type="image/webp" fetchpriority="high">
+    <link rel="preload" href="../css/home.bundle.css?v=17" as="style">
+    <link rel="preload" href="../images/hero-slide-1.webp" as="image" type="image/webp" fetchpriority="high">
     <style>
-      body{margin:0;background:#342f44;color:#f5f0fa;font-family:Tajawal,sans-serif}
-      .hero-showcase{min-height:100svh;background:#453f64}
+      body{margin:0;background:#ffffff;color:#2D1B3D;font-family:Tajawal,sans-serif}
+      .hero-showcase{min-height:100svh;background:#efe9f4}
       .showcase-img{object-fit:contain;max-width:min(100%,420px);aspect-ratio:1/1}
       @media (max-width:768px),(hover:none){
         #aurora-bg,.hero-dust,.hero-bokeh,.hero-cursor,.hero-loader,.hero-grain{display:none!important}
         .hero-silk{opacity:.4}
       }
-      /* ===== Hero background video — soft cross-fade + tap-to-play ===== */
-      .hero-bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right center;z-index:0;opacity:0;transition:opacity .8s ease;will-change:opacity;background:#1a1224}
-      .hero-bg-video.is-active{opacity:1}
-      @media (prefers-reduced-motion:reduce){.hero-bg-video{transition:opacity .4s ease}}
-      .hero-has-video .hero-video-overlay{
+      /* ===== Hero background stills — soft cross-fade slideshow ===== */
+      .hero-bg-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right center;z-index:0;opacity:0;transition:opacity 1.1s ease;will-change:opacity;background:#2a1f3a}
+      .hero-bg-slide.is-active{opacity:1;animation:heroSlideDrift 9s ease-out both}
+      @keyframes heroSlideDrift{from{transform:scale(1.015)}to{transform:scale(1.075)}}
+      @media (prefers-reduced-motion:reduce){
+        .hero-bg-slide{transition:opacity .4s ease}
+        .hero-bg-slide.is-active{animation:none}
+      }
+      .hero-has-slides .hero-video-overlay{
         background:
           linear-gradient(to right, rgba(18,10,36,.9) 0%, rgba(18,10,36,.72) 28%, rgba(18,10,36,.35) 55%, rgba(18,10,36,.2) 100%),
           linear-gradient(to bottom, rgba(18,10,36,.45) 0%, transparent 28%, rgba(18,10,36,.78) 100%);
       }
-      .hero-has-video .showcase-wrap{direction:ltr;display:flex;justify-content:flex-start;align-items:center;max-width:none;margin:0;padding-left:clamp(14px,2vw,32px)}
-      .hero-has-video .showcase-info{direction:ltr;text-align:left;max-width:min(500px,44vw);position:relative;z-index:3;text-shadow:0 2px 18px rgba(0,0,0,.55);pointer-events:none}
-      .hero-has-video .showcase-info a,
-      .hero-has-video .showcase-info button{pointer-events:auto}
-      .hero-has-video .showcase-stage,
-      .hero-has-video .sc-dots,
-      .hero-has-video .sc-counter{display:none!important}
-      .hero-play-btn{
-        position:absolute;inset:0;z-index:12;margin:auto;width:72px;height:72px;border:none;border-radius:50%;
-        background:rgba(18,10,36,.55);color:#E8D48A;font-size:28px;cursor:pointer;
-        display:flex;align-items:center;justify-content:center;
-        box-shadow:0 8px 32px rgba(0,0,0,.35), inset 0 0 0 1.5px rgba(232,212,138,.45);
-        transition:transform .2s ease, background .2s ease, opacity .25s ease;
-        -webkit-tap-highlight-color:transparent;
-        pointer-events:auto;
-      }
-      .hero-play-btn:active{transform:scale(.94)}
-      .hero-play-btn[hidden]{display:none!important}
-      .hero-is-playing .hero-play-btn{opacity:0;pointer-events:none}
+      .hero-has-slides .showcase-wrap{direction:ltr;display:flex;justify-content:flex-start;align-items:center;max-width:none;margin:0;padding-left:clamp(14px,2vw,32px)}
+      .hero-has-slides .showcase-info{direction:rtl;text-align:right;max-width:min(500px,44vw);position:relative;z-index:3;text-shadow:0 2px 18px rgba(0,0,0,.55)}
+      .hero-has-slides .showcase-stage,
+      .hero-has-slides .sc-counter{display:none!important}
+      .hero-has-slides .sc-dots{position:relative;z-index:4}
       @media (max-width:768px),(hover:none){
-        .hero-has-video .showcase-wrap{direction:ltr;flex-direction:column-reverse;justify-content:flex-end;text-align:center;padding:0 20px 40px}
-        .hero-has-video .showcase-info{max-width:92vw;text-align:center}
-        .hero-has-video .hero-video-overlay{
+        .hero-has-slides .showcase-wrap{direction:rtl;flex-direction:column-reverse;justify-content:flex-end;text-align:center;padding:0 20px 40px}
+        .hero-has-slides .showcase-info{max-width:92vw;text-align:center}
+        .hero-has-slides .hero-video-overlay{
           background:
             linear-gradient(to bottom, rgba(18,10,36,.55) 0%, rgba(18,10,36,.35) 30%, rgba(18,10,36,.55) 55%, rgba(18,10,36,.92) 100%);
         }
-        .hero-bg-video{object-position:center 20%}
-        .hero-play-btn{width:64px;height:64px;font-size:24px;top:28%;bottom:auto}
+        .hero-bg-slide{object-position:center 20%}
       }
     </style>
     <script src="../js/analytics-config.js"></script>
@@ -81,11 +70,12 @@
     <script src="../js/analytics.js" defer></script>
     <script src="../js/perf.js?v=2" defer></script>
     <script src="../js/seo.js" defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
-    <link rel="stylesheet" href="../css/home.bundle.css?v=16" media="print" onload="this.media='all';this.onload=null;">
-    <noscript><link rel="stylesheet" href="../css/home.bundle.css?v=16"></noscript>
+    <link rel="stylesheet" href="../css/home.bundle.css?v=17" media="print" onload="this.media='all';this.onload=null;">
+    <noscript><link rel="stylesheet" href="../css/home.bundle.css?v=17"></noscript>
 </head>
 <body class="mnt-home mnt-en">
 <!-- Aurora Background -->
@@ -105,23 +95,19 @@
 </a>
 
 <!-- Hero Section — premium product showcase carousel -->
-<!-- hero-has-video starts present so CSS hides the static product-image
-     fallback from the very first paint — JS only needs to remove it in the
-     rare case a video genuinely fails to load, instead of adding it after a
-     network check, which left a visible flash of the fallback image first. -->
-<section class="hero-video-section hero-showcase hero-has-video" id="hero-section">
+<!-- hero-has-slides starts present so CSS hides the static product-image
+     fallback from the very first paint, instead of adding the class from JS
+     and flashing the fallback stage first. -->
+<section class="hero-video-section hero-showcase hero-has-slides" id="hero-section">
     <!-- living background stack -->
     <div class="hero-bg" id="hero-bg" aria-hidden="true">
         <div class="hero-aurora"><span class="au1" aria-hidden="true"></span><span class="au2" aria-hidden="true"></span><span class="au3" aria-hidden="true"></span></div>
         <div class="hero-silk"></div>
         <div class="hero-bokeh" id="hero-bokeh"><s></s><s></s><s></s><s></s><s></s><s></s></div>
     </div>
-    <video class="hero-bg-video is-active" id="hero-bg-video" muted playsinline preload="metadata" aria-hidden="true"></video>
-    <video class="hero-bg-video" id="hero-bg-video-b" muted playsinline preload="none" aria-hidden="true"></video>
+    <img class="hero-bg-slide is-active" id="hero-bg-slide" src="../images/hero-slide-1.webp" alt="" fetchpriority="high" decoding="async" aria-hidden="true">
+    <img class="hero-bg-slide" id="hero-bg-slide-b" alt="" decoding="async" aria-hidden="true">
     <div class="hero-video-overlay"></div>
-    <button type="button" class="hero-play-btn" id="hero-play-btn" aria-label="Play video">
-        <i class="fas fa-play" aria-hidden="true"></i>
-    </button>
     <div class="hero-grain" aria-hidden="true"></div>
     <div class="hero-vignette" aria-hidden="true"></div>
     <div class="hero-brand-chip">
@@ -200,7 +186,7 @@
 <!-- Top Promotional Banner -->
 <div class="promo-banner promo-banner--lux">
     <div class="promo-slider">
-        <span>🚚 Free shipping on orders over 500 EGP</span>
+        <span>🚚 شحن من 50 EGP حسب المحافظة — Free من 3 منتجات</span>
         <span>✨ Exclusive discounts for Montana Rewards members</span>
     </div>
 </div>
@@ -277,7 +263,7 @@
 <div class="app-only">
     <!-- Stories -->
     <div class="app-stories">
-        <button type="button" class="app-story" data-story="offers" aria-label="Today's deals">
+        <button type="button" class="app-story" data-story="offers" aria-label="عروض اليوم">
             <div class="app-story-ring"><img loading="lazy" decoding="async" src="../images/p1-premium.webp" alt=""></div>
             <span>Today's deals</span>
         </button>
@@ -285,7 +271,7 @@
             <div class="app-story-ring"><img loading="lazy" decoding="async" src="../images/p2-premium.webp" alt=""></div>
             <span>New</span>
         </button>
-        <a href="/en/category.html" class="app-story" data-story="care" aria-label="Skincare">
+        <a href="/en/category.html" class="app-story" data-story="care" aria-label="العناية">
             <div class="app-story-ring"><img loading="lazy" decoding="async" src="../images/p3-premium.webp" alt=""></div>
             <span>Skincare</span>
         </a>
@@ -293,11 +279,11 @@
             <div class="app-story-ring"><img loading="lazy" decoding="async" src="../images/p4-premium.webp" alt=""></div>
             <span>Best seller</span>
         </button>
-        <button type="button" class="app-story" data-story="tips" aria-label="Tips">
+        <button type="button" class="app-story" data-story="tips" aria-label="نصائح">
             <div class="app-story-ring"><img loading="lazy" decoding="async" src="../images/p5-premium.webp" alt=""></div>
             <span>Tips</span>
         </button>
-        <button type="button" class="app-story" data-story="concern" aria-label="Wellness">
+        <button type="button" class="app-story" data-story="concern" aria-label="صحتك">
             <div class="app-story-ring"><img loading="lazy" decoding="async" src="../images/p6-premium.webp" alt=""></div>
             <span>Wellness</span>
         </button>
@@ -457,7 +443,7 @@
 </section>
 
 <!-- Bundle deals (shared component via js/bundle-ui.js) -->
-<section class="bundles-section lux-reveal" id="bundlesMount" data-title="Bundle deals" aria-label="Bundle deals"></section>
+<section class="bundles-section lux-reveal" id="bundlesMount" data-title="عروض البندلات" aria-label="عروض البندلات"></section>
 
 <!-- Shop by skin concern (from indications.docx) -->
 <section class="lux-section lux-section--dark lux-reveal" id="shop-by-concern">
@@ -858,8 +844,8 @@
         <div class="app-screen-title">Offers</div>
     </div>
     <div class="app-screen-body app-offers-body">
-        <p class="app-offers-intro">Complete routines at a better price — the same bundle deals as the site</p>
-        <div id="offersBundlesMount" class="bundles-section cat-bundles" data-title="Bundle deals" aria-label="Bundle deals"></div>
+        <p class="app-offers-intro">روتينات كاملة بسعر أوفر — نفس عروض البندلات على الموقع</p>
+        <div id="offersBundlesMount" class="bundles-section cat-bundles" data-title="عروض البندلات" aria-label="عروض البندلات"></div>
     </div>
 </div>
 
@@ -961,11 +947,10 @@ window.renderAppCart = renderAppCart;
 <script type="module" src="../js/i18n/bootstrap-en.js"></script>
 <script src="../js/lang-switch.js?v=2" defer></script>
 <script src="../js/cart.js?v=3" defer></script>
-<script type="module" src="../js/en-render-home.js?v=2"></script>
-<script type="module" src="../js/hero-showcase.js?v=3"></script>
+<script type="module" src="../js/hero-showcase.js?v=5"></script>
 <script src="../js/wishlist.js" defer></script>
 <script src="../js/storefront-ui.js?v=5" defer></script>
-<script src="../script.js?v=3" defer></script>
+<script src="script.js?v=3" defer></script>
 <script src="../js/home-premium.js" defer></script>
 <script type="module" src="../js/home.js?v=6"></script>
 <script type="module" src="../js/bundle-ui.js?v=5"></script>

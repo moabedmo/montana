@@ -214,6 +214,7 @@ if (!hero || !imgA || !dotsWrap) {
     cur = i;
     if (elCur) elCur.textContent = String(i + 1).padStart(2, '0');
     hero.style.backgroundColor = p.mood;
+    showHeroSlide(p);
     syncDots();
   }
 
@@ -222,7 +223,7 @@ if (!hero || !imgA || !dotsWrap) {
   }
 
   function restart() {
-    if (heroPaused || reduced || hero.classList.contains('hero-has-video')) return;
+    if (heroPaused || reduced) return;
     clearInterval(timer);
     timer = setInterval(next, CYCLE_MS);
     syncDots();
@@ -241,215 +242,66 @@ if (!hero || !imgA || !dotsWrap) {
     restart();
   }
 
-  // Hero background video(s) → freeze image carousel, play videos back-to-back.
-  // Video files are named by product (videos/p{n}.mp4) mapped to a slug, because
-  // the live PRODUCTS order comes from the DB (see __montanaHeroPatch) and is not
-  // guaranteed to match the p1..p6 file numbering — so we match on slug, not index.
-  // Root-absolute so this resolves correctly from both / and /en/ (relative
-  // paths would 404 under /en/videos/... and silently kill the video hero).
-  const HERO_VIDEO_FILES = [
-    { src: '/videos/p1.mp4', slug: 'acne-facial-cleanser' },
-    { src: '/videos/p2.mp4', slug: 'whitening-cleanser' },
-    { src: '/videos/p3.mp4', slug: 'whitening-cream' },
-    { src: '/videos/p4.mp4', slug: 'hand-body-lotion' },
-    { src: '/videos/p5.mp4', slug: 'post-laser-cream' },
-    { src: '/videos/p6.mp4', slug: 'anti-scar-gel' },
+  // ── Hero backdrop stills ────────────────────────────────────────────────
+  // The hero used to play six product clips (11 MB of MP4) behind the copy,
+  // behind a tap-to-play button. It is one still per product now, cross-faded
+  // by the same carousel that already drives the headline and the dots.
+  //
+  // Keyed by slug, not by index: the live PRODUCTS order comes from the DB
+  // (see __montanaHeroPatch) and is not guaranteed to match the file
+  // numbering. Root-absolute so /en/ resolves them too.
+  const HERO_SLIDE_BY_SLUG = {
+    'acne-facial-cleanser': '/images/hero-slide-1.webp',
+    'whitening-cleanser': '/images/hero-slide-2.webp',
+    'whitening-cream': '/images/hero-slide-3.webp',
+    'hand-body-lotion': '/images/hero-slide-4.webp',
+    'post-laser-cream': '/images/hero-slide-5.webp',
+    // The catalog calls the gel 'anti-scar-silicone-gel'; the hardcoded
+    // fallback list in this file calls it 'anti-scar-gel'. Both are here
+    // because the old video playlist only had the short one, so the gel
+    // slide never matched live and silently kept the previous backdrop.
+    'anti-scar-silicone-gel': '/images/hero-slide-6.webp',
+    'anti-scar-gel': '/images/hero-slide-6.webp',
+  };
+
+  const slideEls = [
+    document.getElementById('hero-bg-slide'),
+    document.getElementById('hero-bg-slide-b'),
   ];
-  const heroVideoEl = document.getElementById('hero-bg-video');
-  let heroVideoList = []; // existing videos in file order: [{ src, slug }]
-  let heroVpos = 0;
+  let slideFront = slideEls[0];
+  let slideBack = slideEls[1];
 
-  function heroVideoProduct() {
-    const slug = heroVideoList[heroVpos]?.slug;
-    const idx = slug ? PRODUCTS.findIndex((p) => p.slug === slug) : -1;
-    return { idx, product: idx >= 0 ? PRODUCTS[idx] : null };
-  }
+  const heroSlideSrc = (product) => (product?.slug ? HERO_SLIDE_BY_SLUG[product.slug] : null);
 
-  function applyHeroVideoText(animate) {
-    const { idx, product } = heroVideoProduct();
-    if (!product) return; // product not in current catalog — keep last text, still play video
-    cur = idx;
-    hero.style.backgroundColor = product.mood;
-    if (elCur) elCur.textContent = String(idx + 1).padStart(2, '0');
-    info?.classList.add('switching');
-    setTimeout(() => {
-      applyProductMeta(product);
-      info?.classList.remove('switching');
-    }, animate && !reduced ? 260 : 0);
-  }
+  // Two stacked <img> layers: the incoming one only fades up once it has
+  // decoded, so a slow connection never shows a half-painted backdrop.
+  function showHeroSlide(product) {
+    const src = heroSlideSrc(product);
+    if (!slideFront || !slideBack || !src) return; // no still for it — keep the last
+    if (slideFront.getAttribute('src') === src) return;
 
-  // Two stacked <video> layers so we can softly cross-fade between clips (a single
-  // element would flash a black frame while the new src loads). Some localized
-  // pages (e.g. /en/) still ship only one <video> — create the second layer on the
-  // fly so the fade works everywhere.
-  let heroVidB = document.getElementById('hero-bg-video-b');
-  if (heroVideoEl && !heroVidB) {
-    heroVidB = document.createElement('video');
-    heroVidB.id = 'hero-bg-video-b';
-    heroVidB.className = 'hero-bg-video';
-    heroVidB.muted = true;
-    heroVidB.setAttribute('playsinline', '');
-    heroVidB.preload = 'auto';
-    heroVidB.setAttribute('aria-hidden', 'true');
-    heroVideoEl.insertAdjacentElement('afterend', heroVidB);
-  }
-  let heroActive = heroVideoEl;
-  let heroIdle = heroVidB;
-  let heroTransitioning = false;
-  const FADE_MS = 800;      // cross-fade duration
-  const FADE_LEAD = 1.1;    // seconds before a clip ends to start the fade
-
-  function playVid(vid) {
-    const p = vid.play();
-    if (p && p.catch) p.catch(() => {});
-  }
-
-  const nextPos = () => (heroVpos + 1) % heroVideoList.length;
-  const playBtn = document.getElementById('hero-play-btn');
-  let heroUserPlaying = false;
-
-  function setPlayUi(playing) {
-    heroUserPlaying = playing;
-    hero.classList.toggle('hero-is-playing', playing);
-    if (playBtn) {
-      playBtn.hidden = playing;
-      playBtn.setAttribute('aria-hidden', playing ? 'true' : 'false');
-    }
-  }
-
-  // Buffer the following clip into the idle layer so the fade can start instantly
-  // (no waiting → no freeze on the current clip's last frame).
-  function preloadNext() {
-    if (heroVideoList.length < 2) return;
-    const { src } = heroVideoList[nextPos()];
-    if (heroIdle.getAttribute('src') !== src) { heroIdle.src = src; heroIdle.load(); }
-    heroIdle.classList.remove('is-active');
-  }
-
-  // Show the first decoded frame without autoplay — customer taps play.
-  function revealFrame(vid, { autoplay = false } = {}) {
-    const show = () => {
-      vid.classList.add('is-active');
-      // Drop JPEG poster so a bright product still never covers the copy.
-      vid.removeAttribute('poster');
-      if (autoplay) playVid(vid);
-      else {
-        try { vid.pause(); } catch (_) { /* ignore */ }
-        if (vid.currentTime < 0.05 && vid.readyState >= 2) {
-          try { vid.currentTime = 0.05; } catch (_) { /* ignore */ }
-        }
-      }
+    const swap = () => {
+      slideBack.classList.add('is-active');
+      slideFront.classList.remove('is-active');
+      const prev = slideFront;
+      slideFront = slideBack;
+      slideBack = prev;
     };
-    if (vid.readyState >= 2) { show(); return; }
-    vid.addEventListener('loadeddata', show, { once: true });
+
+    if (slideBack.getAttribute('src') !== src) slideBack.src = src;
+    if (slideBack.complete && slideBack.naturalWidth) swap();
+    else slideBack.addEventListener('load', swap, { once: true });
   }
 
-  function showHeroVideo(pos, { autoplay = false } = {}) {
-    heroVpos = (pos + heroVideoList.length) % heroVideoList.length;
-    const { src } = heroVideoList[heroVpos];
-    applyHeroVideoText(false);
-    if (heroActive.getAttribute('src') !== src) {
-      heroActive.classList.remove('is-active');
-      heroActive.src = src;
-      heroActive.load();
-      revealFrame(heroActive, { autoplay });
-    } else {
-      heroActive.classList.add('is-active');
-      if (autoplay) {
-        if (heroActive.paused) { heroActive.currentTime = 0; playVid(heroActive); }
-      } else {
-        try { heroActive.pause(); } catch (_) { /* ignore */ }
-      }
-    }
-    preloadNext();
-  }
-
-  // Soft cross-fade to the (already preloaded) next clip while the current one is
-  // still playing — started slightly before the current clip ends, so it never
-  // stops on its last frame.
-  function crossfadeToNext() {
-    if (heroTransitioning || heroVideoList.length < 2 || !heroUserPlaying) return;
-    heroTransitioning = true;
-    heroVpos = nextPos();
-    heroIdle.currentTime = 0;
-    playVid(heroIdle);
-    applyHeroVideoText(true);
-    requestAnimationFrame(() => {
-      heroIdle.classList.add('is-active');      // fade in
-      heroActive.classList.remove('is-active'); // fade out
+  if (slideFront) {
+    const first = heroSlideSrc(PRODUCTS[0]);
+    if (first && slideFront.getAttribute('src') !== first) slideFront.src = first;
+    slideFront.classList.add('is-active');
+    // Warm the rest so no fade ever waits on the network.
+    PRODUCTS.forEach((p) => {
+      const src = heroSlideSrc(p);
+      if (src) { const im = new Image(); im.src = src; }
     });
-    setTimeout(() => {
-      heroActive.pause();
-      const prev = heroActive;
-      heroActive = heroIdle;
-      heroIdle = prev;
-      heroTransitioning = false;
-      preloadNext(); // buffer the clip after this one
-    }, FADE_MS + 60);
-  }
-
-  async function setupHeroVideoPlaylist() {
-    // Trust deployed playlist — do NOT await HEAD probes first.
-    // Sequential HEAD used to hang on flaky mobile networks and left the
-    // visible play button with no click handler (looked "broken").
-    heroVideoList = HERO_VIDEO_FILES.slice();
-    hero.classList.add('hero-has-video');
-    setPlayUi(false);
-
-    const startPlayback = (e) => {
-      e?.preventDefault?.();
-      e?.stopPropagation?.();
-      if (!heroVideoList.length) return;
-      setPlayUi(true);
-      // Ensure a source is loaded before play (first tap).
-      if (!heroActive.getAttribute('src')) {
-        showHeroVideo(0, { autoplay: true });
-      } else {
-        playVid(heroActive);
-      }
-    };
-    const pausePlayback = () => {
-      try { heroActive.pause(); } catch (_) { /* ignore */ }
-      try { heroIdle?.pause(); } catch (_) { /* ignore */ }
-      setPlayUi(false);
-    };
-
-    // Wire play immediately so the first tap always works.
-    playBtn?.addEventListener('click', startPlayback);
-    hero.addEventListener('click', (e) => {
-      if (e.target.closest('a, button, .sc-cta-row, .hero-play-btn')) return;
-      if (!heroUserPlaying) return;
-      pausePlayback();
-    });
-
-    // Load first clip paused — no autoplay (saves mobile data; play icon invites tap).
-    showHeroVideo(0, { autoplay: false });
-
-    if (heroVideoList.length > 1) {
-      heroVideoEl.loop = false;
-      heroVidB.loop = false;
-      const onTime = (e) => {
-        const v = e.target;
-        if (v !== heroActive || heroTransitioning || !v.duration || !heroUserPlaying) return;
-        if (v.currentTime >= v.duration - FADE_LEAD) crossfadeToNext();
-      };
-      const onEnded = (e) => {
-        if (e.target !== heroActive || heroTransitioning) return;
-        if (heroUserPlaying) crossfadeToNext();
-        else setPlayUi(false);
-      };
-      [heroVideoEl, heroVidB].forEach((v) => {
-        v.addEventListener('timeupdate', onTime);
-        v.addEventListener('ended', onEnded);
-      });
-    } else {
-      heroActive.loop = true;
-    }
-  }
-
-  // Videos on every viewport (incl. mobile): tap-to-play only — never autoplay.
-  if (heroVideoEl && heroVidB) {
-    setupHeroVideoPlaylist();
   }
 
   restart();
@@ -646,11 +498,6 @@ if (!hero || !imgA || !dotsWrap) {
     if (elCur) elCur.textContent = '01';
     syncDots();
     restart();
-
-    // In video mode, the new catalog just overwrote the text with PRODUCTS[0];
-    // re-assert the text for whichever video is currently playing (matched by slug).
-    if (hero.classList.contains('hero-has-video') && heroVideoList.length) {
-      applyHeroVideoText(false);
-    }
+    showHeroSlide(PRODUCTS[0]);
   };
 }
