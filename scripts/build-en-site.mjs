@@ -20,20 +20,21 @@ function fixAssetPaths(html) {
   let out = html.replace(/\b(href|src)="([^"]+)"/g, (match, attr, url) => {
     if (/^(https?:|\/\/|#|javascript:|mailto:|tel:|data:)/i.test(url)) return match;
     if (url.startsWith('../')) return match;
+    // Root-absolute already resolves the same from /en/ as from / — prefixing
+    // it produces "..//js/…". Only document-relative URLs need the hop up.
+    if (url.startsWith('/')) return match;
+    // Compare without the cache-buster. Every test here used to run against the
+    // raw URL, so adding "?v=3" to script.js in index.html silently stopped it
+    // being rewritten: /en/ then asked for /en/script.js, got a 404, and the
+    // English pages shipped without their scripts or the chat widget.
+    const bare = url.split(/[?#]/)[0];
     if (
-      url.endsWith('.css') ||
-      url.endsWith('.js') ||
-      url.startsWith('images/') ||
-      url.startsWith('js/') ||
-      url.startsWith('css/') ||
-      url === 'manifest.json' ||
-      url === 'chat-widget.js' ||
-      url === 'components.js' ||
-      url === 'script.js' ||
-      url === 'col-hero.js' ||
-      url === 'luxury-motion.js' ||
-      url === 'shop-premium.css' ||
-      url.startsWith('shop-premium.css')
+      bare.endsWith('.css') ||
+      bare.endsWith('.js') ||
+      bare.startsWith('images/') ||
+      bare.startsWith('js/') ||
+      bare.startsWith('css/') ||
+      bare === 'manifest.json'
     ) {
       return `${attr}="../${url}"`;
     }
@@ -105,24 +106,26 @@ function buildIndex() {
   if (!html.includes('seo.js')) {
     html = html.replace('</head>', '    <script src="../js/seo.js" defer></script>\n</head>');
   }
+  // These anchors are matched with a regex, not a literal string, because the
+  // cache-buster on each tag changes. Bumping ?v= on hero-showcase.js used to
+  // make the en-render-home injection below miss silently, and the English
+  // homepage then shipped with nothing to render it.
+  const tag = (src) =>
+    new RegExp(`<script type="module" src="(?:\\.\\./)?${src.replace(/[.]/g, '\\.')}(\\?[^"]*)?">`);
+
   if (!html.includes('bootstrap-en.js')) {
     html = html.replace(
-      '<script src="../js/lang-switch.js?v=2" defer>',
-      '<script>window.MONTANA_LOCALE="en";</script>\n<script type="module" src="../js/i18n/bootstrap-en.js"></script>\n<script src="../js/lang-switch.js?v=2" defer>'
+      /<script src="(?:\.\.\/)?js\/lang-switch\.js(\?[^"]*)?" defer>/,
+      (m) => `<script>window.MONTANA_LOCALE="en";</script>\n<script type="module" src="../js/i18n/bootstrap-en.js"></script>\n${m}`
     );
   }
-  html = html.replace(
-    '<script type="module" src="../js/hero-showcase.js">',
-    '<script type="module" src="../js/en-render-home.js?v=2"></script>\n<script type="module" src="../js/hero-showcase.js">'
-  );
-  html = html.replace(
-    '<script type="module" src="js/hero-showcase.js">',
-    '<script type="module" src="../js/en-render-home.js?v=2"></script>\n<script type="module" src="../js/hero-showcase.js">'
-  );
-  html = html.replace(
-    '<script type="module" src="js/home.js">',
-    '<script type="module" src="../js/home.js">'
-  );
+  if (!html.includes('en-render-home.js')) {
+    html = html.replace(
+      tag('js/hero-showcase.js'),
+      (m) => `<script type="module" src="../js/en-render-home.js?v=2"></script>\n${m}`
+    );
+  }
+  html = html.replace(tag('js/home.js'), (m) => m.replace('src="js/', 'src="../js/'));
   fs.mkdirSync(EN_DIR, { recursive: true });
   fs.writeFileSync(path.join(EN_DIR, 'index.html'), html, 'utf8');
 }
