@@ -4,12 +4,12 @@
 ═══════════════════════════════════════════════════════ */
 
 :root {
-    --mnt-plum: #2D1B3D;
-    --mnt-plum-hero: #453f64;
-    --mnt-plum-dark: #38304c;
-    --mnt-plum-mid: #4c3d65;
-    --mnt-gold: #C9A84C;
-    --mnt-gold-light: #E8D48A;
+    --mnt-plum: #3A2F42;
+    --mnt-plum-hero: #4B3D55;
+    --mnt-plum-dark: #2C2331;
+    --mnt-plum-mid: #50405A;
+    --mnt-gold: #D8B559;
+    --mnt-gold-light: #E7CE8C;
     --mnt-shop-bg: #ffffff;
 }
 
@@ -35,9 +35,9 @@ body.mnt-shop .promo-banner {
     text-align: center;
     overflow: hidden;
     background:
-        radial-gradient(ellipse 80% 60% at 50% -20%, rgba(155, 108, 184, .12) 0%, transparent 55%),
+        radial-gradient(ellipse 80% 60% at 50% -20%, rgba(146, 117, 164, .12) 0%, transparent 55%),
         linear-gradient(180deg, var(--mnt-surface-alt) 0%, var(--mnt-surface) 70%, var(--mnt-shop-bg) 100%);
-    border-bottom: 1px solid rgba(201, 168, 76, .1);
+    border-bottom: 1px solid rgba(216, 181, 89, .1);
 }
 
 .shop-hero::after {
@@ -45,7 +45,7 @@ body.mnt-shop .promo-banner {
     position: absolute;
     inset: auto 0 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(201, 168, 76, .35), transparent);
+    background: linear-gradient(90deg, transparent, rgba(216, 181, 89, .35), transparent);
 }
 
 .shop-hero-inner {
@@ -149,8 +149,8 @@ body.mnt-shop .page-action .badge,
     height: 16px;
     padding: 0 4px;
     border-radius: 999px;
-    background: #c9a84c;
-    color: #1a1224;
+    background: #D8B559;
+    color: #201A24;
     font-size: 10px;
     font-weight: 800;
     line-height: 16px;
@@ -160,7 +160,7 @@ body.mnt-shop .page-action .badge,
 body.mnt-shop .page-action:active,
 body.mnt-shop .page-back:active {
     transform: scale(.92);
-    background: rgba(201, 168, 76, .15) !important;
+    background: rgba(216, 181, 89, .15) !important;
 }
 
 /* ── Filter pills ── */
@@ -183,13 +183,13 @@ body.mnt-shop .cat-sub {
 
 body.mnt-shop .cat-sub.active {
     background: linear-gradient(135deg, var(--mnt-plum) 0%, var(--mnt-plum-mid) 100%);
-    border-color: rgba(201, 168, 76, .35);
+    border-color: rgba(216, 181, 89, .35);
     color: var(--mnt-gold-light);
     box-shadow: 0 4px 20px rgba(0, 0, 0, .25);
 }
 
 body.mnt-shop .cat-sub:not(.active):hover {
-    border-color: rgba(201, 168, 76, .25);
+    border-color: rgba(216, 181, 89, .25);
     color: var(--mnt-ink);
 }
 
@@ -234,7 +234,7 @@ body.mnt-shop .products-grid {
 /* ── Premium product cards (override premium.css white) ── */
 body.mnt-shop .product-card {
     background: var(--mnt-surface-white) !important;
-    border: 1px solid rgba(201, 168, 76, .14) !important;
+    border: 1px solid rgba(216, 181, 89, .14) !important;
     border-radius: 18px !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, .22) !important;
     backdrop-filter: blur(10px);
@@ -257,7 +257,7 @@ body.mnt-shop .product-card.is-visible {
 }
 
 body.mnt-shop .product-card:hover {
-    border-color: rgba(201, 168, 76, .35) !important;
+    border-color: rgba(216, 181, 89, .35) !important;
     box-shadow: 0 20px 48px rgba(0, 0, 0, .35) !important;
     transform: translateY(-4px) !important;
 }
@@ -267,7 +267,7 @@ body.mnt-shop .product-card::before {
 }
 
 body.mnt-shop .product-img {
-    background: linear-gradient(160deg, #FBF9FD 0%, #F1EAF7 100%) !important;
+    background: linear-gradient(160deg, #FCFCFC 0%, #F0ECF2 100%) !important;
     aspect-ratio: 1 !important;
 }
 
@@ -316,9 +316,11 @@ body.mnt-shop .product-rating span {
 body.mnt-shop .product-badges .badge-sale,
 body.mnt-shop .product-badges .badge-new,
 body.mnt-shop .product-badges .badge-best {
-    background: rgba(45, 27, 61, .88) !important;
-    color: var(--mnt-gold-ink) !important;
-    border: 1px solid rgba(232, 212, 138, .35) !important;
+    background: rgba(58, 47, 66, .88) !important;
+    /* Light gold, not --mnt-gold-ink: this pill is dark plum, so the dark
+       gold meant for white backgrounds lands at 2.2:1 and disappears. */
+    color: var(--mnt-gold-light) !important;
+    border: 1px solid rgba(231, 206, 140, .35) !important;
     box-shadow: none !important;
 }
 
@@ -348,7 +350,7 @@ body.mnt-shop .add-to-cart-btn {
 /* Legacy cat-product-card fallback */
 body.mnt-shop .cat-product-card {
     background: var(--mnt-surface-white) !important;
-    border: 1px solid rgba(201, 168, 76, .14);
+    border: 1px solid rgba(216, 181, 89, .14);
     border-radius: 18px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, .22);
 }
@@ -372,7 +374,7 @@ body.mnt-shop .cat-price-new {
     grid-column: 1 / -1;
     text-align: center;
     padding: 56px 24px;
-    border: 1px dashed rgba(201, 168, 76, .25);
+    border: 1px dashed rgba(216, 181, 89, .25);
     border-radius: 20px;
     background: var(--mnt-ink-ghost);
 }
@@ -446,8 +448,8 @@ body.mnt-shop .srch-rank {
 }
 
 body.mnt-shop .srch-cat-chip {
-    background: rgba(201, 168, 76, .08) !important;
-    border: 1px solid rgba(201, 168, 76, .2);
+    background: rgba(216, 181, 89, .08) !important;
+    border: 1px solid rgba(216, 181, 89, .2);
     color: var(--mnt-gold-ink) !important;
 }
 
@@ -535,7 +537,7 @@ body.mnt-shop .search-bar input {
 
 body.mnt-shop .search-bar input:focus {
     background: var(--mnt-ink-ghost) !important;
-    box-shadow: 0 0 0 4px rgba(201, 168, 76, .12) !important;
+    box-shadow: 0 0 0 4px rgba(216, 181, 89, .12) !important;
 }
 
 body.mnt-shop .search-bar input::placeholder {
@@ -567,7 +569,7 @@ body.mnt-shop .nav-item.active a {
 
 body.mnt-shop .footer {
     background: linear-gradient(180deg, var(--mnt-plum-dark) 0%, #080414 100%) !important;
-    border-top: 1px solid rgba(201, 168, 76, .12);
+    border-top: 1px solid rgba(216, 181, 89, .12);
 }
 
 body.mnt-shop .footer-col h3,

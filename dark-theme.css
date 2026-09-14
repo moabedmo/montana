@@ -15,19 +15,19 @@
    missed. What it contains, not what it is called, is what changed. */
 
 :root {
-    --primary: #2D1B3D;
-    --primary-light: #3D2460;
-    --accent: #9B6CB8;
-    --accent-light: #b48bcc;
-    --accent-dark: #7d53a0;
-    --text: #2D1B3D;
+    --primary: #3A2F42;
+    --primary-light: #50405A;
+    --accent: #9275A4;
+    --accent-light: #B7A0C4;
+    --accent-dark: #6E5480;
+    --text: #3A2F42;
     --text-light: #55436B;
     --text-muted: #7A6C8B;
     --bg: #ffffff;
-    --bg-light: #FAF8FC;
-    --bg-warm: #F4EFF9;
-    --border: rgba(45, 27, 61, .12);
-    --border-light: rgba(45, 27, 61, .08);
+    --bg-light: #FAFAFA;
+    --bg-warm: #F4F3F3;
+    --border: rgba(58, 47, 66, .12);
+    --border-light: rgba(58, 47, 66, .08);
 }
 
 body {
@@ -39,14 +39,14 @@ body {
 .page-header,
 .pd-bottom-bar {
     background: rgba(255, 255, 255, .92) !important;
-    border-color: rgba(45, 27, 61, .10) !important;
+    border-color: rgba(58, 47, 66, .10) !important;
 }
 
 .page-back,
 .page-action-btn,
 .cat-wishlist {
-    background: rgba(45, 27, 61, .05) !important;
-    color: #2D1B3D !important;
+    background: rgba(58, 47, 66, .05) !important;
+    color: #3A2F42 !important;
 }
 
 .cat-product-card,
@@ -63,7 +63,7 @@ body {
 .auth-tabs,
 .srch-bar,
 .faq-search {
-    background: #FAF8FC !important;
+    background: #FAFAFA !important;
     color: var(--text) !important;
 }
 
@@ -74,5 +74,5 @@ body {
 
 .cat-product-img,
 .pd-gallery {
-    background: linear-gradient(160deg, #FBF9FD 0%, #F1EAF7 100%) !important;
+    background: linear-gradient(160deg, #FCFCFC 0%, #F0ECF2 100%) !important;
 }

@@ -9,7 +9,7 @@ body.mnt-en {
 body.mnt-en .showcase-info .sc-en::after {
     right: auto;
     left: 0;
-    background: linear-gradient(to right, var(--mnt-gold-light, #E8D48A), rgba(201, 168, 76, .15), transparent);
+    background: linear-gradient(to right, var(--mnt-gold-light, #E7CE8C), rgba(216, 181, 89, .15), transparent);
 }
 
 body.mnt-en .sc-cta-ghost .cta-arrow,
@@ -91,7 +91,7 @@ body.mnt-en .search-bar input {
 body.mnt-en .pd-indication-story,
 body.mnt-en blockquote.pd-indication-story {
     border-right: none;
-    border-left: 3px solid var(--accent, #9B6CB8);
+    border-left: 3px solid var(--accent, #9275A4);
     border-radius: 12px 0 0 12px;
 }
 
@@ -114,5 +114,5 @@ body.mnt-en .lux-ing-visual {
 
 body.mnt-en .lang-switch {
     font-weight: 700;
-    color: var(--mnt-gold-light, #E8D48A);
+    color: var(--mnt-gold-light, #E7CE8C);
 }

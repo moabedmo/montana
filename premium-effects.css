@@ -16,7 +16,7 @@
     position: absolute;
     width: 6px;
     height: 6px;
-    background: radial-gradient(circle, rgba(155,108,184,0.3), transparent);
+    background: radial-gradient(circle, rgba(146, 117, 164,0.3), transparent);
     border-radius: 50%;
     animation: floatParticle linear infinite;
 }
@@ -38,8 +38,8 @@
     .product-card:hover {
         transform: translateY(-8px) rotateX(2deg) rotateY(-2deg) !important;
         box-shadow:
-            0 20px 40px rgba(155,108,184,0.15),
-            0 0 0 1px rgba(155,108,184,0.1) !important;
+            0 20px 40px rgba(146, 117, 164,0.15),
+            0 0 0 1px rgba(146, 117, 164,0.1) !important;
     }
 
     .product-card:hover .product-img img {
@@ -53,7 +53,7 @@
         border-radius: inherit;
         opacity: 0;
         transition: opacity 0.4s ease;
-        background: linear-gradient(135deg, rgba(155,108,184,0.05), transparent 60%);
+        background: linear-gradient(135deg, rgba(146, 117, 164,0.05), transparent 60%);
         pointer-events: none;
         z-index: 1;
     }
@@ -158,8 +158,8 @@
 
 /* Glow pulse on primary buttons */
 @keyframes glowPulse {
-    0%, 100% { box-shadow: 0 0 20px rgba(155,108,184,0.2); }
-    50% { box-shadow: 0 0 30px rgba(155,108,184,0.4); }
+    0%, 100% { box-shadow: 0 0 20px rgba(146, 117, 164,0.2); }
+    50% { box-shadow: 0 0 30px rgba(146, 117, 164,0.4); }
 }
 
 .section-footer .btn-outline:hover {
@@ -169,7 +169,7 @@
 /* ===== 6. PREMIUM SECTION DIVIDERS ===== */
 .section-divider {
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(155,108,184,0.3), transparent);
+    background: linear-gradient(90deg, transparent, rgba(146, 117, 164,0.3), transparent);
     margin: 0 auto;
     max-width: 200px;
 }
@@ -239,8 +239,8 @@
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(155, 108, 184, 0.1);
-    box-shadow: 0 8px 32px rgba(155, 108, 184, 0.08);
+    border: 1px solid rgba(146, 117, 164, 0.1);
+    box-shadow: 0 8px 32px rgba(146, 117, 164, 0.08);
 }
 
 /* ===== 13. CURSOR GLOW (Desktop only) ===== */
@@ -249,7 +249,7 @@
     width: 300px;
     height: 300px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(155,108,184,0.06) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(146, 117, 164,0.06) 0%, transparent 70%);
     pointer-events: none;
     z-index: 0;
     transform: translate(-50%, -50%);
@@ -280,11 +280,11 @@
 @media (min-width: 769px) {
     .review-card:hover {
         transform: translateY(-6px) !important;
-        box-shadow: 0 16px 40px rgba(155,108,184,0.12) !important;
+        box-shadow: 0 16px 40px rgba(146, 117, 164,0.12) !important;
     }
 
     .category-card:hover .category-img {
-        box-shadow: 0 12px 30px rgba(155,108,184,0.2);
+        box-shadow: 0 12px 30px rgba(146, 117, 164,0.2);
     }
 }
 

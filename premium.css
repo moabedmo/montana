@@ -6,17 +6,43 @@
 /* ── Premium Font Import ── */
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Tajawal:wght@300;400;500;700;900&display=swap');
 
-/* ── Design Tokens ── */
+/* ═══════════════════════════════════════════════════════
+   BRAND PALETTE — the five colours, and everything built from them
+   ═══════════════════════════════════════════════════════
+   These five are the brand. Nothing below invents a colour; every token is
+   one of them, a darkened version of one for text, or one of them thinned to
+   a tint. Change a colour here and it changes everywhere.
+
+     GRAY LAVENDER  #9275A4   the lead — accent, and the whole ink ramp
+     BLUE           #436697   secondary accent; dark enough to be text as-is
+     LIGHT GRAY     #F4F3F3   the tinted band between white sections
+     GRAY ORANGE    #D8B559   the gold — fills, glows, price chips
+     LIGHT RED      #DDC3C3   blush tint
+
+   The palette has no colour dark enough for body text — the lavender manages
+   3.96:1 on white and 4.5 is the floor, the other three are between 1.1 and
+   2.0. So the ink ramp is the lavender darkened, which keeps the text on
+   brand instead of importing a foreign grey. Ratios on white are in the
+   comments; they are measured, not guessed.
+
+   Gold has the same problem and is worse: #D8B559 as text is 1.97:1, all but
+   invisible. --mnt-gold is for fills; gold TEXT uses --mnt-gold-ink. */
 :root {
-    --gold:        #C9A84C;
-    --gold-light:  #E8D48A;
-    --gold-glow:   rgba(201,168,76,.35);
-    --deep:        #38304c;
-    --deep-mid:    #1E0F3A;
-    --plum:        #2D1B4E;
-    --plum-mid:    #3D2460;
-    --violet:      #7C4FA0;
-    --violet-soft: #A478C8;
+    --brand-lavender:    #9275A4;
+    --brand-blue:        #436697;
+    --brand-light-gray:  #F4F3F3;
+    --brand-gold:        #D8B559;
+    --brand-blush:       #DDC3C3;
+
+    --gold:        #D8B559;
+    --gold-light:  #E7CE8C;
+    --gold-glow:   rgba(216,181,89,.35);
+    --deep:        #2C2331;
+    --deep-mid:    #201A24;
+    --plum:        #3A2F42;
+    --plum-mid:    #50405A;
+    --violet:      #9275A4;
+    --violet-soft: #B7A0C4;
     --silk-white:  rgba(255,255,255,.92);
     --glass-bg:    rgba(255,255,255,.08);
     --glass-border:rgba(255,255,255,.14);
@@ -25,25 +51,33 @@
     /* ── Light theme ──────────────────────────────────────────────────────
        Defined here because premium.css is in BOTH bundles; home-premium.css
        is homepage-only, so tokens living there alone leave every shop page
-       with undefined colours. The plums above stay what they always were —
-       brand ink and the deliberately dark chrome (promo strip, footer, the
-       hero photograph). Everything a page is actually painted with comes
-       from --mnt-surface*, and every text colour from the ink ramp. */
-    --mnt-gold-ink:      #9A7A23;   /* gold is a pale wash on white — text uses this */
+       with undefined colours. Sections are painted from --mnt-surface*, text
+       from the ink ramp; the darks above are the deliberately dark chrome
+       (promo strip, footer, the hero photograph). */
+    --mnt-accent:        #9275A4;   /* GRAY LAVENDER */
+    --mnt-blue:          #436697;   /* BLUE — 5.86:1, safe as text */
+    --mnt-blush:         #DDC3C3;   /* LIGHT RED */
+    --mnt-gold:          #D8B559;   /* GRAY ORANGE — fills and glows only */
+    --mnt-gold-light:    #E7CE8C;
+    --mnt-gold-ink:      #776431;   /* gold darkened for text — 5.75:1 */
+
     --mnt-canvas:        #ffffff;
-    --mnt-surface:       #FAF8FC;
-    --mnt-surface-alt:   #F4EFF9;
-    --mnt-surface-deep:  #ECE4F3;
+    --mnt-surface:       #FAFAFA;
+    --mnt-surface-alt:   #F4F3F3;   /* LIGHT GRAY */
+    --mnt-surface-deep:  #F0ECF2;
     --mnt-surface-white: #ffffff;
-    --mnt-ink:        #2D1B3D;
-    --mnt-ink-body:   #55436B;
-    --mnt-ink-muted:  #7A6C8B;
-    --mnt-ink-faint:  rgba(45, 27, 61, .45);
-    --mnt-ink-ghost:  rgba(45, 27, 61, .06);
-    --mnt-line:       rgba(45, 27, 61, .10);
-    --shadow-gold: 0 8px 40px rgba(201,168,76,.18);
-    --shadow-deep: 0 20px 60px rgba(12,5,25,.4);
-    --glow-violet: 0 0 40px rgba(124,79,160,.3);
+
+    /* lavender darkened — the ink ramp */
+    --mnt-ink:        #3A2F42;   /* 12.6:1 */
+    --mnt-ink-body:   #604D6C;   /*  7.6:1 */
+    --mnt-ink-muted:  #836F8F;   /*  4.5:1 — the floor for small text */
+    --mnt-ink-faint:  rgba(58, 47, 66, .45);
+    --mnt-ink-ghost:  rgba(58, 47, 66, .06);
+    --mnt-line:       rgba(58, 47, 66, .10);
+
+    --shadow-gold: 0 8px 40px rgba(216,181,89,.18);
+    --shadow-deep: 0 20px 60px rgba(32,26,36,.4);
+    --glow-violet: 0 0 40px rgba(146,117,164,.3);
     --premium-radius: 18px;
     --easing: cubic-bezier(.22,1,.36,1);
 }
@@ -169,7 +203,7 @@ body {
 /* ── Promo Banner — Luxury strip ── */
 .promo-banner {
     background: linear-gradient(90deg, var(--deep-mid) 0%, var(--plum) 40%, var(--plum-mid) 70%, var(--deep-mid) 100%);
-    border-bottom: 1px solid rgba(201,168,76,.25);
+    border-bottom: 1px solid rgba(216, 181, 89,.25);
     font-size: 12px;
     letter-spacing: .8px;
     text-transform: uppercase;
@@ -183,7 +217,7 @@ body {
     background: repeating-linear-gradient(
         90deg,
         transparent 0%, transparent 49%,
-        rgba(201,168,76,.04) 49%, rgba(201,168,76,.04) 51%
+        rgba(216, 181, 89,.04) 49%, rgba(216, 181, 89,.04) 51%
     );
     pointer-events: none;
 }
@@ -194,7 +228,7 @@ header.header {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--mnt-line);
-    box-shadow: 0 4px 24px rgba(45, 27, 61, .06);
+    box-shadow: 0 4px 24px rgba(58, 47, 66, .06);
     position: sticky;
     top: 0;
     z-index: 200;
@@ -225,8 +259,8 @@ header.header {
 .search-bar input::placeholder { color: var(--mnt-ink-faint); }
 .search-bar input:focus {
     background: var(--mnt-ink-ghost);
-    border-color: rgba(201,168,76,.5);
-    box-shadow: 0 0 0 3px rgba(201,168,76,.1);
+    border-color: rgba(216, 181, 89,.5);
+    box-shadow: 0 0 0 3px rgba(216, 181, 89,.1);
     color: var(--mnt-ink);
 }
 
@@ -272,13 +306,13 @@ header.header {
     background: rgba(255, 255, 255, .98);
     backdrop-filter: blur(24px);
     border-top: 1px solid var(--mnt-line);
-    box-shadow: 0 32px 80px rgba(45, 27, 61, .16);
+    box-shadow: 0 32px 80px rgba(58, 47, 66, .16);
     padding: 28px 40px;
 }
 
 .mega-col h4 {
     color: var(--mnt-gold-ink);
-    border-bottom: 1px solid rgba(201,168,76,.25);
+    border-bottom: 1px solid rgba(216, 181, 89,.25);
     font-size: 13px;
     letter-spacing: .6px;
     text-transform: uppercase;
@@ -377,7 +411,7 @@ a:hover { color: var(--mnt-gold-ink); }
 }
 .product-card .product-brand  { color: var(--gold) !important; }
 .product-card .current-price  { color: var(--plum) !important; }
-.product-card .old-price      { color: rgba(45,27,78,.45) !important; }
+.product-card .old-price      { color: rgba(58, 47, 66,.45) !important; }
 
 /* Category card text is on image overlay — keep white */
 .category-card h3, .category-card h2,
@@ -408,7 +442,7 @@ a:hover { color: var(--mnt-gold-ink); }
     position: absolute;
     inset: 0;
     border-radius: var(--premium-radius);
-    background: linear-gradient(135deg, rgba(201,168,76,.07) 0%, transparent 60%);
+    background: linear-gradient(135deg, rgba(216, 181, 89,.07) 0%, transparent 60%);
     opacity: 0;
     transition: opacity .3s;
     z-index: 1;
@@ -418,10 +452,10 @@ a:hover { color: var(--mnt-gold-ink); }
 .product-card:hover {
     transform: translateY(-10px) scale(1.02);
     box-shadow:
-        0 30px 70px rgba(45,27,78,.22),
-        0 0 0 1px rgba(201,168,76,.2),
+        0 30px 70px rgba(58, 47, 66,.22),
+        0 0 0 1px rgba(216, 181, 89,.2),
         inset 0 1px 0 rgba(255,255,255,.8);
-    border-color: rgba(201,168,76,.3);
+    border-color: rgba(216, 181, 89,.3);
 }
 
 .product-card:hover::before { opacity: 1; }
@@ -453,13 +487,13 @@ a:hover { color: var(--mnt-gold-ink); }
 }
 
 .add-to-cart-btn:hover {
-    box-shadow: 0 8px 28px rgba(201,168,76,.45) !important;
+    box-shadow: 0 8px 28px rgba(216, 181, 89,.45) !important;
     transform: scale(1.02) !important;
     background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%) !important;
 }
 
 .quick-view, [class*="quick-view"] {
-    background: rgba(56, 48, 76,.82) !important;
+    background: rgba(44, 35, 49,.82) !important;
     color: #fff !important;
     border-radius: 10px !important;
     backdrop-filter: blur(10px) !important;
@@ -489,7 +523,7 @@ a:hover { color: var(--mnt-gold-ink); }
 
 /* Badges — luxe language: gold whispers, red screams */
 .badge-sale  { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: var(--deep); font-weight: 800; box-shadow: 0 2px 10px var(--gold-glow); }
-.badge-new   { background: rgba(45,27,61,.88); color: var(--gold-light); border: 1px solid rgba(232,212,138,.5); box-shadow: 0 2px 8px rgba(26,16,48,.35); }
+.badge-new   { background: rgba(58, 47, 66,.88); color: var(--gold-light); border: 1px solid rgba(231, 206, 140,.5); box-shadow: 0 2px 8px rgba(26,16,48,.35); }
 .badge-best  { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: var(--deep); box-shadow: 0 2px 8px var(--gold-glow); }
 
 /* Tab buttons */
@@ -506,7 +540,7 @@ a:hover { color: var(--mnt-gold-ink); }
     background: linear-gradient(135deg, var(--plum), var(--plum-mid));
     color: #fff;
     border-color: transparent;
-    box-shadow: 0 4px 20px rgba(45,27,78,.3);
+    box-shadow: 0 4px 20px rgba(58, 47, 66,.3);
 }
 
 /* ── Category Cards — 3D Immersive ── */
@@ -517,26 +551,26 @@ a:hover { color: var(--mnt-gold-ink); }
 
 .category-img {
     border-radius: 20px;
-    box-shadow: 0 12px 40px rgba(45,27,78,.18);
+    box-shadow: 0 12px 40px rgba(58, 47, 66,.18);
     transition: box-shadow .4s var(--easing);
 }
 
 .category-card:hover .category-img {
-    box-shadow: 0 24px 60px rgba(45,27,78,.32), 0 0 0 2px rgba(201,168,76,.25);
+    box-shadow: 0 24px 60px rgba(58, 47, 66,.32), 0 0 0 2px rgba(216, 181, 89,.25);
 }
 
 .category-overlay {
     background: linear-gradient(
         to top,
-        rgba(56, 48, 76,.85) 0%,
-        rgba(45,27,78,.4) 40%,
+        rgba(44, 35, 49,.85) 0%,
+        rgba(58, 47, 66,.4) 40%,
         transparent 70%
     );
 }
 
 .category-count {
-    background: rgba(201,168,76,.15);
-    border: 1px solid rgba(201,168,76,.3);
+    background: rgba(216, 181, 89,.15);
+    border: 1px solid rgba(216, 181, 89,.3);
     color: var(--mnt-gold-ink);
     font-weight: 700;
     letter-spacing: .5px;
@@ -558,14 +592,14 @@ a:hover { color: var(--mnt-gold-ink); }
     background: rgba(255,255,255,.9);
     border: 1px solid var(--mnt-line);
     border-radius: 14px;
-    box-shadow: 0 4px 20px rgba(45,27,78,.08);
+    box-shadow: 0 4px 20px rgba(58, 47, 66,.08);
     transition: all .35s var(--easing);
 }
 
 .brand-logo:hover {
     transform: translateY(-4px) scale(1.04);
-    border-color: rgba(201,168,76,.4);
-    box-shadow: 0 12px 36px rgba(45,27,78,.18), 0 0 0 1px rgba(201,168,76,.25);
+    border-color: rgba(216, 181, 89,.4);
+    box-shadow: 0 12px 36px rgba(58, 47, 66,.18), 0 0 0 1px rgba(216, 181, 89,.25);
 }
 
 /* ── Hero Video — Enhanced ── */
@@ -594,14 +628,14 @@ a:hover { color: var(--mnt-gold-ink); }
     letter-spacing: .6px;
     padding: 16px 48px;
     border-radius: 50px;
-    box-shadow: 0 8px 30px var(--gold-glow), 0 0 0 1px rgba(201,168,76,.3);
+    box-shadow: 0 8px 30px var(--gold-glow), 0 0 0 1px rgba(216, 181, 89,.3);
     transition: all .4s var(--easing);
     font-size: 15px;
 }
 
 .hero-video-content .btn-primary:hover {
     background-position: right center;
-    box-shadow: 0 16px 50px rgba(201,168,76,.45), 0 0 0 1px rgba(201,168,76,.5);
+    box-shadow: 0 16px 50px rgba(216, 181, 89,.45), 0 0 0 1px rgba(216, 181, 89,.5);
     transform: translateY(-3px) scale(1.03);
 }
 
@@ -618,14 +652,15 @@ a:hover { color: var(--mnt-gold-ink); }
 
 .btn-primary:hover {
     transform: translateY(-3px);
-    box-shadow: 0 12px 36px rgba(201,168,76,.45);
+    box-shadow: 0 12px 36px rgba(216, 181, 89,.45);
     background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
 }
 
 /* Secondary button */
 .btn-outline {
     border: 1.5px solid var(--gold) !important;
-    color: var(--gold) !important;
+    /* The border may be the bright gold; the label sits on white and cannot. */
+    color: var(--mnt-gold-ink) !important;
     background: transparent !important;
     transition: all .3s var(--easing) !important;
 }
@@ -706,18 +741,18 @@ section,
     border-radius: 20px;
     overflow: hidden;
     transition: transform .4s var(--easing), box-shadow .4s var(--easing);
-    box-shadow: 0 8px 32px rgba(45,27,78,.14);
+    box-shadow: 0 8px 32px rgba(58, 47, 66,.14);
 }
 
 .offer-card:hover, .promo-card:hover, .banner-card:hover {
     transform: translateY(-6px);
-    box-shadow: 0 20px 60px rgba(45,27,78,.25);
+    box-shadow: 0 20px 60px rgba(58, 47, 66,.25);
 }
 
 /* ── Footer — Dark luxury ── */
 footer, .footer {
     background: linear-gradient(170deg, var(--deep) 0%, var(--deep-mid) 60%, #0a0520 100%) !important;
-    border-top: 1px solid rgba(201,168,76,.18);
+    border-top: 1px solid rgba(216, 181, 89,.18);
     color: rgba(255,255,255,.7);
     position: relative;
 }
@@ -746,7 +781,7 @@ footer::before {
 .footer-bottom p { color: rgba(255,255,255,.35); font-size: 12px; }
 
 /* ── Star ratings ── */
-.stars { color: var(--gold); filter: drop-shadow(0 0 4px rgba(201,168,76,.4)); }
+.stars { color: var(--gold); filter: drop-shadow(0 0 4px rgba(216, 181, 89,.4)); }
 
 /* ── Floating premium orb (canvas fallback shape) ── */
 .premium-orb {
@@ -760,13 +795,13 @@ footer::before {
 
 .premium-orb-1 {
     width: 500px; height: 500px;
-    background: radial-gradient(circle, rgba(124,79,160,.15) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(146, 117, 164,.15) 0%, transparent 70%);
     top: 20%; left: -10%;
 }
 
 .premium-orb-2 {
     width: 400px; height: 400px;
-    background: radial-gradient(circle, rgba(201,168,76,.08) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(216, 181, 89,.08) 0%, transparent 70%);
     bottom: 10%; right: -8%;
     animation-delay: -10s;
     animation-duration: 25s;
@@ -901,7 +936,7 @@ footer::before {
         to top,
         rgba(51, 45, 62,.92) 0%,
         rgba(66, 53, 90,.55) 45%,
-        rgba(45,27,78,.1) 75%,
+        rgba(58, 47, 66,.1) 75%,
         transparent 100%
     ) !important;
 }
@@ -917,9 +952,9 @@ footer::before {
 }
 
 .brand-logo:hover {
-    background: rgba(201,168,76,.1) !important;
-    border-color: rgba(201,168,76,.35) !important;
-    box-shadow: 0 8px 30px rgba(201,168,76,.15) !important;
+    background: rgba(216, 181, 89,.1) !important;
+    border-color: rgba(216, 181, 89,.35) !important;
+    box-shadow: 0 8px 30px rgba(216, 181, 89,.15) !important;
     filter: brightness(0) invert(1) opacity(.9);
     transform: translateY(-4px) scale(1.04) !important;
 }
@@ -946,12 +981,12 @@ footer::before {
 
 @keyframes heroPulse {
     0%, 100% {
-        box-shadow: 0 8px 30px rgba(201,168,76,.35),
-                    0 0 0 0 rgba(201,168,76,.4);
+        box-shadow: 0 8px 30px rgba(216, 181, 89,.35),
+                    0 0 0 0 rgba(216, 181, 89,.4);
     }
     50% {
-        box-shadow: 0 16px 50px rgba(201,168,76,.5),
-                    0 0 0 12px rgba(201,168,76,.0);
+        box-shadow: 0 16px 50px rgba(216, 181, 89,.5),
+                    0 0 0 12px rgba(216, 181, 89,.0);
     }
 }
 
@@ -960,8 +995,8 @@ footer::before {
 [class*="star"], [class*="rating"] i,
 .fa-star, .fas.fa-star {
     color: var(--gold) !important;
-    filter: drop-shadow(0 0 5px rgba(201,168,76,.6)) !important;
-    text-shadow: 0 0 10px rgba(201,168,76,.5);
+    filter: drop-shadow(0 0 5px rgba(216, 181, 89,.6)) !important;
+    text-shadow: 0 0 10px rgba(216, 181, 89,.5);
 }
 
 /* Bonus — Tab buttons بريميم */
@@ -979,7 +1014,7 @@ footer::before {
     background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%) !important;
     color: var(--deep) !important;
     border-color: transparent !important;
-    box-shadow: 0 6px 24px rgba(201,168,76,.35) !important;
+    box-shadow: 0 6px 24px rgba(216, 181, 89,.35) !important;
 }
 
 /* Bonus — Badges animation */
@@ -1060,7 +1095,7 @@ header.header, .header {
 
 .product-card-horizontal:hover {
     transform: translateY(-6px) !important;
-    box-shadow: 0 20px 50px rgba(45,27,78,.25), 0 0 0 1px rgba(201,168,76,.2) !important;
+    box-shadow: 0 20px 50px rgba(58, 47, 66,.25), 0 0 0 1px rgba(216, 181, 89,.2) !important;
 }
 
 /* text داخل الكروت الأفقية */
@@ -1085,8 +1120,8 @@ header.header, .header {
 
 /* 5. Footer — force dark gradient */
 footer, .footer, .site-footer {
-    background: linear-gradient(170deg, #38304c 0%, #1E0F3A 60%, #0a0520 100%) !important;
-    border-top: 1px solid rgba(201,168,76,.2) !important;
+    background: linear-gradient(170deg, #2C2331 0%, #201A24 60%, #0a0520 100%) !important;
+    border-top: 1px solid rgba(216, 181, 89,.2) !important;
     color: rgba(255,255,255,.7) !important;
     position: relative !important;
     z-index: 1 !important;
@@ -1141,8 +1176,8 @@ footer::before, .footer::before {
 
 .search-bar input:focus {
     background: var(--mnt-ink-ghost) !important;
-    border-color: rgba(201,168,76,.5) !important;
-    box-shadow: 0 0 0 3px rgba(201,168,76,.12) !important;
+    border-color: rgba(216, 181, 89,.5) !important;
+    box-shadow: 0 0 0 3px rgba(216, 181, 89,.12) !important;
     outline: none !important;
 }
 
@@ -1218,14 +1253,14 @@ footer::before, .footer::before {
     border: none !important;
     border-radius: 50px !important;
     padding: 10px 18px !important;
-    box-shadow: 0 4px 16px rgba(201,168,76,.35) !important;
+    box-shadow: 0 4px 16px rgba(216, 181, 89,.35) !important;
     transition: all .3s var(--easing) !important;
     letter-spacing: .3px !important;
 }
 
 .add-to-cart-btn:hover,
 [class*="add-to-cart"]:hover {
-    box-shadow: 0 8px 28px rgba(201,168,76,.5) !important;
+    box-shadow: 0 8px 28px rgba(216, 181, 89,.5) !important;
     transform: translateY(-2px) scale(1.03) !important;
     background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%) !important;
 }
@@ -1238,7 +1273,7 @@ footer::before, .footer::before {
     border: none !important;
     border-radius: 50% !important;
     width: 36px !important; height: 36px !important;
-    box-shadow: 0 4px 14px rgba(201,168,76,.4) !important;
+    box-shadow: 0 4px 14px rgba(216, 181, 89,.4) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -1266,8 +1301,8 @@ footer::before, .footer::before {
     border: none !important;
     border-radius: 50% !important;
     width: 46px !important; height: 46px !important;
-    box-shadow: 0 6px 24px rgba(201,168,76,.45),
-                0 0 0 1px rgba(201,168,76,.2) !important;
+    box-shadow: 0 6px 24px rgba(216, 181, 89,.45),
+                0 0 0 1px rgba(216, 181, 89,.2) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -1278,12 +1313,12 @@ footer::before, .footer::before {
 
 .back-to-top:hover {
     transform: translateY(-4px) scale(1.1) !important;
-    box-shadow: 0 12px 36px rgba(201,168,76,.6) !important;
+    box-shadow: 0 12px 36px rgba(216, 181, 89,.6) !important;
 }
 
 @keyframes backTopPulse {
-    0%,100% { box-shadow: 0 6px 24px rgba(201,168,76,.45), 0 0 0 0 rgba(201,168,76,.3); }
-    50%      { box-shadow: 0 6px 24px rgba(201,168,76,.45), 0 0 0 8px rgba(201,168,76,.0); }
+    0%,100% { box-shadow: 0 6px 24px rgba(216, 181, 89,.45), 0 0 0 0 rgba(216, 181, 89,.3); }
+    50%      { box-shadow: 0 6px 24px rgba(216, 181, 89,.45), 0 0 0 8px rgba(216, 181, 89,.0); }
 }
 
 .app-offer-btn,
@@ -1294,7 +1329,7 @@ footer::before, .footer::before {
     border-radius: 50px !important;
     font-weight: 700 !important;
     padding: 10px 24px !important;
-    box-shadow: 0 6px 20px rgba(201,168,76,.4) !important;
+    box-shadow: 0 6px 20px rgba(216, 181, 89,.4) !important;
 }
 
 .app-banners, [class*="app-banner"] {
@@ -1312,9 +1347,9 @@ footer::before, .footer::before {
 }
 
 [class*="app-store"]:hover, [class*="google-play"]:hover {
-    background: rgba(201,168,76,.12) !important;
-    border-color: rgba(201,168,76,.3) !important;
-    box-shadow: 0 6px 20px rgba(201,168,76,.2) !important;
+    background: rgba(216, 181, 89,.12) !important;
+    border-color: rgba(216, 181, 89,.3) !important;
+    box-shadow: 0 6px 20px rgba(216, 181, 89,.2) !important;
 }
 
 /* ══════════════════════════════════════════
@@ -1367,7 +1402,7 @@ h1, h2, h3, h4, h5, h6,
 .product-card {
     box-shadow:
         0 4px 6px rgba(0,0,0,.07),
-        0 10px 30px rgba(45,27,78,.12),
+        0 10px 30px rgba(58, 47, 66,.12),
         0 0 0 1px rgba(255,255,255,.4) !important;
     transition: transform .45s var(--easing),
                 box-shadow .45s var(--easing),
@@ -1377,8 +1412,8 @@ h1, h2, h3, h4, h5, h6,
 .product-card:hover {
     box-shadow:
         0 20px 25px rgba(0,0,0,.1),
-        0 40px 80px rgba(45,27,78,.25),
-        0 0 0 1px rgba(201,168,76,.25),
+        0 40px 80px rgba(58, 47, 66,.25),
+        0 0 0 1px rgba(216, 181, 89,.25),
         inset 0 1px 0 rgba(255,255,255,.8) !important;
     transform: translateY(-12px) scale(1.02) !important;
 }
@@ -1425,7 +1460,7 @@ h1, h2, h3, h4, h5, h6,
     transform: translateY(-8px) scale(1.02) !important;
     box-shadow:
         0 20px 50px rgba(0,0,0,.25),
-        0 0 0 1px rgba(201,168,76,.2) !important;
+        0 0 0 1px rgba(216, 181, 89,.2) !important;
 }
 
 /* BONUS: Input fields — fix remaining white */
@@ -1443,8 +1478,8 @@ input::placeholder, textarea::placeholder {
 }
 
 input:focus, textarea:focus, select:focus {
-    border-color: rgba(201,168,76,.5) !important;
-    box-shadow: 0 0 0 3px rgba(201,168,76,.12) !important;
+    border-color: rgba(216, 181, 89,.5) !important;
+    box-shadow: 0 0 0 3px rgba(216, 181, 89,.12) !important;
     outline: none !important;
     background: var(--mnt-ink-ghost) !important;
 }
@@ -1501,7 +1536,7 @@ input:focus, textarea:focus, select:focus {
     margin: 0 auto;
     padding: 48px 32px;
     text-align: center;
-    border: 1px dashed rgba(201,168,76,.35);
+    border: 1px dashed rgba(216, 181, 89,.35);
     border-radius: 20px;
     background: var(--mnt-ink-ghost);
 }

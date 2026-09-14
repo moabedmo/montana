@@ -147,10 +147,33 @@ pressed **Start** on the bot (or deleted the chat) — Telegram refuses to deliv
 until they do. `?telegram=whoami` lists the chats that have messaged the bot, so
 the real id can be recovered.
 
-## The storefront is a light theme
+## The storefront is a light theme, on five brand colours
 
-White canvas, plum ink, gold accents. Two places are deliberately dark and stay
-that way: the **hero photograph** and the **footer** (plus the thin promo strip).
+```
+GRAY LAVENDER  #9275A4   the lead — accent, and the whole ink ramp
+BLUE           #436697   secondary accent; dark enough to be text as-is
+LIGHT GRAY     #F4F3F3   the tinted band between white sections
+GRAY ORANGE    #D8B559   the gold — fills, glows, price chips
+LIGHT RED      #DDC3C3   blush tint
+```
+
+They live at the top of `premium.css`, which is in **both** bundles. Nothing
+else invents a colour: every token is one of these five, one darkened for text,
+or one thinned to a tint.
+
+**The palette has no colour dark enough for body text.** The lavender manages
+3.96:1 on white against a 4.5 floor; the other three are 1.1–2.0. So the ink
+ramp is the lavender darkened — `--mnt-ink` / `-body` / `-muted`, measured at
+12.6 / 7.6 / 4.5:1.
+
+**Gold is worse: `#D8B559` as text is 1.97:1.** `--mnt-gold` is for fills and
+glows only. Gold text on white uses `--mnt-gold-ink`; gold text on a dark pill
+(the product badges) uses `--mnt-gold-light`. Getting that backwards is the
+single easiest way to make something invisible, and it has happened in both
+directions already.
+
+Two places are deliberately dark and stay that way: the **hero photograph** and
+the **footer** (plus the thin promo strip).
 
 CSS is hand-written and bundled — edit the source file, never `css/*.bundle.css`:
 

@@ -52,11 +52,11 @@
     border-radius: 16px !important;
     overflow: hidden;
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    box-shadow: 0 2px 12px rgba(45,27,61,0.04) !important;
+    box-shadow: 0 2px 12px rgba(58, 47, 66,0.04) !important;
 }
 
 .product-card:hover {
-    box-shadow: 0 16px 48px rgba(45,27,61,0.12) !important;
+    box-shadow: 0 16px 48px rgba(58, 47, 66,0.12) !important;
 }
 
 .product-card .product-img {
@@ -68,7 +68,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(45,27,61,0.05), transparent 40%);
+    background: linear-gradient(to top, rgba(58, 47, 66,0.05), transparent 40%);
     pointer-events: none;
 }
 
@@ -110,12 +110,12 @@
 .category-img {
     border-radius: 20px !important;
     overflow: hidden;
-    box-shadow: 0 4px 16px rgba(45,27,61,0.08);
+    box-shadow: 0 4px 16px rgba(58, 47, 66,0.08);
     transition: box-shadow 0.5s ease !important;
 }
 
 .category-card:hover .category-img {
-    box-shadow: 0 12px 36px rgba(155,108,184,0.18) !important;
+    box-shadow: 0 12px 36px rgba(146, 117, 164,0.18) !important;
 }
 
 .category-card h3 {
@@ -147,7 +147,7 @@
 
 .btn-primary:hover {
     transform: translateY(-2px) !important;
-    box-shadow: 0 8px 24px rgba(155,108,184,0.3) !important;
+    box-shadow: 0 8px 24px rgba(146, 117, 164,0.3) !important;
 }
 
 /* ===== LUXURY FEATURES BAR ===== */
@@ -163,7 +163,7 @@
     left: 10%;
     right: 10%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(155,108,184,0.2), transparent);
+    background: linear-gradient(90deg, transparent, rgba(146, 117, 164,0.2), transparent);
 }
 
 .feature-item h4 {
@@ -209,12 +209,12 @@
 .review-card {
     border: none !important;
     border-radius: 16px !important;
-    box-shadow: 0 2px 12px rgba(45,27,61,0.04) !important;
+    box-shadow: 0 2px 12px rgba(58, 47, 66,0.04) !important;
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .review-card:hover {
-    box-shadow: 0 12px 40px rgba(45,27,61,0.1) !important;
+    box-shadow: 0 12px 40px rgba(58, 47, 66,0.1) !important;
     transform: translateY(-6px) !important;
 }
 
@@ -241,7 +241,7 @@
     right: -100px;
     width: 300px;
     height: 300px;
-    border: 1px solid rgba(212,175,55,0.1);
+    border: 1px solid rgba(216, 181, 89,0.1);
     border-radius: 50%;
 }
 
@@ -252,7 +252,7 @@
     left: -80px;
     width: 200px;
     height: 200px;
-    border: 1px solid rgba(212,175,55,0.08);
+    border: 1px solid rgba(216, 181, 89,0.08);
     border-radius: 50%;
 }
 
@@ -264,12 +264,12 @@
 .ba-card {
     border: none !important;
     border-radius: 20px !important;
-    box-shadow: 0 4px 20px rgba(45,27,61,0.06) !important;
+    box-shadow: 0 4px 20px rgba(58, 47, 66,0.06) !important;
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .ba-card:hover {
-    box-shadow: 0 16px 48px rgba(45,27,61,0.12) !important;
+    box-shadow: 0 16px 48px rgba(58, 47, 66,0.12) !important;
     transform: translateY(-6px) !important;
 }
 
@@ -285,14 +285,14 @@
 }
 
 .newsletter-form {
-    border: 1px solid rgba(155,108,184,0.15) !important;
-    box-shadow: 0 4px 20px rgba(45,27,61,0.04);
+    border: 1px solid rgba(146, 117, 164,0.15) !important;
+    box-shadow: 0 4px 20px rgba(58, 47, 66,0.04);
     transition: box-shadow 0.3s ease;
 }
 
 .newsletter-form:focus-within {
-    box-shadow: 0 8px 32px rgba(155,108,184,0.1);
-    border-color: rgba(155,108,184,0.3) !important;
+    box-shadow: 0 8px 32px rgba(146, 117, 164,0.1);
+    border-color: rgba(146, 117, 164,0.3) !important;
 }
 
 /* ===== LUXURY FOOTER ===== */
@@ -307,7 +307,7 @@
     left: 10%;
     right: 10%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(155,108,184,0.3), transparent);
+    background: linear-gradient(90deg, transparent, rgba(146, 117, 164,0.3), transparent);
 }
 
 .footer-col h3 {
@@ -323,7 +323,7 @@
 
 .offer-card:hover {
     transform: scale(1.02) !important;
-    box-shadow: 0 16px 48px rgba(45,27,61,0.15) !important;
+    box-shadow: 0 16px 48px rgba(58, 47, 66,0.15) !important;
 }
 
 .offer-content h3 {
@@ -358,7 +358,7 @@
 }
 
 .tab-btn.active {
-    box-shadow: 0 4px 12px rgba(155,108,184,0.25);
+    box-shadow: 0 4px 12px rgba(146, 117, 164,0.25);
 }
 
 /* ===== SMOOTH PAGE TRANSITIONS ===== */
@@ -380,7 +380,7 @@
 /* ===== HEADER LUXURY ===== */
 .header-main {
     border-bottom: none !important;
-    box-shadow: 0 1px 0 rgba(155,108,184,0.08);
+    box-shadow: 0 1px 0 rgba(146, 117, 164,0.08);
 }
 
 .logo-img {

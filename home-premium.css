@@ -7,40 +7,45 @@
    the deep accents (hero backdrop, gold-on-plum chips); the surface tokens are
    what sections are actually painted with. Section backgrounds must come from
    --mnt-surface*, never from a plum — that is what made the page dark before. */
+/* The five brand colours and the ramps built from them live in premium.css,
+   which is in BOTH bundles. This file only restates the homepage aliases so a
+   rule here reads the same as one there — it must not disagree with it. */
 :root {
-    --mnt-plum: #2D1B3D;
-    --mnt-plum-hero: #453f64;
-    --mnt-plum-dark: #38304c;
-    --mnt-plum-mid: #4c3d65;
-    --mnt-plum-soft: #543d67;
-    --mnt-accent: #9B6CB8;
-    --mnt-gold: #C9A84C;
-    --mnt-gold-light: #E8D48A;
-    /* Gold reads as a pale wash on white, so text and hairlines use the deeper
-       one; fills and glows keep --mnt-gold. */
-    --mnt-gold-ink: #9A7A23;
-    --mnt-gold-dim: rgba(201, 168, 76, .2);
+    --mnt-plum: #3A2F42;
+    --mnt-plum-hero: #4B3D55;
+    --mnt-plum-dark: #2C2331;
+    --mnt-plum-mid: #50405A;
+    --mnt-plum-soft: #604D6C;
+    --mnt-accent: #9275A4;          /* GRAY LAVENDER */
+    --mnt-gold: #D8B559;            /* GRAY ORANGE */
+    --mnt-gold-light: #E7CE8C;
+    /* Gold reads as a pale wash on white — #D8B559 as text is 1.97:1 — so text
+       and hairlines use the deeper one; fills and glows keep --mnt-gold. */
+    --mnt-gold-ink: #776431;
+    --mnt-gold-dim: rgba(216, 181, 89, .2);
+    --mnt-blue: #436697;            /* BLUE */
+    --mnt-blush: #DDC3C3;           /* LIGHT RED */
 
-    /* Light canvas — plain white page, tinted bands for rhythm */
+    /* Light canvas — plain white page, LIGHT GRAY bands for rhythm */
     --mnt-canvas: #ffffff;
-    --mnt-surface: #FAF8FC;
-    --mnt-surface-alt: #F4EFF9;
-    --mnt-surface-deep: #ECE4F3;
+    --mnt-surface: #FAFAFA;
+    --mnt-surface-alt: #F4F3F3;
+    --mnt-surface-deep: #F0ECF2;
     --mnt-surface-white: #ffffff;
 
-    /* Ink scale — replaces the white-on-dark text ramp */
-    --mnt-ink: #2D1B3D;
-    --mnt-ink-body: #55436B;
-    --mnt-ink-muted: #7A6C8B;
-    --mnt-ink-faint: rgba(45, 27, 61, .45);
-    --mnt-ink-ghost: rgba(45, 27, 61, .06);
-    --mnt-line: rgba(45, 27, 61, .10);
+    /* Ink scale — GRAY LAVENDER darkened, so the text stays on brand */
+    --mnt-ink: #3A2F42;
+    --mnt-ink-body: #604D6C;
+    --mnt-ink-muted: #836F8F;
+    --mnt-ink-faint: rgba(58, 47, 66, .45);
+    --mnt-ink-ghost: rgba(58, 47, 66, .06);
+    --mnt-line: rgba(58, 47, 66, .10);
 
-    --mnt-text: #2D1B3D;
-    --mnt-text-body: #5C4A6B;
-    --mnt-text-muted: #6B6080;
-    --mnt-border: #f0ecf5;
-    --mnt-border-soft: rgba(45, 27, 61, .06);
+    --mnt-text: #3A2F42;
+    --mnt-text-body: #604D6C;
+    --mnt-text-muted: #836F8F;
+    --mnt-border: #EFEDF0;
+    --mnt-border-soft: rgba(58, 47, 66, .06);
 }
 
 /* Hero has its own aurora — global aurora only muddies lux + shop sections */
@@ -77,13 +82,13 @@ body.mnt-home {
 .mnt-home .product-card {
     background: var(--mnt-surface-white) !important;
     border-color: var(--mnt-line) !important;
-    box-shadow: 0 2px 14px rgba(45, 27, 61, .05);
+    box-shadow: 0 2px 14px rgba(58, 47, 66, .05);
 }
 .mnt-home .product-card:hover {
-    box-shadow: 0 10px 34px rgba(45, 27, 61, .10);
+    box-shadow: 0 10px 34px rgba(58, 47, 66, .10);
 }
 .mnt-home .product-img {
-    background: linear-gradient(160deg, #FBF9FD 0%, #F1EAF7 100%) !important;
+    background: linear-gradient(160deg, #FCFCFC 0%, #F0ECF2 100%) !important;
 }
 .mnt-home .product-card .product-info h3,
 .mnt-home .product-card h3,
@@ -135,7 +140,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     right: 0;
     width: min(180px, 42%);
     height: 1px;
-    background: linear-gradient(to left, var(--mnt-gold-light), rgba(201, 168, 76, .15), transparent);
+    background: linear-gradient(to left, var(--mnt-gold-light), rgba(216, 181, 89, .15), transparent);
 }
 
 .mnt-home .showcase-info h1.sc-hero-title {
@@ -170,7 +175,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     line-height: 1.35;
     margin: 0 0 10px;
     padding-bottom: 12px;
-    border-bottom: 1px solid rgba(201, 168, 76, .22);
+    border-bottom: 1px solid rgba(216, 181, 89, .22);
     transition: opacity .28s ease, transform .28s ease;
 }
 
@@ -184,7 +189,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
 
 .sc-concerns {
     font-size: 13px;
-    color: rgba(232, 212, 138, .82);
+    color: rgba(231, 206, 140, .82);
     margin: 0 0 14px;
     line-height: 1.6;
     transition: opacity .28s ease, transform .28s ease;
@@ -233,15 +238,15 @@ html[dir="rtl"] .mnt-home .showcase-info {
     font-family: 'Tajawal', sans-serif;
     font-weight: 800;
     font-size: 14px;
-    color: #2D1B3D;
-    background: linear-gradient(135deg, #C9A84C 0%, #E8D48A 55%, #C9A84C 100%);
+    color: #3A2F42;
+    background: linear-gradient(135deg, #D8B559 0%, #E7CE8C 55%, #D8B559 100%);
     background-size: 200% 100%;
-    box-shadow: 0 8px 28px rgba(201, 168, 76, .35);
+    box-shadow: 0 8px 28px rgba(216, 181, 89, .35);
     transition: transform .25s ease, box-shadow .25s ease, background-position .4s ease;
 }
 .sc-cta-solid:hover {
     background-position: 100% 0;
-    box-shadow: 0 12px 36px rgba(201, 168, 76, .5);
+    box-shadow: 0 12px 36px rgba(216, 181, 89, .5);
     transform: translateY(-1px);
 }
 .sc-cta-solid.sc-cart-pulse {
@@ -253,8 +258,8 @@ html[dir="rtl"] .mnt-home .showcase-info {
 }
 
 .sc-price-chip--gold {
-    background: linear-gradient(135deg, rgba(201, 168, 76, .22), rgba(201, 168, 76, .08));
-    border-color: rgba(201, 168, 76, .45);
+    background: linear-gradient(135deg, rgba(216, 181, 89, .22), rgba(216, 181, 89, .08));
+    border-color: rgba(216, 181, 89, .45);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12);
 }
 .sc-price-chip--gold small {
@@ -289,7 +294,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     z-index: 4;
     pointer-events: none;
     opacity: 0;
-    background: linear-gradient(105deg, transparent 42%, rgba(232, 212, 138, .18) 50%, transparent 58%);
+    background: linear-gradient(105deg, transparent 42%, rgba(231, 206, 140, .18) 50%, transparent 58%);
     transform: translateX(110%);
 }
 .sc-wipe.sc-wipe-run {
@@ -352,7 +357,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 14px;
-    color: #E8D48A;
+    color: #E7CE8C;
     font-weight: 700;
 }
 
@@ -385,13 +390,13 @@ html[dir="rtl"] .mnt-home .showcase-info {
     font-family: 'Playfair Display', serif;
     font-size: 13px;
     letter-spacing: .28em;
-    color: rgba(232, 212, 138, .75);
+    color: rgba(231, 206, 140, .75);
     text-transform: uppercase;
 }
 .hero-video-scroll .scroll-arrow {
     width: 20px;
     height: 20px;
-    border-color: rgba(232, 212, 138, .6);
+    border-color: rgba(231, 206, 140, .6);
     animation: luxScrollPulse 2.2s ease-in-out infinite;
 }
 @keyframes luxScrollPulse {
@@ -422,7 +427,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
         font-family: 'Playfair Display', serif;
         font-size: 12px;
         letter-spacing: .12em;
-        color: rgba(232, 212, 138, .92);
+        color: rgba(231, 206, 140, .92);
     }
 }
 
@@ -545,7 +550,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     overflow: hidden;
     aspect-ratio: 4 / 5;
     max-height: 520px;
-    box-shadow: 0 18px 48px rgba(45, 27, 61, .14);
+    box-shadow: 0 18px 48px rgba(58, 47, 66, .14);
 }
 .lux-brand-visual img {
     width: 100%;
@@ -556,7 +561,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(45, 27, 61, .28), transparent 50%);
+    background: linear-gradient(to top, rgba(58, 47, 66, .28), transparent 50%);
 }
 .lux-brand-copy h2 {
     font-family: 'Cormorant Garamond', 'Playfair Display', serif;
@@ -578,7 +583,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     gap: 20px;
     margin-top: 32px;
     padding-top: 28px;
-    border-top: 1px solid rgba(201, 168, 76, .2);
+    border-top: 1px solid rgba(216, 181, 89, .2);
 }
 .lux-stat-num {
     display: block;
@@ -604,12 +609,12 @@ html[dir="rtl"] .mnt-home .showcase-info {
     text-align: center;
     padding: clamp(24px, 3vw, 36px) 20px;
     background: var(--mnt-ink-ghost);
-    border: 1px solid rgba(201, 168, 76, .15);
+    border: 1px solid rgba(216, 181, 89, .15);
     border-radius: 20px;
     transition: border-color .35s ease, transform .35s ease;
 }
 .lux-ritual-step:hover {
-    border-color: rgba(201, 168, 76, .4);
+    border-color: rgba(216, 181, 89, .4);
     transform: translateY(-4px);
 }
 .lux-ritual-num {
@@ -658,7 +663,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     background: var(--mnt-surface-white);
     border-radius: 18px;
     padding: 0;
-    border: 1px solid rgba(201, 168, 76, .14);
+    border: 1px solid rgba(216, 181, 89, .14);
     box-shadow: 0 8px 32px rgba(0, 0, 0, .25);
     transition: box-shadow .35s ease, transform .35s ease, border-color .35s ease;
     overflow: hidden;
@@ -666,7 +671,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
 }
 .lux-ing-card:hover {
     box-shadow: 0 16px 48px rgba(0, 0, 0, .35);
-    border-color: rgba(201, 168, 76, .28);
+    border-color: rgba(216, 181, 89, .28);
     transform: translateY(-3px);
 }
 .lux-ing-body {
@@ -677,7 +682,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     background: transparent;
 }
 .lux-ing-visual {
-    background: linear-gradient(160deg, #FBF9FD 0%, #F1EAF7 100%);
+    background: linear-gradient(160deg, #FCFCFC 0%, #F0ECF2 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -717,7 +722,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #C9A84C, #9B6CB8);
+    background: linear-gradient(135deg, #D8B559, #9275A4);
     flex-shrink: 0;
 }
 .lux-ing-link {
@@ -739,13 +744,13 @@ html[dir="rtl"] .mnt-home .showcase-info {
 }
 .lux-concern-card {
     background: var(--mnt-surface-white);
-    border: 1px solid rgba(201, 168, 76, .14);
+    border: 1px solid rgba(216, 181, 89, .14);
     border-radius: 18px;
     padding: 24px 22px;
     transition: border-color .3s ease, transform .3s ease, box-shadow .3s ease;
 }
 .lux-concern-card:hover {
-    border-color: rgba(201, 168, 76, .3);
+    border-color: rgba(216, 181, 89, .3);
     transform: translateY(-2px);
     box-shadow: 0 12px 40px rgba(0, 0, 0, .28);
 }
@@ -756,7 +761,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(201, 168, 76, .12);
+    background: rgba(216, 181, 89, .12);
     color: var(--mnt-gold-ink);
     font-size: 18px;
     margin-bottom: 14px;
@@ -784,15 +789,15 @@ html[dir="rtl"] .mnt-home .showcase-info {
     font-weight: 600;
     padding: 6px 12px;
     border-radius: 999px;
-    background: rgba(155, 108, 184, .18);
-    border: 1px solid rgba(155, 108, 184, .35);
+    background: rgba(146, 117, 164, .18);
+    border: 1px solid rgba(146, 117, 164, .35);
     color: var(--mnt-ink);
     text-decoration: none;
     transition: background .25s ease, border-color .25s ease;
 }
 .lux-concern-chip:hover {
-    background: rgba(201, 168, 76, .2);
-    border-color: rgba(201, 168, 76, .45);
+    background: rgba(216, 181, 89, .2);
+    border-color: rgba(216, 181, 89, .45);
     color: var(--mnt-ink);
 }
 .lux-concerns-disclaimer {
@@ -837,7 +842,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     font-family: 'Playfair Display', serif;
     font-size: 48px;
     font-weight: 700;
-    color: #2D1B3D;
+    color: #3A2F42;
     line-height: 1;
 }
 .lux-reviews-score span {
@@ -858,7 +863,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     background: var(--mnt-surface-white);
     border-radius: 18px;
     padding: 28px;
-    border: 1px solid rgba(201, 168, 76, .12);
+    border: 1px solid rgba(216, 181, 89, .12);
     box-shadow: 0 8px 32px rgba(0, 0, 0, .2);
 }
 .lux-review-stars {
@@ -883,7 +888,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #9B6CB8, #2D1B3D);
+    background: linear-gradient(135deg, #9275A4, #3A2F42);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -907,14 +912,14 @@ html[dir="rtl"] .mnt-home .showcase-info {
     letter-spacing: .02em !important;
 }
 .products-section .product-card {
-    border: 1px solid rgba(201, 168, 76, .14) !important;
+    border: 1px solid rgba(216, 181, 89, .14) !important;
     border-radius: 18px !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, .22) !important;
     background: var(--mnt-surface-white) !important;
     backdrop-filter: blur(10px);
 }
 .products-section .product-card:hover {
-    border-color: rgba(201, 168, 76, .35) !important;
+    border-color: rgba(216, 181, 89, .35) !important;
     box-shadow: 0 20px 48px rgba(0, 0, 0, .35) !important;
     transform: translateY(-6px) !important;
 }
@@ -923,7 +928,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     background: transparent !important;
 }
 .products-section .product-img {
-    background: linear-gradient(160deg, #FBF9FD 0%, #F1EAF7 100%) !important;
+    background: linear-gradient(160deg, #FCFCFC 0%, #F0ECF2 100%) !important;
     aspect-ratio: 1 !important;
 }
 .products-section .product-img img {
@@ -943,9 +948,11 @@ html[dir="rtl"] .mnt-home .showcase-info {
 .products-section .product-badges .badge-sale,
 .products-section .product-badges .badge-new,
 .products-section .product-badges .badge-best {
-    background: rgba(45, 27, 61, .88) !important;
-    color: var(--mnt-gold-ink) !important;
-    border: 1px solid rgba(232, 212, 138, .35) !important;
+    background: rgba(58, 47, 66, .88) !important;
+    /* Light gold, not --mnt-gold-ink: this pill is dark plum, so the dark
+       gold meant for white backgrounds lands at 2.2:1 and disappears. */
+    color: var(--mnt-gold-light) !important;
+    border: 1px solid rgba(231, 206, 140, .35) !important;
     font-size: 11px !important;
     font-weight: 600 !important;
     box-shadow: none !important;
@@ -968,22 +975,22 @@ html[dir="rtl"] .mnt-home .showcase-info {
     text-align: center;
     padding: 32px;
     margin-top: 48px;
-    border: 1px dashed rgba(201, 168, 76, .35);
+    border: 1px dashed rgba(216, 181, 89, .35);
     border-radius: 16px;
-    background: rgba(201, 168, 76, .04);
+    background: rgba(216, 181, 89, .04);
 }
 .lux-roadmap p {
     font-size: 14px;
     color: #888;
     margin: 0;
 }
-.lux-roadmap strong { color: #2D1B3D; }
+.lux-roadmap strong { color: #3A2F42; }
 
 /* Features bar — dark glass, not white strip */
 .mnt-home .features-bar {
     background: var(--mnt-canvas) !important;
-    border-top: 1px solid rgba(201, 168, 76, .12);
-    border-bottom: 1px solid rgba(201, 168, 76, .12);
+    border-top: 1px solid rgba(216, 181, 89, .12);
+    border-bottom: 1px solid rgba(216, 181, 89, .12);
 }
 .mnt-home .features-bar .feature-item h4 {
     color: var(--mnt-ink) !important;
@@ -1086,7 +1093,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
 }
 .mnt-home .rewards-card {
     background: linear-gradient(135deg, var(--mnt-gold) 0%, #a8873a 100%) !important;
-    box-shadow: 0 20px 60px rgba(201, 168, 76, .28) !important;
+    box-shadow: 0 20px 60px rgba(216, 181, 89, .28) !important;
 }
 
 /* Product cards — dark glass on dark canvas */
@@ -1103,7 +1110,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
 /* Before/after cards — no white panels */
 .mnt-home .ba-card {
     background: var(--mnt-surface-white) !important;
-    border-color: rgba(201, 168, 76, .12) !important;
+    border-color: rgba(216, 181, 89, .12) !important;
 }
 .mnt-home .ba-info h3 {
     color: var(--mnt-ink) !important;
@@ -1131,7 +1138,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
 /* Newsletter form — glass on dark */
 .mnt-home .newsletter-form {
     background: var(--mnt-ink-ghost) !important;
-    border-color: rgba(201, 168, 76, .28) !important;
+    border-color: rgba(216, 181, 89, .28) !important;
 }
 .mnt-home .newsletter-form input {
     background: transparent !important;
@@ -1147,7 +1154,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
 
 /* Roadmap teaser on dark */
 .mnt-home .lux-roadmap {
-    border-color: rgba(201, 168, 76, .25);
+    border-color: rgba(216, 181, 89, .25);
     background: var(--mnt-ink-ghost);
 }
 .mnt-home .lux-roadmap p {
@@ -1372,7 +1379,7 @@ html[dir="rtl"] .mnt-home .showcase-info {
     color: var(--mnt-gold-light) !important;
 }
 .mnt-home .hero-showcase .showcase-info .sc-concerns {
-    color: rgba(232, 212, 138, .88) !important;
+    color: rgba(231, 206, 140, .88) !important;
 }
 .mnt-home .hero-showcase .showcase-info .sc-trust-pill {
     background: rgba(255, 255, 255, .1) !important;
@@ -1396,6 +1403,6 @@ html[dir="rtl"] .mnt-home .showcase-info {
 /* The store shortcut floats over the photo, not over the page */
 .mnt-home .floating-store-btn {
     color: #fff !important;
-    background: rgba(18, 10, 36, .55) !important;
+    background: rgba(32, 26, 36, .55) !important;
     border: 1px solid rgba(255, 255, 255, .25) !important;
 }

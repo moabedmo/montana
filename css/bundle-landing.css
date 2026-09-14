@@ -1,12 +1,12 @@
 /* Bundle ad landing — lean, mobile-first, purple Montana theme */
 :root {
-  --bl-primary: #2D1B3D;
-  --bl-accent: #9B6CB8;
-  --bl-accent-dark: #7d53a0;
-  --bl-muted: #9890A3;
-  --bl-border: #E8DFF0;
+  --bl-primary: #3A2F42;
+  --bl-accent: #9275A4;
+  --bl-accent-dark: #6E5480;
+  --bl-muted: #836F8F;
+  --bl-border: #E4DFE8;
   --bl-bg: #faf7fc;
-  --bl-gold: #C9A84C;
+  --bl-gold: #D8B559;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -76,7 +76,7 @@ a { color: inherit; text-decoration: none; }
   max-width: 150px;
   aspect-ratio: 1;
   object-fit: contain;
-  filter: drop-shadow(0 8px 16px rgba(45, 27, 61, 0.15));
+  filter: drop-shadow(0 8px 16px rgba(58, 47, 66, 0.15));
 }
 
 .bl-hero-media img + img {
@@ -130,7 +130,7 @@ a { color: inherit; text-decoration: none; }
 
 .bl-save {
   display: inline-block;
-  background: linear-gradient(135deg, var(--bl-gold), #E8D48A);
+  background: linear-gradient(135deg, var(--bl-gold), #E7CE8C);
   color: var(--bl-primary);
   font-size: 13px;
   font-weight: 800;
@@ -150,7 +150,7 @@ a { color: inherit; text-decoration: none; }
   color: #fff;
   background: linear-gradient(135deg, var(--bl-accent), var(--bl-accent-dark));
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(155, 108, 184, 0.35);
+  box-shadow: 0 8px 24px rgba(146, 117, 164, 0.35);
 }
 
 .bl-cta:disabled {
@@ -221,7 +221,7 @@ a { color: inherit; text-decoration: none; }
 
 .bl-product-body p {
   font-size: 13px;
-  color: #5C4A6B;
+  color: #604D6C;
   margin-bottom: 8px;
 }
 
@@ -271,7 +271,7 @@ a { color: inherit; text-decoration: none; }
 
 .bl-review p {
   font-size: 13px;
-  color: #5C4A6B;
+  color: #604D6C;
 }
 
 .bl-review small {
