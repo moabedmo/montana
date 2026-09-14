@@ -91,7 +91,12 @@
   }
 
   function deferNonCritical() {
-    const base = document.querySelector('script[src*="components.js"]')?.src.includes('../') ? '../' : '';
+    // Root-absolute, so this resolves the same from / and from /en/. It used to
+    // read `.src` of the components.js tag and look for "../" in it — but .src
+    // returns the resolved absolute URL, which never contains "../", so the
+    // base was always empty and /en/ asked for /en/chat-widget.js. The English
+    // storefront had no chat widget at all.
+    const base = '/';
     const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1200));
     idle(() => {
       if (!document.querySelector('script[src*="chat-widget"]')) {
