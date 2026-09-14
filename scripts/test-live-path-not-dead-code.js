@@ -45,6 +45,8 @@ const mustBeLive = [
   ['laser denial → ask concern', 'with nothing else asked → ask what she needs'],
   ['pregnancy & all FAQ answers', 'The FAQ answers — ingredients, benefits, usage'],
   ['skin condition → doctor', 'A named skin condition outranks every other answer'],
+  ['customer photo → product/offer/CS', 'A photo the customer sent'],
+  ['order screenshot → customer service', 'A screenshot of an order, invoice, tracking or payment'],
 ];
 
 for (const [label, marker] of mustBeLive) {

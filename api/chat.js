@@ -2,6 +2,7 @@
 const { handleInboundMessage, channelOf, getCartForSid, getOrderForSid, getPointsBalance } = require('../lib/chatEngine');
 const { handleOwnerAssistant } = require('../lib/ownerAssistant');
 const { enforceRateLimit, rateLimit, hasValidApiSecret } = require('../lib/security');
+const { extractImageUrl } = require('../lib/imageUnderstanding');
 
 // Trusted external senders (e.g. ManyChat relaying Facebook/Instagram DMs and
 // comments to this same bot brain) authenticate via the X-Montana-Secret header
@@ -168,7 +169,10 @@ module.exports = async (req, res) => {
       || (typeof body.attachment_type === 'string' && /image|photo|sticker/i.test(body.attachment_type))
       || (typeof body.type === 'string' && /^(image|photo|sticker)$/i.test(body.type))
     );
-    if (!message && !formSubmit && !hasBundle && !hasProduct && !hasAdTitle && !pauseBot && !resumeBot && !hasImage) {
+    // The URL, not just the fact that a photo arrived. Without it the engine
+    // can only answer every photo with the same canned pitch.
+    const imageUrl = extractImageUrl(body);
+    if (!message && !formSubmit && !hasBundle && !hasProduct && !hasAdTitle && !pauseBot && !resumeBot && !hasImage && !imageUrl) {
       return res.status(400).json({ error: 'message required' });
     }
     if (message && String(message).length > 2000) {
@@ -212,7 +216,8 @@ module.exports = async (req, res) => {
       adTitle: hasAdTitle ? String(adTitleRaw).trim() : null,
       pauseBot,
       resumeBot,
-      hasImage,
+      hasImage: hasImage || !!imageUrl,
+      imageUrl,
     });
     // ManyChat (messenger/instagram) can't split a single field into
     // multiple bubbles itself — its "Send Message" steps each need their

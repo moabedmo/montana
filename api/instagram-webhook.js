@@ -51,6 +51,12 @@ module.exports = async (req, res) => {
             messaging?.message?.sticker_id
             || atts.some((a) => /^(image|story_mention)$/i.test(String(a?.type || '')))
           );
+          // Meta hands us the attachment URL here; pass it on so the engine can
+          // actually look at the photo instead of only knowing one arrived.
+          const imageUrl = atts
+            .filter((a) => /^image$/i.test(String(a?.type || '')))
+            .map((a) => a?.payload?.url)
+            .find((u) => typeof u === 'string' && /^https:\/\//i.test(u)) || null;
           if (!text && !hasImage) continue;
 
           if (!process.env.INSTAGRAM_PAGE_TOKEN) {
@@ -64,6 +70,7 @@ module.exports = async (req, res) => {
             message: text || null,
             channel: 'instagram',
             hasImage: hasImage && !text,
+            imageUrl,
           });
           if (payload?.reply) {
             await sendPageMessage(
