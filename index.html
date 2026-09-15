@@ -219,14 +219,14 @@
                     </a>
                     <a href="account.html" class="header-action">
                         <i class="far fa-heart"></i>
-                        <span class="badge">3</span>
+                        <span class="badge wishlist-badge" style="display:none">0</span>
                         <small>المفضلة</small>
                     </a>
                     <a href="login.html" class="header-action">
                         <i class="far fa-user"></i>
                         <small>حسابي</small>
                     </a>
-                    <a href="javascript:void(0)" onclick="switchScreen('cart')" class="header-action cart-icon">
+                    <a href="checkout.html" onclick="if (window.innerWidth <= 768) { switchScreen('cart'); return false; }" class="header-action cart-icon">
                         <i class="fas fa-shopping-bag"></i>
                         <span class="badge cart-badge" style="display:none">0</span>
                         <small>السلة</small>

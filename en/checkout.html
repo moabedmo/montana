@@ -504,12 +504,18 @@ function depositAmount() {
 
 function renderDepositBox() {
     const method = document.querySelector('.ck-payment-option.selected')?.dataset.method;
+    // Same story as the governorate select: with an empty cart the form is not
+    // rendered, so none of this exists. It was throwing behind the earlier
+    // error and only became visible once that one was fixed.
     const box = document.getElementById('depositBox');
+    if (!box) return;
     if (method !== 'wallet') { box.style.display = 'none'; return; }
     box.style.display = 'block';
     const amount = depositAmount();
-    document.getElementById('depositMsg').textContent = fmt(S.depositWallet, { amount: money(amount) });
-    document.getElementById('depositNumber').textContent = `${transferNumber} — ${transferName}`;
+    const msg = document.getElementById('depositMsg');
+    const num = document.getElementById('depositNumber');
+    if (msg) msg.textContent = fmt(S.depositWallet, { amount: money(amount) });
+    if (num) num.textContent = `${transferNumber} — ${transferName}`;
 }
 
 /** Free ship: 3+ units, or pure ad-routine cart (matches chatEngine). */
@@ -902,11 +908,20 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
 (async () => {
     try {
         shippingRates = await shippingApi.list();
+        // An empty cart renders the "your basket is empty" view instead of the
+        // form, so the select is not on the page. This ran regardless: the try
+        // threw on a null select, and then the catch threw on the same null —
+        // an uncaught error on the checkout page every time. Worse, a real
+        // failure of shippingApi.list() for a customer WITH items hit the same
+        // second throw, so she got an empty governorate list and no message.
         const sel = document.getElementById('governorateSelect');
-        sel.innerHTML = shippingRates.map(r => `<option value="${r.governorate}" data-cost="${Number(r.cost) || 0}">${r.governorate}</option>`).join('');
-        sel.dispatchEvent(new Event('change'));
+        if (sel) {
+            sel.innerHTML = shippingRates.map(r => `<option value="${r.governorate}" data-cost="${Number(r.cost) || 0}">${r.governorate}</option>`).join('');
+            sel.dispatchEvent(new Event('change'));
+        }
     } catch (e) {
-        document.getElementById('governorateSelect').innerHTML = `<option value="">${S.govLoadError}</option>`;
+        const sel = document.getElementById('governorateSelect');
+        if (sel) sel.innerHTML = `<option value="">${S.govLoadError}</option>`;
     }
     try {
         transferNumber = await settingsApi.get('instapay_wallet_number');
