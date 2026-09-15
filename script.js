@@ -360,12 +360,9 @@ function goAppStory(story) {
         case 'offers':
             switchScreen('offers');
             break;
-        case 'new':
-            scrollToSel('.new-arrivals');
-            break;
-        case 'best':
-            scrollToSel('#trending');
-            break;
+        // 'new' and 'best' used to scroll to the New Arrivals and Trending
+        // sections. Those are gone — their stories are links to the shop now,
+        // and A elements skip this handler entirely.
         case 'tips':
             scrollToSel('#ingredients');
             break;
