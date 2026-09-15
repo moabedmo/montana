@@ -137,6 +137,11 @@ function renderTodaysOffers(all) {
  * catalog. It was three hand-written cards out of six products; the three it
  * left out all had ingredients recorded, they were simply never typed in.
  */
+/** The catalog stores .png; the .webp beside it is about a ninth of the size. */
+function webpPath(url) {
+  return String(url || '').replace(/\.(png|jpe?g)(\?.*)?$/i, '.webp$2');
+}
+
 function renderIngredientCards(list) {
   const grid = document.querySelector('.lux-ing-grid');
   if (!grid || !list?.length) return;
@@ -164,7 +169,7 @@ function renderIngredientCards(list) {
           <span class="lux-ing-link">${discover} <i class="fas fa-arrow-left"></i></span>
         </div>
         <div class="lux-ing-visual">
-          <img src="${resolveAssetUrl(raw.image_url)}" alt="${p.name}" loading="lazy" decoding="async">
+          <img src="${resolveAssetUrl(webpPath(raw.image_url))}" alt="${p.name}" loading="lazy" decoding="async">
         </div>
       </a>`;
   }).join('');

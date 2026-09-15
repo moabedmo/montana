@@ -7,12 +7,12 @@ import { HERO_SLIDES } from './i18n/en.js';
 export const HERO_MOODS = ['#453f64', '#4f3f5c', '#543d67', '#503f60', '#5a4358', '#493d58'];
 
 export const HERO_IMG_BY_SLUG = {
-  'acne-facial-cleanser': 'images/p1.png',
-  'whitening-cleanser': 'images/p2.png',
-  'whitening-cream': 'images/p3.png',
-  'hand-body-lotion': 'images/p4.png',
-  'post-laser-cream': 'images/p5.png',
-  'anti-scar-gel': 'images/p6.png',
+  'acne-facial-cleanser': 'images/p1.webp',
+  'whitening-cleanser': 'images/p2.webp',
+  'whitening-cream': 'images/p3.webp',
+  'hand-body-lotion': 'images/p4.webp',
+  'post-laser-cream': 'images/p5.webp',
+  'anti-scar-gel': 'images/p6.webp',
 };
 
 /** Only the tall pump bottles (both cleansers) — jars/tubes stay at 1. */
@@ -24,7 +24,7 @@ export const HERO_SCALE_BY_SLUG = {
 const HERO_VER = '16';
 
 export function heroImageForProduct(p) {
-  const base = HERO_IMG_BY_SLUG[p.slug] || p.image_url || 'images/p1.png';
+  const base = HERO_IMG_BY_SLUG[p.slug] || p.image_url || 'images/p1.webp';
   const sep = base.includes('?') ? '&' : '?';
   return resolveAssetUrl(`${base}${sep}v=${HERO_VER}`);
 }
