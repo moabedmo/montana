@@ -21,7 +21,7 @@ export const HERO_SCALE_BY_SLUG = {
   'whitening-cleanser': 1.16,
 };
 
-const HERO_VER = '15';
+const HERO_VER = '16';
 
 export function heroImageForProduct(p) {
   const base = HERO_IMG_BY_SLUG[p.slug] || p.image_url || 'images/p1.png';
