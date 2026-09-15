@@ -129,10 +129,6 @@ function applySearch() {
   const chips = document.querySelectorAll('.srch-cat-chip');
   const chipLabels = [
     U.nav.skincare,
-    `${U.nav.haircare} (${U.nav.comingSoon})`,
-    `${U.nav.health} (${U.nav.comingSoon})`,
-    `${U.nav.kids} (${U.nav.comingSoon})`,
-    `${U.nav.therm} (${U.nav.comingSoon})`,
   ];
   chips.forEach((chip, i) => {
     if (!chipLabels[i]) return;

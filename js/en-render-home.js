@@ -225,13 +225,14 @@ function patchFooterAndMobile() {
     if (labels[i]) el.textContent = labels[i];
   });
   document.querySelectorAll('.nav-links .nav-item > a').forEach((a, i) => {
+    // Positional, so this list must match index.html's nav exactly. It used to
+    // start with Home, which the homepage nav does not have — every label was
+    // one place out, and dropping the four coming-soon entries made it obvious
+    // by putting "Skincare" on the Offers link.
     const items = [
-      [U.nav.home, 'fa-home'],
       [U.nav.skincare, 'fa-spa'],
-      [`${U.nav.haircare} (${U.nav.comingSoon})`, 'fa-pump-soap'],
-      [`${U.nav.health} (${U.nav.comingSoon})`, 'fa-heartbeat'],
-      [`${U.nav.kids} (${U.nav.comingSoon})`, 'fa-baby'],
-      [`${U.nav.therm} (${U.nav.comingSoon})`, 'fa-temperature-low'],
+      [U.nav.offers, 'fa-fire'],
+      [U.nav.rewards, 'fa-crown'],
     ];
     const item = items[i];
     if (item) a.innerHTML = `<i class="fas ${item[1]}"></i> ${item[0]}`;
@@ -249,7 +250,7 @@ function patchFooterAndMobile() {
   document.querySelector('.lux-roadmap p')?.replaceChildren(document.createTextNode(U.categories.roadmap));
 
   // Trending tabs
-  const tabKeys = ['all', 'skincare', 'haircare', 'health', 'kids', 'therm'];
+  const tabKeys = [];  // the tab row is gone — one category left
   document.querySelectorAll('.section-tabs .tab-btn').forEach((btn, i) => {
     const key = tabKeys[i];
     if (key && U.trending.tabs[key]) btn.textContent = U.trending.tabs[key];

@@ -190,10 +190,6 @@
                 <ul class="nav-links">
                     <li class="nav-item"><a href="${homeHref}"><i class="fas fa-home"></i> ${N.home}</a></li>
                     <li class="nav-item"><a href="${page('category.html')}"><i class="fas fa-spa"></i> ${N.skincare}</a></li>
-                    <li class="nav-item nav-soon"><a href="javascript:void(0)" title="${N.comingSoon}"><i class="fas fa-pump-soap"></i> ${N.haircare} (${N.comingSoon})</a></li>
-                    <li class="nav-item nav-soon"><a href="javascript:void(0)" title="${N.comingSoon}"><i class="fas fa-heartbeat"></i> ${N.health} (${N.comingSoon})</a></li>
-                    <li class="nav-item nav-soon"><a href="javascript:void(0)" title="${N.comingSoon}"><i class="fas fa-baby"></i> ${N.kids} (${N.comingSoon})</a></li>
-                    <li class="nav-item nav-soon"><a href="javascript:void(0)" title="${N.comingSoon}"><i class="fas fa-temperature-low"></i> ${N.therm} (${N.comingSoon})</a></li>
                 </ul>
             </div>
         </nav>
