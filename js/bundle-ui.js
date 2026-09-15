@@ -28,6 +28,21 @@ function imgUrl(url) {
   return `/${raw.replace(/^(\.\.\/)+/, '').replace(/^\.\//, '')}`;
 }
 
+/**
+ * Bundle thumbnails sit two or three abreast, so the studio backdrop that
+ * looks right on a single card turns into grey tiles with a seam down the
+ * middle. These are the only place the cut-out version is used; everywhere
+ * else on the site shows the photograph as taken.
+ *
+ * Falls back to the given image when a product has no cut-out — the gel, for
+ * one — rather than breaking the tile.
+ */
+const CUTOUT = /\/(p[1-5])\.(webp|png)(\?|$)/i;
+function bundleImgUrl(url) {
+  const resolved = imgUrl(url);
+  return resolved.replace(CUTOUT, '/$1-cut.webp$3');
+}
+
 function formatMoney(n) {
   const num = Math.round(Number(n) || 0);
   return IS_EN
@@ -46,7 +61,7 @@ function renderCard(resolved) {
   const imgs = products
     .map(
       (p) =>
-        `<img class="bundle-card-img" src="${escapeHtml(imgUrl(p.image_url))}" alt="${escapeHtml(productLabel(p))}" loading="lazy" decoding="async">`
+        `<img class="bundle-card-img" src="${escapeHtml(bundleImgUrl(p.image_url))}" alt="${escapeHtml(productLabel(p))}" loading="lazy" decoding="async">`
     )
     .join('');
   const names = products.map((p) => escapeHtml(productLabel(p))).join(' + ');
