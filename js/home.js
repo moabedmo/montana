@@ -132,9 +132,51 @@ function renderTodaysOffers(all) {
   }).join('');
 }
 
+/**
+ * "العلم وراء كل منتج" — one card per active product, straight from the
+ * catalog. It was three hand-written cards out of six products; the three it
+ * left out all had ingredients recorded, they were simply never typed in.
+ */
+function renderIngredientCards(list) {
+  const grid = document.querySelector('.lux-ing-grid');
+  if (!grid || !list?.length) return;
+  const isEn = getLocale() === 'en';
+  const sep = isEn ? ',' : '،';
+  const discover = isEn ? 'Discover the product' : 'اكتشف المنتج';
+  const prefix = isEn ? '/en/product/' : '/product/';
+
+  grid.innerHTML = list.map((raw, i) => {
+    const p = localizeProduct(raw);
+    const items = String(p.ingredients || '')
+      .split(sep)
+      .map((t) => t.trim())
+      .filter(Boolean)
+      .slice(0, 3);
+    if (!items.length) return '';
+    const href = prefix + raw.slug;
+    return `
+      <a class="lux-ing-card lux-reveal lux-reveal-delay-${(i % 3) + 1}" href="${href}">
+        <div class="lux-ing-body">
+          <div class="lux-ing-product">${p.name}</div>
+          <ul class="lux-ing-list">
+            ${items.map((t) => `<li><span class="lux-ing-dot"></span>${t}</li>`).join('')}
+          </ul>
+          <span class="lux-ing-link">${discover} <i class="fas fa-arrow-left"></i></span>
+        </div>
+        <div class="lux-ing-visual">
+          <img src="${resolveAssetUrl(raw.image_url)}" alt="${p.name}" loading="lazy" decoding="async">
+        </div>
+      </a>`;
+  }).join('');
+
+  grid.querySelectorAll('.lux-reveal').forEach((el) => el.classList.add('lux-visible'));
+}
+
 async function initHome() {
   try {
     const all = await productsApi.list();
+
+    renderIngredientCards(all);
 
     const trendingGrid = document.querySelector('#trendingGrid') || document.querySelector('#trending .products-grid');
     if (trendingGrid) renderGrid(trendingGrid, sortTrending(all));

@@ -250,8 +250,47 @@
         pageHeader.style.display = 'none';
       }
       document.body.insertAdjacentHTML('beforeend', footerHTML);
+      // The quick-view modal used to live in index.html alone, so the button
+      // storefront-ui.js renders on every product card threw on the shop,
+      // search and wishlist pages and simply did nothing.
+      if (!document.getElementById('quickViewModal')) {
+        document.body.insertAdjacentHTML('beforeend', `
+<div class="modal-overlay" id="quickViewModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        <div class="modal-body">
+            <div class="modal-img">
+                <img src="" alt="Product" id="modalImg">
+            </div>
+            <div class="modal-info">
+                <span class="product-brand" id="modalBrand"></span>
+                <p class="modal-product-name" id="modalName">تفاصيل المنتج</p>
+                <div class="product-rating">
+                    <div class="stars" id="modalStars"></div>
+                    <span id="modalReviewCount"></span>
+                </div>
+                <p class="modal-desc" id="modalDesc"></p>
+                <div class="modal-ingredients" id="modalIngredients"></div>
+                <div class="product-price" id="modalPrice"></div>
+                <div class="modal-quantity">
+                    <button onclick="changeQty(-1)">-</button>
+                    <input type="number" value="1" min="1" id="modalQty">
+                    <button onclick="changeQty(1)">+</button>
+                </div>
+                <button class="btn-primary btn-lg w-full" id="modalAddBtn"><i class="fas fa-shopping-bag"></i> أضف للسلة</button>
+            </div>
+        </div>
+    </div>
+</div>
+`);
+      }
       document.body.classList.add('injected-site-chrome');
     }
+
+    // The quick-view behaviour lives in js/quick-view.js; it has to be wired
+    // here too, because the modal only exists after the injection above.
+    window.wireQuickViewModal?.();
+    window.bindQuickView?.();
 
     import('/js/site-settings.js?v=c2').then((m) => m.applySiteSettings()).catch(() => {});
   }
