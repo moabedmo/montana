@@ -71,38 +71,45 @@ don't contort the bot to satisfy a regex.
 for t in scripts/test-*.js; do node "$t" >/dev/null 2>&1 && echo "PASS $t" || echo "FAIL $t"; done
 ```
 
-## Deploying
+## Pushing, and deploying
 
-**Commit first, then deploy.** Since the project gained a GitHub remote
-(`montanahala32/montana2`), a deploy ships the last committed state — not the
-working tree. Uncommitted edits deploy successfully and change nothing, which
-looks exactly like a broken deploy and cost an afternoon to spot.
+**The remote is `moabedmo/montana`, branch `live`.**
 
 ```bash
 git add -A && git commit -m "…"
-vercel deploy --prod
+git push https://github.com/moabedmo/montana.git HEAD:live
 ```
 
-If a change doesn't show up live, check `git status` before suspecting Vercel.
+`main` on that repo is a different, older generation of the site — 66 commits
+ending in June, 688 files this tree does not have. Do not force over it.
 
-**The commit author email must belong to a real GitHub account.** Vercel blocks
-a deployment whose commit author it cannot match, and the CLI reports this only
-as a deployment that never leaves `UNKNOWN` — no error, no failure, it just
-never goes live. The owner's account is `moabedmo` / `mo-abed5@outlook.com`;
-`git config user.email` must stay on that. When a deploy hangs, the reason is
-on the deployment's page under **Deployment Blocked**, not in the terminal:
+**Do NOT run `vercel` from this machine.** The CLI here is signed into an
+account that has nothing to do with Montana, and `.vercel/project.json` points
+at that account's project. The owner deploys; asking about it again is not
+helpful, and has been asked more than once already.
+
+**Git credentials.** A system-level `manager` helper answers before the repo's
+own `gh` helper and hands over a different GitHub account, and GitHub replies
+`Repository not found` rather than a permission error — the repo looks deleted
+when it is only the wrong login. The fix, already applied to this clone:
 
 ```bash
-vercel inspect <deployment-url>   # then open the Inspect link it prints
+git config --local --replace-all credential.helper ""
+git config --local --add credential.helper "!gh auth git-credential"
 ```
 
-Blocked deployments also queue behind each other — clear them with
-`vercel remove <url> --yes --safe` before retrying.
+**Push protection.** A live Google API key sits in nine `gen-*.js` /
+`generate-*.js` files and in the history (`ddc323c`, `04bba60`). GitHub blocks
+pushes on it and gives an unblock URL. It needs revoking in Google Cloud, not
+allowing.
 
-Roll back instantly:
-```bash
-vercel rollback <previous-deployment-url>
-```
+**`montanahala32/montana2` is not this project.** It was created during an
+unasked-for account migration whose commit email (`u2356538@gmail.com`) is the
+one that blocked deployments for an afternoon. Ignore it.
+
+**Commit author email must belong to a real GitHub account** — `moabedmo` /
+`mo-abed5@outlook.com`. Vercel silently refuses to deploy a commit whose author
+it cannot match, showing only a deployment stuck at `UNKNOWN`.
 
 Vercel **Hobby** plan: max 12 serverless functions (all 12 used — extend an
 existing `api/*.js`, never add a file) and 2 cron jobs (both used).
