@@ -262,12 +262,16 @@ function patchFooterAndMobile() {
   if (rewards && U.rewards) {
     rewards.querySelector('.rewards-badge')?.replaceChildren(document.createTextNode(U.rewards.badge));
     rewards.querySelector('h2')?.replaceChildren(document.createTextNode(U.rewards.title));
-    rewards.querySelector('.rewards-section > .container > p, .rewards-content > p')?.replaceChildren(document.createTextNode(U.rewards.subtitle));
-    rewards.querySelectorAll('.perk span, .perk').forEach((el, i) => {
-      if (U.rewards.perks[i]) {
-        if (el.querySelector('span')) el.querySelector('span').textContent = U.rewards.perks[i];
-        else el.appendChild(document.createTextNode(U.rewards.perks[i]));
-      }
+    // The subtitle lives in .rewards-text, not directly under .rewards-content —
+    // the old selector matched nothing, so the English page kept the Arabic
+    // sentence and the text mapper chewed a word out of the middle of it.
+    rewards.querySelector('.rewards-text > p, .rewards-content > p')?.replaceChildren(document.createTextNode(U.rewards.subtitle));
+    // '.perk span, .perk' matched each perk AND its own span, so the list came
+    // out in pairs: the parent set span[i], then the span itself appended
+    // perks[i+1] to what was already there — "1 point per 10 EGP10 points = 1
+    // EGP off". Only the spans carry text.
+    rewards.querySelectorAll('.perk span').forEach((el, i) => {
+      if (U.rewards.perks[i]) el.textContent = U.rewards.perks[i];
     });
     rewards.querySelector('.rewards-content .btn-primary, .rewards-cta')?.replaceChildren(document.createTextNode(U.rewards.cta));
     rewards.querySelector('.rc-name')?.replaceChildren(document.createTextNode(U.rewards.cardTier));

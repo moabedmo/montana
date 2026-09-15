@@ -111,11 +111,11 @@ export const UI_STRINGS = {
 
   rewards: {
     badge: 'Montana Rewards',
-    title: 'Join our rewards program',
-    subtitle: 'Earn points with every purchase and redeem for exclusive discounts and complimentary products',
-    perks: ['Welcome gift', 'Member-only savings', 'Early access to offers', 'Free shipping'],
-    cta: 'Join free',
-    cardTier: 'Gold membership',
+    title: 'Your points add up on their own',
+    subtitle: 'Every order earns points — no sign-up, no membership. We recognise you by your mobile number, and your points come off any future order.',
+    perks: ['1 point per 10 EGP', '10 points = 1 EGP off', 'No sign-up — just your number', 'Credited on delivery'],
+    cta: 'Start your order',
+    cardTier: 'Your points balance',
     cardPoints: '2,450 points',
   },
 
