@@ -651,52 +651,18 @@
     </div>
 </section>
 
-<!-- Reviews Section -->
-<section class="reviews-section lux-section lux-section--light lux-reveal">
+<!-- Reviews Section — filled by js/home.js from the reviews table.
+     Hidden until there are real ones: it used to carry a hand-written 4.8/5
+     over "1,200+ تقييم حقيقي" and three invented testimonials, against zero
+     rows in the database. -->
+<section class="reviews-section lux-section lux-section--light lux-reveal" id="reviews" hidden>
     <div class="container">
         <div class="section-header">
             <span class="lux-eyebrow lux-eyebrow--accent">آراء العملاء</span>
             <h2>آراء عملائنا</h2>
         </div>
-        <div class="lux-reviews-summary">
-            <div class="lux-reviews-score">4.8<span>/5</span></div>
-            <div class="lux-reviews-count">من أكثر من 1,200+ تقييم حقيقي</div>
-        </div>
-        <div class="lux-reviews-grid">
-            <div class="lux-review-card lux-reveal lux-reveal-delay-1">
-                <div class="lux-review-stars">★★★★★</div>
-                <p class="lux-review-text">«غسول حب الشباب غيّر بشرتي خلال أسبوعين — بشرة أنظف وأقل حبوب. رائحة هادية ومش جافة خالص.»</p>
-                <div class="lux-review-author">
-                    <div class="lux-review-avatar">س</div>
-                    <div>
-                        <div class="lux-review-name">سارة م.</div>
-                        <div class="lux-review-meta">غسول الوجه لعلاج حب الشباب</div>
-                    </div>
-                </div>
-            </div>
-            <div class="lux-review-card lux-reveal lux-reveal-delay-2">
-                <div class="lux-review-stars">★★★★★</div>
-                <p class="lux-review-text">«غسول التفتيح فعلاً بيوحّد لون البشرة — استخدمته 3 أسابيع والبقع بدأت تخف. التغليف شيك جداً.»</p>
-                <div class="lux-review-author">
-                    <div class="lux-review-avatar">ن</div>
-                    <div>
-                        <div class="lux-review-name">نورهان أ.</div>
-                        <div class="lux-review-meta">غسول التفتيح والتوحيد</div>
-                    </div>
-                </div>
-            </div>
-            <div class="lux-review-card lux-reveal lux-reveal-delay-3">
-                <div class="lux-review-stars">★★★★☆</div>
-                <p class="lux-review-text">«كريم ما بعد الليزر أنقذ بشرتي بعد الجلسة — الاحمرار راح في يومين. Montana بقت ماركة ثقة عندي.»</p>
-                <div class="lux-review-author">
-                    <div class="lux-review-avatar">م</div>
-                    <div>
-                        <div class="lux-review-name">مريم ك.</div>
-                        <div class="lux-review-meta">كريم ما بعد الليزر</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="lux-reviews-summary" id="reviewsSummary"></div>
+        <div class="lux-reviews-grid" id="reviewsGrid"></div>
     </div>
 </section>
 
@@ -934,7 +900,7 @@ window.renderAppCart = renderAppCart;
 <script src="script.js?v=4" defer></script>
 <script src="js/quick-view.js?v=1" defer></script>
 <script src="js/home-premium.js" defer></script>
-<script type="module" src="js/home.js?v=8"></script>
+<script type="module" src="js/home.js?v=10"></script>
 <script type="module" src="js/bundle-ui.js?v=7"></script>
 </body>
 </html>

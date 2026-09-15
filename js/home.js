@@ -1,5 +1,5 @@
 // Homepage — loads products/banners from Supabase (replaces static HTML cards).
-import { products as productsApi, categories as categoriesApi, banners as bannersApi } from '/js/store-api.js';
+import { products as productsApi, categories as categoriesApi, banners as bannersApi, reviews as reviewsApi } from '/js/store-api.js';
 import { mapProductToHeroSlide } from '/js/hero-products.js';
 import { localizeProduct, getLocale, resolveAssetUrl } from '/js/i18n/locale.js?v=3';
 
@@ -177,11 +177,75 @@ function renderIngredientCards(list) {
   grid.querySelectorAll('.lux-reveal').forEach((el) => el.classList.add('lux-visible'));
 }
 
+/**
+ * Fill the reviews section from the reviews table, and leave it hidden when
+ * there is nothing in it.
+ *
+ * The section used to carry a hand-written "4.8/5 — من أكثر من 1,200+ تقييم
+ * حقيقي" above three invented testimonials, while the table held zero rows and
+ * the counts printed on the product cards added up to 1,417 that did not
+ * exist. A rating the shop made up is worth less than no rating at all, and on
+ * a site running paid ads it is a claim someone can hold you to.
+ */
+async function renderReviews(products) {
+  const section = document.getElementById('reviews');
+  const grid = document.getElementById('reviewsGrid');
+  const summary = document.getElementById('reviewsSummary');
+  if (!section || !grid || !summary) return;
+
+  const isEn = getLocale() === 'en';
+  const byProduct = await Promise.all(
+    (products || []).map(async (p) => {
+      try {
+        const list = await reviewsApi.listForProduct(p.id);
+        return (list || []).map((r) => ({ ...r, product: localizeProduct(p).name }));
+      } catch {
+        return [];
+      }
+    })
+  );
+
+  const all = byProduct.flat().filter((r) => r && r.rating);
+  if (!all.length) return; // stays hidden
+
+  const avg = all.reduce((s, r) => s + Number(r.rating || 0), 0) / all.length;
+  summary.innerHTML =
+    `<div class="lux-reviews-score">${avg.toFixed(1)}<span>/5</span></div>` +
+    `<div class="lux-reviews-count">${isEn
+      ? `from ${all.length} customer review${all.length === 1 ? '' : 's'}`
+      : `من ${all.length} تقييم`}</div>`;
+
+  const withText = all.filter((r) => (r.comment || '').trim());
+  const pick = (withText.length ? withText : all)
+    .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+    .slice(0, 3);
+
+  grid.innerHTML = pick.map((r, i) => {
+    const name = (r.customer_name || '').trim() || (isEn ? 'A customer' : 'عميلة');
+    const stars = '★'.repeat(Math.round(Number(r.rating) || 0)).padEnd(5, '☆');
+    return `
+      <div class="lux-review-card lux-reveal lux-reveal-delay-${i + 1} lux-visible">
+        <div class="lux-review-stars">${stars}</div>
+        ${r.comment ? `<p class="lux-review-text">«${r.comment}»</p>` : ''}
+        <div class="lux-review-author">
+          <div class="lux-review-avatar">${name.slice(0, 1)}</div>
+          <div>
+            <div class="lux-review-name">${name}</div>
+            <div class="lux-review-meta">${r.product || ''}</div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  section.hidden = false;
+}
+
 async function initHome() {
   try {
     const all = await productsApi.list();
 
     renderIngredientCards(all);
+    renderReviews(all);
 
     const trendingGrid = document.querySelector('#trendingGrid') || document.querySelector('#trending .products-grid');
     if (trendingGrid) renderGrid(trendingGrid, sortTrending(all));
