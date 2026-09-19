@@ -48,7 +48,7 @@ const countEl = document.getElementById('wishCount');
 async function render() {
   const ids = window.Wishlist.getIds();
   if (!ids.length) {
-    countEl.textContent = '0 منتجات';
+    countEl.textContent = '0 products';
     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--text-muted)">
       <i class="far fa-heart" style="font-size:40px;margin-bottom:12px;display:block;opacity:.4"></i>
       Your wishlist is empty<br><a href="/en/category.html" style="color:var(--accent);font-weight:700">Browse products</a>
@@ -57,9 +57,9 @@ async function render() {
   }
   const all = await productsApi.list();
   const list = all.filter(p => ids.includes(p.id));
-  countEl.textContent = `${list.length} منتجات`;
+  countEl.textContent = `${list.length} products`;
   if (!list.length) {
-    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">المنتجات المحفوظة لم تعد متاحة</p>';
+    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">The saved products are no longer available</p>';
     return;
   }
   grid.innerHTML = list.map(p => window.MontanaUI.renderProductCard(p)).join('');

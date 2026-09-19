@@ -43,6 +43,25 @@ function fixAssetPaths(html) {
   out = out.replace(/\bdata-image="(images\/[^"]+)"/g, 'data-image="../$1"');
   out = out.replace(/url\('(images\/[^']+)'\)/g, "url('../$1')");
   out = out.replace(/url\("(images\/[^"]+)"\)/g, 'url("../$1")');
+  // srcset carries its own comma-separated list of URLs, which the src/href
+  // pass above never sees. Left alone, the browser prefers srcset over the
+  // rewritten src and asks /en/images/… for every responsive image.
+  out = out.replace(/\b(srcset|imagesrcset)="([^"]+)"/g, (match, attr, list) => {
+    const fixed = list
+      .split(',')
+      .map((entry) => {
+        const trimmed = entry.trim();
+        if (!trimmed) return trimmed;
+        const [url, ...rest] = trimmed.split(/\s+/);
+        if (/^(https?:|\/\/|data:)/i.test(url) || url.startsWith('/') || url.startsWith('../')) {
+          return trimmed;
+        }
+        return [`../${url}`, ...rest].join(' ');
+      })
+      .filter(Boolean)
+      .join(', ');
+    return `${attr}="${fixed}"`;
+  });
   return out;
 }
 

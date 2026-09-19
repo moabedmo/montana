@@ -49,12 +49,12 @@ import { UI_STRINGS } from '/js/i18n/en.js';
 
 const isEn = getLocale() === 'en';
 const L = isEn ? UI_STRINGS.ingredients : {
-  pageTitle: 'المكون',
+  pageTitle: 'Ingredient',
   loading: 'Loading…',
-  foundIn: 'موجود في منتجات',
-  noSlug: 'لم يتم تحديد مكوّن',
+  foundIn: 'Found in products',
+  noSlug: 'No ingredient selected',
   browse: 'Browse products',
-  notFound: 'تعذّر العثور على هذا المكوّن',
+  notFound: 'This ingredient could not be found',
 };
 
 document.getElementById('ingPageTitle').textContent = L.pageTitle;

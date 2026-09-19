@@ -44,32 +44,32 @@ import { UI_STRINGS } from '/js/i18n/en.js';
 
 const isEn = getLocale() === 'en';
 const L = isEn ? UI_STRINGS.confirmation : {
-  pageTitle: 'تأكيد الطلب',
-  noOrderTitle: 'لا يوجد طلب حالي',
-  noOrderDesc: 'لم نجد أي طلب حديث لعرضه في هذه الجلسة.',
-  home: 'العودة للرئيسية',
-  successTitle: 'تم تأكيد طلبك بنجاح!',
-  successDesc: 'شكراً لك على طلبك. سنرسل لك تحديثات عن حالة الطلب.',
-  bookingConfirmed: 'تم تأكيد الطلب',
-  awaitingBooking: 'بانتظار مراجعة الإيصال',
-  awaitingDesc: 'هنراجع إيصال التحويل ونأكد طلبك، عادةً خلال وقت قصير.',
-  orderReceived: 'طلبك اتسجّل',
-  orderReceivedDesc: 'هنراجع الطلب ونكلمك قريب لتأكيد التوصيل.',
-  refreshStatus: 'تحديث الحالة',
-  refreshing: 'جارٍ التحديث…',
-  orderNumber: 'رقم الطلب',
-  orderDate: 'تاريخ الطلب',
+  pageTitle: 'Order Confirmed',
+  noOrderTitle: 'No current order',
+  noOrderDesc: 'We could not find a recent order to show in this session.',
+  home: 'Back to home',
+  successTitle: 'Your order is confirmed!',
+  successDesc: 'Thank you for your order. We will send you updates on its status.',
+  bookingConfirmed: 'Order confirmed',
+  awaitingBooking: 'Awaiting receipt review',
+  awaitingDesc: 'We will review the transfer receipt and confirm your order, usually within a short time.',
+  orderReceived: 'Your order is registered',
+  orderReceivedDesc: 'We will review the order and call you shortly to confirm delivery.',
+  refreshStatus: 'Refresh status',
+  refreshing: 'Refreshing…',
+  orderNumber: 'Order number',
+  orderDate: 'Order date',
   paymentMethod: 'Payment method',
   deliveryMethod: 'Delivery method',
-  deliveryExpress: 'توصيل سريع (24 ساعة)',
-  deliveryStandard: 'توصيل عادي (2-3 أيام)',
-  total: 'الإجمالي',
-  products: 'المنتجات ({count})',
-  qty: 'الكمية: {n}',
-  deliveryAddress: 'عنوان التوصيل',
+  deliveryExpress: 'Express delivery (24 hours)',
+  deliveryStandard: 'Standard delivery (2-3 days)',
+  total: 'Total',
+  products: 'Products ({count})',
+  qty: 'Quantity: {n}',
+  deliveryAddress: 'Delivery address',
   trackOrder: 'Track order',
-  rewardsEarned: 'لقد كسبت <strong>{points} نقطة</strong> من Montana Rewards!',
-  paymentLabels: { cod: 'Cash on delivery', card: 'Credit card', wallet: 'محفظة إلكترونية' },
+  rewardsEarned: 'You earned <strong>{points} points</strong> with Montana Rewards!',
+  paymentLabels: { cod: 'Cash on delivery', card: 'Credit card', wallet: 'E-wallet' },
 };
 
 document.getElementById('confPageTitle').textContent = L.pageTitle;
@@ -92,8 +92,8 @@ function depositBannerHtml(order) {
   }
   return `
         <div class="conf-order-row" style="flex-direction:column;align-items:flex-start;gap:8px;border:1px solid var(--border,#e8e0f0);border-radius:12px;padding:14px;margin-bottom:16px">
-            <strong style="color:var(--accent)"><i class="fas fa-check-circle"></i> ${L.orderReceived || 'طلبك اتسجّل'}</strong>
-            <span style="font-size:12px;color:var(--text-muted)">${L.orderReceivedDesc || 'هنراجع الطلب ونكلمك قريب لتأكيد التوصيل.'}</span>
+            <strong style="color:var(--accent)"><i class="fas fa-check-circle"></i> ${L.orderReceived || 'Your order is registered'}</strong>
+            <span style="font-size:12px;color:var(--text-muted)">${L.orderReceivedDesc || 'We will review the order and call you shortly to confirm delivery.'}</span>
         </div>`;
 }
 
@@ -118,7 +118,7 @@ function renderConfirmation() {
   const { order, items } = saved;
   const dateStr = new Date(order.created_at).toLocaleDateString(isEn ? 'en-GB' : 'ar-EG', { day: 'numeric', month: 'long', year: 'numeric' });
   const points = Math.round((order.total || 0) / 10);
-  const addrSep = isEn ? ', ' : '، ';
+  const addrSep = isEn ? ', ' : ', ';
 
   // Meta Purchase — fires for COD/wallet after order row exists (not Paymob-only).
   // event_id = purchase-${order.id}; sessionStorage guard prevents refresh duplicates.

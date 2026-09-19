@@ -274,7 +274,7 @@
         <div class="ck-payment-option selected" data-method="cod">
             <div class="ck-address-radio"><i class="fas fa-check-circle"></i></div>
             <div class="ck-payment-icon"><i class="fas fa-money-bill-wave"></i></div>
-            <span>Cash on delivery <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:500">كاش عند الاستلام — بدون مقدّم</small></span>
+            <span>Cash on delivery <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:500">Cash on delivery — no deposit</small></span>
         </div>
         <div class="ck-payment-option" data-method="wallet">
             <div class="ck-address-radio"><i class="far fa-circle"></i></div>
@@ -353,10 +353,10 @@
 
 <div class="ck-success-panel" id="ckSuccessPanel" aria-live="polite">
     <div class="ck-success-icon"><i class="fas fa-check"></i></div>
-    <h2>تم إرسال طلبك بنجاح</h2>
-    <p>شكراً لثقتك في Montana — هنراجع الطلب ونكلّمك قريب لتأكيد التوصيل.</p>
+    <h2>Your order has been sent</h2>
+    <p>Thank you for trusting Montana — we will review the order and call you shortly to confirm delivery.</p>
     <div class="ck-order-no" id="ckSuccessOrderNo"></div>
-    <a id="ckSuccessLink" href="/en/order-confirmation.html"><i class="fas fa-receipt"></i> عرض تفاصيل الطلب</a>
+    <a id="ckSuccessLink" href="/en/order-confirmation.html"><i class="fas fa-receipt"></i> View order details</a>
 </div>
 </div><!-- /.ck-app-shell -->
 
@@ -541,8 +541,8 @@ function updateGovCostHint() {
     if (!opt?.value) { el.textContent = ''; return; }
     if (cartGetsFreeShipping()) {
         el.textContent = window.Cart.getCount() >= 3
-            ? 'شحن Free (من 3 منتجات) 🎁'
-            : 'شحن Free (عرض روتين) 🎁';
+            ? 'Free shipping (3+ products) 🎁'
+            : 'Free shipping (routine offer) 🎁';
         return;
     }
     el.textContent = `${selectedGovCost()} EGP`;
@@ -763,7 +763,7 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
         if (panel) {
             const num = result?.order?.order_number || '';
             const noEl = document.getElementById('ckSuccessOrderNo');
-            if (noEl) noEl.textContent = num ? `رقم الطلب: ${num}` : '';
+            if (noEl) noEl.textContent = num ? `Order number: ${num}` : '';
             const link = document.getElementById('ckSuccessLink');
             if (link) link.href = confUrl;
             panel.classList.add('is-visible');

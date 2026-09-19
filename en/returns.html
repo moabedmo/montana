@@ -49,7 +49,7 @@
 
     <form class="ret-form" id="returnForm">
         <div class="form-group">
-            <label>رقم الطلب</label>
+            <label>Order number</label>
             <input type="text" id="retOrder" placeholder="MON-XXXXX" dir="ltr" required>
         </div>
         <div class="form-group">
@@ -127,7 +127,7 @@ document.getElementById('returnForm').addEventListener('submit', async (e) => {
       reason: document.getElementById('retReason').value,
       details: document.getElementById('retDetails').value.trim() || null
     });
-    msg.textContent = res.message || 'تم إرسال طلبك بنجاح ✓';
+    msg.textContent = res.message || 'Your order has been sent ✓';
     msg.className = 'ret-msg ok';
     e.target.reset();
   } catch (err) {

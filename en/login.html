@@ -22,7 +22,7 @@
 
 <div class="page-header">
     <a href="/en/index.html" class="page-back"><i class="fas fa-arrow-left"></i></a>
-    <h2>تسجيل الدخول</h2>
+    <h2>Sign In</h2>
     <div class="page-header-actions"></div>
 </div>
 
@@ -33,21 +33,21 @@
 
     <!-- Tabs -->
     <div class="auth-tabs">
-        <button class="auth-tab active" onclick="showAuthTab('login')">تسجيل الدخول</button>
-        <button class="auth-tab" onclick="showAuthTab('register')">حساب New</button>
+        <button class="auth-tab active" onclick="showAuthTab('login')">Sign In</button>
+        <button class="auth-tab" onclick="showAuthTab('register')">New account</button>
     </div>
 
     <!-- Login Form -->
     <form class="auth-form" id="loginForm">
         <div class="form-group">
-            <label>Email أو Phone number</label>
+            <label>Email or phone number</label>
             <div class="input-icon">
                 <i class="fas fa-user"></i>
                 <input type="text" id="loginIdentifier" placeholder="example@email.com" dir="ltr">
             </div>
         </div>
         <div class="form-group">
-            <label>كلمة المرور</label>
+            <label>Password</label>
             <div class="input-icon">
                 <i class="fas fa-lock"></i>
                 <input type="password" id="loginPassword" placeholder="••••••••" dir="ltr">
@@ -55,31 +55,31 @@
             </div>
         </div>
         <div class="auth-options">
-            <label class="auth-remember"><input type="checkbox" checked> تذكرني</label>
-            <a href="#" class="auth-forgot" id="forgotPasswordLink">نسيت كلمة المرور؟</a>
+            <label class="auth-remember"><input type="checkbox" checked> Remember me</label>
+            <a href="#" class="auth-forgot" id="forgotPasswordLink">Forgot your password?</a>
         </div>
-        <button type="submit" class="auth-submit" id="loginSubmitBtn">تسجيل الدخول</button>
+        <button type="submit" class="auth-submit" id="loginSubmitBtn">Sign In</button>
 
-        <div class="auth-divider"><span>أو</span></div>
+        <div class="auth-divider"><span>or</span></div>
 
         <button type="button" class="auth-social google" data-oauth="google">
-            <i class="fab fa-google"></i> المتابعة بحساب Google
+            <i class="fab fa-google"></i> Continue with Google
         </button>
         <button type="button" class="auth-social facebook" data-oauth="facebook">
-            <i class="fab fa-facebook-f"></i> المتابعة بحساب Facebook
+            <i class="fab fa-facebook-f"></i> Continue with Facebook
         </button>
         <button type="button" class="auth-social apple" data-oauth="apple">
-            <i class="fab fa-apple"></i> المتابعة بحساب Apple
+            <i class="fab fa-apple"></i> Continue with Apple
         </button>
     </form>
 
     <!-- Register Form -->
     <form class="auth-form" id="registerForm" style="display:none">
         <div class="form-group">
-            <label>Name الكامل</label>
+            <label>Full name</label>
             <div class="input-icon">
                 <i class="fas fa-user"></i>
-                <input type="text" id="regName" placeholder="أدخل Your name">
+                <input type="text" id="regName" placeholder="Enter your name">
             </div>
         </div>
         <div class="form-group">
@@ -97,27 +97,27 @@
             </div>
         </div>
         <div class="form-group">
-            <label>كلمة المرور</label>
+            <label>Password</label>
             <div class="input-icon">
                 <i class="fas fa-lock"></i>
-                <input type="password" id="regPassword" placeholder="6 أحرف على الأقل" dir="ltr">
+                <input type="password" id="regPassword" placeholder="At least 6 characters" dir="ltr">
                 <button type="button" class="input-toggle" onclick="togglePassword(this)"><i class="far fa-eye"></i></button>
             </div>
         </div>
         <div class="form-group">
-            <label>تأكيد كلمة المرور</label>
+            <label>Confirm password</label>
             <div class="input-icon">
                 <i class="fas fa-lock"></i>
-                <input type="password" id="regPassword2" placeholder="أعد إدخال كلمة المرور" dir="ltr">
+                <input type="password" id="regPassword2" placeholder="Re-enter the password" dir="ltr">
             </div>
         </div>
-        <label class="auth-terms"><input type="checkbox" id="registerTerms"> أوافق على <a href="/en/privacy.html">Privacy policy</a> و<a href="/en/terms.html">Terms & conditions</a></label>
-        <button type="submit" class="auth-submit" id="registerSubmitBtn">إنشاء حساب</button>
+        <label class="auth-terms"><input type="checkbox" id="registerTerms"> I agree to <a href="/en/privacy.html">Privacy policy</a> and <a href="/en/terms.html">Terms & conditions</a></label>
+        <button type="submit" class="auth-submit" id="registerSubmitBtn">Create account</button>
 
-        <div class="auth-divider"><span>أو</span></div>
+        <div class="auth-divider"><span>or</span></div>
 
         <button type="button" class="auth-social google" data-oauth="google">
-            <i class="fab fa-google"></i> التسجيل بحساب Google
+            <i class="fab fa-google"></i> Sign up with Google
         </button>
     </form>
 </div>
@@ -145,30 +145,30 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('loginIdentifier').value.trim();
   const password = document.getElementById('loginPassword').value;
-  if (!email || !password) return err('أدخل Email وكلمة المرور');
+  if (!email || !password) return err('Enter your email and password');
   const { error } = await sb.auth.signInWithPassword({ email, password });
-  if (error) return err(error.message === 'Invalid login credentials' ? 'بيانات الدخول غير صحيحة' : error.message);
+  if (error) return err(error.message === 'Invalid login credentials' ? 'Incorrect sign-in details' : error.message);
   location.href = 'account.html';
 });
 
 document.getElementById('registerForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  if (!document.getElementById('registerTerms').checked) return err('يجب الموافقة على الشروط');
+  if (!document.getElementById('registerTerms').checked) return err('You must accept the terms');
   const name = document.getElementById('regName').value.trim();
   const phone = document.getElementById('regPhone').value.trim();
   const email = document.getElementById('regEmail').value.trim();
   const password = document.getElementById('regPassword').value;
   const password2 = document.getElementById('regPassword2').value;
-  if (!name || !email || !password) return err('أكمل البيانات المطلوبة');
-  if (password.length < 6) return err('كلمة المرور 6 أحرف على الأقل');
-  if (password !== password2) return err('كلمتا المرور غير متطابقتين');
+  if (!name || !email || !password) return err('Please complete the required fields');
+  if (password.length < 6) return err('Password At least 6 characters');
+  if (password !== password2) return err('The two passwords do not match');
   const { data, error } = await sb.auth.signUp({ email, password, options: { data: { full_name: name, phone } } });
   if (error) return err(error.message);
   if (data.session) {
     try { await authApi.upsertProfile(name, phone); } catch { /* non-fatal */ }
     location.href = 'account.html';
   } else {
-    alert('تم إنشاء الحساب — تحقق من بريدك إن طُلب تأكيد، ثم سجّل الدخول');
+    alert('Account created — check your email if confirmation is required, then sign in');
     showAuthTab('login');
   }
 });
@@ -176,12 +176,12 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
 document.getElementById('forgotPasswordLink')?.addEventListener('click', async (e) => {
   e.preventDefault();
   const email = document.getElementById('loginIdentifier').value.trim();
-  if (!email || !email.includes('@')) return err('أدخل بريدك الإلكتروني أولاً');
+  if (!email || !email.includes('@')) return err('Enter your email address first');
   const { error } = await sb.auth.resetPasswordForEmail(email, {
     redirectTo: `${location.origin}/login.html`
   });
   if (error) return err(error.message);
-  alert('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك');
+  alert('A password reset link has been sent to your email');
 });
 
 document.querySelectorAll('[data-oauth]').forEach(btn => {
@@ -191,7 +191,7 @@ document.querySelectorAll('[data-oauth]').forEach(btn => {
       provider,
       options: { redirectTo: `${location.origin}/account.html` }
     });
-    if (error) err(error.message === 'Provider not enabled' ? 'فعّل مزود ' + provider + ' من لوحة Supabase أولاً' : error.message);
+    if (error) err(error.message === 'Provider not enabled' ? 'Enable the provider ' + provider + ' from the Supabase dashboard first' : error.message);
   });
 });
 </script>

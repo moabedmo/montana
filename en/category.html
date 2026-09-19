@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
     <meta name="theme-color" content="#342f44">
     <title>Montana | Shop</title>
-    <meta name="description" content="تسوق Montana — Acne Facial Cleanser، Brightening Cream، ومنتجات عناية بالبشرة الطبيعية. شحن لكل مصر.">
+    <meta name="description" content="Shop Montana — acne cleanser, brightening cream and natural skincare. Delivery across Egypt.">
     <link rel="canonical" href="https://www.montana.com.eg/category.html">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
@@ -21,8 +21,8 @@
     <a href="/en/index.html" class="page-back"><i class="fas fa-arrow-left"></i></a>
     <h2 id="shopPageTitle">Skincare</h2>
     <div class="page-header-actions">
-        <a href="/en/search.html" class="page-action" title="Search" aria-label="بحث"><i class="fas fa-search"></i></a>
-        <a href="/en/checkout.html" class="page-action page-cart" title="السلة" aria-label="السلة">
+        <a href="/en/search.html" class="page-action" title="Search" aria-label="Search"><i class="fas fa-search"></i></a>
+        <a href="/en/checkout.html" class="page-action page-cart" title="Cart" aria-label="Cart">
             <i class="fas fa-shopping-bag"></i>
             <span class="badge cart-badge" style="display:none">0</span>
         </a>
@@ -38,7 +38,7 @@
 </section>
 
 <div class="shop-trust">
-    <div class="shop-trust-item"><i class="fas fa-truck"></i><span>شحن Free من 3 منتجات</span></div>
+    <div class="shop-trust-item"><i class="fas fa-truck"></i><span>Free shipping on 3 products</span></div>
     <div class="shop-trust-item"><i class="fas fa-shield-alt"></i><span>100% authentic products</span></div>
     <div class="shop-trust-item"><i class="fas fa-flask"></i><span>Dermatologically tested formulas</span></div>
     <div class="shop-trust-item"><i class="fas fa-globe-africa"></i><span>Made in Egypt · Global quality</span></div>
@@ -64,7 +64,7 @@
     </div>
 </div>
 
-<section class="bundles-section cat-bundles" id="bundlesMount" data-title="عروض البندلات" aria-label="عروض البندلات"></section>
+<section class="bundles-section cat-bundles" id="bundlesMount" data-title="Bundle Offers" aria-label="Bundle Offers"></section>
 
 <div class="cat-products products-grid" id="catProducts"></div>
 
@@ -201,7 +201,7 @@ document.querySelectorAll('.cat-sub').forEach((btn) => {
   try {
     // Soft loading state in the grid (not only the toolbar count)
     if (gridEl && !gridEl.children.length) {
-      gridEl.innerHTML = `<p class="shop-grid-loading" style="grid-column:1/-1;text-align:center;padding:48px 16px;opacity:.7">جارٍ تحميل المنتجات…</p>`;
+      gridEl.innerHTML = `<p class="shop-grid-loading" style="grid-column:1/-1;text-align:center;padding:48px 16px;opacity:.7">Loading products…</p>`;
     }
     const all = await productsApi.list();
     clearTimeout(timeoutId);

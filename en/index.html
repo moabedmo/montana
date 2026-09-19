@@ -26,43 +26,84 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    <link rel="preload" href="../css/home.bundle.css?v=18" as="style">
-    <link rel="preload" href="../images/hero-slide-1.webp" as="image" type="image/webp" fetchpriority="high">
+    <link rel="preload" href="../css/home.bundle.css?v=19" as="style">
+    <link rel="preload" href="../images/hero-products.webp" as="image" type="image/webp" fetchpriority="high"
+          imagesrcset="../images/hero-products-620.webp 620w, ../images/hero-products.webp 945w"
+          imagesizes="(max-width:820px) 92vw, 42vw">
     <style>
       body{margin:0;background:#ffffff;color:#3A2F42;font-family:Tajawal,sans-serif}
-      .hero-showcase{min-height:100svh;background:#F0ECF2}
-      .showcase-img{object-fit:contain;max-width:min(100%,420px);aspect-ratio:1/1}
-      @media (max-width:768px),(hover:none){
-        #aurora-bg,.hero-dust,.hero-bokeh,.hero-cursor,.hero-loader,.hero-grain{display:none!important}
-        .hero-silk{opacity:.4}
-      }
-      /* ===== Hero background stills — soft cross-fade slideshow ===== */
-      .hero-bg-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right center;z-index:0;opacity:0;transition:opacity 1.1s ease;will-change:opacity;background:#2a1f3a}
-      .hero-bg-slide.is-active{opacity:1;animation:heroSlideDrift 9s ease-out both}
-      @keyframes heroSlideDrift{from{transform:scale(1.015)}to{transform:scale(1.075)}}
-      @media (prefers-reduced-motion:reduce){
-        .hero-bg-slide{transition:opacity .4s ease}
-        .hero-bg-slide.is-active{animation:none}
-      }
-      .hero-has-slides .hero-video-overlay{
+      /* ===== Hero =====
+         The 16:9 artwork could not be made half a screen tall: cropping top and
+         bottom takes the pump heads off the bottles, and there is nothing to
+         extend sideways into because the left of the picture holds its own
+         headline. So the products are a cut-out and the headline is live text
+         beside them — the height is then whatever we say it is, and the type
+         stays sharp at any width. */
+      .hero-banner{
+        position:relative;overflow:hidden;
+        padding-block:clamp(62px,8vh,92px) clamp(28px,4.5vh,58px);
         background:
-          linear-gradient(to right, rgba(18,10,36,.9) 0%, rgba(18,10,36,.72) 28%, rgba(18,10,36,.35) 55%, rgba(18,10,36,.2) 100%),
-          linear-gradient(to bottom, rgba(18,10,36,.45) 0%, transparent 28%, rgba(18,10,36,.78) 100%);
+          radial-gradient(70% 90% at 78% 45%, rgba(146,117,164,.16), transparent 70%),
+          linear-gradient(160deg,#FBF6F0 0%,#F7EFE7 46%,#F3EBF2 100%);
       }
-      .hero-has-slides .showcase-wrap{direction:ltr;display:flex;justify-content:flex-start;align-items:center;max-width:none;margin:0;padding-left:clamp(14px,2vw,32px)}
-      .hero-has-slides .showcase-info{direction:rtl;text-align:right;max-width:min(500px,44vw);position:relative;z-index:3;text-shadow:0 2px 18px rgba(0,0,0,.55)}
-      .hero-has-slides .showcase-stage,
-      .hero-has-slides .sc-counter{display:none!important}
-      .hero-has-slides .sc-dots{position:relative;z-index:4}
-      @media (max-width:768px),(hover:none){
-        .hero-has-slides .showcase-wrap{direction:rtl;flex-direction:column-reverse;justify-content:flex-end;text-align:center;padding:0 20px 40px}
-        .hero-has-slides .showcase-info{max-width:92vw;text-align:center}
-        .hero-has-slides .hero-video-overlay{
-          background:
-            linear-gradient(to bottom, rgba(18,10,36,.55) 0%, rgba(18,10,36,.35) 30%, rgba(18,10,36,.55) 55%, rgba(18,10,36,.92) 100%);
-        }
-        .hero-bg-slide{object-position:center 20%}
+      .hero-banner-inner{
+        max-width:1240px;margin:0 auto;padding:0 clamp(16px,4vw,48px);
+        display:flex;align-items:center;justify-content:space-between;gap:clamp(20px,4vw,56px);
       }
+      .hb-copy{flex:1 1 500px;min-width:0;max-width:560px;text-align:start}
+      .hb-kicker{
+        margin:0 0 14px;font-family:Tajawal,sans-serif;font-weight:700;
+        font-size:clamp(13px,1.3vw,17px);letter-spacing:.05em;line-height:1.7;color:#776431;
+      }
+      .hb-rule{width:56px;height:1px;background:#C6A45C;margin-block:0 18px;margin-inline:0 auto}
+      .hb-head{
+        margin:0 0 14px;font-family:Tajawal,sans-serif;font-weight:700;
+        font-size:clamp(25px,3vw,40px);line-height:1.32;color:#2E2537;
+      }
+      .hb-sub{
+        margin:0 0 24px;font-family:Tajawal,sans-serif;font-size:clamp(14px,1.25vw,17px);
+        line-height:1.85;color:#604D6C;max-width:44ch;margin-inline:0 auto;
+      }
+      .hb-cta{display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-start;margin-bottom:22px}
+      .hb-btn{
+        display:inline-flex;align-items:center;gap:8px;border-radius:999px;
+        padding:13px 26px;font-family:Tajawal,sans-serif;font-weight:700;font-size:15px;
+        text-decoration:none;transition:transform .18s ease,box-shadow .18s ease;
+      }
+      .hb-btn--solid{background:#9275A4;color:#fff;box-shadow:0 10px 24px -12px rgba(110,84,128,.7)}
+      .hb-btn--ghost{background:transparent;color:#3A2F42;border:1px solid #C9BBD2}
+      .hb-btn:hover{transform:translateY(-2px)}
+      .hb-btn--solid:hover{box-shadow:0 14px 28px -12px rgba(110,84,128,.85)}
+      .hb-trust{
+        display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:flex-start;margin:0;padding:0;
+        list-style:none;font-family:Tajawal,sans-serif;font-size:13.5px;color:#836F8F;
+      }
+      .hb-trust li{display:flex;align-items:center;gap:7px;white-space:nowrap}
+      .hb-trust i{width:5px;height:5px;border-radius:50%;background:#C6A45C;flex:none}
+      .hb-shot{flex:0 0 auto;line-height:0}
+      .hb-shot img{
+        display:block;height:clamp(260px,42vh,430px);width:auto;max-width:100%;
+        aspect-ratio:950/900;border-radius:20px;
+        box-shadow:0 24px 54px -28px rgba(58,47,66,.5);
+      }
+      @media (max-width:900px){
+        .hero-banner{padding-block:clamp(40px,5vh,58px) 20px}
+        .hero-banner-inner{flex-direction:column;gap:0;padding-bottom:0}
+        .hb-copy{order:2;flex:none;max-width:none;text-align:center;padding-top:16px}
+        .hb-shot{order:1}
+        .hb-shot img{height:auto;width:100%;max-width:300px;aspect-ratio:950/900}
+        .hb-kicker{margin-bottom:10px}
+        .hb-rule{margin:0 auto 14px}
+        .hb-head{margin-bottom:10px}
+        .hb-sub{margin-inline:auto;margin-bottom:18px;max-width:34ch}
+        .hb-cta{margin-bottom:16px}
+        .hb-cta,.hb-trust{justify-content:center}
+        .hb-btn{padding:11px 22px;font-size:14.5px}
+      }
+      @media (max-width:560px){
+        .hb-sub{display:none}
+      }
+      @media (prefers-reduced-motion:reduce){.hb-btn{transition:none}.hb-btn:hover{transform:none}}
     </style>
     <script src="../js/analytics-config.js"></script>
     <script src="../js/meta-pixel.js?v=15"></script>
@@ -74,8 +115,8 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
-    <link rel="stylesheet" href="../css/home.bundle.css?v=18" media="print" onload="this.media='all';this.onload=null;">
-    <noscript><link rel="stylesheet" href="../css/home.bundle.css?v=18"></noscript>
+    <link rel="stylesheet" href="../css/home.bundle.css?v=19" media="print" onload="this.media='all';this.onload=null;">
+    <noscript><link rel="stylesheet" href="../css/home.bundle.css?v=19"></noscript>
 </head>
 <body class="mnt-home mnt-en">
 <!-- Aurora Background -->
@@ -86,89 +127,41 @@
     <div class="noise"></div>
 </div>
 
-<!-- Always-visible "enter the store" button — the real header (logo,
-     search, cart) lives below the fullscreen hero, so without this a
-     first-time visitor sees nothing but the hero carousel and has no
-     obvious way to start shopping without scrolling first. -->
+<!-- Always-visible "enter the store" button. It was added because the header
+     sat below a fullscreen hero; the hero is now half that, so this is a
+     shortcut rather than the only way in. -->
 <a href="/en/category.html" class="floating-store-btn">
     <i class="fas fa-store"></i> Shop
 </a>
 
-<!-- Hero Section — premium product showcase carousel -->
-<!-- hero-has-slides starts present so CSS hides the static product-image
-     fallback from the very first paint, instead of adding the class from JS
-     and flashing the fallback stage first. -->
-<section class="hero-video-section hero-showcase hero-has-slides" id="hero-section">
-    <!-- living background stack -->
-    <div class="hero-bg" id="hero-bg" aria-hidden="true">
-        <div class="hero-aurora"><span class="au1" aria-hidden="true"></span><span class="au2" aria-hidden="true"></span><span class="au3" aria-hidden="true"></span></div>
-        <div class="hero-silk"></div>
-        <div class="hero-bokeh" id="hero-bokeh"><s></s><s></s><s></s><s></s><s></s><s></s></div>
-    </div>
-    <img class="hero-bg-slide is-active" id="hero-bg-slide" src="../images/hero-slide-1.webp" alt="" fetchpriority="high" decoding="async" aria-hidden="true">
-    <img class="hero-bg-slide" id="hero-bg-slide-b" alt="" decoding="async" aria-hidden="true">
-    <div class="hero-video-overlay"></div>
-    <div class="hero-grain" aria-hidden="true"></div>
-    <div class="hero-vignette" aria-hidden="true"></div>
-    <div class="hero-brand-chip">
-        <span class="chip-line">MONTAÑA</span>
-        <span class="chip-sub">Natural luxury skincare</span>
-    </div>
-
-    <!-- gold dust -->
-    <div class="hero-dust" aria-hidden="true">
-        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-    </div>
-
-    <!-- custom cursor (desktop pointer only) -->
-    <div class="hero-cursor" id="hero-cursor" aria-hidden="true"><span class="hc-dot"></span><span class="hc-ring"></span></div>
-
-    <!-- brand intro loader — draws once, then fades -->
-    <div class="hero-loader" id="hero-loader" aria-hidden="true">
-        <svg class="hl-m" viewBox="0 0 100 60"><path d="M5 55 L5 10 L27 40 L50 10 L50 55 M50 55 L50 10 L72 40 L95 10 L95 55" /></svg>
-    </div>
-
-    <div class="sc-wipe" id="sc-wipe" aria-hidden="true"></div>
-
-    <div class="showcase-wrap">
-        <div class="showcase-info">
-            <span class="sc-en" id="sc-en">ACNE FACIAL CLEANSER</span>
-            <h1 class="sc-hero-title" id="sc-hero-title">Luxury care for <em>your skin</em></h1>
-            <p class="sc-product-name" id="sc-name">Acne Facial Cleanser</p>
-            <p class="sc-tagline" id="sc-tag">Gentle, deep cleansing for breakout-prone skin</p>
-            <p class="sc-concerns" id="sc-concerns">Ideal for: Acne · Oily skin · Clogged pores</p>
-            <div class="sc-trust" id="sc-trust">
-                <span class="sc-trust-pill">★ 4.9</span>
-                <span class="sc-trust-pill">Best seller</span>
-                <span class="sc-trust-pill">Paraben-free</span>
+<!-- Hero — a single banner. The six-slide carousel it replaced lived here
+     with its own aurora, dust, cursor and loader layers; all of that markup
+     and js/hero-showcase.js went with it. -->
+<section class="hero-banner" id="hero-section">
+    <div class="hero-banner-inner">
+        <div class="hb-copy">
+            <p class="hb-kicker">Natural Care · Real Results</p>
+            <div class="hb-rule" aria-hidden="true"></div>
+            <h1 class="hb-head">Healthy Skin<br>Happier You</h1>
+            <p class="hb-sub">Five formulas for face and body — an acne cleanser, a brightening cleanser and cream, a hydrating lotion, and a post-laser cream.</p>
+            <div class="hb-cta">
+                <a class="hb-btn hb-btn--solid" href="/en/category.html">Shop Now</a>
+                <a class="hb-btn hb-btn--ghost" href="#bundlesMount">See the Offers</a>
             </div>
-            <div class="sc-cta-row">
-                <a href="/en/product/acne-facial-cleanser" class="sc-cta-ghost" id="sc-cta">Discover product <span class="cta-arrow">←</span></a>
-                <button type="button" class="sc-cta-solid" id="sc-cart-btn" data-id="1" data-name="Acne Facial Cleanser — 200ml" data-image="../images/p1-premium.webp" data-price="285" data-slug="acne-facial-cleanser"><i class="fas fa-shopping-bag"></i> Add to bag</button>
-                <span class="sc-price-chip sc-price-chip--gold"><span id="sc-price">285</span> <small>EGP</small></span>
-            </div>
-            <div class="sc-dots" id="sc-dots"></div>
+            <ul class="hb-trust">
+                <li><i aria-hidden="true"></i>Certified manufacturing</li>
+                <li><i aria-hidden="true"></i>Paraben-free</li>
+                <li><i aria-hidden="true"></i>Delivery nationwide</li>
+            </ul>
         </div>
-        <div class="showcase-stage" id="sc-stage">
-            <div class="showcase-spot" aria-hidden="true"></div>
-            <div class="showcase-tilt" id="sc-tilt">
-                <div class="showcase-pedestal" aria-hidden="true"></div>
-                <div class="showcase-glow"></div>
-                <img class="showcase-img active" id="sc-img-a" src="../images/p1.webp" alt="Cleanser Montana لعلاج حب الشباب" width="420" height="420" fetchpriority="high" decoding="async">
-                <img class="showcase-img" id="sc-img-b" src="../images/p2.webp" alt="" aria-hidden="true" width="420" height="420" loading="lazy" decoding="async">
-                <img class="showcase-reflection" id="sc-ref-a" src="../images/p1.webp" alt="" aria-hidden="true" width="420" height="120" decoding="async">
-                <div class="showcase-floor-glow" aria-hidden="true"></div>
-                <div class="showcase-shadow"></div>
-            </div>
-        </div>
+        <picture class="hb-shot">
+            <source srcset="../images/hero-products-620.webp 620w, ../images/hero-products.webp 950w"
+                    sizes="(max-width:900px) 92vw, 42vw">
+            <img src="../images/hero-products.webp"
+                 alt="Montana skincare range — Whitening Cleanser, Whitening Cream, Acne Facial Cleanser, Hand & Body Lotion and Post Laser Cream"
+                 fetchpriority="high" decoding="async">
+        </picture>
     </div>
-
-    <div class="sc-counter" aria-hidden="true"><span id="sc-cur">01</span><span class="sc-sep">/</span><span class="sc-total">06</span></div>
-
-    <a href="#shop-by-concern" class="hero-video-scroll" id="hero-scroll-cue">
-        <span class="hero-scroll-label">Shop by concern</span>
-        <div class="scroll-arrow"></div>
-    </a>
 </section>
 
 <!-- Premium bridge: cinematic hero → store -->
@@ -186,7 +179,7 @@
 <!-- Top Promotional Banner -->
 <div class="promo-banner promo-banner--lux">
     <div class="promo-slider">
-        <span>🚚 شحن من 50 EGP حسب المحافظة — Free من 3 منتجات</span>
+        <span>🚚 Shipping from EGP 50 by governorate — free on 3 products</span>
         <span>✨ Exclusive discounts for Montana Rewards members</span>
     </div>
 </div>
@@ -233,7 +226,7 @@
                     </a>
                     <a href="/" class="header-action lang-switch-action" data-locale-toggle="1" title="Arabic">
                         <i class="fas fa-globe"></i>
-                        <small>العربية</small>
+                        <small>English</small>
                     </a>
                 </div>
             </div>
@@ -259,7 +252,7 @@
 <div class="app-only">
     <!-- Stories -->
     <div class="app-stories">
-        <button type="button" class="app-story" data-story="offers" aria-label="عروض اليوم">
+        <button type="button" class="app-story" data-story="offers" aria-label="Today's Offers">
             <div class="app-story-ring"><img loading="lazy" decoding="async" src="../images/p1-premium.webp" alt=""></div>
             <span>Today's deals</span>
         </button>
@@ -267,7 +260,7 @@
             <div class="app-story-ring"><img loading="lazy" decoding="async" src="../images/p2-premium.webp" alt=""></div>
             <span>New</span>
         </a>
-        <a href="/en/category.html" class="app-story" data-story="care" aria-label="العناية">
+        <a href="/en/category.html" class="app-story" data-story="care" aria-label="Care">
             <div class="app-story-ring"><img loading="lazy" decoding="async" src="../images/p3-premium.webp" alt=""></div>
             <span>Skincare</span>
         </a>
@@ -275,11 +268,11 @@
             <div class="app-story-ring"><img loading="lazy" decoding="async" src="../images/p4-premium.webp" alt=""></div>
             <span>Best seller</span>
         </a>
-        <button type="button" class="app-story" data-story="tips" aria-label="نصائح">
+        <button type="button" class="app-story" data-story="tips" aria-label="Tips">
             <div class="app-story-ring"><img loading="lazy" decoding="async" src="../images/p5-premium.webp" alt=""></div>
             <span>Tips</span>
         </button>
-        <button type="button" class="app-story" data-story="concern" aria-label="صحتك">
+        <button type="button" class="app-story" data-story="concern" aria-label="Your Skin">
             <div class="app-story-ring"><img loading="lazy" decoding="async" src="../images/p6-premium.webp" alt=""></div>
             <span>Wellness</span>
         </button>
@@ -331,7 +324,7 @@
 </section>
 
 <!-- Bundle deals (shared component via js/bundle-ui.js) -->
-<section class="bundles-section lux-reveal" id="bundlesMount" data-title="عروض البندلات" aria-label="عروض البندلات"></section>
+<section class="bundles-section lux-reveal" id="bundlesMount" data-title="Bundle Offers" aria-label="Bundle Offers"></section>
 
 <!-- Brand Story -->
 <section class="lux-section lux-section--dark lux-reveal" id="brand-story">
@@ -455,7 +448,7 @@
                     <span class="ba-product-tag">Acne care</span>
                     <h3>Acne Facial Cleanser</h3>
                     <p>Clearer, cleaner skin in as little as 14 days</p>
-                    <a href="/en/product/acne-facial-cleanser" class="btn-primary">تسوق المنتج</a>
+                    <a href="/en/product/acne-facial-cleanser" class="btn-primary">Shop the product</a>
                 </div>
             </div>
             <!-- Slider 2 - Brightening Cleanser -->
@@ -481,7 +474,7 @@
                     <span class="ba-product-tag">Brightening</span>
                     <h3>Brightening & Tone-Evening Cleanser</h3>
                     <p>Even, radiant skin — helps fade dark spots and discoloration</p>
-                    <a href="/en/product/whitening-cleanser" class="btn-primary">تسوق المنتج</a>
+                    <a href="/en/product/whitening-cleanser" class="btn-primary">Shop the product</a>
                 </div>
             </div>
             
@@ -507,7 +500,7 @@
                     <span class="ba-product-tag">Post-laser</span>
                     <h3>Post-Laser Cream</h3>
                     <p>Soothes, repairs, and restores — redness can fade in days</p>
-                    <a href="/en/product/post-laser-cream" class="btn-primary">تسوق المنتج</a>
+                    <a href="/en/product/post-laser-cream" class="btn-primary">Shop the product</a>
                 </div>
             </div>
         </div>
@@ -519,27 +512,27 @@
         <div class="rewards-content">
             <div class="rewards-text">
                 <span class="rewards-badge"><i class="fas fa-crown"></i> Montana Rewards</span>
-                <h2>نقاطك بتتجمّع لوحدها</h2>
-                <p>كل أوردر بيكسبك نقاط — من غير تسجيل ولا اشتراك. بنعرفك برقم موبايلك، وتستبدلي نقاطك Sale على أي أوردر جاي.</p>
+                <h2>Your points add up on their own</h2>
+                <p>Every order earns points — no sign-up, no subscription. We know you by your phone number, and your points come off any future order.</p>
                 <div class="rewards-perks">
                     <div class="perk">
                         <i class="fas fa-coins"></i>
-                        <span>نقطة لكل ١٠ EGP</span>
+                        <span>1 point per EGP 10</span>
                     </div>
                     <div class="perk">
                         <i class="fas fa-percent"></i>
-                        <span>١٠ نقاط = ١ EGP Sale</span>
+                        <span>10 points = EGP 1 off</span>
                     </div>
                     <div class="perk">
                         <i class="fas fa-mobile-alt"></i>
-                        <span>من غير تسجيل — برقم موبايلك</span>
+                        <span>No sign-up — just your phone number</span>
                     </div>
                     <div class="perk">
                         <i class="fas fa-truck"></i>
-                        <span>بتتحسب عند الاستلام</span>
+                        <span>Credited on delivery</span>
                     </div>
                 </div>
-                <a href="/en/category.html" class="btn-primary btn-lg">ابدئي أوردرك</a>
+                <a href="/en/category.html" class="btn-primary btn-lg">Start your order</a>
             </div>
             <div class="rewards-visual">
                 <div class="rewards-card">
@@ -548,7 +541,7 @@
                         <i class="fas fa-crown"></i>
                     </div>
                     <div class="rc-body">
-                        <div class="rc-name">رصيد نقاطك</div>
+                        <div class="rc-name">Your points balance</div>
                         <div class="rc-points">2,450 points</div>
                     </div>
                     <div class="rc-footer">
@@ -678,7 +671,7 @@
 <!-- Categories Screen -->
 <div class="app-screen" id="screen-categories">
     <div class="app-screen-header">
-        <div class="app-screen-title">الأقسام</div>
+        <div class="app-screen-title">Categories</div>
     </div>
     <div class="app-screen-body">
         <a href="/en/category.html" class="app-cat-item">
@@ -699,15 +692,15 @@
         <div class="app-screen-title">Offers</div>
     </div>
     <div class="app-screen-body app-offers-body">
-        <p class="app-offers-intro">روتينات كاملة بسعر أوفر — نفس عروض البندلات على الموقع</p>
-        <div id="offersBundlesMount" class="bundles-section cat-bundles" data-title="عروض البندلات" aria-label="عروض البندلات"></div>
+        <p class="app-offers-intro">Complete routines — the same bundles offered on the site</p>
+        <div id="offersBundlesMount" class="bundles-section cat-bundles" data-title="Bundle Offers" aria-label="Bundle Offers"></div>
     </div>
 </div>
 
 <!-- Favorites Screen -->
 <div class="app-screen" id="screen-favorites">
     <div class="app-screen-header">
-        <div class="app-screen-title">المفضلة</div>
+        <div class="app-screen-title">Wishlist</div>
     </div>
     <div class="app-screen-body">
         <div class="app-empty-state">
@@ -722,7 +715,7 @@
 <!-- Cart Screen -->
 <div class="app-screen" id="screen-cart">
     <div class="app-screen-header">
-        <div class="app-screen-title">سلة التسوق</div>
+        <div class="app-screen-title">Shopping Cart</div>
     </div>
     <div class="app-screen-body" id="appCartBody"></div>
 </div>
@@ -802,8 +795,6 @@ window.renderAppCart = renderAppCart;
 <script type="module" src="../js/i18n/bootstrap-en.js"></script>
 <script src="../js/lang-switch.js?v=2" defer></script>
 <script src="../js/cart.js?v=3" defer></script>
-<script type="module" src="../js/en-render-home.js?v=2"></script>
-<script type="module" src="../js/hero-showcase.js?v=5"></script>
 <script src="../js/wishlist.js" defer></script>
 <script src="../js/storefront-ui.js?v=6" defer></script>
 <script src="../script.js?v=4" defer></script>
