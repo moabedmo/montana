@@ -83,10 +83,26 @@ git push https://github.com/moabedmo/montana.git HEAD:live
 `main` on that repo is a different, older generation of the site — 66 commits
 ending in June, 688 files this tree does not have. Do not force over it.
 
-**Do NOT run `vercel` from this machine.** The CLI here is signed into an
-account that has nothing to do with Montana, and `.vercel/project.json` points
-at that account's project. The owner deploys; asking about it again is not
-helpful, and has been asked more than once already.
+**Pushing to GitHub does not deploy.** Vercel is not watching the `live`
+branch — a push lands the code and the site keeps serving the old build. The
+deploy is a second, separate step:
+
+```bash
+vercel --prod --yes
+```
+
+The CLI is now signed into team **montana** (`montana1`), project **montana2**,
+which is the one serving www.montana.com.eg — check with `vercel project ls`
+before trusting it. It was once signed into an unrelated account, which is why
+these notes used to say never to run it here.
+
+**`gh` holds two accounts and the active one decides the push.** When it is on
+`montanahala32`, a push to `moabedmo/montana` comes back
+`Permission ... denied to montanahala32` — a 403, not a login prompt:
+
+```bash
+gh auth switch --user moabedmo
+```
 
 **Git credentials.** A system-level `manager` helper answers before the repo's
 own `gh` helper and hands over a different GitHub account, and GitHub replies
