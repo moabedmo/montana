@@ -47,6 +47,8 @@ const mustBeLive = [
   ['skin condition → doctor', 'A named skin condition outranks every other answer'],
   ['customer photo → product/offer/CS', 'A photo the customer sent'],
   ['order screenshot → customer service', 'A screenshot of an order, invoice, tracking or payment'],
+  // A discount quoted on a routine is money the checkout will not take off
+  ['routine haggle → offers are fixed', 'Haggling over a routine'],
 ];
 
 for (const [label, marker] of mustBeLive) {
