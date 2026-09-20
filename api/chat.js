@@ -255,6 +255,9 @@ module.exports = async (req, res) => {
       payload.reply2 = 'NONE';
       payload.reply3 = 'NONE';
     }
+    // Always present, so the ManyChat flow can map an audio block to it and
+    // simply send nothing when it is empty — the same shape reply1..3 use.
+    payload.audioUrl = payload.audioUrl || '';
     return res.json(payload);
   } catch (err) {
     // This turn produced no answer, so don't let its key mute ManyChat's retry.
