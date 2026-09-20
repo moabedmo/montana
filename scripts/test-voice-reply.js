@@ -14,7 +14,18 @@ assert.strictEqual(speakable('سطر\nتاني'), 'سطر. تاني');
 assert.strictEqual(speakable('عنوان # و `كود` و _مائل_'), 'عنوان و كود و مائل');
 assert.strictEqual(speakable('  مسافات    كتير  '), 'مسافات كتير');
 
-// 2 — a long reply is trimmed; a voice note that runs minutes is not one
+// 2 — written shorthand is not spoken shorthand. "249 ج" on the ear is the
+// letter gim, and a percent sign is a symbol nobody pronounces in Arabic.
+assert.strictEqual(speakable('كريم التفتيح — **249** ج'), 'كريم التفتيح 249 جنيه');
+assert.strictEqual(speakable('السعر 229 ج.م'), 'السعر 229 جنيه');
+assert.strictEqual(speakable('خصم 20% على كل المنتجات'), 'خصم 20 في الميه على كل المنتجات');
+// a word that merely starts with gim is left alone
+assert.strictEqual(speakable('وصلت 3 جنيهات'), 'وصلت 3 جنيهات');
+// emoji and the offer-list hairlines are furniture for the eye
+assert.strictEqual(speakable('أهلاً بيكي 💜'), 'أهلاً بيكي');
+assert.strictEqual(speakable('العرض ──── التاني'), 'العرض التاني');
+
+// 3 — a long reply is trimmed; a voice note that runs minutes is not one
 assert.ok(speakable('ا'.repeat(2000)).length <= 600);
 
 // 3 — nothing worth saying produces nothing to say
@@ -44,4 +55,4 @@ const wav16 = wavFromPcm(pcm, 16000, 1, 16);
 assert.strictEqual(wav16.readUInt32LE(24), 16000);
 assert.strictEqual(wav16.readUInt32LE(28), 32000);
 
-console.log('PASS voice reply — 5 groups');
+console.log('PASS voice reply — markdown, spoken shorthand, trimming, WAV header');
