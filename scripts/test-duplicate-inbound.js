@@ -4,6 +4,13 @@
  * answering with the "send nothing" sentinel — but must never mute the website
  * widget, a different customer, or a genuinely different message.
  *
+ * The claim moved out of a Map in this file and into Postgres, because module
+ * scope on Vercel belongs to one lambda instance and the duplicates that matter
+ * arrive while the first request is still running. What this file checks is
+ * unchanged: the claim is taken before the engine runs, the sentinel goes back,
+ * the web widget is exempt, and a failed turn releases the claim. The window's
+ * own arithmetic is covered by scripts/test-inbound-dedup.js.
+ *
  * Run: node scripts/test-duplicate-inbound.js
  */
 process.env.GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'x';
@@ -19,7 +26,7 @@ function assert(cond, label) {
 }
 
 // ── the guard must sit before the engine runs, or a repeat still moves state
-const guardAt = src.indexOf('markInbound(dupKey)');
+const guardAt = src.indexOf('await claimInbound(dupKey)');
 const engineAt = src.indexOf('await handleInboundMessage(');
 assert(guardAt !== -1, 'duplicate guard exists');
 assert(engineAt !== -1, 'engine call found');
@@ -34,7 +41,7 @@ assert(/reply: ''/.test(guardBlock), 'duplicate reply text is empty');
 assert(/channelOf\(sid\) !== 'web'/.test(src), 'web channel is exempt from dedup');
 
 // ── a failed turn must not mute the retry
-assert(/recentInbound\.delete\(dupKey\)/.test(src.slice(src.indexOf('catch (err)'))), 'error path clears the key');
+assert(/await releaseInbound\(dupKey\)/.test(src.slice(src.indexOf('catch (err)'))), 'error path releases the claim');
 
 // ── behaviour of the window itself
 const DUPLICATE_WINDOW_MS = 12_000;
