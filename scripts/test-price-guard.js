@@ -8,7 +8,9 @@
 //
 // Reads the live catalogue, so it is checking the real thing.
 const assert = require('assert');
-const { findMispricedProducts, findInventedPrices, allowedPrices, toWestern } = require('../lib/priceGuard');
+const {
+  findMispricedProducts, findInventedPrices, allowedPrices, toWestern, discountedPriceTable,
+} = require('../lib/priceGuard');
 
 (async () => {
   // ---- the pairing check, which is the one that matters
@@ -89,7 +91,20 @@ const { findMispricedProducts, findInventedPrices, allowedPrices, toWestern } = 
   const arabic = await findMispricedProducts('كريم التفتيح بـ ٣٦٩ جنيه', 0);
   assert.strictEqual(arabic.length, 1, 'an Arabic-numeral price must be checked too');
 
-  console.log('PASS price guard — pairing, allowances, non-prices, numerals');
+  // ---- the after-discount figures handed to the prompt.
+  // Asked what she pays with the campaign on, the bot answered with the shelf
+  // price; it is given the subtraction already done rather than asked to do it.
+  const table = await discountedPriceTable(20);
+  assert.ok(table.includes('كريم التفتيح: 249 ج، وبعد الخصم 199 ج'),
+    `after-discount figure missing from:\n${table}`);
+  // every figure in it must be one the guard itself would let through
+  const withPromo = await findMispricedProducts(
+    table.replace(/^- /gm, '').replace(/، وبعد الخصم .*/gm, ''), 20);
+  assert.deepStrictEqual(withPromo, [], 'the table must agree with the guard');
+  // no campaign, nothing to say
+  assert.strictEqual(await discountedPriceTable(0), '');
+
+  console.log('PASS price guard — pairing, allowances, non-prices, numerals, promo table');
 })().catch((err) => {
   console.error('FAIL', err.message);
   process.exit(1);
