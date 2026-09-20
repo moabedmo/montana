@@ -330,6 +330,7 @@
         <div class="ck-summary">
             <div class="ck-row"><span id="ckSubtotalLabel">المجموع الفرعي</span><span id="ckSubtotal">0 ج.م</span></div>
             <div class="ck-row"><span>الشحن</span><span id="ckShipping">—</span></div>
+            <div class="ck-row" id="ckPromoRow" style="display:none"><span id="ckPromoLabel">الخصم</span><span class="ck-discount" id="ckPromoDiscount">- 0 ج.م</span></div>
             <div class="ck-row"><span>الخصم</span><span class="ck-discount" id="ckDiscount">- 0 ج.م</span></div>
             <div class="ck-row" id="ckPointsRow" style="display:none"><span>خصم النقاط</span><span class="ck-discount" id="ckPointsDiscount">- 0 ج.م</span></div>
             <div class="ck-row ck-total"><span>الإجمالي</span><span id="ckTotal">0 ج.م</span></div>
@@ -362,6 +363,26 @@
 <script src="js/cart.js?v=3"></script>
 <script type="module">
 import { orders, coupons, shipping as shippingApi, settings as settingsApi, uploadPaymentProof, sb, auth as authApi } from '/js/store-api.js';
+
+// The store-wide promo, read from site_settings so it can be switched off in
+// one row without a deploy. Unreadable settings mean no promo: quoting a
+// discount the order will not carry is worse than quoting the shelf price.
+let activePromo = null;
+async function loadPromo() {
+    try {
+        const rows = await settingsApi.getMany(['promo_percent', 'promo_label', 'promo_ends_at']);
+        const map = rows || {};
+        const percent = Math.round(Number(map.promo_percent) || 0);
+        const ends = String(map.promo_ends_at || '').trim();
+        const endsAt = ends ? new Date(ends) : null;
+        const expired = endsAt && !Number.isNaN(endsAt.getTime()) && endsAt.getTime() < Date.now();
+        if (percent > 0 && percent < 100 && !expired) {
+            activePromo = { percent, label: map.promo_label || `خصم ${percent}%` };
+        }
+    } catch (err) {
+        console.warn('promo settings unavailable:', err);
+    }
+}
 import { getCheckoutStrings, formatMoney, fmt } from '/js/i18n/checkout-i18n.js';
 import { resolveAssetUrl } from '/js/i18n/locale.js?v=3';
 
@@ -545,6 +566,11 @@ function computeTotals() {
     const items = window.Cart.getItems();
     const subtotal = window.Cart.getTotal();
     const shippingCost = cartGetsFreeShipping(items) ? 0 : selectedGovCost();
+    // Store-wide promo: taken off automatically, nothing for the customer to
+    // type. A campaign that needs a code is a campaign most buyers never get.
+    const promoDiscount = activePromo
+        ? Math.min(Math.round((subtotal * activePromo.percent) / 100), subtotal)
+        : 0;
     let couponDiscount = 0;
     if (appliedCoupon) {
         couponDiscount = appliedCoupon.discount_type === 'percent'
@@ -553,13 +579,16 @@ function computeTotals() {
         couponDiscount = Math.min(couponDiscount, subtotal);
     }
     const pointsDiscount = appliedPoints / 10;
-    const totalDiscount = couponDiscount + pointsDiscount;
+    // never let the three of them add up past the goods themselves
+    const totalDiscount = Math.min(promoDiscount + couponDiscount + pointsDiscount, subtotal);
     const total = Math.max(0, subtotal - totalDiscount + shippingCost);
-    return { items, subtotal, shipping: shippingCost, discount: couponDiscount, pointsDiscount, pointsRedeemed: appliedPoints, total };
+    return { items, subtotal, shipping: shippingCost, promoDiscount,
+             discount: promoDiscount + couponDiscount, pointsDiscount,
+             pointsRedeemed: appliedPoints, total };
 }
 
 function renderSummary() {
-    const { items, subtotal, shipping, discount, pointsDiscount, total } = computeTotals();
+    const { items, subtotal, shipping, promoDiscount, discount, pointsDiscount, total } = computeTotals();
     const itemsEl = document.getElementById('ckItems');
     const bottomBar = document.getElementById('ckBottomBar');
     const page = document.getElementById('checkoutPage');
@@ -613,7 +642,17 @@ function renderSummary() {
         shipEl.classList.remove('ck-free');
     }
     updateGovCostHint();
-    document.getElementById('ckDiscount').textContent = `- ${money(discount)}`;
+    const promoRow = document.getElementById('ckPromoRow');
+    if (promoRow) {
+        if (activePromo && promoDiscount > 0) {
+            promoRow.style.display = '';
+            document.getElementById('ckPromoLabel').textContent = `${activePromo.label} (${activePromo.percent}%)`;
+            document.getElementById('ckPromoDiscount').textContent = `- ${money(promoDiscount)}`;
+        } else {
+            promoRow.style.display = 'none';
+        }
+    }
+    document.getElementById('ckDiscount').textContent = `- ${money(discount - promoDiscount)}`;
     const pr = document.getElementById('ckPointsRow');
     if (pointsDiscount > 0) {
         pr.style.display = '';
@@ -954,6 +993,8 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
 })();
 
 renderSummary();
+// settings arrive a beat later; redraw once the promo is known
+loadPromo().then(renderSummary);
 </script>
 <script type="module" src="js/site-settings.js"></script>
 </body>

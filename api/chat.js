@@ -3,6 +3,7 @@ const { handleInboundMessage, channelOf, getCartForSid, getOrderForSid, getPoint
 const { handleOwnerAssistant } = require('../lib/ownerAssistant');
 const { enforceRateLimit, rateLimit, hasValidApiSecret } = require('../lib/security');
 const { extractImageUrl } = require('../lib/imageUnderstanding');
+const { claimInbound, releaseInbound, inboundKey } = require('../lib/inboundDedup');
 
 // Trusted external senders (e.g. ManyChat relaying Facebook/Instagram DMs and
 // comments to this same bot brain) authenticate via the X-Montana-Secret header
@@ -16,27 +17,13 @@ const { extractImageUrl } = require('../lib/imageUnderstanding');
 // advanced either — and answer with the same "send nothing" sentinel the
 // botPaused path already uses, which the ManyChat flow understands.
 //
+// The claim lives in Postgres (lib/inboundDedup.js). It was a Map here, which
+// could not see a duplicate that landed on a second lambda instance — and a
+// duplicate arriving 3s later, while the first request is still mid model call,
+// always does.
+//
 // Web is excluded on purpose: the site widget renders the reply inline, so
-// silence there would look broken. The window is deliberately short — a person
-// re-sending the identical text within it is a double-tap, not a new question.
-const DUPLICATE_WINDOW_MS = 12_000;
-const recentInbound = new Map();
-
-function inboundKey(sid, message) {
-  return `${sid}|${String(message).trim().slice(0, 300)}`;
-}
-
-function markInbound(key) {
-  const now = Date.now();
-  if (recentInbound.size > 500) {
-    for (const [k, at] of recentInbound) {
-      if (now - at > DUPLICATE_WINDOW_MS) recentInbound.delete(k);
-    }
-  }
-  const prev = recentInbound.get(key);
-  recentInbound.set(key, now);
-  return !!prev && now - prev < DUPLICATE_WINDOW_MS;
-}
+// silence there would look broken.
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
@@ -194,7 +181,7 @@ module.exports = async (req, res) => {
     // Cleared again in the catch below, so a retry after a real failure still
     // gets answered instead of being silently swallowed.
     dupKey = message && channelOf(sid) !== 'web' ? inboundKey(sid, message) : null;
-    if (dupKey && markInbound(dupKey)) {
+    if (dupKey && !(await claimInbound(dupKey))) {
       console.warn('[chat] duplicate inbound swallowed', sid, String(message).slice(0, 60));
       return res.json({
         sessionId: sid,
@@ -271,7 +258,7 @@ module.exports = async (req, res) => {
     return res.json(payload);
   } catch (err) {
     // This turn produced no answer, so don't let its key mute ManyChat's retry.
-    if (dupKey) recentInbound.delete(dupKey);
+    if (dupKey) await releaseInbound(dupKey);
     const status = err.status || 500;
     console.error('chat:', err.message);
     return res.status(status).json({ error: err.message || 'Chat failed' });
