@@ -51,11 +51,18 @@ enforces this — run it after touching the engine.
 node scripts/eval-chat.js
 ```
 
-62 real customer conversations replayed against production. **Currently ~51/62.**
-If it drops below ~49, something broke.
+74 real customer conversations. **Currently ~62/74.** If it drops below ~58,
+something broke.
+
+**It replays against `https://www.montana.com.eg/api/chat` — production, not
+the working tree.** Running it before `vercel --prod` measures the deployed
+build and says nothing about the change in hand; a "regression" found that way
+is not one. Run it *after* deploying, or point `CHAT_URL` somewhere else.
 
 The score moves ±2–3 between runs with identical code, because the model words
 replies differently each time. One case flipping is noise; a drop of 4+ is real.
+A batch of failures reading `HTTP 0` is the network, not the bot — those are
+requests that never landed, and the run should be repeated rather than read.
 
 When a live failure comes in, add it to `scripts/eval-chat-cases.json` **before**
 fixing it.
