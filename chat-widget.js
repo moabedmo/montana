@@ -562,6 +562,7 @@
                 document.getElementById('typing')?.remove();
                 const reply = data.reply || data.error || COPY.genericError;
                 typeMessage(reply, now);
+                if (data.audioUrl) addVoiceNote(data.audioUrl, now);
                 if (data.awaitingProof) renderProofBox(data.awaitingProof, { skipIntro: true });
                 if (data.showOrderForm) renderCheckoutForm();
             }, Math.max(0, remaining));
@@ -573,6 +574,35 @@
                 addBotMsg(COPY.serverError, now);
             }, Math.max(0, remaining));
         });
+    }
+
+    // A spoken version of the reply, for someone who told us she cannot read
+    // the written one. It is an addition, never a replacement — the text bubble
+    // is already on screen by the time this appears.
+    function addVoiceNote(url, time) {
+        const msgs = document.getElementById('chatMessages');
+        if (!msgs) return;
+        const el = document.createElement('div');
+        el.className = 'mchat-msg bot';
+        const audio = document.createElement('audio');
+        audio.controls = true;
+        audio.preload = 'none';
+        audio.src = url;
+        audio.style.cssText = 'max-width:230px;height:36px;display:block';
+        const wrap = document.createElement('div');
+        wrap.className = 'mchat-bubble-wrap';
+        const bubble = document.createElement('div');
+        bubble.className = 'mchat-bubble';
+        bubble.style.cssText = 'padding:8px 10px';
+        bubble.appendChild(audio);
+        const stamp = document.createElement('span');
+        stamp.className = 'mchat-time';
+        stamp.textContent = time;
+        wrap.appendChild(bubble);
+        wrap.appendChild(stamp);
+        el.appendChild(wrap);
+        msgs.appendChild(el);
+        msgs.scrollTop = msgs.scrollHeight;
     }
 
     // Splits a long reply into separate bubbles (on blank lines) so it reads

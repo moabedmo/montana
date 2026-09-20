@@ -52,7 +52,7 @@
   }
 
   const chatScript = document.createElement('script');
-  chatScript.src = assetP + 'chat-widget.js?v=13';
+  chatScript.src = assetP + 'chat-widget.js?v=14';
   chatScript.defer = true;
   document.body.appendChild(chatScript);
 
