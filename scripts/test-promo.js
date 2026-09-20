@@ -38,4 +38,12 @@ assert.strictEqual(promoLine(null), '');
 // 6 — a percentage at or past 100 is a configuration mistake, not a free order
 assert.strictEqual(promoDiscountFor(500, { active: true, percent: 100 }), 500);
 
-console.log('PASS promo — 6 groups');
+// 7 — routine bundles are outside the promo: their perk is free shipping, and
+// a percentage on top would discount them twice. The exclusion happens where
+// the basket is summed, so what reaches promoDiscountFor is already only the
+// eligible goods — a bundle-only basket therefore arrives as zero.
+assert.strictEqual(promoDiscountFor(0, on), 0, 'a bundle-only basket gets nothing off');
+// a mixed basket: 777 bundle + 299 cleanser -> only the 299 is eligible
+assert.strictEqual(promoDiscountFor(299, on), 60);
+
+console.log('PASS promo — 7 groups');

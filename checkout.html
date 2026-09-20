@@ -566,10 +566,16 @@ function computeTotals() {
     const items = window.Cart.getItems();
     const subtotal = window.Cart.getTotal();
     const shippingCost = cartGetsFreeShipping(items) ? 0 : selectedGovCost();
-    // Store-wide promo: taken off automatically, nothing for the customer to
-    // type. A campaign that needs a code is a campaign most buyers never get.
+    // Promo: taken off automatically, nothing for the customer to type. A
+    // campaign that needs a code is a campaign most buyers never get.
+    //
+    // Routine bundles are excluded. Their perk is free shipping, and stacking a
+    // percentage on top would discount them twice.
+    const promoBase = items
+        .filter((i) => !ROUTINE_BUNDLE_SLUGS.has(i.bundleSlug))
+        .reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.qty) || 1), 0);
     const promoDiscount = activePromo
-        ? Math.min(Math.round((subtotal * activePromo.percent) / 100), subtotal)
+        ? Math.min(Math.round((promoBase * activePromo.percent) / 100), promoBase)
         : 0;
     let couponDiscount = 0;
     if (appliedCoupon) {
