@@ -6,7 +6,7 @@
 // that cannot be read must come back as *no* promo, because quoting a discount
 // the order will not carry is worse than quoting the shelf price.
 const assert = require('assert');
-const { promoDiscountFor, promoLine } = require('../lib/promo');
+const { promoDiscountFor, promoLine, promoPromptBlock } = require('../lib/promo');
 
 const on = { active: true, percent: 20, label: 'خصم BackToSchool' };
 const off = { active: false, percent: 0, label: '' };
@@ -46,4 +46,19 @@ assert.strictEqual(promoDiscountFor(0, on), 0, 'a bundle-only basket gets nothin
 // a mixed basket: 777 bundle + 299 cleanser -> only the 299 is eligible
 assert.strictEqual(promoDiscountFor(299, on), 60);
 
-console.log('PASS promo — 7 groups');
+// 8 — what the bot is told about the campaign, and what it says out loud, are
+// two different strings. The bot offered a customer the 777 routine at 621.6,
+// a discount checkout refuses; it is now told the exclusion in the prompt.
+// That text must not reach a customer, and the spoken line must not promise
+// the discount on everything.
+const block = promoPromptBlock(on);
+assert.ok(block.includes('777') && block.includes('مش'), 'the exclusion must be stated to the model');
+assert.ok(/متقوليش|متحسبيش/.test(block), 'the model must be told not to quote a discount on offers');
+assert.strictEqual(promoPromptBlock(off), '');
+
+assert.ok(!/متقوليش|متحسبيش|متعدّيش/.test(line),
+  'instructions to the model must never reach a customer');
+assert.ok(!line.includes('كل المنتجات'),
+  'the spoken line must not claim the discount covers the routines too');
+
+console.log('PASS promo — 8 groups');
