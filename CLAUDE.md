@@ -112,16 +112,21 @@ account>`: a 403, not a login prompt.
 Putting the username in the URL does **not** fix it. `https://moabedmo@…`
 reads fine and still fails on push.
 
-So use the alias, which sets the account and then pushes:
+So push with:
 
 ```bash
 git publish
 ```
 
-It is a local alias, already configured:
+It lists the accounts, says which is active, and **asks** which to push as —
+Enter takes `moabedmo` — then pushes and prints the account it left active.
+The switch is never silent, because the other three accounts belong to other
+projects on this same machine and nothing here logs any of them out.
+
+`scripts/publish.sh` is the script; the alias is local config:
 
 ```bash
-git config --local alias.publish '!gh auth switch --user moabedmo >/dev/null 2>&1; git push https://github.com/moabedmo/montana.git HEAD:live'
+git config --local alias.publish '!sh scripts/publish.sh'
 ```
 
 **`origin` points at `montanahala32/montana2`, which is not this project.**
