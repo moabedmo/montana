@@ -103,13 +103,30 @@ which is the one serving www.montana.com.eg — check with `vercel project ls`
 before trusting it. It was once signed into an unrelated account, which is why
 these notes used to say never to run it here.
 
-**`gh` holds two accounts and the active one decides the push.** When it is on
-`montanahala32`, a push to `moabedmo/montana` comes back
-`Permission ... denied to montanahala32` — a 403, not a login prompt:
+**`gh` holds four accounts and the active one decides the push.** The account
+keeps drifting off `moabedmo` on its own — `montanahala32`, `xmoshamsx-cpu`
+and `mahrandevelopment-boop` have each been active at some point — and a push
+to `moabedmo/montana` then comes back `Permission ... denied to <that
+account>`: a 403, not a login prompt.
+
+Putting the username in the URL does **not** fix it. `https://moabedmo@…`
+reads fine and still fails on push.
+
+So use the alias, which sets the account and then pushes:
 
 ```bash
-gh auth switch --user moabedmo
+git publish
 ```
+
+It is a local alias, already configured:
+
+```bash
+git config --local alias.publish '!gh auth switch --user moabedmo >/dev/null 2>&1; git push https://github.com/moabedmo/montana.git HEAD:live'
+```
+
+**`origin` points at `montanahala32/montana2`, which is not this project.**
+A bare `git push` goes to the wrong repository. The correct one is the remote
+`live`, and `git publish` above ignores both and names the URL outright.
 
 **Git credentials.** A system-level `manager` helper answers before the repo's
 own `gh` helper and hands over a different GitHub account, and GitHub replies
