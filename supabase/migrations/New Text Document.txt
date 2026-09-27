@@ -1,0 +1,4 @@
+URL:      /crm/
+Email:    mo-abed5@outlook.com
+Password: Montana@CRM#2026!
+Role:     Admin
