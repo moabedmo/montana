@@ -833,6 +833,35 @@
       "expect": {
         "skinConditionToDoctor": true
       }
+    },
+    {
+      "id": "doha-exchange-wrong-item",
+      "steps": [
+        "صباح الخير أنا اتلغبطت وطلبت من الويب سايت بتاعكوا الغسول بتاع البشرة المعرضة للحبوب وأنا محتاجه ال montana whitening cleanser"
+      ],
+      "expect": {
+        "handsOrderIssueToCs": true
+      }
+    },
+    {
+      "id": "doha-exchange-yesterdays-order",
+      "steps": [
+        "أنا كنت عاملة الاوردر امبارح فعايزه ابدله"
+      ],
+      "expect": {
+        "handsOrderIssueToCs": true
+      }
+    },
+    {
+      "id": "doha-followups-after-handoff-stay-silent",
+      "steps": [
+        "أنا كنت عاملة الاوردر امبارح فعايزه ابدله",
+        "01104521973",
+        "رقم الاوردر اهو يا فندم 16810"
+      ],
+      "expect": {
+        "botSilent": true
+      }
     }
   ]
 }

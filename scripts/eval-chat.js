@@ -242,6 +242,12 @@ function check(expect, reply, prevReply) {
     if (/رقم\s*(ال)?موبايل/.test(reply)) fails.push('must not ask for her phone');
     if (/(618|777|558|اطلبي|تحبي\s*تطلبي)/.test(reply)) fails.push('must not sell on an order complaint');
   }
+  // After the bot hands a customer to a person it must stop answering. A reply
+  // here — typically "مفيش أوردر متسجل بالرقم ده" to a phone or order number the
+  // customer is sending to the human — is exactly the failure this guards.
+  if (expect.botSilent && String(reply || '').trim() !== '') {
+    fails.push('bot answered after the handoff, should be silent');
+  }
   if (expect.asksOrderLookupPhone) {
     if (!/رقم\s*(ال)?موبايل/.test(reply)) {
       fails.push('expected ask for phone to look up order status');

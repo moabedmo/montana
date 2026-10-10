@@ -9,7 +9,9 @@ process.env.GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'x';
 const {
   isOrderProblemComplaint,
   wantsExistingOrderHelp,
+  isOrderExchangeRequest,
   orderIssueCsReply,
+  orderExchangeCsReply,
   CS_SUPPORT_PHONE,
 } = require('../lib/orderContext');
 
@@ -47,6 +49,34 @@ const handled = (m) => wantsExistingOrderHelp(m) || isOrderProblemComplaint(m);
   'سلمى محمود حسن',
   '01102354774',
 ].forEach((m) => assert(!handled(m), 'stays in normal chat: ' + m));
+
+// ── asking to swap something in an order that is ALREADY placed ──
+// Doha wrote "أنا اتلغبطت وطلبت من الويب سايت … وأنا محتاجه ال whitening
+// cleanser", then "أنا كنت عاملة الاوردر امبارح فعايزه ابدله". Neither matched:
+// the first has an order word but no problem word the detector knew (it knows
+// "غلط", not "اتلغبطت"), the second has "ابدله" where the detector only knew
+// "استبدال". Both fell to the model, which asked for her phone and then started
+// a checkout read-back for an order she had already placed.
+[
+  'أنا اتلغبطت وطلبت من الويب سايت بتاعكوا الغسول بتاع البشرة المعرضة للحبوب وأنا محتاجه ال montana whitening cleanser',
+  'أنا كنت عاملة الاوردر امبارح فعايزه ابدله',
+  'عملت اوردر امبارح وعايزة اغير المنتج',
+  'طلبت الغسول بالغلط عايزة ابدله بغسول التفتيح',
+  'ممكن استبدل الكريم اللي طلبته من الموقع',
+  'كنت عاملة اوردر وعايزة اعدله',
+].forEach((m) => assert(isOrderExchangeRequest(m), 'exchange of a placed order goes to CS: ' + m));
+
+// "بدل" and "طلبت" are everyday sales words. None of these is an exchange.
+[
+  'عايزة ابدل الكريم بالغسول',                       // editing what she is choosing
+  'غيري الاوردر بقى غسول التفتيح',                   // cart edit — no order placed yet
+  'طلبت قبل كده وعايزة اطلب تاني',                   // reorder, not a swap
+  'السعر بدل 300 بقى 249؟',                          // a price
+  'اتلغبطت في الاسم',                                 // a typo, nothing placed
+  'عايزة كريم بدل الغسول',
+  'طلبت امبارح',                                      // placed, but nothing she wants changed
+  'عايزة اطلب غسول التفتيح',
+].forEach((m) => assert(!isOrderExchangeRequest(m), 'stays in normal chat: ' + m));
 
 // ── the reply itself ──
 const reply = orderIssueCsReply();
@@ -92,6 +122,26 @@ assert(
 const mazeStart = engine.indexOf('if (!skipScriptedMaze && message) {');
 const earlyCheckAt = engine.indexOf('Order problem / late delivery → hand straight');
 assert(mazeStart === -1 || earlyCheckAt < mazeStart, 'check runs before the scripted maze');
+
+// ── the exchange reply ──
+const exReply = orderExchangeCsReply();
+assert(exReply.includes('01019787225'), 'exchange reply carries the CS number');
+assert(exReply.length < 280, 'exchange reply is short: ' + exReply.length + ' chars');
+assert(!/رقم\s*(ال)?موبايل/i.test(exReply), 'exchange reply does NOT ask for her phone');
+assert(!/(618|777|558|اطلبي|تحبي\s*تطلبي|عروض|روتين)/i.test(exReply), 'exchange reply does not sell');
+
+// ── and the handoff must stop the bot answering the follow-ups ──
+// Doha's next three messages — a phone number, a second phone number, an order
+// number — were each answered as if they were a fresh order lookup ("مفيش أوردر
+// متسجل بالرقم ده"), while the owner was already handling her by hand. Handing a
+// customer to a person and then carrying on talking is the bug; the handoff has
+// to pause the bot, the way an explicit "عايزة اكلم حد" already does.
+const blockEnd = engine.indexOf('"عايزة أطلب" with nothing chosen yet', earlyCheckAt);
+const block = engine.slice(earlyCheckAt, blockEnd > earlyCheckAt ? blockEnd : earlyCheckAt + 2500);
+assert(/isOrderExchangeRequest\(message\)/.test(block), 'the early block checks for an exchange request');
+assert(/stampBotPaused\(chatHistory\)/.test(block), 'the early block pauses the bot after handing over');
+assert(/botPaused: true/.test(block), 'the handoff reply is flagged botPaused');
+assert(/needsHuman: true/.test(block), 'the handoff is still flagged needsHuman');
 
 if (failed) { console.error(`\n${failed} test(s) failed`); process.exit(1); }
 console.log('\nall passed');
