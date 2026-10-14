@@ -33,12 +33,32 @@
 .bundle-card {
   background: #fff !important;
   border: 1px solid var(--border-light, #F1EFF3);
-  border-radius: var(--radius-md, 12px);
+  border-radius: var(--radius-md, 14px);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   transition: var(--transition, all 0.3s ease);
   color: #3A2F42;
+  position: relative;
+}
+
+.bundle-card--featured {
+  border: 2px solid #C6A45C !important;
+  box-shadow: 0 8px 28px rgba(198, 164, 92, 0.18) !important;
+}
+
+.bundle-popular-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+  background: linear-gradient(135deg, #D8B559, #C6A45C);
+  color: #2E2537;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 50px;
+  box-shadow: 0 4px 12px rgba(198, 164, 92, 0.35);
 }
 
 .bundle-card:hover {

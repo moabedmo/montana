@@ -22,6 +22,11 @@
   window.MontanaShopFilter = {
     match(filter, product) {
       if (!filter || filter === 'all') return true;
+      if (filter === 'bundles') {
+        const b = document.getElementById('bundlesMount');
+        if (b) b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return true;
+      }
       const hay = [
         product.slug,
         product.name,
@@ -35,7 +40,6 @@
       const rules = {
         cleanser: /cleanser|غسول|wash|facial wash/i,
         cream: /cream|كريم/i,
-        serum: /serum|سيروم/i,
         lotion: /lotion|لوشن|body/i,
       };
       return rules[filter] ? rules[filter].test(hay) : true;

@@ -25,9 +25,21 @@ function renderGrid(gridEl, list) {
 function applyCategoryTabs(allProducts) {
   document.querySelectorAll('#trending .tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+      document.querySelectorAll('#trending .tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
       const tab = btn.dataset.tab;
       document.querySelectorAll('#trending .product-card').forEach(card => {
-        card.style.display = (tab === 'all' || card.dataset.category === tab) ? '' : 'none';
+        if (!tab || tab === 'all') {
+          card.style.display = '';
+          return;
+        }
+        const text = (card.textContent || '').toLowerCase();
+        let match = false;
+        if (tab === 'acne' && (text.includes('حب الشباب') || text.includes('acne') || text.includes('حبوب'))) match = true;
+        else if (tab === 'whitening' && (text.includes('تفتيح') || text.includes('whitening') || text.includes('توحيد'))) match = true;
+        else if (tab === 'care' && (text.includes('لوشن') || text.includes('ليزر') || text.includes('lotion') || text.includes('laser') || text.includes('ترطيب'))) match = true;
+        else if (card.dataset.category === tab) match = true;
+        card.style.display = match ? '' : 'none';
       });
     });
   });

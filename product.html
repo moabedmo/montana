@@ -209,6 +209,26 @@ function renderProduct(p, related, ingredientsList, reviewList) {
                 ${discountPct ? `<span class="pd-discount">-${discountPct}%</span>` : ''}
             </div>
 
+            <div class="pd-trust-box" style="margin: 16px 0; padding: 14px 16px; background: #FBF6F0; border-radius: 12px; border: 1px solid rgba(198,164,92,.25);">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px;font-weight:700;color:#2E2537;">
+                    <i class="fas fa-truck" style="color:#C6A45C;width:18px;"></i>
+                    <span>${getLocale() === 'en' ? 'Free shipping on 3+ items or bundles' : 'شحن مجاني عند اختيار 3 منتجات أو أي روتين'}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px;font-weight:700;color:#2E2537;">
+                    <i class="fas fa-hand-holding-dollar" style="color:#C6A45C;width:18px;"></i>
+                    <span>${getLocale() === 'en' ? 'Cash on delivery with inspection before payment' : 'الدفع عند الاستلام مع إمكانية المعاينة'}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:#2E2537;">
+                    <i class="fas fa-shield-alt" style="color:#C6A45C;width:18px;"></i>
+                    <span>${getLocale() === 'en' ? '100% Authentic — Paraben free' : 'منتج أصلي — خالي من البارابين ومناسب للحساسة'}</span>
+                </div>
+            </div>
+
+            <a href="https://wa.me/201019787225?text=${encodeURIComponent('مرحباً، أود طلب: ' + p.name + ' بسعر ' + Math.round(p.price) + ' ج.م')}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;margin-bottom:16px;background:#25D366;color:#fff;border-radius:10px;font-weight:700;text-decoration:none;font-size:14px;box-shadow:0 4px 14px rgba(37,211,102,.25);">
+                <i class="fab fa-whatsapp" style="font-size:18px;"></i>
+                <span>${getLocale() === 'en' ? 'Order instantly via WhatsApp' : 'اطلبي الآن مباشرة عبر واتساب'}</span>
+            </a>
+
             <div class="pd-divider"></div>
 
             <div class="pd-section">

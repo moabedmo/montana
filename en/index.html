@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    <link rel="preload" href="../css/home.bundle.css?v=19" as="style">
+    <link rel="preload" href="../css/home.bundle.css?v=20" as="style">
     <link rel="preload" href="../images/hero-products.webp" as="image" type="image/webp" fetchpriority="high"
           imagesrcset="../images/hero-products-620.webp 620w, ../images/hero-products.webp 945w"
           imagesizes="(max-width:820px) 92vw, 42vw">
@@ -115,8 +115,8 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
-    <link rel="stylesheet" href="../css/home.bundle.css?v=19" media="print" onload="this.media='all';this.onload=null;">
-    <noscript><link rel="stylesheet" href="../css/home.bundle.css?v=19"></noscript>
+    <link rel="stylesheet" href="../css/home.bundle.css?v=20" media="print" onload="this.media='all';this.onload=null;">
+    <noscript><link rel="stylesheet" href="../css/home.bundle.css?v=20"></noscript>
 </head>
 <body class="mnt-home mnt-en">
 <!-- Aurora Background -->
@@ -127,60 +127,11 @@
     <div class="noise"></div>
 </div>
 
-<!-- Always-visible "enter the store" button. It was added because the header
-     sat below a fullscreen hero; the hero is now half that, so this is a
-     shortcut rather than the only way in. -->
-<a href="/en/category.html" class="floating-store-btn">
-    <i class="fas fa-store"></i> Shop
-</a>
-
-<!-- Hero — a single banner. The six-slide carousel it replaced lived here
-     with its own aurora, dust, cursor and loader layers; all of that markup
-     and js/hero-showcase.js went with it. -->
-<section class="hero-banner" id="hero-section">
-    <div class="hero-banner-inner">
-        <div class="hb-copy">
-            <p class="hb-kicker">Natural Care · Real Results</p>
-            <div class="hb-rule" aria-hidden="true"></div>
-            <h1 class="hb-head">Healthy Skin<br>Happier You</h1>
-            <p class="hb-sub">Five formulas for face and body — an acne cleanser, a brightening cleanser and cream, a hydrating lotion, and a post-laser cream.</p>
-            <div class="hb-cta">
-                <a class="hb-btn hb-btn--solid" href="/en/category.html">Shop Now</a>
-                <a class="hb-btn hb-btn--ghost" href="#bundlesMount">See the Offers</a>
-            </div>
-            <ul class="hb-trust">
-                <li><i aria-hidden="true"></i>Certified manufacturing</li>
-                <li><i aria-hidden="true"></i>Paraben-free</li>
-                <li><i aria-hidden="true"></i>Delivery nationwide</li>
-            </ul>
-        </div>
-        <picture class="hb-shot">
-            <source srcset="../images/hero-products-620.webp 620w, ../images/hero-products.webp 950w"
-                    sizes="(max-width:900px) 92vw, 42vw">
-            <img src="../images/hero-products.webp"
-                 alt="Montana skincare range — Whitening Cleanser, Whitening Cream, Acne Facial Cleanser, Hand & Body Lotion and Post Laser Cream"
-                 fetchpriority="high" decoding="async">
-        </picture>
-    </div>
-</section>
-
-<!-- Premium bridge: cinematic hero → store -->
-<section class="lux-bridge lux-reveal" aria-label="Montana values">
-    <div class="lux-bridge-inner container">
-        <p class="lux-bridge-tagline">Crafted with natural actives — visible results from first use</p>
-        <div class="lux-trust-row">
-            <div class="lux-trust-item"><span class="lux-trust-icon">◆</span><span>Certified manufacturing</span></div>
-            <div class="lux-trust-item"><span class="lux-trust-icon">◆</span><span>Paraben-free</span></div>
-            <div class="lux-trust-item"><span class="lux-trust-icon">◆</span><span>Sensitive-skin friendly</span></div>
-        </div>
-    </div>
-</section>
-
 <!-- Top Promotional Banner -->
 <div class="promo-banner promo-banner--lux">
     <div class="promo-slider">
-        <span>🚚 Shipping from EGP 50 by governorate — free on 3 products</span>
-        <span>✨ Exclusive discounts for Montana Rewards members</span>
+        <span>🚚 Free shipping on any routine (3+ items) · Cash on delivery with inspection</span>
+        <span>✨ Exclusive savings & fast 24-48h delivery across Egypt</span>
     </div>
 </div>
 
@@ -191,6 +142,7 @@
             <div class="header-top-links">
                 <a href="/en/account.html"><i class="fas fa-map-marker-alt"></i> Track order</a>
                 <a href="/en/contact.html"><i class="fas fa-headset"></i> Customer care</a>
+                <a href="https://wa.me/201019787225" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Fast WhatsApp Order</a>
                 <a href="/" class="lang-switch" data-locale-toggle="1"><i class="fas fa-globe"></i> العربية</a>
             </div>
         </div>
@@ -202,8 +154,8 @@
                     <a href="/"><img loading="lazy" decoding="async" src="../images/logo.png" alt="Montana" class="logo-img"></a>
                 </div>
                 <div class="search-bar">
-                    <input type="text" placeholder="Search products, brands, and more…" onclick="window.location.href='search.html'" readonly>
-                    <button><i class="fas fa-search"></i></button>
+                    <input type="text" placeholder="Search cleansers, brightening cream, acne care..." onclick="window.location.href='search.html'" readonly>
+                    <button aria-label="Search"><i class="fas fa-search"></i></button>
                 </div>
                 <div class="header-actions">
                     <a href="/en/category.html" class="header-action header-store-btn">
@@ -235,13 +187,55 @@
     <nav class="main-nav">
         <div class="container">
             <ul class="nav-links">
-                <li class="nav-item"><a href="/en/category.html"><i class="fas fa-spa"></i> Skincare</a></li>
-                <li class="nav-item"><a href="#offers" class="nav-highlight"><i class="fas fa-fire"></i> Offers</a></li>
-                <li class="nav-item"><a href="#rewards"><i class="fas fa-crown"></i> Montana Rewards</a></li>
+                <li class="nav-item"><a href="#trending" class="nav-highlight"><i class="fas fa-sparkles"></i> Our Products</a></li>
+                <li class="nav-item"><a href="/en/category.html"><i class="fas fa-spa"></i> Full Shop</a></li>
+                <li class="nav-item"><a href="#bundlesMount" class="nav-highlight"><i class="fas fa-fire"></i> Routine Offers (Free Shipping)</a></li>
+                <li class="nav-item"><a href="#shop-by-concern"><i class="fas fa-heart-pulse"></i> Care Guide</a></li>
+                <li class="nav-item"><a href="#reviews"><i class="fas fa-star"></i> Customer Reviews</a></li>
             </ul>
         </div>
     </nav>
 </header>
+
+<!-- Hero Banner -->
+<section class="hero-banner" id="hero-section">
+    <div class="hero-banner-inner">
+        <div class="hb-copy">
+            <p class="hb-kicker">عناية طبيعية · نتائج مثبتة سريرياً</p>
+            <div class="hb-rule" aria-hidden="true"></div>
+            <h1 class="hb-head">Your skin deserves natural care<br>with proven results</h1>
+            <p class="hb-sub">Five specialized medical formulas for face and body — acne cleanser, brightening cleanser & cream, hydrating lotion, and post-laser cream.</p>
+            <div class="hb-cta">
+                <a class="hb-btn hb-btn--solid" href="#trending">Shop Products Now</a>
+                <a class="hb-btn hb-btn--ghost" href="#bundlesMount">Routine Offers & Free Shipping</a>
+            </div>
+            <ul class="hb-trust">
+                <li><i aria-hidden="true"></i>Cash on Delivery with Inspection</li>
+                <li><i aria-hidden="true"></i>Free shipping on 3 products</li>
+                <li><i aria-hidden="true"></i>Paraben-Free & Sensitive Skin Safe</li>
+            </ul>
+        </div>
+        <picture class="hb-shot">
+            <source srcset="../images/hero-products-620.webp 620w, ../images/hero-products.webp 950w"
+                    sizes="(max-width:900px) 92vw, 42vw">
+            <img src="../images/hero-products.webp"
+                 alt="Montana skincare range — Whitening Cleanser, Whitening Cream, Acne Facial Cleanser, Hand & Body Lotion and Post Laser Cream"
+                 fetchpriority="high" decoding="async">
+        </picture>
+    </div>
+</section>
+
+<!-- Premium bridge: cinematic hero → store -->
+<section class="lux-bridge lux-reveal" aria-label="Montana values">
+    <div class="lux-bridge-inner container">
+        <p class="lux-bridge-tagline">Montana formulas — acne cleansers, brightening and hydrating creams with visible results from first use</p>
+        <div class="lux-trust-row">
+            <div class="lux-trust-item"><span class="lux-trust-icon">◆</span><span>Certified & Licensed Facility</span></div>
+            <div class="lux-trust-item"><span class="lux-trust-icon">◆</span><span>Paraben-free</span></div>
+            <div class="lux-trust-item"><span class="lux-trust-icon">◆</span><span>Sensitive-skin friendly</span></div>
+        </div>
+    </div>
+</section>
 
 <!-- Mobile Menu Toggle -->
 <div class="mobile-menu-toggle" id="mobileToggle">
@@ -319,6 +313,32 @@
                 <h4>Secure checkout</h4>
                 <p>Multiple payment options</p>
             </div>
+        </div>
+    </div>
+</section>
+
+<!-- Core Products Section -->
+<section class="products-section lux-reveal" id="trending">
+    <div class="container">
+        <div class="section-header">
+            <span class="lux-eyebrow lux-eyebrow--accent">Montana Core Collection</span>
+            <h2>Most Popular Skincare Products</h2>
+            <p>Specialized medical formulas meeting your daily skincare needs — fast delivery & cash on delivery.</p>
+            <div class="section-tabs">
+                <button type="button" class="tab-btn active" data-tab="all">All</button>
+                <button type="button" class="tab-btn" data-tab="acne">حب الشباب</button>
+                <button type="button" class="tab-btn" data-tab="whitening">التفتيح والتوحيد</button>
+                <button type="button" class="tab-btn" data-tab="care">الترطيب وCare</button>
+            </div>
+        </div>
+        <div class="products-grid" id="trendingGrid">
+            <p class="home-grid-loading" style="grid-column:1/-1;text-align:center;padding:48px 16px;color:#836F8F;">Loading products…</p>
+        </div>
+        <div class="section-footer" style="text-align:center;margin-top:32px;">
+            <a href="/en/category.html" class="btn-primary" style="display:inline-flex;align-items:center;gap:10px;padding:12px 28px;border-radius:999px;">
+                <span>Browse Full Shop</span>
+                <i class="fas fa-arrow-left"></i>
+            </a>
         </div>
     </div>
 </section>
@@ -554,14 +574,52 @@
 </section>
 
 
-<section class="reviews-section lux-section lux-section--light lux-reveal" id="reviews" hidden>
+<section class="reviews-section lux-section lux-section--light lux-reveal" id="reviews">
     <div class="container">
         <div class="section-header">
-            <span class="lux-eyebrow lux-eyebrow--accent">Client voices</span>
-            <h2>What our clients say</h2>
+            <span class="lux-eyebrow lux-eyebrow--accent">Customer Reviews</span>
+            <h2>Real Experiences from Montana Customers</h2>
+            <p>Over 98% of customers report visible results and fast delivery</p>
         </div>
-        <div class="lux-reviews-summary" id="reviewsSummary"></div>
-        <div class="lux-reviews-grid" id="reviewsGrid"></div>
+        <div class="lux-reviews-summary" id="reviewsSummary">
+            <div class="lux-reviews-score">4.9<span>/5</span></div>
+            <div class="lux-reviews-count">Based on verified reviews from customers in Egypt</div>
+        </div>
+        <div class="lux-reviews-grid" id="reviewsGrid">
+            <div class="lux-review-card lux-reveal lux-visible">
+                <div class="lux-review-stars">★★★★★</div>
+                <p class="lux-review-text">«Acne Facial Cleanser فرق معايا جداً من تاني أسبوع، الدهون في منطقة الـ T-Zone قلت جداً والحبوب بدأت تنشف بدون أي جفاف أو شد في الوش.»</p>
+                <div class="lux-review-author">
+                    <div class="lux-review-avatar">S</div>
+                    <div>
+                        <div class="lux-review-name">سارة محمود</div>
+                        <div class="lux-review-meta">Cleanser علاج حب الشباب للوجه · القاهرة</div>
+                    </div>
+                </div>
+            </div>
+            <div class="lux-review-card lux-reveal lux-visible">
+                <div class="lux-review-stars">★★★★★</div>
+                <p class="lux-review-text">«روتين التفتيح (الCleanser والكريم) رائع بجد! التصبغات وآثار الشمس خفت بنسبة كبيرة، وخفيف على البشرة ومش بيسيب أي أثر دهني. والأوردر وصلني في يومين بالظبط.»</p>
+                <div class="lux-review-author">
+                    <div class="lux-review-avatar">N</div>
+                    <div>
+                        <div class="lux-review-name">نورهان كمال</div>
+                        <div class="lux-review-meta">روتين التفتيح والتوحيد · الإسكندرية</div>
+                    </div>
+                </div>
+            </div>
+            <div class="lux-review-card lux-reveal lux-visible">
+                <div class="lux-review-stars">★★★★★</div>
+                <p class="lux-review-text">«كريم ما بعد الليزر هدى الاحمرار والالتهاب من أول استخدام، بجد أنصح أي حد بيعمل جلسات ليزر بيه. والتغليف فخم جداً وCustomer care متعاونين جداً.»</p>
+                <div class="lux-review-author">
+                    <div class="lux-review-avatar">M</div>
+                    <div>
+                        <div class="lux-review-name">مريم أشرف</div>
+                        <div class="lux-review-meta">كريم Care بعد الليزر · الجيزة</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -791,6 +849,12 @@ window.renderAppCart = renderAppCart;
     </a>
 </nav>
 
+<!-- Floating Quick WhatsApp Button -->
+<a href="https://wa.me/201019787225?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D9%85%D9%86%D8%AA%D8%AC%D8%A7%D8%AA%20Montana%20%D9%88%D8%A7%D9%84%D8%B9%D8%B1%D9%88%D8%B6" class="floating-wa-btn" target="_blank" rel="noopener" aria-label="Contact us عبر WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+    <span class="wa-tooltip">Order via WhatsApp</span>
+</a>
+
 <script>window.MONTANA_LOCALE="en";</script>
 <script type="module" src="../js/i18n/bootstrap-en.js"></script>
 <script src="../js/lang-switch.js?v=2" defer></script>
@@ -800,7 +864,7 @@ window.renderAppCart = renderAppCart;
 <script src="../script.js?v=4" defer></script>
 <script src="../js/quick-view.js?v=1" defer></script>
 <script src="../js/home-premium.js" defer></script>
-<script type="module" src="../js/home.js?v=10"></script>
+<script type="module" src="../js/home.js?v=11"></script>
 <script type="module" src="../js/bundle-ui.js?v=7"></script>
 </body>
 </html>

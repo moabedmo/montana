@@ -63,6 +63,7 @@ function productLabel(p) {
 
 function renderCard(resolved) {
   const { bundle, products, originalTotal, bundlePrice, savings } = resolved;
+  const isBest = bundle.slug === 'brightening-routine';
   const imgs = products
     .map(
       (p) =>
@@ -73,18 +74,22 @@ function renderCard(resolved) {
   const saveLabel = IS_EN
     ? `Save ${Math.round(savings)} EGP`
     : `وفري ${Math.round(savings).toLocaleString('ar-EG')} جنيه`;
-  const freeShipLabel = IS_EN ? 'Free shipping on this offer' : 'شحن مجاني على العرض 🎁';
-  const cta = IS_EN ? 'Add bundle to bag' : 'أضف البندل للسلة';
+  const freeShipLabel = IS_EN ? 'Free shipping on this offer 🎁' : 'شحن مجاني على العرض 🎁';
+  const cta = IS_EN ? 'Add bundle to bag' : 'أضف الروتين للسلة (شحن مجاني)';
   const trust = IS_EN
     ? 'Cash on delivery · Free shipping'
-    : 'الدفع عند الاستلام · شحن مجاني';
+    : 'الدفع عند الاستلام · شحن مجاني لجميع المحافظات';
   const showOld = savings > 0 && originalTotal > bundlePrice;
+  const badgeHtml = isBest
+    ? `<span class="bundle-popular-badge">${IS_EN ? '👑 Best Seller' : '👑 الروتين الأكثر طلباً'}</span>`
+    : '';
 
   return `
-  <article class="bundle-card" data-bundle="${escapeHtml(bundle.slug)}">
+  <article class="bundle-card ${isBest ? 'bundle-card--featured' : ''}" data-bundle="${escapeHtml(bundle.slug)}">
+    ${badgeHtml}
     <div class="bundle-card-media" aria-hidden="true">${imgs}</div>
     <div class="bundle-card-body">
-      <span class="bundle-card-brand">Montaña</span>
+      <span class="bundle-card-brand">Montaña Routine</span>
       <h3 class="bundle-card-name">${escapeHtml(bundle.name)}</h3>
       <p class="bundle-card-includes">${names}</p>
       <div class="bundle-card-prices" aria-label="${IS_EN ? 'Price' : 'السعر'}">

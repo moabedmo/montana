@@ -114,7 +114,7 @@
         </div>
         <div class="product-info">
             <span class="product-brand">Montaña</span>
-            <h3 class="product-name">${safeName}</h3>
+            <h3 class="product-name"><a href="${productUrl(safeSlug)}" style="color:inherit;text-decoration:none">${safeName}</a></h3>
             <div class="product-rating">
                 <div class="stars">${starsHtml(p.rating)}</div>
                 <span>(${p.review_count || 0})</span>
@@ -122,6 +122,10 @@
             <div class="product-price">
                 <span class="current-price">${formatPrice(p.price)}</span>
                 ${p.old_price ? `<span class="old-price">${formatPrice(p.old_price)}</span>` : ''}
+            </div>
+            <div class="product-trust-strip">
+                <span><i class="fas fa-leaf"></i> ${IS_EN ? 'Paraben-free' : 'خالي من البارابين'}</span>
+                <span><i class="fas fa-shield-alt"></i> ${IS_EN ? 'Tested' : 'مختبر جلدياً'}</span>
             </div>
         </div>
     </div>`;
