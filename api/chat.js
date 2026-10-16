@@ -166,7 +166,7 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'message too long' });
     }
     const sid = String(sessionId || 'default').slice(0, 64);
-    const channelHint = ['messenger', 'instagram'].includes(channel) ? channel : undefined;
+    const channelHint = ['messenger', 'instagram', 'whatsapp'].includes(channel) ? channel : undefined;
     if (trusted) {
       rateLimit(`chat:external:${sid}`, { windowMs: 60_000, max: 40 });
     } else {
