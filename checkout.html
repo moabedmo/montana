@@ -463,7 +463,7 @@ try {
             value: cartItems.reduce((s, i) => s + (Number(i.price) || 0) * (Number(i.qty) || 1), 0),
             currency: 'EGP',
             num_items: cartItems.reduce((s, i) => s + (Number(i.qty) || 1), 0),
-        });
+        }, window.MontanaMeta?.getStoredUserData?.());
     }
 } catch (_) { /* ignore */ }
 
@@ -543,12 +543,32 @@ function applyPhoneLookup(data) {
         }
     }
     if (data.governorate && cityEl && !cityEl.value.trim()) cityEl.value = data.governorate;
+    enrichMetaCheckout();
+}
+
+function enrichMetaCheckout() {
+    try {
+        const phone = document.getElementById('custPhone')?.value?.trim();
+        const email = document.getElementById('custEmail')?.value?.trim();
+        const name = document.getElementById('custName')?.value?.trim();
+        const city = document.getElementById('custCity')?.value?.trim() || document.getElementById('governorateSelect')?.value;
+        if (phone || email) {
+            window.MontanaMeta?.enrichCheckoutUserData?.({
+                phone: phone || undefined,
+                email: email || undefined,
+                firstName: name ? name.split(' ')[0] : undefined,
+                lastName: name && name.includes(' ') ? name.slice(name.indexOf(' ') + 1) : undefined,
+                city: city || undefined,
+            });
+        }
+    } catch (_) { /* ignore */ }
 }
 
 async function lookupCustomerByPhone(phone) {
     const normalized = String(phone || '').trim();
     if (!looksLikeEgMobile(normalized) || normalized === lastLookedUpPhone) return;
     lastLookedUpPhone = normalized;
+    enrichMetaCheckout();
     try {
         const res = await fetch('/api/customer-by-phone', {
             method: 'POST',
@@ -567,8 +587,10 @@ function schedulePhoneLookup() {
     }, 450);
 }
 
-document.getElementById('custPhone')?.addEventListener('blur', schedulePhoneLookup);
-document.getElementById('custPhone')?.addEventListener('change', schedulePhoneLookup);
+document.getElementById('custPhone')?.addEventListener('blur', () => { schedulePhoneLookup(); enrichMetaCheckout(); });
+document.getElementById('custPhone')?.addEventListener('change', () => { schedulePhoneLookup(); enrichMetaCheckout(); });
+document.getElementById('custEmail')?.addEventListener('blur', enrichMetaCheckout);
+document.getElementById('custEmail')?.addEventListener('change', enrichMetaCheckout);
 document.getElementById('custPhone')?.addEventListener('input', () => {
     lastLookedUpPhone = '';
     schedulePhoneLookup();

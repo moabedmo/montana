@@ -41,7 +41,54 @@
   function getCookie(name) {
     if (typeof document === 'undefined') return null;
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    return match ? match[2] : null;
+    if (match) return match[2];
+    if (name === '_fbc') {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const fbclid = params.get('fbclid');
+        if (fbclid) return `fb.1.${Date.now()}.${fbclid}`;
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  function getVisitorId() {
+    try {
+      let vid = localStorage.getItem('montana_vid');
+      if (!vid) {
+        vid = 'mvid_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 9);
+        localStorage.setItem('montana_vid', vid);
+      }
+      return vid;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function getStoredUserData() {
+    const data = {};
+    try {
+      const storedPhone = localStorage.getItem('montana_last_phone') || sessionStorage.getItem('montana_last_phone');
+      if (storedPhone) data.phone = storedPhone;
+      const storedEmail = localStorage.getItem('montana_last_email') || sessionStorage.getItem('montana_last_email');
+      if (storedEmail) data.email = storedEmail;
+
+      const rawProfile = localStorage.getItem('montana_customer_profile');
+      if (rawProfile) {
+        const prof = JSON.parse(rawProfile);
+        if (prof.phone && !data.phone) data.phone = prof.phone;
+        if (prof.email && !data.email) data.email = prof.email;
+        if (prof.name) {
+          const names = splitName(prof.name);
+          if (names.firstName && !data.firstName) data.firstName = names.firstName;
+          if (names.lastName && !data.lastName) data.lastName = names.lastName;
+        }
+        if (prof.governorate || prof.city) data.city = prof.governorate || prof.city;
+      }
+    } catch (_) {}
+    const vid = getVisitorId();
+    if (vid) data.externalId = vid;
+    return data;
   }
 
   function onceGuard(key) {
@@ -63,7 +110,7 @@
 
     const eventId = customEventId || newEventId();
     customData = customData || {};
-    userData = userData || {};
+    const mergedUserData = Object.assign({}, getStoredUserData(), userData || {});
 
     // Standard event only — never trackCustom
     try {
@@ -83,7 +130,7 @@
           eventId,
           eventSourceUrl: typeof window !== 'undefined' ? window.location.href : '',
           customData,
-          userData,
+          userData: mergedUserData,
           fbp: getCookie('_fbp'),
           fbc: getCookie('_fbc'),
         }),
@@ -122,9 +169,36 @@
     return trackEvent(STANDARD.ViewContent, customData);
   }
 
-  function trackInitiateCheckout(customData) {
-    if (!onceGuard('meta_initiate_checkout')) return Promise.resolve(null);
-    return trackEvent(STANDARD.InitiateCheckout, customData || {});
+  function trackInitiateCheckout(customData, userData) {
+    let eid = null;
+    try {
+      eid = sessionStorage.getItem('meta_initiate_checkout_eid');
+      if (!eid) {
+        eid = newEventId();
+        sessionStorage.setItem('meta_initiate_checkout_eid', eid);
+      }
+    } catch (_) {
+      eid = newEventId();
+    }
+    return trackEvent(STANDARD.InitiateCheckout, customData || {}, userData, eid);
+  }
+
+  function enrichCheckoutUserData(userData) {
+    if (!userData || typeof userData !== 'object') return Promise.resolve(null);
+    try {
+      if (userData.phone) {
+        localStorage.setItem('montana_last_phone', userData.phone);
+        sessionStorage.setItem('montana_last_phone', userData.phone);
+      }
+      if (userData.email) {
+        localStorage.setItem('montana_last_email', userData.email);
+        sessionStorage.setItem('montana_last_email', userData.email);
+      }
+    } catch (_) {}
+
+    let eid = null;
+    try { eid = sessionStorage.getItem('meta_initiate_checkout_eid'); } catch (_) {}
+    return trackEvent(STANDARD.InitiateCheckout, {}, userData, eid || undefined);
   }
 
   async function trackPurchaseOnce(order, items) {
@@ -169,6 +243,8 @@
     trackEvent,
     trackViewContent,
     trackInitiateCheckout,
+    enrichCheckoutUserData,
+    getStoredUserData,
     trackPurchaseOnce,
     trackAddToCart(product, qty) {
       if (!product) return Promise.resolve(null);
