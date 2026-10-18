@@ -4,7 +4,7 @@ const { enforceRateLimit, verifyStoreOrigin, isSafeHttpUrl, hasValidApiSecret } 
 const { notifyTelegramOrder } = require('../lib/telegramOrderNotify');
 const { confirmOrderByNumber, notifyCustomerOrderConfirmed } = require('../lib/orderConfirm');
 const { autoSendOrderToBosta, resolveWebhookBaseUrl } = require('../lib/bostaHandlers');
-const { handleBostaCreate, handleBostaWebhook } = require('../lib/bostaHandlers');
+const { handleBostaCreate, handleBostaWebhook, handleBostaAwb, handleBostaPickup } = require('../lib/bostaHandlers');
 const { sendPurchaseEvent } = require('../lib/metaCapi');
 
 const sb = createClient(
@@ -83,6 +83,8 @@ module.exports = async (req, res) => {
     if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
     return handleBostaCreate(req, res);
   }
+  if (routeAction === 'bosta-awb') return handleBostaAwb(req, res);
+  if (routeAction === 'bosta-pickup') return handleBostaPickup(req, res);
 
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
 

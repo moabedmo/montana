@@ -497,8 +497,14 @@ async function loadOrders(status = 'all') {
             <option value="shipped" ${o.status==='shipped'?'selected':''}>تم الشحن</option>
             <option value="delivered" ${o.status==='delivered'?'selected':''}>تم التوصيل</option>
             <option value="cancelled" ${o.status==='cancelled'?'selected':''}>ملغي</option>
-        </select></td>
-        <td>${o.bosta_tracking_number ? `<small style="color:var(--purple)">📦 ${o.bosta_tracking_number}</small>` : '<small style="color:var(--muted)">—</small>'}</td>
+        <td>${o.bosta_tracking_number ? `
+            <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-start">
+                <span style="color:#059669;font-weight:700;font-size:12px">📦 ${o.bosta_tracking_number}</span>
+                <button type="button" class="btn-sm" style="background:#2563eb;color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;border:none" onclick="printBostaAwb('${o.bosta_delivery_id || o.bosta_tracking_number}')" title="طباعة بوليصة الشحن"><i class="fas fa-print"></i> بوليصة</button>
+            </div>
+        ` : `
+            <button type="button" class="btn-sm" style="background:#0d9488;color:#fff;border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;border:none" onclick="sendOrderToBostaAndPrint(${o.id})" title="إرسال الشحنة لبوسطة"><i class="fas fa-truck"></i> إرسال لبوسطة</button>
+        `}</td>
         <td>${new Date(o.created_at).toLocaleDateString('ar')}</td>
         <td><button class="btn-sm btn-edit" onclick="viewOrder(${o.id})"><i class="fas fa-eye"></i></button>
             <button class="btn-sm btn-edit" onclick="openOrderInvoice(${o.id})" title="فاتورة"><i class="fas fa-file-invoice"></i></button>
@@ -506,8 +512,18 @@ async function loadOrders(status = 'all') {
     </tr>`).join('') : '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">لا توجد طلبات</td></tr>';
 }
 
-async function sendOrderToBosta(orderId) {
+function printBostaAwb(deliveryId) {
+    if (!deliveryId) {
+        toast('لا يوجد رقم بوليصة متاح', 'error');
+        return;
+    }
+    const url = `/api/bosta-awb?id=${encodeURIComponent(deliveryId)}`;
+    window.open(url, '_blank');
+}
+
+async function sendOrderToBostaAndPrint(orderId) {
     try {
+        toast('جارٍ إرسال الشحنة لبوسطة وتجهيز البوليصة…');
         const res = await fetch('/api/bosta-create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -515,21 +531,92 @@ async function sendOrderToBosta(orderId) {
         });
         const data = await res.json();
         if (!data.ok) throw new Error(data.error || 'فشل الإرسال لبوسطة');
-        const ref = data.tracking_number || data.delivery_id || '';
-        toast(data.already ? `الشحنة مسجّلة مسبقاً على بوسطة ${ref}` : `تم الإرسال لبوسطة ${ref ? '— ' + ref : ''}`);
+        const targetId = data.delivery_id || data.tracking_number;
+        toast(`✅ تم تسجيل الشحنة على بوسطة: ${data.tracking_number || targetId}`);
         closeModal();
-        loadOrders(document.querySelector('#page-orders .filter-btn.active')?.dataset.status || 'all');
+        loadOrders(document.querySelector('#page-orders .filter-bar .filter-btn.active')?.dataset.status || 'all');
+        if (targetId) {
+            printBostaAwb(targetId);
+        }
     } catch (e) {
-        toast('بوسطة: ' + (e.message || e));
+        toast('بوسطة: ' + (e.message || e), 'error');
     }
 }
 
+async function sendOrderToBosta(orderId) {
+    return sendOrderToBostaAndPrint(orderId);
+}
+
 function sendOrderToBostaAuto(orderId) {
-    fetch('/api/bosta-create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order_id: orderId }),
-    }).catch(() => {});
+    sendOrderToBostaAndPrint(orderId);
+}
+
+function openBostaPickupModal() {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const formatDate = (d) => d.toISOString().split('T')[0];
+
+    openModal('🚚 طلب مندوب بوسطة للاستلام (Pickup)', `
+        <div style="font-family:inherit;text-align:right">
+            <p style="margin-bottom:14px;color:var(--muted);font-size:13px;line-height:1.6">
+                عنوان الاستلام المسجل: <br>
+                <strong style="color:var(--text)">مدينة 6 أكتوبر - الحي الأول - المجاورة 6 - عمارة 1268 - شقة 1</strong>
+            </p>
+            <div class="form-group" style="margin-bottom:12px">
+                <label style="font-weight:700">تاريخ وصول المندوب:</label>
+                <select id="pickupDateSelect" class="form-control" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px">
+                    <option value="${formatDate(today)}">اليوم (${formatDate(today)})</option>
+                    <option value="${formatDate(tomorrow)}" selected>غداً (${formatDate(tomorrow)})</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom:12px">
+                <label style="font-weight:700">الفترة الزمنية المفضلة:</label>
+                <select id="pickupTimeSlotSelect" class="form-control" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px">
+                    <option value="10:00 to 13:00">صباحاً (10:00 ص - 1:00 ظ)</option>
+                    <option value="13:00 to 16:00">ظهراً (1:00 ظ - 4:00 ع)</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom:16px">
+                <label style="font-weight:700">ملاحظات للمندوب (اختياري):</label>
+                <input type="text" id="pickupNotesInput" placeholder="مثال: الاتصال عند الوصول على 01019787225" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px">
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+                <button type="button" class="btn-primary" style="background:#6b7280" onclick="closeModal()">إلغاء</button>
+                <button type="button" class="btn-primary" style="background:#0d9488" id="confirmPickupBtn" onclick="submitBostaPickup()"><i class="fas fa-check"></i> تأكيد حجز المندوب</button>
+            </div>
+        </div>
+    `);
+}
+
+async function submitBostaPickup() {
+    const btn = document.getElementById('confirmPickupBtn');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ الحجز…';
+    }
+    const scheduledDate = document.getElementById('pickupDateSelect')?.value;
+    const scheduledTimeSlot = document.getElementById('pickupTimeSlotSelect')?.value;
+    const notes = document.getElementById('pickupNotesInput')?.value;
+
+    try {
+        const res = await fetch('/api/bosta-pickup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ scheduledDate, scheduledTimeSlot, notes }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'تعذر حجز المندوب');
+        closeModal();
+        const puid = data.puid || data.pickup?.puid || '';
+        toast(`✅ تم حجز المندوب بنجاح ليوم ${scheduledDate} ${puid ? '(رقم الحجز: ' + puid + ')' : ''}`);
+    } catch (e) {
+        toast('بوسطة: ' + (e.message || e), 'error');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> تأكيد حجز المندوب';
+        }
+    }
 }
 
 async function deleteOrder(id, orderNumber) {
@@ -622,7 +709,14 @@ async function viewOrder(id) {
             ${items.map(i => `<div style="display:flex;justify-content:space-between"><span>${i.product_name} x${i.quantity}</span><strong>${i.total} ج.م</strong></div>`).join('')}
             <hr style="border:none;border-top:1px solid var(--border)">
             <div style="display:flex;justify-content:space-between;font-size:18px"><strong>الإجمالي</strong><strong style="color:var(--purple)">${o.total} ج.م</strong></div>
-            ${!o.bosta_delivery_id ? `<button class="btn-primary" style="margin-top:12px;background:var(--teal,#0d9488)" onclick="sendOrderToBosta(${o.id})"><i class="fas fa-truck"></i> إرسال لبوسطة</button>` : `<p style="margin-top:12px;color:var(--muted);font-size:13px">✓ مُرسَل لبوسطة${o.bosta_tracking_number ? ' — ' + o.bosta_tracking_number : ''}</p>`}
+            ${!o.bosta_delivery_id ? `
+                <button class="btn-primary" style="margin-top:12px;background:var(--teal,#0d9488)" onclick="sendOrderToBostaAndPrint(${o.id})"><i class="fas fa-truck"></i> إرسال لبوسطة وطباعة البوليصة</button>
+            ` : `
+                <div style="display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap">
+                    <p style="margin:0;color:#059669;font-weight:700;font-size:13px">✓ مُرسَل لبوسطة: ${o.bosta_tracking_number || ''}</p>
+                    <button type="button" class="btn-primary" style="background:#2563eb;padding:6px 14px;font-size:13px" onclick="printBostaAwb('${o.bosta_delivery_id || o.bosta_tracking_number}')"><i class="fas fa-print"></i> طباعة بوليصة بوسطة</button>
+                </div>
+            `}
             <button class="btn-primary" style="margin-top:16px" onclick="closeModal(); openOrderInvoice(${o.id})"><i class="fas fa-file-invoice"></i> إصدار / طباعة فاتورة</button>
         </div>
     `);

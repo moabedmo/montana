@@ -98,8 +98,10 @@
                         <button class="filter-btn" data-status="shipped">تم الشحن</button>
                         <button class="filter-btn" data-status="delivered">تم التوصيل</button>
                         <button class="filter-btn" data-status="cancelled">ملغي</button>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap">
+                        <button class="btn-primary" style="background:#0d9488" type="button" onclick="openBostaPickupModal()"><i class="fas fa-truck-pickup"></i> طلب مندوب بوسطة</button>
+                        <button class="btn-primary" type="button" onclick="openManualOrderModal()"><i class="fas fa-plus"></i> إضافة طلب يدوي</button>
                     </div>
-                    <button class="btn-primary" type="button" onclick="openManualOrderModal()"><i class="fas fa-plus"></i> إضافة طلب يدوي</button>
                 </div>
                 <div class="table-wrap">
                     <table class="data-table">
@@ -483,7 +485,7 @@
         else {
           window.__ADMIN_TOKEN__ = session.access_token;
           const s = document.createElement('script');
-          s.src = 'admin.js?v=boot3';
+          s.src = 'admin.js?v=boot4';
           s.onerror = () => showAdminBootError('فشل تحميل ملفات لوحة التحكم.');
           document.body.appendChild(s);
         }

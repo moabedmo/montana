@@ -90,6 +90,8 @@
     { "source": "/api/paymob-webhook", "destination": "/api/paymob-webhook" },
     { "source": "/api/bosta-create", "destination": "/api/send-telegram?action=bosta-create" },
     { "source": "/api/bosta-webhook", "destination": "/api/send-telegram?action=bosta-webhook" },
+    { "source": "/api/bosta-awb", "destination": "/api/send-telegram?action=bosta-awb" },
+    { "source": "/api/bosta-pickup", "destination": "/api/send-telegram?action=bosta-pickup" },
     { "source": "/api/integrations-status", "destination": "/api/integrations-status" },
     { "source": "/api/meta-capi", "destination": "/api/integrations-status?action=meta-capi" },
     { "source": "/api/meta-public-config", "destination": "/api/integrations-status?action=meta-public-config" },
