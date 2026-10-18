@@ -28,6 +28,19 @@ async function api(table, method = 'GET', body = null, query = '') {
     return data;
 }
 
+async function logAdminActivity(payload) {
+    try {
+        const hdrs = await authHeaders();
+        fetch('/api/integrations-status?action=audit-logs', {
+            method: 'POST',
+            headers: hdrs,
+            body: JSON.stringify(payload)
+        }).catch(() => {});
+    } catch (e) {
+        console.warn('audit log write error:', e);
+    }
+}
+
 // ===== NAVIGATION =====
 document.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', e => {
@@ -468,6 +481,14 @@ async function submitManualOrder(e) {
             }, `?id=eq.${orderId}`);
         }
 
+        logAdminActivity({
+            action_type: 'CREATE',
+            entity_type: 'order',
+            entity_ref: orderNumber,
+            summary: `تسجيل طلب يدوي جديد ${orderNumber || ''} للعميل (${name} - ${phone}) بمبلغ ${total} ج.م - ${governorate}`,
+            details: { order_number: orderNumber, customer_name: name, customer_phone: phone, governorate, total, items_count: items.length }
+        });
+
         toast(`تم تسجيل الطلب ${orderNumber || ''} ✅`);
         closeModal();
         loadOrders(document.querySelector('#page-orders .filter-btn.active')?.dataset.status || 'all');
@@ -622,7 +643,22 @@ async function submitBostaPickup() {
 async function deleteOrder(id, orderNumber) {
     if (!confirm(`متأكدة إنك عايزة تحذفي الطلب ${orderNumber}؟ الإجراء ده نهائي ومش هينفع يترجع.`)) return;
     try {
+        let orderRow = null;
+        try {
+            const rows = await api('orders', 'GET', null, `?id=eq.${id}&select=order_number,customer_name,customer_phone,total,status`);
+            orderRow = Array.isArray(rows) ? rows[0] : null;
+        } catch {}
+
         await api('orders', 'DELETE', null, `?id=eq.${id}`);
+
+        logAdminActivity({
+            action_type: 'DELETE',
+            entity_type: 'order',
+            entity_ref: orderNumber,
+            summary: `تم حذف الطلب ${orderNumber} للعميل (${orderRow?.customer_name || 'بدون اسم'}) بمبلغ ${orderRow?.total || 0} ج.م`,
+            details: { order: orderRow, id }
+        });
+
         toast(`تم حذف الطلب ${orderNumber}`);
         loadOrders();
     } catch (e) {
@@ -632,16 +668,19 @@ async function deleteOrder(id, orderNumber) {
 
 async function updateOrderStatus(id, status) {
     await api('orders', 'PATCH', { status, updated_at: new Date().toISOString() }, `?id=eq.${id}`);
-    // Owner alert on Telegram — only for cancelled/returned; the server ignores
-    // the ordinary "moving along" statuses. Fire-and-forget: a failed alert must
-    // never make a status change that already saved look like it failed.
-    if (status === 'cancelled' || status === 'returned') {
-        try {
-            // The orders array lives inside loadOrders(), so read the row back
-            // here rather than depending on a variable that isn't in scope.
-            const rows = await api('orders', 'GET', null, `?id=eq.${id}&select=order_number,customer_name,total`);
-            const row = Array.isArray(rows) ? rows[0] : null;
-            if (row?.order_number) {
+    
+    try {
+        const rows = await api('orders', 'GET', null, `?id=eq.${id}&select=order_number,customer_name,total`);
+        const row = Array.isArray(rows) ? rows[0] : null;
+        if (row?.order_number) {
+            logAdminActivity({
+                action_type: 'UPDATE',
+                entity_type: 'order',
+                entity_ref: row.order_number,
+                summary: `تعديل حالة الطلب ${row.order_number} إلى [${statusAr(status)}] للعميل (${row.customer_name || '—'})`,
+                details: { new_status: status, total: row.total, customer_name: row.customer_name }
+            });
+            if (status === 'cancelled' || status === 'returned') {
                 fetch('/api/send-telegram', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -654,8 +693,8 @@ async function updateOrderStatus(id, status) {
                     }),
                 }).catch(() => {});
             }
-        } catch { /* the alert is best-effort; the status change already saved */ }
-    }
+        }
+    } catch { /* best-effort logging and alerts */ }
     let msg = 'تم تحديث حالة الطلب';
     if (status === 'confirmed') {
         try {
@@ -1329,9 +1368,25 @@ async function loadAdminSalesReport() {
 async function deleteInvoiceRecord(id, hadStock) {
     const extra = hadStock ? '\n\nسيتم استرجاع المخزون المخصوم.' : '';
     if (!confirm('حذف هذه الفاتورة من النظام؟' + extra)) return;
-    await api('invoices', 'DELETE', null, `?id=eq.${id}`);
-    toast('تم حذف الفاتورة', 'error');
-    loadInvoicesPage();
+    try {
+        let invRow = null;
+        try {
+            const rows = await api('invoices', 'GET', null, `?id=eq.${id}&select=invoice_number,customer_name,total`);
+            invRow = Array.isArray(rows) ? rows[0] : null;
+        } catch {}
+        await api('invoices', 'DELETE', null, `?id=eq.${id}`);
+        logAdminActivity({
+            action_type: 'DELETE',
+            entity_type: 'invoice',
+            entity_ref: invRow?.invoice_number || `#${id}`,
+            summary: `تم حذف فاتورة متجر رقم ${invRow?.invoice_number || id} للعميل (${invRow?.customer_name || '—'}) بمبلغ ${invRow?.total || 0} ج.م`,
+            details: { invoice: invRow, id, hadStock }
+        });
+        toast('تم حذف الفاتورة', 'error');
+        loadInvoicesPage();
+    } catch (e) {
+        toast('تعذّر حذف الفاتورة: ' + e.message, 'error');
+    }
 }
 
 // ===== CRM =====

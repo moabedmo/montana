@@ -89,6 +89,23 @@ export async function isOwnerAccess() {
   return !error && data === true;
 }
 
+export async function logCrmActivity(payload) {
+  try {
+    const { data } = await sb.auth.getSession();
+    const token = data?.session?.access_token;
+    await fetch('/api/integrations-status?action=audit-logs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify(payload)
+    });
+  } catch (e) {
+    console.warn('[crm-audit]', e);
+  }
+}
+
 export const geo = {
   bricks: async () => {
     const hit = cacheGet('geo.bricks');
@@ -167,6 +184,11 @@ export const doctors = {
       .single();
     if (error) throw error;
     return data;
+  },
+  remove: async (id) => {
+    const { error } = await sb.from('crm_doctors').delete().eq('id', id);
+    if (error) throw error;
+    cacheDrop('doctors.');
   },
 };
 

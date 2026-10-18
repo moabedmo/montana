@@ -22,10 +22,70 @@ const {
   upsertStockistPharmacy,
   deleteStockistPharmacy,
 } = require('../lib/ownerCompanyDocs');
+const {
+  assertAuditViewer,
+  recordAuditLog,
+  getAuditLogs,
+} = require('../lib/auditLog');
 
 function bearer(req) {
   const auth = req.headers.authorization || '';
   return auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
+}
+
+async function handleAuditLogs(req, res) {
+  try {
+    const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+    const token = bearer(req);
+
+    if (req.method === 'GET') {
+      await assertAuditViewer(token);
+      const limit = Math.min(200, Math.max(1, Number(url.searchParams.get('limit') || 100)));
+      const offset = Math.max(0, Number(url.searchParams.get('offset') || 0));
+      const entity = url.searchParams.get('entity') || null;
+      const actionType = url.searchParams.get('actionType') || url.searchParams.get('act') || null;
+      const search = url.searchParams.get('search') || url.searchParams.get('q') || null;
+
+      const result = await getAuditLogs({ limit, offset, entity, action: actionType, search });
+      return res.json(result);
+    }
+
+    if (req.method === 'POST') {
+      const body = req.body || {};
+      let actorName = body.actor_name || '';
+      let actorEmail = body.actor_email || '';
+
+      if (token) {
+        try {
+          const authUser = await assertAuditViewer(token);
+          if (authUser) {
+            actorName = actorName || authUser.name;
+            actorEmail = actorEmail || authUser.email;
+          }
+        } catch {
+          // Allow internal or rep logging
+        }
+      }
+
+      const result = await recordAuditLog({
+        action_type: body.action_type || body.actionType || 'UPDATE',
+        entity_type: body.entity_type || body.entityType || 'order',
+        entity_ref: body.entity_ref || body.entityRef || '',
+        summary: body.summary || '',
+        actor_name: actorName || 'مسؤول النظام',
+        actor_email: actorEmail,
+        details: body.details || {},
+        ip: req.headers['x-forwarded-for'] || req.socket?.remoteAddress || null,
+      });
+
+      return res.json(result);
+    }
+
+    return res.status(405).json({ ok: false, error: 'GET or POST only' });
+  } catch (err) {
+    console.error('[audit-logs]', err);
+    return res.status(err.status || 500).json({ ok: false, error: err.message || 'Error' });
+  }
 }
 
 async function handleOwnerCompanyDocs(req, res) {
@@ -150,6 +210,10 @@ module.exports = async (req, res) => {
 
   if (action === 'owner-company-docs') {
     return handleOwnerCompanyDocs(req, res);
+  }
+
+  if (action === 'audit-logs' || action === 'audit-log') {
+    return handleAuditLogs(req, res);
   }
 
   // Owner-authenticated product stock update

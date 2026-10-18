@@ -9,7 +9,7 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
-    <link rel="stylesheet" href="owner.css?v=oa10">
+    <link rel="stylesheet" href="owner.css?v=oa11">
 </head>
 <body>
     <header class="owner-header">
@@ -22,6 +22,7 @@
         </div>
         <div class="owner-header-actions">
             <button type="button" class="owner-link-btn owner-link-gold" onclick="openOwnerAssistant()"><i class="fas fa-comments"></i> محمد عابد أسيستنت</button>
+            <a href="#ownerAuditCard" class="owner-link-btn owner-link-gold"><i class="fas fa-shield-alt"></i> سجل النشاطات (Log)</a>
             <a href="#ownerDocs" class="owner-link-btn owner-link-gold"><i class="fas fa-folder-open"></i> أوراق الشركة</a>
             <a href="#ownerStockistPharmacies" class="owner-link-btn owner-link-gold"><i class="fas fa-prescription-bottle"></i> صيدليات التوفر</a>
             <a href="crm/admin/?page=pharmacy-invoices&standalone=1" class="owner-link-btn owner-link-gold"><i class="fas fa-prescription-bottle-medical"></i> فواتير الصيدليات</a>
@@ -151,6 +152,46 @@
             <div class="card-body" id="ownerPharmacyList"><p class="empty">جارٍ التحميل…</p></div>
         </div>
 
+        <div class="card owner-card-full" id="ownerAuditCard" style="margin-bottom:20px">
+            <div class="owner-docs-head">
+                <div>
+                    <h3><i class="fas fa-shield-alt"></i> سجل النشاطات والعمليات (Audit & Change Log)</h3>
+                    <p class="owner-docs-hint" style="margin-top:4px">
+                        سجل رقابي غير قابل للتعديل يوثق بالوقت والتاريخ أي تغيير في النظام: حذف أو تعديل الطلبات، فواتير الصيدليات والتحصيلات، وحذف أو تعديل بيانات الدكاترة.
+                    </p>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <button type="button" class="btn-primary" id="ownerAuditRefreshBtn" onclick="loadAuditLogs()"><i class="fas fa-sync"></i> تحديث السجل</button>
+                </div>
+            </div>
+
+            <!-- Filters & Search Toolbar -->
+            <div class="audit-toolbar" style="display:flex;gap:12px;margin:16px 0;align-items:center;flex-wrap:wrap">
+                <div class="audit-chips" id="auditActionFilters">
+                    <button type="button" class="audit-chip active" data-action="all" onclick="setAuditActionFilter('all', this)">الكل</button>
+                    <button type="button" class="audit-chip chip-delete" data-action="DELETE" onclick="setAuditActionFilter('DELETE', this)"><i class="fas fa-trash-alt"></i> حذف فقط</button>
+                    <button type="button" class="audit-chip chip-update" data-action="UPDATE" onclick="setAuditActionFilter('UPDATE', this)"><i class="fas fa-edit"></i> تعديلات وتحصيلات</button>
+                    <button type="button" class="audit-chip chip-create" data-action="CREATE" onclick="setAuditActionFilter('CREATE', this)"><i class="fas fa-plus-circle"></i> إضافات جديدة</button>
+                </div>
+                <div class="audit-selects" style="display:flex;gap:8px;align-items:center;margin-right:auto;flex-wrap:wrap">
+                    <select id="auditEntityFilter" onchange="loadAuditLogs()" style="padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-family:inherit">
+                        <option value="all">كل الأقسام</option>
+                        <option value="order">الطلبات (Orders)</option>
+                        <option value="pharmacy_invoice">فواتير الصيدليات</option>
+                        <option value="doctor">الدكاترة و CRM</option>
+                        <option value="invoice">فواتير المتجر</option>
+                    </select>
+                    <input type="search" id="auditSearchInput" placeholder="بحث برقم الطلب / الفاتورة / الاسم…" style="padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);min-width:220px;font-family:inherit" onkeydown="if(event.key==='Enter')loadAuditLogs()">
+                    <button type="button" class="btn-primary btn-outline" style="padding:7px 14px" onclick="loadAuditLogs()"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+
+            <!-- Audit Log Feed / Table -->
+            <div class="card-body" id="ownerAuditBody" style="padding:0">
+                <p class="empty">جارٍ تحميل سجل النشاطات…</p>
+            </div>
+        </div>
+
         <div class="card owner-card-full owner-docs-card" id="ownerDocs" style="margin-bottom:20px">
             <div class="owner-docs-head">
                 <h3><i class="fas fa-folder-open"></i> أوراق الشركة</h3>
@@ -247,6 +288,16 @@
         <div id="ownerDocPreviewBody" class="owner-doc-preview-body"></div>
       </div>
     </div>
+
+    <div class="owner-modal-overlay hidden" id="ownerAuditModal" onclick="if(event.target===this)closeAuditModal()">
+      <div class="owner-modal-inner" style="max-width:680px">
+        <div class="owner-modal-toolbar">
+          <strong id="auditModalTitle"><i class="fas fa-info-circle"></i> تفاصيل العملية</strong>
+          <button type="button" class="btn-primary btn-outline" onclick="closeAuditModal()">إغلاق</button>
+        </div>
+        <div id="auditModalBody" style="padding:16px;font-family:monospace;direction:ltr;text-align:left;background:#1e1e2f;color:#e2e8f0;border-radius:8px;max-height:480px;overflow-y:auto;white-space:pre-wrap;font-size:13px"></div>
+      </div>
+    </div>
     <iframe id="ownerPiPrintFrame" title="print" style="position:fixed;left:0;top:0;width:210mm;height:297mm;border:0;opacity:0;z-index:-1;pointer-events:none" aria-hidden="true"></iframe>
 
     <div id="toast" class="toast"></div>
@@ -301,7 +352,7 @@
         const welcome = document.getElementById('ownerWelcome');
         if (welcome) welcome.textContent = `مرحباً، ${name} — نظرة عامة على أداء Montana`;
         const s = document.createElement('script');
-        s.src = 'owner.js?v=oa10';
+        s.src = 'owner.js?v=oa11';
         document.body.appendChild(s);
         const s2 = document.createElement('script');
         s2.src = 'owner-assistant.js?v=1';

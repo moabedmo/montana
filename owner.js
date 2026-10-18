@@ -1389,6 +1389,163 @@ function bindOwnerStockistsUi() {
     });
 }
 
+// ── Audit & Change Log (سجل النشاطات) ─────────────────────────
+let currentAuditAction = 'all';
+let auditLogsCache = [];
+
+function setAuditActionFilter(action, btnEl) {
+    currentAuditAction = action;
+    const chips = document.querySelectorAll('#auditActionFilters .audit-chip');
+    chips.forEach(c => c.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    loadAuditLogs();
+}
+
+function fmtAuditDate(iso) {
+    if (!iso) return '—';
+    try {
+        const d = new Date(iso);
+        return d.toLocaleString('ar-EG', {
+            timeZone: 'Africa/Cairo',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    } catch {
+        return iso;
+    }
+}
+
+function auditActionBadge(action) {
+    const act = String(action || '').toUpperCase();
+    if (act === 'DELETE') {
+        return '<span class="audit-badge badge-delete"><i class="fas fa-trash-alt"></i> حذف</span>';
+    }
+    if (act === 'UPDATE') {
+        return '<span class="audit-badge badge-update"><i class="fas fa-pen"></i> تعديل</span>';
+    }
+    if (act === 'CREATE') {
+        return '<span class="audit-badge badge-create"><i class="fas fa-plus"></i> إضافة</span>';
+    }
+    return `<span class="audit-badge">${act}</span>`;
+}
+
+function auditEntityTag(entity) {
+    const ent = String(entity || '').toLowerCase();
+    const map = {
+        order: { label: 'طلب عميل', icon: 'fa-shopping-cart', cls: 'entity-order' },
+        pharmacy_invoice: { label: 'فاتورة صيدلية', icon: 'fa-prescription-bottle-medical', cls: 'entity-pharmacy_invoice' },
+        doctor: { label: 'دكتور CRM', icon: 'fa-user-md', cls: 'entity-doctor' },
+        invoice: { label: 'فاتورة متجر', icon: 'fa-file-invoice', cls: 'entity-order' },
+        stock: { label: 'مخزون', icon: 'fa-boxes-stacked', cls: 'entity-order' },
+    };
+    const hit = map[ent] || { label: ent || 'عام', icon: 'fa-tag', cls: '' };
+    return `<span class="audit-entity-tag ${hit.cls}"><i class="fas ${hit.icon}"></i> ${hit.label}</span>`;
+}
+
+async function loadAuditLogs() {
+    const bodyEl = document.getElementById('ownerAuditBody');
+    if (!bodyEl) return;
+    bodyEl.innerHTML = '<p class="empty">جارٍ تحميل سجل النشاطات…</p>';
+
+    const entity = document.getElementById('auditEntityFilter')?.value || 'all';
+    const search = document.getElementById('auditSearchInput')?.value.trim() || '';
+
+    const params = new URLSearchParams({
+        action: 'audit-logs',
+        limit: '150',
+    });
+    if (currentAuditAction && currentAuditAction !== 'all') params.set('actionType', currentAuditAction);
+    if (entity && entity !== 'all') params.set('entity', entity);
+    if (search) params.set('search', search);
+
+    try {
+        const res = await fetch(`/api/integrations-status?${params.toString()}`, {
+            method: 'GET',
+            headers: await authHeaders(),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) {
+            throw new Error(data.error || 'فشل تحميل سجل النشاطات');
+        }
+
+        auditLogsCache = Array.isArray(data.logs) ? data.logs : [];
+
+        if (!auditLogsCache.length) {
+            bodyEl.innerHTML = `
+                <div style="text-align:center;padding:40px 20px;color:var(--muted)">
+                    <i class="fas fa-clipboard-check" style="font-size:32px;margin-bottom:12px;opacity:0.4"></i>
+                    <p style="font-size:14px">لا توجد عمليات مسجلة تطابق الفلاتر المحددة</p>
+                </div>`;
+            return;
+        }
+
+        const rowsHtml = auditLogsCache.map(log => {
+            const hasDetails = log.details && typeof log.details === 'object' && Object.keys(log.details).length > 0;
+            const refHtml = log.entity_ref ? `<span class="audit-ref">${log.entity_ref}</span>` : '';
+            return `<tr>
+                <td class="audit-time"><i class="far fa-clock" style="margin-left:4px"></i>${fmtAuditDate(log.created_at)}</td>
+                <td>${auditActionBadge(log.action_type)}</td>
+                <td>${auditEntityTag(log.entity_type)}</td>
+                <td>
+                    <div class="audit-summary">${log.summary || '—'}${refHtml}</div>
+                </td>
+                <td>
+                    <span class="audit-actor-tag"><i class="fas fa-user-circle"></i> ${log.actor_name || 'مسؤول النظام'}</span>
+                    ${log.actor_email ? `<span class="audit-actor-sub">${log.actor_email}</span>` : ''}
+                </td>
+                <td style="text-align:center">
+                    ${hasDetails ? `<button type="button" class="btn-audit-json" onclick="openAuditModal('${log.id}')"><i class="fas fa-code"></i> تفاصيل</button>` : '—'}
+                </td>
+            </tr>`;
+        }).join('');
+
+        bodyEl.innerHTML = `
+            <div class="audit-table-wrap">
+                <table class="audit-table">
+                    <thead>
+                        <tr>
+                            <th style="width:160px">التاريخ والوقت</th>
+                            <th style="width:100px">العملية</th>
+                            <th style="width:130px">القسم</th>
+                            <th>تفاصيل النشاط والتغيير</th>
+                            <th style="width:180px">القائم بالعملية</th>
+                            <th style="width:90px;text-align:center">البيانات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                </table>
+            </div>`;
+    } catch (err) {
+        console.error('loadAuditLogs error:', err);
+        bodyEl.innerHTML = `<p class="empty" style="color:var(--red)">تعذّر تحميل سجل النشاطات: ${err.message}</p>`;
+    }
+}
+
+function openAuditModal(logId) {
+    const log = auditLogsCache.find(l => String(l.id) === String(logId));
+    if (!log) return;
+    const modal = document.getElementById('ownerAuditModal');
+    const title = document.getElementById('auditModalTitle');
+    const body = document.getElementById('auditModalBody');
+    if (!modal || !body) return;
+
+    if (title) {
+        title.innerHTML = `<i class="fas fa-info-circle"></i> تفاصيل عملية: ${log.summary || log.action_type}`;
+    }
+    body.textContent = JSON.stringify(log.details || log, null, 2);
+    modal.classList.remove('hidden');
+}
+
+function closeAuditModal() {
+    const modal = document.getElementById('ownerAuditModal');
+    if (modal) modal.classList.add('hidden');
+}
+
 bindOwnerDocumentsUi();
 loadOwnerDocuments();
 loadOwnerCompanyLinks();
@@ -1401,4 +1558,6 @@ bindOwnerJumiaUi();
 loadOwnerJumiaOrders();
 loadOwnerJumiaStock();
 
+loadAuditLogs();
 loadOwnerDashboard();
+

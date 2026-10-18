@@ -1358,6 +1358,7 @@ body.owner-pharmacy-only .crm-main > #p-pharmacy-invoices {
       </div>
     </div>
     <div class="modal-actions">
+      <button type="button" class="btn btn-sm" id="fd-del-btn" style="border-color:rgba(240,153,123,.45);color:#F0997B;margin-right:auto;display:none" onclick="if(EDITING_DOCTOR_ID)deleteDoctor(EDITING_DOCTOR_ID)">Delete doctor</button>
       <button class="btn" onclick="closeModal('m-doctor')">Cancel</button>
       <button class="btn btn-gold" id="fd-save-btn" onclick="saveDoctor()">Save doctor</button>
     </div>
@@ -1494,7 +1495,7 @@ body.owner-pharmacy-only .crm-main > #p-pharmacy-invoices {
 import {
   auth, doctors, geo, plans, visits, products, materials,
   leaderboard, samplesReport, sampleCustody, reps, invoiceIntegration, SUPABASE_URL, SUPABASE_KEY, isCrmAdminAccess, isOwnerAccess,
-  adminPush, getPharmacyCreditStatus, getRepMonthKpis, weekPlans, pharmacyInvoices, pharmacyRegions, printCards
+  adminPush, getPharmacyCreditStatus, getRepMonthKpis, weekPlans, pharmacyInvoices, pharmacyRegions, printCards, logCrmActivity
 } from '/crm/js/crm-api.js?v=20260720perf';
 
 const _lazyScripts = {};
@@ -2034,6 +2035,8 @@ let EDITING_DOCTOR_ID = null;
 
 window.openAddDoctor = () => {
   EDITING_DOCTOR_ID = null;
+  const delBtn = document.getElementById('fd-del-btn');
+  if (delBtn) delBtn.style.display = 'none';
   document.getElementById('fd-title').textContent = 'Add doctor / HCO';
   document.getElementById('fd-sub').textContent = 'New contact for the field team';
   document.getElementById('fd-save-btn').textContent = 'Save doctor';
@@ -2071,6 +2074,8 @@ window.editDoctor = (id) => {
   const d = ALL_DOCTORS.find(x => x.id === id);
   if (!d) return;
   EDITING_DOCTOR_ID = id;
+  const delBtn = document.getElementById('fd-del-btn');
+  if (delBtn) delBtn.style.display = 'inline-block';
   document.getElementById('fd-title').textContent = 'Edit doctor / HCO';
   document.getElementById('fd-sub').textContent = d.name;
   document.getElementById('fd-save-btn').textContent = 'Save changes';
@@ -2118,13 +2123,51 @@ window.saveDoctor = async () => {
   const btn = document.getElementById('fd-save-btn');
   btn.disabled = true;
   try {
-    if (EDITING_DOCTOR_ID) await doctors.update(EDITING_DOCTOR_ID, payload);
-    else await doctors.create(payload);
+    if (EDITING_DOCTOR_ID) {
+      await doctors.update(EDITING_DOCTOR_ID, payload);
+      logCrmActivity({
+        action_type: 'UPDATE',
+        entity_type: 'doctor',
+        entity_ref: payload.name,
+        summary: `تعديل بيانات دكتور CRM: ${payload.name} (${payload.specialty} - ${payload.doctor_type})`,
+        details: { doctor_id: EDITING_DOCTOR_ID, payload }
+      });
+    } else {
+      const created = await doctors.create(payload);
+      logCrmActivity({
+        action_type: 'CREATE',
+        entity_type: 'doctor',
+        entity_ref: payload.name,
+        summary: `إضافة دكتور CRM جديد: ${payload.name} (${payload.specialty} - ${payload.doctor_type})`,
+        details: { doctor_id: created?.id, payload }
+      });
+    }
     closeModal('m-doctor');
     await loadDoctors();
     toast(EDITING_DOCTOR_ID ? 'Doctor updated ✓' : 'Doctor added ✓', 'ok');
   } catch (e) { toast(e.message, 'err'); }
   finally { btn.disabled = false; }
+};
+
+window.deleteDoctor = async (id) => {
+  const d = ALL_DOCTORS.find(x => x.id === id);
+  const name = d?.name || id;
+  if (!confirm(`Delete doctor "${name}"?\nThis cannot be undone.`)) return;
+  try {
+    await logCrmActivity({
+      action_type: 'DELETE',
+      entity_type: 'doctor',
+      entity_ref: name,
+      summary: `تم حذف دكتور CRM: ${name} (${d?.doctor_type || 'دكتور'}) - ${d?.address || ''}`,
+      details: { doctor: d }
+    });
+    await doctors.remove(id);
+    closeModal('m-doctor');
+    await loadDoctors();
+    toast('Doctor deleted ✓', 'ok');
+  } catch (e) {
+    toast(e.message || 'Failed to delete doctor', 'err');
+  }
 };
 
 window.approveDoctor = async (id) => {
@@ -4593,6 +4636,13 @@ window.deletePharmacyInvoice = async (id) => {
   const label = r?.invoice_number || id;
   if (!confirm(`Delete invoice ${label}?\nThis cannot be undone.`)) return;
   try {
+    await logCrmActivity({
+      action_type: 'DELETE',
+      entity_type: 'pharmacy_invoice',
+      entity_ref: label,
+      summary: `تم حذف فاتورة صيدلية ${label} للصيدلية (${r?.pharmacy_name || '—'}) بمبلغ ${r?.total || 0} ج.م (المدفوع: ${r?.amount_paid || 0} ج.م)`,
+      details: { invoice: r }
+    });
     await pharmacyInvoices.remove(id);
     closeModal('m-pi-view');
     closeModal('m-pharmacy-invoice');
@@ -4622,7 +4672,16 @@ window.savePiPaidInline = async (id, value) => {
   const paid = Number(value);
   if (Number.isNaN(paid) || paid < 0) { toast('Invalid amount', 'err'); await loadPharmacyInvoices(true); return; }
   try {
+    const r = PI_CACHE[id];
+    const prevPaid = Number(r?.amount_paid || 0);
     await pharmacyInvoices.update(id, { amount_paid: paid });
+    logCrmActivity({
+      action_type: 'UPDATE',
+      entity_type: 'pharmacy_invoice',
+      entity_ref: r?.invoice_number || id,
+      summary: `تعديل التحصيل في فاتورة ${r?.invoice_number || id} (${r?.pharmacy_name || '—'}): من ${prevPaid} إلى ${paid} ج.م (الإجمالي: ${r?.total || 0} ج.م)`,
+      details: { old_paid: prevPaid, new_paid: paid, total: r?.total, pharmacy: r?.pharmacy_name }
+    });
     toast('Amount paid updated', 'ok');
     await loadPharmacyInvoices(true);
   } catch (e) {
