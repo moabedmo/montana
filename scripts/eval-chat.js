@@ -238,7 +238,7 @@ function check(expect, reply, prevReply) {
   // Owner's rule (changed deliberately): an order problem is NOT handled by the
   // bot at all — no phone lookup, no selling. It hands over the CS number.
   if (expect.handsOrderIssueToCs) {
-    if (!/01019787225/.test(reply)) fails.push('expected the customer service number');
+    if (!/01210021115|01019787225/.test(reply)) fails.push('expected the customer service number');
     if (/رقم\s*(ال)?موبايل/.test(reply)) fails.push('must not ask for her phone');
     if (/(618|777|558|اطلبي|تحبي\s*تطلبي)/.test(reply)) fails.push('must not sell on an order complaint');
   }

@@ -167,7 +167,7 @@ existing `api/*.js`, never add a file) and 2 cron jobs (both used).
   200 EGP confirmation payment. The bot must not mention it *and must not deny
   it* — denying it made a real call look like a scam. If a customer asks about a
   call demanding money, the bot asks which number rang her and checks it against
-  `CS_SUPPORT_PHONE` (`01019787225`).
+  `CS_SUPPORT_PHONE` (`01210021115`).
 - **Order problems go straight to a human.** "الأوردر موصلش", "مشكلة في الأوردر",
   late/wrong/missing/returned → hand over the support number, no phone lookup, no
   selling. `needsHuman: true`.

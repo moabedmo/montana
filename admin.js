@@ -600,7 +600,7 @@ function openBostaPickupModal() {
             </div>
             <div class="form-group" style="margin-bottom:16px">
                 <label style="font-weight:700">ملاحظات للمندوب (اختياري):</label>
-                <input type="text" id="pickupNotesInput" placeholder="مثال: الاتصال عند الوصول على 01019787225" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px">
+                <input type="text" id="pickupNotesInput" placeholder="مثال: الاتصال عند الوصول على 01210021115" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px">
             </div>
             <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
                 <button type="button" class="btn-primary" style="background:#6b7280" onclick="closeModal()">إلغاء</button>

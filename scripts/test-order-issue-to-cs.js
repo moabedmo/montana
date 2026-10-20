@@ -81,7 +81,7 @@ const handled = (m) => wantsExistingOrderHelp(m) || isOrderProblemComplaint(m);
 // ── the reply itself ──
 const reply = orderIssueCsReply();
 assert(reply.includes(CS_SUPPORT_PHONE), 'reply carries the CS number');
-assert(reply.includes('01019787225'), 'CS number is 01019787225');
+assert(reply.includes('01210021115'), 'CS number is 01210021115');
 assert(reply.length < 260, 'reply is short — no rambling: ' + reply.length + ' chars');
 assert(!/رقم\s*(ال)?موبايل/i.test(reply), 'reply does NOT ask for her phone');
 assert(!/(اطلبي|تحبي\s*تطلبي|عروض|روتين)/i.test(reply), 'reply does not try to sell');
@@ -125,7 +125,7 @@ assert(mazeStart === -1 || earlyCheckAt < mazeStart, 'check runs before the scri
 
 // ── the exchange reply ──
 const exReply = orderExchangeCsReply();
-assert(exReply.includes('01019787225'), 'exchange reply carries the CS number');
+assert(exReply.includes('01210021115'), 'exchange reply carries the CS number');
 assert(exReply.length < 280, 'exchange reply is short: ' + exReply.length + ' chars');
 assert(!/رقم\s*(ال)?موبايل/i.test(exReply), 'exchange reply does NOT ask for her phone');
 assert(!/(618|777|558|اطلبي|تحبي\s*تطلبي|عروض|روتين)/i.test(exReply), 'exchange reply does not sell');
