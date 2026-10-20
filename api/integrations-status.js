@@ -524,7 +524,7 @@ module.exports = async (req, res) => {
     }
   }
 
-  // Amazon SP-API (Egypt) — token test + orders + inventory
+  // Amazon SP-API (Egypt) — token test + orders + inventory + listing optimization
   if (
     action === 'amazon-token-test' ||
     action === 'amazon-orders' ||
@@ -532,7 +532,9 @@ module.exports = async (req, res) => {
     action === 'amazon-stock' ||
     action === 'amazon-stock-compare' ||
     action === 'amazon-stock-push' ||
-    action === 'amazon-sku-map'
+    action === 'amazon-sku-map' ||
+    action === 'amazon-listing-details' ||
+    action === 'amazon-listing-patch'
   ) {
     try {
       const {
@@ -541,6 +543,8 @@ module.exports = async (req, res) => {
         listAmazonMarketplaces,
         testAmazonConnection,
         amazonCreds,
+        getAmazonListingDetails,
+        patchAmazonListingAttributes,
       } = require('../lib/amazonClient');
 
       if (action === 'amazon-token-test') {
@@ -577,6 +581,24 @@ module.exports = async (req, res) => {
           return res.json({ ok: true, ...map });
         }
         return res.status(405).json({ ok: false, error: 'GET or POST' });
+      }
+
+      if (action === 'amazon-listing-details') {
+        const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+        const sku = url.searchParams.get('sku') || req.body?.sku;
+        if (!sku) return res.status(400).json({ ok: false, error: 'sku is required' });
+        const details = await getAmazonListingDetails(sku);
+        return res.json({ ok: true, details });
+      }
+
+      if (action === 'amazon-listing-patch') {
+        if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'POST only' });
+        const { sku, productType = 'PRODUCT', patches = [] } = req.body || {};
+        if (!sku || !Array.isArray(patches) || !patches.length) {
+          return res.status(400).json({ ok: false, error: 'sku and patches array required' });
+        }
+        const result = await patchAmazonListingAttributes({ sellerSku: sku, productType, patches });
+        return res.json({ ok: true, result });
       }
 
       if (action === 'amazon-stock' || action === 'amazon-stock-compare' || action === 'amazon-stock-push') {
