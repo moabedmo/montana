@@ -534,7 +534,9 @@ module.exports = async (req, res) => {
     action === 'amazon-stock-push' ||
     action === 'amazon-sku-map' ||
     action === 'amazon-listing-details' ||
-    action === 'amazon-listing-patch'
+    action === 'amazon-listing-patch' ||
+    action === 'amazon-fba-inventory' ||
+    action === 'amazon-aplus-list'
   ) {
     try {
       const {
@@ -545,6 +547,8 @@ module.exports = async (req, res) => {
         amazonCreds,
         getAmazonListingDetails,
         patchAmazonListingAttributes,
+        listAmazonFbaInventory,
+        listAplusDocuments,
       } = require('../lib/amazonClient');
 
       if (action === 'amazon-token-test') {
@@ -599,6 +603,16 @@ module.exports = async (req, res) => {
         }
         const result = await patchAmazonListingAttributes({ sellerSku: sku, productType, patches });
         return res.json({ ok: true, result });
+      }
+
+      if (action === 'amazon-fba-inventory') {
+        const inventory = await listAmazonFbaInventory();
+        return res.json({ ok: true, inventory });
+      }
+
+      if (action === 'amazon-aplus-list') {
+        const docs = await listAplusDocuments();
+        return res.json({ ok: true, docs });
       }
 
       if (action === 'amazon-stock' || action === 'amazon-stock-compare' || action === 'amazon-stock-push') {
