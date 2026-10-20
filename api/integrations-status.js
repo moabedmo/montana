@@ -536,7 +536,12 @@ module.exports = async (req, res) => {
     action === 'amazon-listing-details' ||
     action === 'amazon-listing-patch' ||
     action === 'amazon-fba-inventory' ||
-    action === 'amazon-aplus-list'
+    action === 'amazon-aplus-list' ||
+    action === 'amazon-aplus-create' ||
+    action === 'amazon-aplus-update' ||
+    action === 'amazon-aplus-bind' ||
+    action === 'amazon-aplus-submit' ||
+    action === 'amazon-catalog-search'
   ) {
     try {
       const {
@@ -549,6 +554,11 @@ module.exports = async (req, res) => {
         patchAmazonListingAttributes,
         listAmazonFbaInventory,
         listAplusDocuments,
+        createAplusDocument,
+        updateAplusDocument,
+        bindAplusAsins,
+        submitAplusApproval,
+        searchCatalogItems,
       } = require('../lib/amazonClient');
 
       if (action === 'amazon-token-test') {
@@ -613,6 +623,49 @@ module.exports = async (req, res) => {
       if (action === 'amazon-aplus-list') {
         const docs = await listAplusDocuments();
         return res.json({ ok: true, docs });
+      }
+
+      if (action === 'amazon-aplus-create') {
+        if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'POST only' });
+        const result = await createAplusDocument(req.body);
+        return res.json({ ok: true, result });
+      }
+
+      if (action === 'amazon-aplus-update') {
+        if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'POST only' });
+        const { contentReferenceKey, docPayload } = req.body || {};
+        if (!contentReferenceKey || !docPayload) {
+          return res.status(400).json({ ok: false, error: 'contentReferenceKey and docPayload required' });
+        }
+        const result = await updateAplusDocument({ contentReferenceKey, docPayload });
+        return res.json({ ok: true, result });
+      }
+
+      if (action === 'amazon-aplus-bind') {
+        if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'POST only' });
+        const { contentReferenceKey, asinSet } = req.body || {};
+        if (!contentReferenceKey || !Array.isArray(asinSet)) {
+          return res.status(400).json({ ok: false, error: 'contentReferenceKey and asinSet required' });
+        }
+        const result = await bindAplusAsins({ contentReferenceKey, asinSet });
+        return res.json({ ok: true, result });
+      }
+
+      if (action === 'amazon-aplus-submit') {
+        if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'POST only' });
+        const { contentReferenceKey } = req.body || {};
+        if (!contentReferenceKey) {
+          return res.status(400).json({ ok: false, error: 'contentReferenceKey required' });
+        }
+        const result = await submitAplusApproval({ contentReferenceKey });
+        return res.json({ ok: true, result });
+      }
+
+      if (action === 'amazon-catalog-search') {
+        const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+        const q = url.searchParams.get('q') || 'Montana';
+        const result = await searchCatalogItems(q);
+        return res.json({ ok: true, result });
       }
 
       if (action === 'amazon-stock' || action === 'amazon-stock-compare' || action === 'amazon-stock-push') {
