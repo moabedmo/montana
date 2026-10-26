@@ -524,6 +524,40 @@ module.exports = async (req, res) => {
     }
   }
 
+  // Montaña Ads Brain — Marketing intelligence, delivered orders truth & tracking audit
+  if (
+    action === 'marketing-dashboard' ||
+    action === 'marketing-token-test' ||
+    action === 'marketing-tracking-audit'
+  ) {
+    try {
+      const {
+        getMarketingDashboardData,
+        auditTrackingHealth,
+        testMetaConnection,
+      } = require('../lib/marketingBrain');
+
+      const authHeader = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+
+      if (action === 'marketing-token-test') {
+        const token = req.body?.token || req.query?.token;
+        const resData = await testMetaConnection(token, authHeader);
+        return res.json(resData);
+      }
+
+      if (action === 'marketing-tracking-audit') {
+        const audit = await auditTrackingHealth(authHeader);
+        return res.json({ ok: true, audit });
+      }
+
+      const data = await getMarketingDashboardData(authHeader);
+      return res.json(data);
+    } catch (e) {
+      console.error('[marketing-brain]', e);
+      return res.status(500).json({ ok: false, error: e.message || 'error' });
+    }
+  }
+
   // Amazon SP-API (Egypt) — token test + orders + inventory + listing optimization
   if (
     action === 'amazon-token-test' ||

@@ -22,6 +22,7 @@
             <a href="#" class="nav-link active" data-page="dashboard"><i class="fas fa-chart-line"></i> الرئيسية</a>
             <a href="#" class="nav-link" data-page="products"><i class="fas fa-box"></i> المنتجات</a>
             <a href="#" class="nav-link" data-page="orders"><i class="fas fa-shopping-cart"></i> الطلبات <span class="nav-count" id="ordersCount">0</span></a>
+            <a href="#" class="nav-link" data-page="marketing"><i class="fas fa-bullhorn" style="color:#d8b559;"></i> ماركتينج <span style="background:linear-gradient(135deg, #8b5cf6, #d946ef);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;margin-right:4px;">AI Brain</span></a>
             <a href="#" class="nav-link" data-page="jumia"><i class="fas fa-store"></i> طلبات جوميا</a>
             <a href="#" class="nav-link" data-page="amazon"><i class="fab fa-amazon"></i> طلبات أمازون</a>
             <a href="#" class="nav-link" data-page="customers"><i class="fas fa-users"></i> العملاء</a>
@@ -109,6 +110,153 @@
                         <thead><tr><th>رقم الطلب</th><th>العميل</th><th>الإجمالي</th><th>الحالة</th><th>بوسطة</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
                         <tbody id="ordersTable"></tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- ===== MARKETING (Montaña Ads Brain) ===== -->
+            <div class="page" id="page-marketing">
+                <div class="page-actions" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+                    <div>
+                        <h2 style="font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:8px;margin:0;">
+                            <i class="fas fa-brain" style="color:#8b5cf6;"></i> Montaña Ads Brain
+                            <span style="font-size:11px;background:rgba(139,92,246,0.12);color:#8b5cf6;padding:3px 8px;border-radius:20px;font-weight:600;border:1px solid rgba(139,92,246,0.25);">نظام التسويق المعتمد على التسليم الفعلي</span>
+                        </h2>
+                        <p style="color:var(--text-muted, #64748b);font-size:13px;margin:4px 0 0 0;">تقييم أداء الإعلانات وحساب تكلفة الأوردر المسلّم (Delivered CPDO & ROAS) بدقة</p>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <button class="btn-primary btn-outline" type="button" onclick="loadMarketing()"><i class="fas fa-sync-alt"></i> تحديث الأرقام</button>
+                        <button class="btn-primary" style="background:#8b5cf6;border-color:#8b5cf6;" type="button" onclick="openMetaTokenModal()"><i class="fas fa-key"></i> إعداد توكن Meta</button>
+                        <button class="btn-primary" style="background:#1877f2;border-color:#1877f2;" type="button" onclick="window.open('https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=303958922504233', '_blank')"><i class="fab fa-facebook"></i> Meta Ads Manager</button>
+                    </div>
+                </div>
+
+                <!-- Meta Connection Banner -->
+                <div id="metaStatusBanner" class="card" style="margin-bottom:20px;padding:16px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="width:40px;height:40px;border-radius:10px;background:rgba(24,119,242,0.1);color:#1877f2;display:flex;align-items:center;justify-content:center;font-size:18px;">
+                                <i class="fab fa-facebook-f"></i>
+                            </div>
+                            <div>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <strong id="mktMetaAccountName">حساب إعلانات مونتانيا</strong>
+                                    <span id="mktMetaBadge" class="badge" style="background:#e2e8f0;color:#64748b;font-size:11px;">جاري فحص الاتصال...</span>
+                                </div>
+                                <div id="mktMetaSubtext" style="font-size:12px;color:var(--text-muted,#64748b);margin-top:2px;">
+                                    Ad Account: act_303958922504233 | Graph API v21.0
+                                </div>
+                            </div>
+                        </div>
+                        <div id="mktMetaActions">
+                            <button class="btn-primary btn-outline" style="font-size:12px;padding:6px 12px;" onclick="openMetaTokenModal()"><i class="fas fa-plug"></i> فحص / تغيير التوكن</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ground Truth KPI Cards -->
+                <div class="stats-grid" style="margin-bottom:24px;">
+                    <div class="stat-card gold">
+                        <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+                        <div class="stat-info">
+                            <h3 id="mktSpend">0 ج.م</h3>
+                            <span>صرف الإعلانات (Meta Spend)</span>
+                        </div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon"><i class="fas fa-truck-fast"></i></div>
+                        <div class="stat-info">
+                            <h3 id="mktDelivered">0</h3>
+                            <span>أوردرات مستلمة (<span id="mktDeliveryRate">0%</span>)</span>
+                        </div>
+                    </div>
+                    <div class="stat-card purple">
+                        <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+                        <div class="stat-info">
+                            <h3 id="mktCpdo">0 ج.م</h3>
+                            <span>تكلفة الطلب المسلّم (CPDO)</span>
+                        </div>
+                    </div>
+                    <div class="stat-card blue">
+                        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                        <div class="stat-info">
+                            <h3 id="mktRoas">0x</h3>
+                            <span>العائد المسلّم (Delivered ROAS)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Two columns: Tracking & Recommendations -->
+                <div class="dashboard-grid" style="margin-bottom:24px;">
+                    <!-- Tracking Health -->
+                    <div class="card">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px;">
+                            <h3 style="margin:0;display:flex;align-items:center;gap:8px;">
+                                <i class="fas fa-shield-halved" style="color:#0ea5e9;"></i> صحة التتبع والبيكسل (Tracking Health)
+                            </h3>
+                            <span id="mktTrackingBadge" class="badge" style="background:#e2e8f0;color:#334155;padding:4px 10px;border-radius:12px;font-weight:700;">--/10</span>
+                        </div>
+                        <div id="mktTrackingList" class="card-body" style="padding:0;display:flex;flex-direction:column;gap:10px;">
+                            <div style="text-align:center;padding:15px;color:var(--text-muted);">جاري فحص جودة التتبع والأحداث...</div>
+                        </div>
+                    </div>
+
+                    <!-- AI Marketer Insights & Rules -->
+                    <div class="card">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px;">
+                            <h3 style="margin:0;display:flex;align-items:center;gap:8px;">
+                                <i class="fas fa-bullseye" style="color:#8b5cf6;"></i> توصيات وقواعد «Montaña Ads Brain»
+                            </h3>
+                            <span class="badge" style="background:rgba(139,92,246,0.1);color:#8b5cf6;padding:4px 8px;border-radius:10px;">خطة السوق المصري 2026</span>
+                        </div>
+                        <div class="card-body" style="padding:0;display:flex;flex-direction:column;gap:12px;font-size:13px;line-height:1.6;">
+                            <div style="background:rgba(216,181,89,0.08);border-right:3px solid #d8b559;padding:10px 12px;border-radius:4px;">
+                                <strong style="color:#936f1e;display:block;margin-bottom:2px;"><i class="fas fa-lightbulb"></i> الإعلانات هي الاستهداف (Creative is the Targeting)</strong>
+                                في تحديث خوارزميات Meta 2026، لا فائدة من الاستهداف بالاهتمامات الضيقة. الموديل يقرأ أول 3 ثواني من الفيديو وزاوية الطرح ليحدد العميل المهتم تلقائياً.
+                            </div>
+                            <div style="background:rgba(39,174,96,0.08);border-right:3px solid #27ae60;padding:10px 12px;border-radius:4px;">
+                                <strong style="color:#1e7e43;display:block;margin-bottom:2px;"><i class="fas fa-check-circle"></i> حملات التحويل فقط (Sales - Purchase)</strong>
+                                تم إيقاف حملات الرسائل والترافيك السابقة لأنها تهدر الميزانية (19-62 ج.م للمحادثة دون شراء). كل الإعلانات القادمة تكون بهدف Purchase مباشرة.
+                            </div>
+                            <div style="background:rgba(139,92,246,0.08);border-right:3px solid #8b5cf6;padding:10px 12px;border-radius:4px;">
+                                <strong style="color:#6d28d9;display:block;margin-bottom:2px;"><i class="fas fa-shield-alt"></i> معايير التسليم والأرباح (Ground Truth)</strong>
+                                نقيّم الإعلان بعد 50 طلب أو بعد صرف 1000 ج.م على معدل التسليم الفعلي (Delivered ROAS). أي إعلان لا يحقق طلباً مسلماً بتكلفة أقل من 150 ج.م يُستبدل فوراً بكرياتيف بزاوية جديدة.
+                            </div>
+                            <div style="background:rgba(59,130,246,0.08);border-right:3px solid #3b82f6;padding:10px 12px;border-radius:4px;">
+                                <strong style="color:#1d4ed8;display:block;margin-bottom:2px;"><i class="fas fa-tag"></i> تسعير العروض والروتينات</strong>
+                                عروض المجموعات: روتين التفتيح 699 ج.م (شحن مجاني) · روتين ما بعد الليزر 549 ج.م (شحن مجاني) · غسول التفتيح 299 ج.م · كريم التفتيح 249 ج.م.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ground Truth Orders Attribution Table -->
+                <div class="card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+                        <div>
+                            <h3 style="margin:0;display:flex;align-items:center;gap:8px;">
+                                <i class="fas fa-table-list" style="color:#10b981;"></i> الأوردرات الأخيرة ومعدل التسليم الحقيقي
+                            </h3>
+                            <div style="font-size:12px;color:var(--text-muted,#64748b);margin-top:2px;">الأساس الرياضي لاحتساب الـ ROAS الفعلي وربطه مع بوسطة</div>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>رقم الطلب</th>
+                                    <th>العميل</th>
+                                    <th>المحافظة</th>
+                                    <th>الإجمالي</th>
+                                    <th>القناة</th>
+                                    <th>الحالة</th>
+                                    <th>التاريخ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mktOrdersTable">
+                                <tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted)">جاري جلب الأوردرات...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 

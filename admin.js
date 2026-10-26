@@ -55,6 +55,7 @@ document.querySelectorAll('.nav-link').forEach(link => {
         if (page === 'dashboard') loadDashboard();
         if (page === 'products') loadProducts();
         if (page === 'orders') loadOrders();
+        if (page === 'marketing') loadMarketing();
         if (page === 'jumia') { loadJumiaOrders(); loadJumiaStock(); }
         if (page === 'amazon') { loadAmazonOrders(); loadAmazonStock(); }
         if (page === 'customers') loadCustomers();
@@ -1549,6 +1550,248 @@ document.addEventListener('change', e => {
         e.target.style.color = { pending: '#D4AF37', confirmed: '#3b82f6', preparing: '#3b82f6', shipped: '#9B6CB8', delivered: '#27ae60', cancelled: '#EF5350' }[e.target.value];
     }
 });
+
+
+// ===== MARKETING (Montaña Ads Brain) =====
+async function loadMarketing() {
+    const spendEl = document.getElementById('mktSpend');
+    const deliveredEl = document.getElementById('mktDelivered');
+    const deliveryRateEl = document.getElementById('mktDeliveryRate');
+    const cpdoEl = document.getElementById('mktCpdo');
+    const roasEl = document.getElementById('mktRoas');
+    const trackingBadge = document.getElementById('mktTrackingBadge');
+    const trackingList = document.getElementById('mktTrackingList');
+    const ordersTable = document.getElementById('mktOrdersTable');
+
+    if (!spendEl) return;
+
+    // Loading states
+    spendEl.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:16px"></i>';
+    deliveredEl.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:16px"></i>';
+    cpdoEl.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:16px"></i>';
+    roasEl.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:16px"></i>';
+    ordersTable.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted)"><i class="fas fa-spinner fa-spin"></i> جاري جلب الأوردرات والحسابات...</td></tr>';
+
+    try {
+        const hdrs = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=marketing-dashboard', { headers: hdrs });
+        const data = await res.json();
+
+        if (!data.ok) {
+            toast('تعذر تحميل بيانات التسويق: ' + (data.error || 'خطأ غير معروف'), 'error');
+            return;
+        }
+
+        const k = data.kpis || {};
+        const meta = data.metaConnection || {};
+        const audit = data.trackingAudit || {};
+        const orders = data.recentOrders || [];
+
+        // Meta connection status banner
+        const metaBadge = document.getElementById('mktMetaBadge');
+        const metaSub = document.getElementById('mktMetaSubtext');
+        if (metaBadge && metaSub) {
+            if (meta.connected) {
+                metaBadge.style.background = '#dcfce7';
+                metaBadge.style.color = '#15803d';
+                metaBadge.innerHTML = '<i class="fas fa-check-circle"></i> متصل بنجاح مع Meta Marketing API';
+                metaSub.innerHTML = `الحساب: <strong>${meta.adAccountId}</strong> | الصرف: <strong>${(k.spend || 0).toLocaleString()} ج.م</strong> | الإصدار: ${meta.apiVersion}`;
+            } else {
+                metaBadge.style.background = '#fef3c7';
+                metaBadge.style.color = '#b45309';
+                metaBadge.innerHTML = '<i class="fas fa-triangle-exclamation"></i> غير متصل (بانتظار رمز التوكن)';
+                metaSub.innerHTML = `Ad Account: <strong>${meta.adAccountId}</strong> | ${meta.error || 'أدخل توكن Meta لحساب الصرف والعائد تلقائياً'}`;
+            }
+        }
+
+        // KPIs
+        spendEl.textContent = (k.spend || 0).toLocaleString() + ' ج.م';
+        deliveredEl.textContent = k.deliveredOrders || 0;
+        deliveryRateEl.textContent = (k.deliveryRate || 0) + '%';
+        cpdoEl.textContent = k.cpdo ? k.cpdo.toLocaleString() + ' ج.م' : (k.spend > 0 ? '0 ج.م' : '—');
+        roasEl.textContent = k.deliveredRoas ? k.deliveredRoas + 'x' : (k.spend > 0 ? '0x' : '—');
+
+        // Tracking Health
+        const score = audit.score ?? 0;
+        const maxScore = audit.maxScore ?? 10;
+        if (trackingBadge) {
+            trackingBadge.textContent = `${score}/${maxScore}`;
+            if (score >= 8) {
+                trackingBadge.style.background = '#dcfce7';
+                trackingBadge.style.color = '#15803d';
+            } else if (score >= 5) {
+                trackingBadge.style.background = '#fef3c7';
+                trackingBadge.style.color = '#b45309';
+            } else {
+                trackingBadge.style.background = '#fee2e2';
+                trackingBadge.style.color = '#b91c1c';
+            }
+        }
+
+        if (trackingList) {
+            if (audit.checks && audit.checks.length > 0) {
+                trackingList.innerHTML = audit.checks.map(c => {
+                    const isPass = c.status === 'pass';
+                    const isWarn = c.status === 'warn';
+                    const icon = isPass ? 'fa-circle-check' : (isWarn ? 'fa-triangle-exclamation' : 'fa-circle-xmark');
+                    const color = isPass ? '#10b981' : (isWarn ? '#f59e0b' : '#ef4444');
+                    const bg = isPass ? 'rgba(16,185,129,0.06)' : (isWarn ? 'rgba(245,158,11,0.06)' : 'rgba(239,68,68,0.06)');
+
+                    return `
+                        <div style="background:${bg};border-right:3px solid ${color};padding:10px 12px;border-radius:6px;display:flex;align-items:flex-start;gap:10px;">
+                            <i class="fas ${icon}" style="color:${color};font-size:16px;margin-top:2px;"></i>
+                            <div style="flex:1;">
+                                <strong style="color:var(--text);font-size:13px;display:block;">${c.title}</strong>
+                                <div style="color:var(--text-muted,#64748b);font-size:12px;margin-top:2px;">${c.message}</div>
+                                ${c.action ? `<div style="color:#d97706;font-size:11.5px;margin-top:3px;font-weight:600;"><i class="fas fa-arrow-left"></i> ${c.action}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                trackingList.innerHTML = '<p class="empty">لا توجد بيانات فحص متاحة</p>';
+            }
+        }
+
+        // Recent Orders Table
+        if (ordersTable) {
+            if (orders.length > 0) {
+                const statusMap = {
+                    delivered: { label: 'تم التسليم', color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
+                    pending: { label: 'قيد الانتظار', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+                    confirmed: { label: 'مؤكد', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
+                    shipped: { label: 'تم الشحن', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
+                    cancelled: { label: 'ملغي / راجع', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+                };
+
+                ordersTable.innerHTML = orders.map(o => {
+                    const st = statusMap[o.status] || { label: o.status || 'غير محدد', color: '#64748b', bg: '#f1f5f9' };
+                    const date = o.created_at ? new Date(o.created_at).toLocaleDateString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+                    const channel = o.chat_channel || 'web';
+                    const channelBadge = channel === 'messenger' 
+                        ? '<span class="badge" style="background:#0084ff;color:white;font-size:10px;"><i class="fab fa-facebook-messenger"></i> ماسنجر</span>'
+                        : (channel === 'instagram' 
+                            ? '<span class="badge" style="background:#e1306c;color:white;font-size:10px;"><i class="fab fa-instagram"></i> انستجرام</span>'
+                            : '<span class="badge" style="background:#475569;color:white;font-size:10px;"><i class="fas fa-globe"></i> الموقع</span>');
+
+                    return `
+                        <tr>
+                            <td style="font-weight:700;font-family:monospace;">${o.order_number || ('#' + o.id)}</td>
+                            <td>${o.customer_name || 'عميل مونتانيا'}</td>
+                            <td>${o.governorate || o.city || '—'}</td>
+                            <td style="font-weight:700;">${Number(o.total || 0).toLocaleString()} ج.م</td>
+                            <td>${channelBadge}</td>
+                            <td><span class="badge" style="background:${st.bg};color:${st.color};font-weight:600;">${st.label}</span></td>
+                            <td style="font-size:12px;color:var(--text-muted);">${date}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                ordersTable.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted)">لا توجد أوردرات في الفترة المحددة</td></tr>';
+            }
+        }
+
+    } catch (e) {
+        console.error('loadMarketing error:', e);
+        toast('خطأ أثناء تحميل بيانات التسويق: ' + e.message, 'error');
+    }
+}
+
+// Open Meta Token Modal
+function openMetaTokenModal() {
+    const html = `
+        <div style="display:flex;flex-direction:column;gap:14px;text-align:right;">
+            <p style="margin:0;font-size:13.5px;color:var(--text-muted,#475569);line-height:1.6;">
+                لربط <strong>Montaña Ads Brain</strong> مع حسابك الإعلاني في Meta وقراءة الصرف والنتائج تلقائياً، أدخل <strong>System User Token</strong> الدائم من Meta Business Manager.
+            </p>
+
+            <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);padding:12px;border-radius:8px;font-size:12.5px;line-height:1.6;">
+                <strong style="color:#7c3aed;display:block;margin-bottom:4px;"><i class="fas fa-circle-info"></i> خطوات الحصول على التوكن (5 دقائق):</strong>
+                1. افتح <a href="https://business.facebook.com/settings/system-users" target="_blank" style="color:#2563eb;text-decoration:underline;">إعدادات الأعمال (Business Settings)</a>.<br>
+                2. من القائمة الجانبية: <strong>Users → System Users</strong> ثم أنشئ مستخدم باسم "Montana-AI".<br>
+                3. اختر <strong>Admin System User</strong> ثم اضغط <strong>Generate New Token</strong>.<br>
+                4. حدد الصلاحيات: <code>ads_read, ads_management, pages_read_engagement</code>.<br>
+                5. انسخ التوكن والصقه هنا.
+            </div>
+
+            <div>
+                <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px;">رمز الوصول (Meta System User Token):</label>
+                <textarea id="metaTokenInput" rows="3" placeholder="EAAB..." style="width:100%;font-family:monospace;font-size:12px;padding:10px;border-radius:8px;border:1px solid var(--border);resize:vertical;" dir="ltr"></textarea>
+            </div>
+
+            <div id="metaTokenTestResult" style="display:none;padding:10px;border-radius:6px;font-size:12.5px;"></div>
+
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+                <button class="btn-primary btn-outline" type="button" onclick="closeModal()">إلغاء</button>
+                <button class="btn-primary" type="button" id="metaTokenSaveBtn" onclick="saveMetaToken()"><i class="fas fa-check"></i> اختبار وحفظ التوكن</button>
+            </div>
+        </div>
+    `;
+    openModal('إعداد والتحقق من توكن Meta Ads', html);
+}
+
+// Save & test Meta Token
+async function saveMetaToken() {
+    const input = document.getElementById('metaTokenInput');
+    const resultDiv = document.getElementById('metaTokenTestResult');
+    const saveBtn = document.getElementById('metaTokenSaveBtn');
+    const token = input ? input.value.trim() : '';
+
+    if (!token) {
+        toast('يرجى لصق التوكن أولاً', 'error');
+        return;
+    }
+
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الاختبار...';
+    resultDiv.style.display = 'block';
+    resultDiv.style.background = '#f8fafc';
+    resultDiv.style.color = '#475569';
+    resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الاتصال بحساب Meta الإعلاني...';
+
+    try {
+        const hdrs = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=marketing-token-test', {
+            method: 'POST',
+            headers: hdrs,
+            body: JSON.stringify({ token })
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            resultDiv.style.background = '#dcfce7';
+            resultDiv.style.color = '#15803d';
+            resultDiv.innerHTML = `<i class="fas fa-check-circle"></i> تم الاتصال بنجاح! الحساب: <strong>${data.name || data.adAccountId}</strong> (${data.currency || 'EGP'})`;
+
+            // Save to site_settings
+            const existing = await api('site_settings', 'GET', null, `?key=eq.meta_system_user_token&select=key`);
+            if (existing.length) {
+                await api('site_settings', 'PATCH', { value: token, updated_at: new Date().toISOString() }, `?key=eq.meta_system_user_token`);
+            } else {
+                await api('site_settings', 'POST', { key: 'meta_system_user_token', value: token });
+            }
+
+            toast('تم حفظ توكن Meta بنجاح!');
+            setTimeout(() => {
+                closeModal();
+                loadMarketing();
+            }, 1200);
+        } else {
+            resultDiv.style.background = '#fee2e2';
+            resultDiv.style.color = '#b91c1c';
+            resultDiv.innerHTML = `<i class="fas fa-circle-xmark"></i> فشل الاتصال: ${data.error || 'رمز التوكن غير صالح أو منتهي الصلاحية'}`;
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fas fa-check"></i> اختبار وحفظ التوكن';
+        }
+    } catch (e) {
+        resultDiv.style.background = '#fee2e2';
+        resultDiv.style.color = '#b91c1c';
+        resultDiv.innerHTML = `<i class="fas fa-circle-xmark"></i> خطأ في الاتصال: ${e.message}`;
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fas fa-check"></i> اختبار وحفظ التوكن';
+    }
+}
+
 
 // ===== INIT =====
 loadDashboard();
