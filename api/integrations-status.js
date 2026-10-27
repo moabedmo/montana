@@ -569,6 +569,7 @@ module.exports = async (req, res) => {
     action === 'amazon-sku-map' ||
     action === 'amazon-listing-details' ||
     action === 'amazon-listing-patch' ||
+    action === 'amazon-listing-put' ||
     action === 'amazon-fba-inventory' ||
     action === 'amazon-aplus-list' ||
     action === 'amazon-aplus-create' ||
@@ -586,6 +587,7 @@ module.exports = async (req, res) => {
         amazonCreds,
         getAmazonListingDetails,
         patchAmazonListingAttributes,
+        putAmazonListingItem,
         listAmazonFbaInventory,
         listAplusDocuments,
         createAplusDocument,
@@ -646,6 +648,14 @@ module.exports = async (req, res) => {
           return res.status(400).json({ ok: false, error: 'sku and patches array required' });
         }
         const result = await patchAmazonListingAttributes({ sellerSku: sku, productType, patches });
+        return res.json({ ok: true, result });
+      }
+
+      if (action === 'amazon-listing-put') {
+        if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'POST only' });
+        const { sku, productType = 'PRODUCT', attributes = {}, requirements = 'LISTING' } = req.body || {};
+        if (!sku || !attributes) return res.status(400).json({ ok: false, error: 'sku and attributes required' });
+        const result = await putAmazonListingItem({ sellerSku: sku, productType, attributes, requirements });
         return res.json({ ok: true, result });
       }
 
