@@ -273,19 +273,10 @@ header.header {
     transform: translateY(-2px);
 }
 @media (max-width: 768px) {
-    /* Stack under the store button on the left instead of dead-center —
-       .hero-brand-chip's left edge always lands at exactly 50% of the
-       viewport (right:4% + width:46%), so a centered pill here would
-       always overlap it. */
+    /* Hide floating language toggle on mobile — prevents collision with search bar & logo */
     .floating-lang-btn {
-        top: 60px;
-        left: 14px;
-        right: auto;
-        transform: none;
-        padding: 9px 14px;
-        font-size: 12px;
+        display: none !important;
     }
-    .floating-lang-btn:hover { transform: translateY(-2px); }
 }
 
 .header-action.lang-switch-action {
@@ -2511,7 +2502,7 @@ header.header {
 /* ==================== BACK TO TOP ==================== */
 .back-to-top {
     position: fixed;
-    bottom: 24px;
+    bottom: 88px;
     right: 24px;
     width: 48px;
     height: 48px;
@@ -2876,7 +2867,7 @@ header.header {
         box-shadow: 0 2px 6px rgba(146, 117, 164, 0.4);
     }
 
-    .back-to-top { bottom: 86px; }
+    .back-to-top { display: none !important; }
 
     /* App-like sticky header */
     .header-main {

@@ -30,8 +30,7 @@ body.mnt-en .floating-lang-btn {
 }
 @media (max-width: 768px) {
     body.mnt-en .floating-lang-btn {
-        left: 50%;
-        transform: translateX(-50%);
+        display: none !important;
     }
 }
 /* Inner pages already have a sticky .page-header — anchor below it instead
