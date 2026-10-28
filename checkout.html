@@ -15,8 +15,8 @@
     <link rel="stylesheet" href="pages.css">
     <link rel="stylesheet" href="premium.css">
     <link rel="stylesheet" href="dark-theme.css">
-    <script src="js/meta-pixel.js?v=15"></script>
-    <script src="js/metaEvents.js?v=16"></script>
+    <script src="js/meta-pixel.js?v=16"></script>
+    <script src="js/metaEvents.js?v=17"></script>
     <style>
         .ck-payment-option.disabled { opacity:.55; cursor:not-allowed; }
         .ck-soon-tag { margin-inline-start:auto; font-size:10px; font-weight:700; color:#9B6CB8; background:rgba(155,108,184,.1); padding:3px 9px; border-radius:20px; }
@@ -919,6 +919,15 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
             sessionStorage.setItem('montana_last_order', JSON.stringify(result));
         } catch (_) { /* ignore */ }
         try { window.Cart.clear(); } catch (_) { /* ignore */ }
+        try {
+            if (window.MontanaMeta && typeof window.MontanaMeta.persistCustomerIdentifiers === 'function') {
+                window.MontanaMeta.persistCustomerIdentifiers({
+                    phone: phone || result?.order?.customer_phone,
+                    name: name || result?.order?.customer_name,
+                    city: city || (govOpt && govOpt.value) || result?.order?.city
+                });
+            }
+        } catch (_) { /* ignore */ }
 
         const page = document.getElementById('checkoutPage');
         const bar = document.getElementById('ckBottomBar');

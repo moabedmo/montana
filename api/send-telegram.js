@@ -5,7 +5,7 @@ const { notifyTelegramOrder } = require('../lib/telegramOrderNotify');
 const { confirmOrderByNumber, notifyCustomerOrderConfirmed } = require('../lib/orderConfirm');
 const { autoSendOrderToBosta, resolveWebhookBaseUrl } = require('../lib/bostaHandlers');
 const { handleBostaCreate, handleBostaWebhook, handleBostaAwb, handleBostaPickup } = require('../lib/bostaHandlers');
-const { sendPurchaseEvent } = require('../lib/metaCapi');
+const { sendPurchaseEvent, getClientIp } = require('../lib/metaCapi');
 
 const sb = createClient(
   process.env.SUPABASE_URL || 'https://ikryeyqrithikabwidov.supabase.co',
@@ -26,17 +26,6 @@ async function uploadProofBuffer(buffer, mime, phoneHint) {
   return `${SB_PUBLIC}/storage/v1/object/public/montana/${key}`;
 }
 
-function clientIpFromReq(req) {
-  const h = req.headers || {};
-  const fwd = h['x-forwarded-for'] || h['X-Forwarded-For'];
-  return (
-    (typeof fwd === 'string' ? fwd.split(',')[0].trim() : undefined) ||
-    h['x-real-ip'] ||
-    h['X-Real-Ip'] ||
-    undefined
-  );
-}
-
 /** Fire Purchase CAPI after a new order — soft-fail, never throws. */
 async function firePurchaseTracking(req, body) {
   try {
@@ -54,9 +43,17 @@ async function firePurchaseTracking(req, body) {
       ? body.items.reduce((s, i) => s + (Number(i.qty || i.quantity) || 1), 0)
       : undefined;
 
+    let totalVal = Number(body.total);
+    if (!totalVal || isNaN(totalVal) || totalVal <= 0) {
+      if (Array.isArray(body.items)) {
+        totalVal = body.items.reduce((acc, it) => acc + (Number(it.price || 0) * (Number(it.qty || 1))), 0);
+      }
+    }
+    const realTotal = Math.round((Number(totalVal) || 0) * 100) / 100;
+
     const r = await sendPurchaseEvent({
       orderId,
-      total: body.total,
+      total: realTotal,
       contentIds,
       numItems,
       customerName: body.customer_name,
@@ -64,13 +61,13 @@ async function firePurchaseTracking(req, body) {
       city: body.city || body.governorate,
       email: body.customer_email || body.email,
       eventSourceUrl: body.event_source_url || 'https://www.montana.com.eg/checkout.html',
-      clientIp: clientIpFromReq(req),
+      clientIp: getClientIp(req),
       userAgent: req.headers?.['user-agent'] || req.headers?.['User-Agent'],
       fbp: body.fbp,
       fbc: body.fbc,
     });
     if (!r?.ok) console.error('Meta Purchase (server) soft-fail:', JSON.stringify(r));
-    else console.log('Meta Purchase (server) ok:', `purchase-${orderId}`);
+    else console.log('Meta Purchase (server) ok:', `purchase-${orderId}`, 'value:', realTotal);
   } catch (err) {
     console.error('Meta Purchase (server) exception:', err?.message || err);
   }

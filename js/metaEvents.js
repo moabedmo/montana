@@ -65,29 +65,156 @@
     }
   }
 
+  async function hashSubtle(str) {
+    if (str == null) return null;
+    var val = String(str).trim().toLowerCase();
+    if (!val) return null;
+    try {
+      if (typeof window !== 'undefined' && window.crypto && window.crypto.subtle) {
+        var msgBuffer = new TextEncoder().encode(val);
+        var hashBuffer = await window.crypto.subtle.digest('SHA-256', msgBuffer);
+        var hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  function normalizePhoneE164(phone) {
+    if (!phone) return '';
+    var p = String(phone).replace(/\D/g, '');
+    if (p.indexOf('00') === 0) p = p.slice(2);
+    if (p.indexOf('0') === 0) p = '20' + p.slice(1);
+    if (p.indexOf('20') !== 0) p = '20' + p;
+    return p;
+  }
+
+  /**
+   * Persists SHA-256 hashed customer identifiers into localStorage for returning visitors.
+   * Phone normalized to E.164 digits without "+" (01xxxxxxxxx → 201xxxxxxxxx) → mt_ph.
+   * First name, city, country "eg" trimmed, lowercased, then SHA-256 hashed.
+   * Never stores raw values. Wrapped in try/catch.
+   */
+  async function persistCustomerIdentifiers(info) {
+    if (!info || typeof info !== 'object') return;
+    try {
+      // 1) Phone
+      var p = info.phone || info.customer_phone;
+      if (p) {
+        var cleanPhone = normalizePhoneE164(p);
+        if (cleanPhone) {
+          var hashedPhone = await hashSubtle(cleanPhone);
+          if (hashedPhone) {
+            try { localStorage.setItem('mt_ph', hashedPhone); } catch (_) {}
+          }
+        }
+      }
+
+      // 2) First name
+      var fn = info.firstName || (info.name || info.customer_name ? splitName(info.name || info.customer_name).firstName : '');
+      if (fn) {
+        var hashedFn = await hashSubtle(fn);
+        if (hashedFn) {
+          try { localStorage.setItem('mt_fn', hashedFn); } catch (_) {}
+        }
+      }
+
+      // 3) City
+      var ct = info.city || info.governorate;
+      if (ct) {
+        var hashedCt = await hashSubtle(ct);
+        if (hashedCt) {
+          try { localStorage.setItem('mt_ct', hashedCt); } catch (_) {}
+        }
+      }
+
+      // 4) Country "eg"
+      var hashedCountry = await hashSubtle('eg');
+      if (hashedCountry) {
+        try { localStorage.setItem('mt_country', hashedCountry); } catch (_) {}
+      }
+
+      // Sync pixel init with new identifiers
+      syncFbqInit();
+    } catch (_) {
+      // safe fallback
+    }
+  }
+
+  /**
+   * Reads persisted SHA-256 customer identifiers from localStorage.
+   */
+  function getPersistedUserData() {
+    var data = {};
+    try {
+      var ph = localStorage.getItem('mt_ph');
+      if (ph) data.ph = ph;
+      var fn = localStorage.getItem('mt_fn');
+      if (fn) data.fn = fn;
+      var ct = localStorage.getItem('mt_ct');
+      if (ct) data.ct = ct;
+      var country = localStorage.getItem('mt_country');
+      if (country) data.country = country;
+      var vid = getVisitorId();
+      if (vid) data.external_id = vid;
+    } catch (_) {}
+    return data;
+  }
+
+  /**
+   * Passes pre-hashed customer identifiers to fbq('init', pixelId, userData).
+   * Already-hashed values (64 hex chars) are accepted by Meta Advanced Matching.
+   */
+  function syncFbqInit() {
+    try {
+      if (typeof window === 'undefined' || typeof window.fbq !== 'function') return;
+      var pixelId = window.MONTANA_FB_PIXEL_ID;
+      if (!pixelId) {
+        try {
+          var state = window.fbq.getState && window.fbq.getState();
+          pixelId = state && state.pixels && state.pixels[0] && state.pixels[0].id;
+        } catch (_) {}
+      }
+      if (pixelId) {
+        var ud = getPersistedUserData();
+        if (ud && Object.keys(ud).length > 0) {
+          window.fbq('init', String(pixelId), ud);
+        }
+      }
+    } catch (_) {}
+  }
+
   function getStoredUserData() {
-    const data = {};
+    // Start with persisted pre-hashed values (mt_ph, mt_fn, mt_ct, mt_country, external_id)
+    const data = Object.assign({}, getPersistedUserData());
+
     try {
       const storedPhone = localStorage.getItem('montana_last_phone') || sessionStorage.getItem('montana_last_phone');
-      if (storedPhone) data.phone = storedPhone;
+      if (storedPhone && !data.phone && !data.ph) data.phone = storedPhone;
       const storedEmail = localStorage.getItem('montana_last_email') || sessionStorage.getItem('montana_last_email');
       if (storedEmail) data.email = storedEmail;
 
       const rawProfile = localStorage.getItem('montana_customer_profile');
       if (rawProfile) {
         const prof = JSON.parse(rawProfile);
-        if (prof.phone && !data.phone) data.phone = prof.phone;
+        if (prof.phone && !data.phone && !data.ph) data.phone = prof.phone;
         if (prof.email && !data.email) data.email = prof.email;
         if (prof.name) {
           const names = splitName(prof.name);
-          if (names.firstName && !data.firstName) data.firstName = names.firstName;
+          if (names.firstName && !data.firstName && !data.fn) data.firstName = names.firstName;
           if (names.lastName && !data.lastName) data.lastName = names.lastName;
         }
-        if (prof.governorate || prof.city) data.city = prof.governorate || prof.city;
+        if ((prof.governorate || prof.city) && !data.city && !data.ct) {
+          data.city = prof.governorate || prof.city;
+        }
       }
     } catch (_) {}
+
     const vid = getVisitorId();
-    if (vid) data.externalId = vid;
+    if (vid) {
+      data.externalId = vid;
+      data.external_id = vid;
+    }
     return data;
   }
 
@@ -111,6 +238,9 @@
     const eventId = customEventId || newEventId();
     customData = customData || {};
     const mergedUserData = Object.assign({}, getStoredUserData(), userData || {});
+
+    // Ensure browser pixel has customer identifiers synced
+    syncFbqInit();
 
     // Standard event only — never trackCustom
     try {
@@ -196,6 +326,8 @@
       }
     } catch (_) {}
 
+    persistCustomerIdentifiers(userData);
+
     let eid = null;
     try { eid = sessionStorage.getItem('meta_initiate_checkout_eid'); } catch (_) {}
     return trackEvent(STANDARD.InitiateCheckout, {}, userData, eid || undefined);
@@ -219,12 +351,31 @@
     const phone = order.customer_phone || order.phone || '';
     const city = order.city || order.governorate || '';
 
+    // Calculate real dynamic total
+    var rawTotal = order.total != null ? order.total : (order.total_amount != null ? order.total_amount : order.amount);
+    var totalVal = Number(rawTotal);
+    if (!totalVal || isNaN(totalVal) || totalVal <= 0) {
+      totalVal = lineItems.reduce(function (acc, it) {
+        return acc + (Number(it.price || it.unit_price || 0) * (Number(it.qty || it.quantity || 1)));
+      }, 0);
+      if (order.shipping_cost || order.shipping) {
+        totalVal += Number(order.shipping_cost || order.shipping || 0);
+      }
+      if (order.discount) {
+        totalVal -= Number(order.discount || 0);
+      }
+    }
+    var realTotal = Math.round((Number(totalVal) || 0) * 100) / 100;
+
+    // Persist customer identifiers for returning visitors
+    persistCustomerIdentifiers({ phone: phone, name: order.customer_name || order.name, city: city });
+
     return trackEvent(
       STANDARD.Purchase,
       {
         content_ids: contentIds,
         content_type: 'product',
-        value: Number(order.total) || 0,
+        value: realTotal,
         currency: 'EGP',
         num_items: lineItems.reduce((s, i) => s + (Number(i.quantity || i.qty) || 1), 0) || contentIds.length || 1,
       },
@@ -238,6 +389,11 @@
     );
   }
 
+  // Attempt initial pixel init sync on load
+  if (typeof window !== 'undefined') {
+    setTimeout(syncFbqInit, 50);
+  }
+
   window.MontanaMeta = {
     STANDARD,
     trackEvent,
@@ -245,6 +401,9 @@
     trackInitiateCheckout,
     enrichCheckoutUserData,
     getStoredUserData,
+    getPersistedUserData,
+    persistCustomerIdentifiers,
+    syncFbqInit,
     trackPurchaseOnce,
     trackAddToCart(product, qty) {
       if (!product) return Promise.resolve(null);

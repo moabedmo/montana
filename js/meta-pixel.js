@@ -9,6 +9,23 @@
   // Must be exactly: P-a-g-e-V-i-e-w (capital P, capital V).
   var PAGE_VIEW_EVENT = String.fromCharCode(80, 97, 103, 101, 86, 105, 101, 119);
 
+  function getPersistedUserData() {
+    var ud = {};
+    try {
+      var ph = localStorage.getItem('mt_ph');
+      if (ph) ud.ph = ph;
+      var fn = localStorage.getItem('mt_fn');
+      if (fn) ud.fn = fn;
+      var ct = localStorage.getItem('mt_ct');
+      if (ct) ud.ct = ct;
+      var country = localStorage.getItem('mt_country');
+      if (country) ud.country = country;
+      var vid = localStorage.getItem('montana_vid');
+      if (vid) ud.external_id = vid;
+    } catch (_) {}
+    return ud;
+  }
+
   function firePageView() {
     if (window.__montanaPageViewSent) return;
     if (typeof window.fbq !== 'function') return;
@@ -28,13 +45,42 @@
       return;
     }
 
+    const eventId = `pv-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
     window.__montanaPageViewSent = true;
     try {
-      window.fbq('track', PAGE_VIEW_EVENT);
+      window.fbq('track', PAGE_VIEW_EVENT, {}, { eventID: eventId });
     } catch (err) {
       console.error('Meta PageView failed:', err);
       window.__montanaPageViewSent = false;
+      return;
     }
+
+    // Dual-send PageView to Conversions API for matching quality
+    try {
+      var fbp = null, fbc = null;
+      try {
+        var matchP = document.cookie.match(/(?:^|; )_fbp=([^;]*)/);
+        if (matchP) fbp = matchP[1];
+        var matchC = document.cookie.match(/(?:^|; )_fbc=([^;]*)/);
+        if (matchC) fbc = matchC[1];
+      } catch (_) {}
+
+      var ud = getPersistedUserData();
+
+      fetch('/api/meta-capi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventName: 'PageView',
+          eventId: eventId,
+          eventSourceUrl: typeof window !== 'undefined' ? window.location.href : '',
+          customData: {},
+          userData: ud,
+          fbp: fbp || undefined,
+          fbc: fbc || undefined,
+        }),
+      }).catch(function () {});
+    } catch (_) {}
   }
 
   function injectPixel(pixelId) {
@@ -57,7 +103,13 @@
       // Init + PageView after fbevents.js is ready (not only queued on the stub)
       t.onload = function () {
         try {
-          window.fbq('init', String(pixelId));
+          window.MONTANA_FB_PIXEL_ID = String(pixelId);
+          var ud = getPersistedUserData();
+          if (Object.keys(ud).length > 0) {
+            window.fbq('init', String(pixelId), ud);
+          } else {
+            window.fbq('init', String(pixelId));
+          }
           firePageView();
         } catch (err) {
           console.error('Meta pixel onload failed:', err);
