@@ -101,6 +101,17 @@
     const addedLabel = IS_EN ? EN_LABELS.added : 'تمت الإضافة';
     const outOfStock = (p.stock ?? 0) <= 0;
     const outOfStockLabel = IS_EN ? 'Out of stock' : 'نفذت الكمية';
+    const activesMap = {
+      'acne-facial-cleanser': IS_EN ? 'Salicylic Acid · Tea Tree · Zinc' : 'حمض الساليسيليك · شجرة الشاي · الزنك',
+      'whitening-cleanser': IS_EN ? 'Alpha Arbutin · Niacinamide · Vit C' : 'ألفا أربوتين · النياسيناميد · فيتامين C',
+      'whitening-cream': IS_EN ? 'Alpha Arbutin · Licorice · Niacinamide' : 'ألفا أربوتين · عرق السوس · نياسيناميد',
+      'hand-body-lotion': IS_EN ? 'Shea Butter · Hyaluronic · Vit E' : 'زبدة الشيا · هيالورونيك · فيتامين E',
+      'post-laser-cream': IS_EN ? 'Panthenol · Centella · Chamomile' : 'بانثينول · سنتيلا آسياتيكا · كاموميل',
+    };
+    const activesText = activesMap[p.slug] || '';
+    const activesBadge = activesText
+      ? `<div class="product-actives" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#9275A4;background:rgba(146,117,164,0.08);border:1px solid rgba(146,117,164,0.18);padding:3px 8px;border-radius:6px;margin:4px 0 6px;line-height:1.35"><i class="fas fa-sparkles" style="font-size:9px;color:#D8B559"></i> <span>${activesText}</span></div>`
+      : '';
     return `
     <div class="product-card" data-category="${safeCat}">
         <div class="product-badges">${badgeHtml}${outOfStock ? `<span class="badge-out-of-stock">${outOfStockLabel}</span>` : ''}</div>
@@ -115,6 +126,7 @@
         <div class="product-info">
             <span class="product-brand">Montaña</span>
             <h3 class="product-name"><a href="${productUrl(safeSlug)}" style="color:inherit;text-decoration:none">${safeName}</a></h3>
+            ${activesBadge}
             <div class="product-rating">
                 <div class="stars">${starsHtml(p.rating)}</div>
                 <span>(${p.review_count || 0})</span>
