@@ -1654,6 +1654,73 @@ header.header {
 
 .add-to-cart-btn:hover { background: var(--accent-dark); }
 
+/* Product Card Direct Action Buttons */
+.product-card-cta-row {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+.product-card-cta-row .buy-now-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #D8B559 0%, #C9A84C 100%);
+    color: #1a1030;
+    border: none;
+    border-radius: 9px;
+    padding: 8px 10px;
+    font-size: 12.5px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 0 3px 10px rgba(216, 181, 89, 0.35);
+    font-family: inherit;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.product-card-cta-row .buy-now-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 14px rgba(216, 181, 89, 0.5);
+    filter: brightness(1.05);
+}
+.product-card-cta-row .buy-now-btn:active {
+    transform: scale(0.97);
+}
+.product-card-cta-row .buy-now-btn:disabled,
+.product-card-cta-row .add-to-cart-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+.product-card-cta-row .add-to-cart-btn--secondary {
+    width: 100%;
+    background: rgba(146, 117, 164, 0.1);
+    color: #9275A4;
+    border: 1.5px solid rgba(146, 117, 164, 0.32);
+    border-radius: 9px;
+    padding: 7px 10px;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: inherit;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.product-card-cta-row .add-to-cart-btn--secondary:hover {
+    background: #9275A4;
+    color: #fff;
+    border-color: #9275A4;
+    transform: translateY(-2px);
+}
+.product-card-cta-row .add-to-cart-btn--secondary:active {
+    transform: scale(0.97);
+}
+
 .product-info {
     padding: 16px;
 }

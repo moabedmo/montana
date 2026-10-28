@@ -139,6 +139,14 @@
                 <span><i class="fas fa-leaf"></i> ${IS_EN ? 'Paraben-free' : 'خالي من البارابين'}</span>
                 <span><i class="fas fa-shield-alt"></i> ${IS_EN ? 'Tested' : 'مختبر جلدياً'}</span>
             </div>
+            <div class="product-card-cta-row">
+                <button type="button" class="buy-now-btn" data-id="${p.id}" data-name="${safeName}" data-image="${safeImg}" data-price="${p.price}" data-slug="${safeSlug}" ${outOfStock ? 'disabled' : ''}>
+                    <i class="fas fa-bolt"></i> <span>${IS_EN ? 'Buy Now' : 'اشتري الآن'}</span>
+                </button>
+                <button type="button" class="add-to-cart-btn add-to-cart-btn--secondary" data-id="${p.id}" data-name="${safeName}" data-image="${safeImg}" data-price="${p.price}" data-slug="${safeSlug}" ${outOfStock ? 'disabled' : ''}>
+                    <i class="fas fa-shopping-bag"></i> <span>${outOfStock ? outOfStockLabel : addLabel}</span>
+                </button>
+            </div>
         </div>
     </div>`;
   }
@@ -146,6 +154,24 @@
   function initProductCards(root) {
     const scope = root || document;
     const addedLabel = IS_EN ? EN_LABELS.added : 'تمت الإضافة';
+
+    scope.querySelectorAll('.buy-now-btn').forEach(btn => {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (btn.disabled) return;
+        if (window.Cart && btn.dataset.id) {
+          window.Cart.add({
+            id: parseInt(btn.dataset.id, 10),
+            name: btn.dataset.name,
+            image: btn.dataset.image,
+            price: parseFloat(btn.dataset.price)
+          });
+        }
+        window.location.href = IS_EN ? '/en/checkout.html' : '/checkout.html';
+      });
+    });
 
     scope.querySelectorAll('.add-to-cart-btn, .add-to-cart-sm').forEach(btn => {
       if (btn.dataset.bound) return;
@@ -164,7 +190,14 @@
         const original = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-check"></i> ' + addedLabel;
         btn.style.background = '#27ae60';
-        setTimeout(() => { btn.innerHTML = original; btn.style.background = ''; }, 1500);
+        btn.style.color = '#fff';
+        btn.style.borderColor = '#27ae60';
+        setTimeout(() => {
+          btn.innerHTML = original;
+          btn.style.background = '';
+          btn.style.color = '';
+          btn.style.borderColor = '';
+        }, 1500);
       });
     });
 
@@ -185,7 +218,7 @@
       card.dataset.bound = '1';
       card.style.cursor = 'pointer';
       card.addEventListener('click', (e) => {
-        if (e.target.closest('.wishlist-btn') || e.target.closest('.quick-view') || e.target.closest('.add-to-cart-btn')) return;
+        if (e.target.closest('.wishlist-btn') || e.target.closest('.quick-view') || e.target.closest('.add-to-cart-btn') || e.target.closest('.buy-now-btn')) return;
         const btn = card.querySelector('.add-to-cart-btn[data-slug]');
         window.location.href = btn ? productUrl(btn.dataset.slug) : (IS_EN ? '/en/category.html' : '/category.html');
       });
