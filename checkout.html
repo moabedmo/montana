@@ -315,7 +315,6 @@
         <div class="form-group"><label>رقم الهاتف</label><input type="tel" id="custPhone" dir="ltr" placeholder="01xxxxxxxxx"></div>
         <div class="form-group"><label>البريد الإلكتروني (اختياري)</label><input type="email" id="custEmail" dir="ltr" placeholder="example@email.com"></div>
         <div class="form-group"><label>العنوان بالتفصيل</label><textarea id="custAddress" placeholder="الشارع، الحي، رقم العقار"></textarea></div>
-        <div class="form-group"><label>المدينة</label><input type="text" id="custCity" placeholder="القاهرة"></div>
         <!-- honeypot: hidden from real users, a filled value marks the submission as spam -->
         <div style="position:absolute;left:-9999px" aria-hidden="true">
             <input type="text" id="hp_field" name="hp_field" tabindex="-1" autocomplete="off">
@@ -862,11 +861,11 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
     const name = document.getElementById('custName').value.trim();
     const phone = document.getElementById('custPhone').value.trim();
     const address = document.getElementById('custAddress').value.trim();
-    const city = document.getElementById('custCity').value.trim();
     const email = document.getElementById('custEmail').value.trim();
-
     const govOpt = document.getElementById('governorateSelect').selectedOptions[0];
-    if (!name || !phone || !address || !city || !govOpt || !govOpt.value) {
+    const city = document.getElementById('custCity')?.value?.trim() || govOpt?.value || '';
+
+    if (!name || !phone || !address || !govOpt || !govOpt.value) {
         showErr(S.fillRequired);
         return;
     }

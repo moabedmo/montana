@@ -97,13 +97,7 @@ function renderOrder(data) {
       ? `<span class="trk-pay-badge trk-pay-awaiting"><i class="fas fa-clock"></i> ${PAYMENT_STATUS.awaiting_review}</span>`
       : '');
 
-  const proofHtml = (data.payment_status === 'pending') ? `
-    <div class="trk-proof" id="proofBox">
-      <p>لسه محولتيش مقدّم الحجز؟ ارفعي صورة الإيصال هنا وهنراجعها 💜</p>
-      <label for="proofFile" id="proofLabel"><i class="fas fa-camera"></i> ارفعي صورة الإيصال</label>
-      <input type="file" id="proofFile" accept="image/*">
-      <div class="trk-proof-msg" id="proofMsg"></div>
-    </div>` : '';
+  const proofHtml = '';
 
   const itemsHtml = (data.items || []).map(it => `
     <div class="conf-item">

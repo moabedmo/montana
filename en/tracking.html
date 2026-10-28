@@ -104,13 +104,7 @@ function renderOrder(data) {
       ? `<span class="trk-pay-badge trk-pay-awaiting"><i class="fas fa-clock"></i> ${PAYMENT_STATUS.awaiting_review}</span>`
       : '');
 
-  const proofHtml = (data.payment_status === 'pending') ? `
-    <div class="trk-proof" id="proofBox">
-      <p>Not transferred the deposit yet? Upload a photo of the receipt here and we will review it 💜</p>
-      <label for="proofFile" id="proofLabel"><i class="fas fa-camera"></i> Upload the receipt photo</label>
-      <input type="file" id="proofFile" accept="image/*">
-      <div class="trk-proof-msg" id="proofMsg"></div>
-    </div>` : '';
+  const proofHtml = '';
 
   const itemsHtml = (data.items || []).map(it => `
     <div class="conf-item">
