@@ -17,7 +17,71 @@
     <link rel="stylesheet" href="/pages.css">
     <link rel="stylesheet" href="/premium.css">
     <link rel="stylesheet" href="/dark-theme.css">
-    <style>.pd-loading,.pd-error{padding:60px 20px;text-align:center;color:var(--text-muted)}</style>
+    <style>
+        .pd-loading,.pd-error{padding:60px 20px;text-align:center;color:var(--text-muted)}
+        .pd-bottom-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+            display: flex; gap: 8px; padding: 12px 14px;
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(146,117,164,0.18);
+            box-shadow: 0 -4px 20px rgba(45,27,61,0.08);
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+            max-width: 760px; margin: 0 auto;
+        }
+        @media (min-width: 769px) {
+            .pd-bottom-bar { max-width: 880px; border-radius: 16px 16px 0 0; }
+        }
+        .pd-buy-now {
+            flex: 1.3;
+            background: linear-gradient(135deg, #D8B559, #C9A84C);
+            color: #2D1B3D !important;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 800;
+            font-family: 'Tajawal', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 4px 14px rgba(201,168,76,.35);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .pd-buy-now:active { transform: scale(0.97); }
+        .pd-add-cart {
+            flex: 0.9;
+            background: linear-gradient(135deg, #9275A4, #6E5480);
+            border-radius: 12px;
+            font-size: 14px;
+        }
+        .pd-toast-msg {
+            position: fixed;
+            bottom: 84px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2D1B3D;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(201,168,76,.4);
+            white-space: nowrap;
+            animation: pdToastFade .3s ease;
+        }
+        @keyframes pdToastFade {
+            from { opacity: 0; transform: translate(-50%, 10px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+    </style>
 </head>
 <body>
 
@@ -212,15 +276,15 @@ function renderProduct(p, related, ingredientsList, reviewList) {
             <div class="pd-trust-box" style="margin: 16px 0; padding: 14px 16px; background: #FBF6F0; border-radius: 12px; border: 1px solid rgba(198,164,92,.25);">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px;font-weight:700;color:#2E2537;">
                     <i class="fas fa-truck" style="color:#C6A45C;width:18px;"></i>
-                    <span>${getLocale() === 'en' ? 'Free shipping on 3+ items or bundles' : 'شحن مجاني عند اختيار 3 منتجات أو أي روتين'}</span>
+                    <span>${getLocale() === 'en' ? 'Free shipping on 3+ items or bundles 🎁' : 'شحن مجاني عند اختيار 3 منتجات أو أي روتين 🎁'}</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px;font-weight:700;color:#2E2537;">
-                    <i class="fas fa-hand-holding-dollar" style="color:#C6A45C;width:18px;"></i>
-                    <span>${getLocale() === 'en' ? 'Cash on delivery with inspection before payment' : 'الدفع عند الاستلام مع إمكانية المعاينة'}</span>
+                    <i class="fas fa-shield-alt" style="color:#C6A45C;width:18px;"></i>
+                    <span>${getLocale() === 'en' ? 'Egyptian Drug Authority (EDA) licensed · Paraben free' : 'مرخص من هيئة الدواء المصرية (EDA) · خالي من البارابين'}</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:#2E2537;">
-                    <i class="fas fa-shield-alt" style="color:#C6A45C;width:18px;"></i>
-                    <span>${getLocale() === 'en' ? '100% Authentic — Paraben free' : 'منتج أصلي — خالي من البارابين ومناسب للحساسة'}</span>
+                    <i class="fas fa-box-open" style="color:#C6A45C;width:18px;"></i>
+                    <span>${getLocale() === 'en' ? 'Fast delivery 24-48h with inspection before payment' : 'توصيل سريع 24–48 ساعة عبر Bosta مع حق المعاينة'}</span>
                 </div>
             </div>
 
@@ -281,19 +345,45 @@ function renderProduct(p, related, ingredientsList, reviewList) {
             <span id="qtyVal">1</span>
             <button id="qtyPlus">+</button>
         </div>
-        <button class="pd-add-cart" id="addToCartBtn" ${p.stock <= 0 ? 'disabled style="opacity:.5;cursor:not-allowed"' : ''}><i class="fas fa-shopping-bag"></i> ${p.stock <= 0 ? (getLocale() === 'en' ? 'Out of stock' : 'نفذت الكمية') : (getLocale() === 'en' ? `Add to bag — ${formatPrice(p.price)}` : `أضف للسلة - ${Math.round(p.price)} ج.م`)}</button>
-    </div>`;
+        <button class="pd-add-cart" id="addToCartBtn" type="button" ${p.stock <= 0 ? 'disabled style="opacity:.5;cursor:not-allowed"' : ''}>
+            <i class="fas fa-shopping-bag"></i> <span>${p.stock <= 0 ? (getLocale() === 'en' ? 'Out of stock' : 'نفذت') : (getLocale() === 'en' ? 'Add' : 'أضف للسلة')}</span>
+        </button>
+        <button class="pd-buy-now" id="buyNowBtn" type="button" ${p.stock <= 0 ? 'disabled style="opacity:.5;cursor:not-allowed"' : ''}>
+            <i class="fas fa-bolt"></i> <span>${p.stock <= 0 ? (getLocale() === 'en' ? 'Sold out' : 'غير متوفر') : (getLocale() === 'en' ? `Buy now — ${formatPrice(p.price)}` : `شراء الآن — ${Math.round(p.price)} ج.م`)}</span>
+        </button>
+    </div>
+    <div id="pdToast" class="pd-toast-msg" style="display:none"></div>`;
 
     let qty = 1;
     const qtyEl = document.getElementById('qtyVal');
     document.getElementById('qtyMinus').addEventListener('click', () => { qty = Math.max(1, qty - 1); qtyEl.textContent = qty; });
     document.getElementById('qtyPlus').addEventListener('click', () => { qty = qty + 1; qtyEl.textContent = qty; });
+
+    const showToast = (html) => {
+        const toast = document.getElementById('pdToast');
+        if (!toast) return;
+        toast.innerHTML = html;
+        toast.style.display = 'flex';
+        clearTimeout(window.__pdToastTimer);
+        window.__pdToastTimer = setTimeout(() => { toast.style.display = 'none'; }, 4000);
+    };
+
     document.getElementById('addToCartBtn').addEventListener('click', function () {
         if (p.stock <= 0) return;
         window.Cart.add({ id: p.id, name: p.name + (p.size ? ' - ' + p.size : ''), image: p.image_url, price: p.price }, qty);
         const original = this.innerHTML;
-        this.innerHTML = getLocale() === 'en' ? '<i class="fas fa-check"></i> Added to bag' : '<i class="fas fa-check"></i> تمت الإضافة للسلة';
+        this.innerHTML = getLocale() === 'en' ? '<i class="fas fa-check"></i> Added' : '<i class="fas fa-check"></i> تم الحفظ';
         setTimeout(() => { this.innerHTML = original; }, 1500);
+        const msg = getLocale() === 'en'
+            ? '<span>✓ Added to bag!</span> <a href="/checkout.html" style="color:#D8B559;font-weight:800;text-decoration:underline">Checkout →</a>'
+            : '<span>✓ تمت الإضافة بنجاح!</span> <a href="/checkout.html" style="color:#D8B559;font-weight:800;text-decoration:underline;margin-inline-start:8px">إتمام الطلب الآن ←</a>';
+        showToast(msg);
+    });
+
+    document.getElementById('buyNowBtn')?.addEventListener('click', function () {
+        if (p.stock <= 0) return;
+        window.Cart.add({ id: p.id, name: p.name + (p.size ? ' - ' + p.size : ''), image: p.image_url, price: p.price }, qty);
+        window.location.href = '/checkout.html';
     });
 
     try {

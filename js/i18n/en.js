@@ -356,7 +356,7 @@ export const UI_STRINGS = {
     govLoadError: 'Could not load governorates',
     paymentTitle: 'Payment method',
     cod: 'Cash on delivery',
-    codSub: 'Pay in cash on delivery — no deposit',
+    codSub: 'Pay in cash on delivery — quick phone confirmation to dispatch shipment',
     wallet: 'Mobile wallet / InstaPay',
     walletSub: 'Transfer the full order amount',
     card: 'Credit card / Meeza',

@@ -329,6 +329,10 @@
             <select id="governorateSelect"><option value="">جارٍ تحميل المحافظات…</option></select>
             <span class="ck-gov-cost" id="govCost"></span>
         </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#55436B;font-weight:600;margin-top:12px;padding:8px 12px;background:#FAF8F5;border-radius:10px;">
+            <i class="fas fa-truck-fast" style="color:#9275A4"></i>
+            <span>توصيل سريع خلال 24–48 ساعة عبر شركة بوسطة (Bosta) · مع حق المعاينة عند الاستلام</span>
+        </div>
     </div>
 
     <!-- Payment -->
@@ -337,7 +341,7 @@
         <div class="ck-payment-option selected" data-method="cod">
             <div class="ck-address-radio"><i class="fas fa-check-circle"></i></div>
             <div class="ck-payment-icon"><i class="fas fa-money-bill-wave"></i></div>
-            <span>الدفع عند الاستلام <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:500">كاش عند الاستلام — بدون مقدّم</small></span>
+            <span>الدفع عند الاستلام <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:500">كاش عند الاستلام — تأكيد تليفوني سريع لحجز شحنتك</small></span>
         </div>
         <div class="ck-payment-option" data-method="wallet">
             <div class="ck-address-radio"><i class="far fa-circle"></i></div>
@@ -695,7 +699,17 @@ function renderSummary() {
     if (bottomBar) bottomBar.style.display = '';
     if (!itemsEl) return;
 
-    itemsEl.innerHTML = items.map((it) => {
+    
+    const totalCount = items.reduce((s, i) => s + (Number(i.qty) || 1), 0);
+    const getsFree = cartGetsFreeShipping(items);
+    let nudgeHtml = '';
+    if (getsFree) {
+        nudgeHtml = '<div class="ck-shipping-nudge" style="background:rgba(39,174,96,0.08);border:1.5px solid #27ae60;border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13px;font-weight:700;color:#27ae60;display:flex;align-items:center;gap:8px;"><i class="fas fa-check-circle"></i><span>مبروك! طلبيتك مؤهلة للشحن المجاني هدية 🎁</span></div>';
+    } else if (totalCount < 3) {
+        const needed = 3 - totalCount;
+        nudgeHtml = '<div class="ck-shipping-nudge" style="background:rgba(216,181,89,0.12);border:1.5px dashed #D8B559;border-radius:12px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;"><div style="font-size:13px;font-weight:700;color:#2D1B3D;"><i class="fas fa-gift" style="color:#D8B559;margin-inline-end:6px"></i><span>أضيفي <strong>' + needed + '</strong> ' + (needed === 1 ? 'منتج إضافي' : 'منتجات') + ' واحصلي على <strong>شحن مجاني</strong>!</span></div><a href="' + shopHref + '" style="background:#D8B559;color:#2D1B3D;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:800;text-decoration:none;white-space:nowrap">+ إضافة</a></div>';
+    }
+    itemsEl.innerHTML = nudgeHtml + items.map((it) => {
         const idAttr = encodeURIComponent(String(it.id));
         return `
         <div class="ck-item" data-id="${idAttr}">
