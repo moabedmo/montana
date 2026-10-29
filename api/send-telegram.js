@@ -60,6 +60,8 @@ async function firePurchaseTracking(req, body) {
       customerPhone: body.customer_phone || body.phone,
       city: body.city || body.governorate,
       email: body.customer_email || body.email,
+      notes: body.notes,
+      isTest: body.is_test,
       eventSourceUrl: body.event_source_url || 'https://www.montana.com.eg/checkout.html',
       clientIp: getClientIp(req),
       userAgent: req.headers?.['user-agent'] || req.headers?.['User-Agent'],
@@ -67,6 +69,7 @@ async function firePurchaseTracking(req, body) {
       fbc: body.fbc,
     });
     if (!r?.ok) console.error('Meta Purchase (server) soft-fail:', JSON.stringify(r));
+    else if (r?.skipped) console.log('Meta Purchase (server) skipped:', `purchase-${orderId}`, r.reason);
     else console.log('Meta Purchase (server) ok:', `purchase-${orderId}`, 'value:', realTotal);
   } catch (err) {
     console.error('Meta Purchase (server) exception:', err?.message || err);

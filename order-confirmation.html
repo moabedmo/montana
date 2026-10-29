@@ -114,9 +114,13 @@ function renderConfirmation() {
   const addrSep = isEn ? ', ' : '، ';
 
   // Meta Purchase — fires for COD/wallet after order row exists (not Paymob-only).
-  // event_id = purchase-${order.id}; sessionStorage guard prevents refresh duplicates.
+  // Guards: localStorage + sessionStorage + DB meta_purchase_sent_at prevent refresh/revisit duplicates.
   try {
-    window.MontanaMeta?.trackPurchaseOnce?.(order, items);
+    if (!saved.order.meta_tracked) {
+      window.MontanaMeta?.trackPurchaseOnce?.(order, items);
+      saved.order.meta_tracked = true;
+      try { sessionStorage.setItem('montana_last_order', JSON.stringify(saved)); } catch (_) {}
+    }
   } catch (_) { /* ignore */ }
 
   page.innerHTML = `

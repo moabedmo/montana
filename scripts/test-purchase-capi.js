@@ -86,7 +86,8 @@ async function main() {
     payment_method: 'cod',
     content_ids: ['whitening-cream'],
     items: [{ id: 3, slug: 'whitening-cream', qty: 1, price: 249 }],
-    event_source_url: `${SITE}/checkout.html`,
+    is_test: true,
+    notes: `purchase-capi-test-${label}`,
   });
   console.log('send-telegram', tg1.status, tg1.json);
   assert(tg1.status === 200 && tg1.json.ok, 'telegram notify failed');

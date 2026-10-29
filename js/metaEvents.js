@@ -220,8 +220,9 @@
 
   function onceGuard(key) {
     try {
-      if (sessionStorage.getItem(key)) return false;
+      if (sessionStorage.getItem(key) || localStorage.getItem(key)) return false;
       sessionStorage.setItem(key, '1');
+      localStorage.setItem(key, '1');
       return true;
     } catch (_) {
       if (window.__montanaMetaOnce && window.__montanaMetaOnce[key]) return false;
@@ -335,12 +336,22 @@
 
   async function trackPurchaseOnce(order, items) {
     if (!order) return null;
-    const orderId = order.id || order.order_id;
+    const orderId = order.id || order.order_id || (order.order_number && String(order.order_number).replace(/\D/g, ''));
     if (!orderId) {
       console.error('Meta Purchase skipped: missing order.id');
       return null;
     }
     if (!onceGuard(`meta_purchase_${orderId}`)) return null;
+
+    // Skip test orders if no test event code is configured to prevent polluting real metrics
+    const isTest =
+      /test|تجريب|capi/i.test(order.notes || '') ||
+      /test|تجريب|capi/i.test(order.customer_name || order.name || '') ||
+      (order.customer_phone && /01012345678|01000000000/.test(String(order.customer_phone).replace(/\D/g, '')));
+    if (isTest && !window.FB_TEST_EVENT_CODE) {
+      console.log('Meta Purchase skipped on browser: test order without FB_TEST_EVENT_CODE');
+      return null;
+    }
 
     const lineItems = Array.isArray(items) ? items : (order.items || []);
     const contentIds = lineItems
