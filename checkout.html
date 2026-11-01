@@ -442,6 +442,15 @@
         <i class="fas fa-check"></i> تأكيد الطلب
     </button>
 </div>
+
+    <div style="background:rgba(216,181,89,0.12);border:1.5px solid #D8B559;border-radius:14px;padding:14px 18px;margin:16px 0;text-align:center;">
+        <div style="font-size:14.5px;font-weight:800;color:#2D1F35;margin-bottom:4px;">
+            📞 ستقوم خدمة العملاء بالتواصل معكِ هاتفياً لتأكيد موعد التوصيل
+        </div>
+        <div style="font-size:12.5px;color:#5A4B62;">
+            معاينة وفحص الشحنة عند الاستلام قبل دفع أي مبلغ للمندوب · الدفع كاش عند الاستلام
+        </div>
+    </div>
 <p class="ck-submit-err" id="submitErr" role="alert"></p>
 
 <div class="ck-success-panel" id="ckSuccessPanel" aria-live="polite">
@@ -1138,5 +1147,35 @@ renderSummary();
 loadPromo().then(renderSummary);
 </script>
 <script type="module" src="js/site-settings.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        const raw = sessionStorage.getItem('qo_prefill');
+        if (raw) {
+            const data = JSON.parse(raw);
+            if (data.name && document.getElementById('custName')) document.getElementById('custName').value = data.name;
+            if (data.phone && document.getElementById('custPhone')) document.getElementById('custPhone').value = data.phone;
+            if (data.addr && document.getElementById('custAddress')) document.getElementById('custAddress').value = data.addr;
+            if (data.gov && document.getElementById('governorateSelect')) {
+                const sel = document.getElementById('governorateSelect');
+                const setGov = () => {
+                    for (let i = 0; i < sel.options.length; i++) {
+                        if (sel.options[i].value === data.gov || sel.options[i].text.includes(data.gov)) {
+                            sel.selectedIndex = i;
+                            sel.dispatchEvent(new Event('change'));
+                            break;
+                        }
+                    }
+                };
+                setGov();
+                setTimeout(setGov, 600);
+            }
+            sessionStorage.removeItem('qo_prefill');
+        }
+    } catch (_) {}
+});
+</script>
+
 </body>
 </html>
