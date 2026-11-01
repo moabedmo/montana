@@ -554,7 +554,7 @@
       }
       .lux-routines-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 30px;
       }
       .lux-routine-card {
@@ -976,6 +976,9 @@
       }
 
       /* === RESPONSIVE BREAKPOINTS === */
+      @media (max-width: 1100px) {
+        .lux-routines-grid { grid-template-columns: repeat(2, 1fr); }
+      }
       @media (max-width: 1024px) {
         .lux-products-grid {
           grid-template-columns: repeat(3, 1fr);
@@ -1270,6 +1273,45 @@
                     </div>
                 </div>
             </article>
+
+            <!-- Routine 3: Face & Body Care Routine -->
+            <article class="lux-routine-card">
+                <div class="lux-routine-banner">
+                    <span class="lux-routine-pill">عناية متكاملة للوجه والجسم</span>
+                    <span class="lux-routine-shipping"><i class="fas fa-truck-fast"></i> شحن مجاني هدية</span>
+                </div>
+                <div class="lux-routine-body">
+                    <h3 class="lux-routine-title">روتين نضارة الوجه وترطيب الجسم</h3>
+                    <p class="lux-routine-desc">تنظيف طبي عميق لمسام الوجه المعرضة للحبوب مع ترطيب مخملي مكثف لليدين والجسم يدوم 72 ساعة.</p>
+                    
+                    <div class="lux-steps-list">
+                        <div class="lux-step-item">
+                            <div class="lux-step-num">1</div>
+                            <div class="lux-step-info">
+                                <h5>غسول الوجه وحب الشباب (200 مل)</h5>
+                                <p>تنقية المسام من الإفرازات الدهنية بحمض الساليسيليك دون التسبب في جفاف</p>
+                            </div>
+                        </div>
+                        <div class="lux-step-item">
+                            <div class="lux-step-num">2</div>
+                            <div class="lux-step-info">
+                                <h5>لوشن اليدين والجسم 72h (50 مل)</h5>
+                                <p>ترطيب مخملي فائق النعومة بزبدة الكاكاو والجوجوبا وفيتامين E للجسم</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="lux-routine-footer">
+                        <div class="lux-price-tag">
+                            <div class="lux-price-current">558 <span>جنيه</span></div>
+                            <div class="lux-price-orig">بدون مصاريف شحن</div>
+                        </div>
+                        <button class="btn-add-routine" onclick="handleOrderRoutine('face-body')">
+                            <i class="fas fa-shopping-bag"></i> اطلبي العرض (شحن مجاني)
+                        </button>
+                    </div>
+                </div>
+            </article>
         </div>
     </div>
 </section>
@@ -1543,6 +1585,9 @@ function handleOrderRoutine(type) {
             // Post laser bundle: P5 (Post Laser Cream), P2 (Whitening Cream)
             window.Cart.add({ id: 5, name: 'كريم ما بعد الليزر (ضمن الروتين)', price: 345, image: 'images/p5-premium.webp' }, 1, { skipMeta: true });
             window.Cart.add({ id: 2, name: 'كريم التفتيح (ضمن الروتين)', price: 273, image: 'images/p2-premium.webp' }, 1, { skipMeta: true });
+        } else if (type === 'face-body') {
+            window.Cart.add({ id: 1, name: 'غسول حب الشباب (ضمن الروتين)', price: 299, image: 'images/p1-premium.webp' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 4, name: 'لوشن اليدين والجسم (ضمن الروتين)', price: 259, image: 'images/p4-premium.webp' }, 1, { skipMeta: true });
         }
         updateBadges();
         window.location.href = 'checkout.html';

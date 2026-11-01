@@ -302,7 +302,7 @@
       /* === ROUTINES GRID === */
       .shop-routines-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 24px;
         margin-bottom: 50px;
       }
@@ -707,6 +707,31 @@
                 </div>
             </div>
         </article>
+
+        <!-- Routine 3: Face & Body Routine -->
+        <article class="shop-routine-card" data-cat="bundles">
+            <div class="shop-routine-top">
+                <span>🌿 عناية كاملة للوجه والجسم</span>
+                <span>شحن Free هدية</span>
+            </div>
+            <div class="shop-routine-body">
+                <h3 class="shop-routine-name">روتين نضارة الوجه وترطيب الجسم</h3>
+                <p class="shop-routine-desc">تنظيف طبي لمسام الوجه وتقليل الدهون والحبوب مع ترطيب حريري لليدين والجسم 72 ساعة.</p>
+                <div class="shop-routine-steps">
+                    <div class="shop-routine-step"><span class="step-dot">1</span><span>Acne Facial Cleanser الطبي (200 مل) — ساليسيليك وأرجان</span></div>
+                    <div class="shop-routine-step"><span class="step-dot">2</span><span>Hand & Body Lotion 72h (50 مل) — كاكاو وجوجوبا</span></div>
+                </div>
+                <div class="shop-routine-bottom">
+                    <div class="shop-price-box">
+                        <div class="shop-now-price">558 <span>جنيه</span></div>
+                        <div class="shop-orig-price">بدون مصاريف شحن</div>
+                    </div>
+                    <button class="btn-routine-buy" onclick="handleOrderRoutine('face-body')">
+                        <i class="fas fa-shopping-bag"></i> اطلبي العرض (شحن Free)
+                    </button>
+                </div>
+            </div>
+        </article>
     </div>
 </section>
 
@@ -867,6 +892,9 @@ function handleOrderRoutine(type) {
         } else if (type === 'post-laser') {
             window.Cart.add({ id: 5, name: 'كريم ما بعد الليزر (ضمن الروتين)', price: 345, image: 'images/p5-premium.webp' }, 1, { skipMeta: true });
             window.Cart.add({ id: 2, name: 'كريم التفتيح (ضمن الروتين)', price: 273, image: 'images/p2-premium.webp' }, 1, { skipMeta: true });
+        } else if (type === 'face-body') {
+            window.Cart.add({ id: 1, name: 'Acne Facial Cleanser (ضمن الروتين)', price: 299, image: 'images/p1-premium.webp' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 4, name: 'Hand & Body Lotion (ضمن الروتين)', price: 259, image: 'images/p4-premium.webp' }, 1, { skipMeta: true });
         }
         updateBadges();
         window.location.href = 'checkout.html';
