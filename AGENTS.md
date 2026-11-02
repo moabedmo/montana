@@ -141,11 +141,7 @@ existing `api/*.js`, never add a file) and 2 cron jobs (both used).
 
 ## Decisions the owner has made — do not "fix" these
 
-- **The bot never asks for money.** A staff member phones the customer for a
-  200 EGP confirmation payment. The bot must not mention it *and must not deny
-  it* — denying it made a real call look like a scam. If a customer asks about a
-  call demanding money, the bot asks which number rang her and checks it against
-  `CS_SUPPORT_PHONE` (`01210021115`).
+- **No deposit / 100% Cash on Delivery:** The 200 EGP confirmation deposit was completely abolished by the owner. All orders are 100% Cash on Delivery upon inspection. The bot clearly reassures customers asking about payment that payment is COD with zero deposit or upfront fee. If a customer asks about a suspicious phone call demanding money, the bot asks which number rang her and checks it against `CS_SUPPORT_PHONE` (`01210021115`).
 - **Order problems go straight to a human.** "الأوردر موصلش", "مشكلة في الأوردر",
   late/wrong/missing/returned → hand over the support number, no phone lookup, no
   selling. `needsHuman: true`.
