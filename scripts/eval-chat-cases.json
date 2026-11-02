@@ -862,6 +862,17 @@
       "expect": {
         "botSilent": true
       }
+    },
+    {
+      "id": "om-yara-zagazig-delivery",
+      "notes": "Customer asked for cream, then asked delivery to Zagazig. Bot must quote Sharkia/Zagazig 65 EGP instead of generic routine policy dump.",
+      "steps": [
+        "لو الكريم بس",
+        "توصيل الزقازيق كام"
+      ],
+      "expect": {
+        "namedGovShipping": true
+      }
     }
   ]
 }
