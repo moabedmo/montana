@@ -404,7 +404,8 @@
                         <p style="color:var(--text-muted,#64748b);font-size:13px;margin-top:4px;">راقب محادثات العملاء لحظياً عبر إنستجرام، فيسبوك، واتساب والموقع، وعلّم البوت الرد الصح بضغطة واحدة لأي رد مش عاجبك.</p>
                     </div>
                     <div style="display:flex;gap:8px;align-items:center;">
-                        <button class="btn-primary" type="button" onclick="loadBotConversations()"><i class="fas fa-sync-alt" id="botRefreshIcon"></i> تحديث المحادثات</button>
+                        <button class="btn-primary" style="background:linear-gradient(135deg, #10b981, #059669);border-color:#10b981;" type="button" onclick="triggerAiBotScan()"><i class="fas fa-brain"></i> فحص وتحليل ذكي لآخر 20 محادثة (AI Scan)</button>
+                        <button class="btn-primary btn-outline" type="button" onclick="loadBotConversations()"><i class="fas fa-sync-alt" id="botRefreshIcon"></i> تحديث المحادثات</button>
                         <button class="btn-primary btn-outline" type="button" onclick="openNewRuleModal()"><i class="fas fa-plus"></i> إضافة توجيه للبوت</button>
                     </div>
                 </div>

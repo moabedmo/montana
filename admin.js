@@ -2265,3 +2265,162 @@ async function toggleCurrentSessionPause() {
         toast('خطأ: ' + e.message, 'error');
     }
 }
+
+
+// ===== AI BOT DEEP SCAN & OPTIMIZATION =====
+async function triggerAiBotScan(count = 20) {
+    const loadingHtml = `
+        <div style="text-align:center;padding:40px 20px;direction:rtl;">
+            <div style="font-size:48px;color:#10b981;margin-bottom:16px;">
+                <i class="fas fa-brain fa-spin"></i>
+            </div>
+            <h3 style="font-size:18px;color:#1e293b;margin-bottom:8px;">جاري الفحص الذكي لآخر ${count} محادثة...</h3>
+            <p style="font-size:13px;color:#64748b;max-width:380px;margin:0 auto 16px;line-height:1.6;">
+                الذكاء الاصطناعي يقرأ حالياً حوارات العملاء بالكامل، ويحلل أسباب التردد، ويستخرج أفضل التوصيات لزيادة نسبة المبيعات.
+            </p>
+            <div style="width:200px;height:6px;background:#e2e8f0;border-radius:3px;margin:0 auto;overflow:hidden;">
+                <div style="width:60%;height:100%;background:#10b981;animation:indeterminate 1.5s infinite linear;"></div>
+            </div>
+        </div>
+    `;
+    openModal('فحص وتحليل ذكاء البوت (AI Deep Scan)', loadingHtml);
+
+    try {
+        const hdrs = await authHeaders();
+        const res = await fetch(`/api/integrations-status?action=bot-ai-deep-scan&count=${count}`, { headers: hdrs });
+        const data = await res.json();
+
+        if (!data.ok || !data.report) {
+            const errHtml = `
+                <div style="text-align:center;padding:30px;direction:rtl;">
+                    <div style="font-size:40px;color:#ef4444;margin-bottom:12px;"><i class="fas fa-exclamation-triangle"></i></div>
+                    <h3 style="color:#1e293b;font-size:16px;">تعذر إتمام الفحص الذكي</h3>
+                    <p style="color:#64748b;font-size:13px;margin:6px 0 16px;">${escapeHtml(data.error || 'خطأ غير معروف')}</p>
+                    <button class="btn-primary" onclick="triggerAiBotScan(${count})"><i class="fas fa-sync-alt"></i> إعادة المحاولة</button>
+                </div>
+            `;
+            openModal('فحص وتحليل ذكاء البوت', errHtml);
+            return;
+        }
+
+        const rep = data.report;
+        const metrics = rep.metrics || {};
+        const dropoffs = rep.topDropoffReasons || [];
+        const recs = rep.recommendations || [];
+
+        const reportHtml = `
+            <div style="display:flex;flex-direction:column;gap:16px;direction:rtl;text-align:right;max-height:80vh;overflow-y:auto;padding-left:4px;">
+                <!-- Summary Card -->
+                <div style="background:linear-gradient(135deg, #f0fdf4, #f8fafc);border:1px solid #bbf7d0;border-radius:10px;padding:16px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+                        <h4 style="margin:0;font-size:15px;color:#166534;"><i class="fas fa-chart-pie"></i> ملخص فحص ${metrics.totalScanned || count} محادثة أخيرة</h4>
+                        <div style="display:flex;gap:6px;">
+                            <span class="badge" style="background:#dcfce7;color:#15803d;font-size:12px;">معدل التحويل: <strong>${metrics.conversionRate || '—'}</strong></span>
+                            <span class="badge" style="background:#e0e7ff;color:#4338ca;font-size:12px;">أوردرات مكتملة: <strong>${metrics.convertedCount || 0}</strong></span>
+                        </div>
+                    </div>
+                    <p style="margin:0;font-size:13px;color:#334155;line-height:1.6;">${escapeHtml(rep.overview || '')}</p>
+                </div>
+
+                <!-- Drop-off Reasons -->
+                ${dropoffs.length ? `
+                    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:14px;">
+                        <h4 style="margin:0 0 8px;font-size:13.5px;color:#991b1b;"><i class="fas fa-user-slash"></i> أبرز أسباب تردد العملاء وعدم الشراء:</h4>
+                        <ul style="margin:0;padding-right:20px;font-size:12.5px;color:#7f1d1d;line-height:1.6;">
+                            ${dropoffs.map(d => `<li style="margin-bottom:4px;">${escapeHtml(d)}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+
+                <!-- Recommendations with One-Click Activation -->
+                <div>
+                    <h4 style="margin:0 0 10px;font-size:14px;color:#1e293b;"><i class="fas fa-lightbulb" style="color:#eab308;"></i> اقتراحات وتعديلات ذكية للبوت (اضغط لاعتماد أي توجيه فوراً):</h4>
+                    <div style="display:flex;flex-direction:column;gap:12px;">
+                        ${recs.map(rec => {
+                            const encTitle = encodeURIComponent(rec.title || 'توجيه ذكي');
+                            const encRule = encodeURIComponent(rec.suggestedRule || '');
+                            const encNote = encodeURIComponent(rec.problemObserved || '');
+
+                            return `
+                                <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);display:flex;flex-direction:column;gap:8px;">
+                                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+                                        <strong style="font-size:13.5px;color:#0f172a;">${escapeHtml(rec.title)}</strong>
+                                        <span class="badge" style="background:#f1f5f9;color:#475569;font-size:11px;">${escapeHtml(rec.category || 'تطوير البيع')}</span>
+                                    </div>
+                                    <div style="font-size:12px;color:#64748b;line-height:1.5;">
+                                        <strong>المشكلة المرصودة:</strong> ${escapeHtml(rec.problemObserved)}
+                                    </div>
+                                    <div style="background:#f8fafc;border-right:3px solid #10b981;padding:8px 12px;border-radius:4px;font-size:12.5px;color:#15803d;line-height:1.5;">
+                                        <strong>التوجيه والرد المقترح:</strong> "${escapeHtml(rec.suggestedRule)}"
+                                    </div>
+                                    <div style="display:flex;justify-content:flex-end;margin-top:4px;">
+                                        <button class="btn-primary" style="background:#10b981;border-color:#10b981;font-size:12px;padding:6px 14px;" onclick="activateSuggestedRule(this, '${encTitle}', '${encRule}', '${encNote}')">
+                                            <i class="fas fa-check"></i> موافق - تفعيل في البوت فوراً 🚀
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+
+                <div style="display:flex;justify-content:flex-end;margin-top:10px;">
+                    <button class="btn-primary btn-outline" type="button" onclick="closeModal()">إغلاق التقرير</button>
+                </div>
+            </div>
+        `;
+        openModal('تقرير الفحص الذكي واقتراحات التحسين', reportHtml);
+
+    } catch (e) {
+        openModal('فحص ذكاء البوت', `<div style="text-align:center;padding:30px;color:#ef4444;">حدث خطأ: ${e.message}</div>`);
+    }
+}
+
+async function activateSuggestedRule(btn, encTitle, encRule, encNote) {
+    const title = decodeURIComponent(encTitle);
+    const idealReply = decodeURIComponent(encRule);
+    const ruleNote = decodeURIComponent(encNote);
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التفعيل...';
+    }
+
+    try {
+        const hdrs = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=bot-correction-save', {
+            method: 'POST',
+            headers: hdrs,
+            body: JSON.stringify({
+                customerQuery: title,
+                idealReply: idealReply,
+                ruleNote: ruleNote,
+                sessionId: 'ai-scan-auto'
+            })
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            toast('تم تفعيل التوجيه في عقل البوت بنجاح! سيتم اعتماده في كل المحادثات القادمة.');
+            if (btn) {
+                btn.style.background = '#dcfce7';
+                btn.style.borderColor = '#86efac';
+                btn.style.color = '#15803d';
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> تم التفعيل في عقل البوت لايف ✅';
+            }
+            loadBotRules();
+        } else {
+            toast('فشل التفعيل: ' + (data.error || 'خطأ غير معروف'), 'error');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-redo"></i> إعادة المحاولة';
+            }
+        }
+    } catch (err) {
+        toast('خطأ في الاتصال: ' + err.message, 'error');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-redo"></i> إعادة المحاولة';
+        }
+    }
+}

@@ -565,7 +565,8 @@ module.exports = async (req, res) => {
     action === 'bot-corrections-list' ||
     action === 'bot-correction-save' ||
     action === 'bot-correction-delete' ||
-    action === 'bot-pause-toggle'
+    action === 'bot-pause-toggle' ||
+    action === 'bot-ai-deep-scan'
   ) {
     try {
       const {
@@ -574,7 +575,14 @@ module.exports = async (req, res) => {
         getBotLearnedRules,
         saveBotCorrection,
         deleteBotCorrection,
+        scanAndAnalyzeRecentConversations,
       } = require('../lib/botMonitor');
+
+      if (action === 'bot-ai-deep-scan') {
+        const count = Number(url.searchParams.get('count') || req.body?.count || 20);
+        const resData = await scanAndAnalyzeRecentConversations({ count });
+        return res.json(resData);
+      }
 
       if (action === 'bot-conversations-list') {
         const limit = Number(url.searchParams.get('limit') || req.body?.limit || 50);
