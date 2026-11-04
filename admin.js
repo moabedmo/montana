@@ -2308,6 +2308,17 @@ async function triggerAiBotScan(count = 20) {
         const dropoffs = rep.topDropoffReasons || [];
         const recs = rep.recommendations || [];
 
+        // Store globally to avoid quote escaping issues in HTML
+        window.__lastAiRecs = recs;
+
+        // Fetch currently saved rules to show which ones are already active
+        let activeRulesList = [];
+        try {
+            const rulesRes = await fetch('/api/integrations-status?action=bot-corrections-list', { headers: hdrs });
+            const rulesData = await rulesRes.json();
+            if (rulesData.ok) activeRulesList = rulesData.rules || [];
+        } catch (_) {}
+
         const reportHtml = `
             <div style="display:flex;flex-direction:column;gap:16px;direction:rtl;text-align:right;max-height:80vh;overflow-y:auto;padding-left:4px;">
                 <!-- Summary Card -->
@@ -2336,10 +2347,8 @@ async function triggerAiBotScan(count = 20) {
                 <div>
                     <h4 style="margin:0 0 10px;font-size:14px;color:#1e293b;"><i class="fas fa-lightbulb" style="color:#eab308;"></i> اقتراحات وتعديلات ذكية للبوت (اضغط لاعتماد أي توجيه فوراً):</h4>
                     <div style="display:flex;flex-direction:column;gap:12px;">
-                        ${recs.map(rec => {
-                            const encTitle = encodeURIComponent(rec.title || 'توجيه ذكي');
-                            const encRule = encodeURIComponent(rec.suggestedRule || '');
-                            const encNote = encodeURIComponent(rec.problemObserved || '');
+                        ${recs.map((rec, idx) => {
+                            const isAlreadyActive = activeRulesList.some(r => r.customerQuery === rec.title);
 
                             return `
                                 <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);display:flex;flex-direction:column;gap:8px;">
@@ -2354,9 +2363,15 @@ async function triggerAiBotScan(count = 20) {
                                         <strong>التوجيه والرد المقترح:</strong> "${escapeHtml(rec.suggestedRule)}"
                                     </div>
                                     <div style="display:flex;justify-content:flex-end;margin-top:4px;">
-                                        <button class="btn-primary" style="background:#10b981;border-color:#10b981;font-size:12px;padding:6px 14px;" onclick="activateSuggestedRule(this, '${encTitle}', '${encRule}', '${encNote}')">
-                                            <i class="fas fa-check"></i> موافق - تفعيل في البوت فوراً 🚀
-                                        </button>
+                                        ${isAlreadyActive ? `
+                                            <span style="background:#dcfce7;border:1px solid #86efac;color:#15803d;font-weight:700;font-size:12px;padding:6px 14px;border-radius:6px;">
+                                                <i class="fas fa-check-circle"></i> تم التفعيل في عقل البوت لايف ✅
+                                            </span>
+                                        ` : `
+                                            <button class="btn-primary" style="background:#10b981;border-color:#10b981;font-size:12px;padding:6px 14px;" onclick="activateSuggestedRuleByIndex(this, ${idx})">
+                                                <i class="fas fa-check"></i> موافق - تفعيل في البوت فوراً 🚀
+                                            </button>
+                                        `}
                                     </div>
                                 </div>
                             `;
@@ -2376,14 +2391,20 @@ async function triggerAiBotScan(count = 20) {
     }
 }
 
-async function activateSuggestedRule(btn, encTitle, encRule, encNote) {
-    const title = decodeURIComponent(encTitle);
-    const idealReply = decodeURIComponent(encRule);
-    const ruleNote = decodeURIComponent(encNote);
+async function activateSuggestedRuleByIndex(btn, idx) {
+    const rec = (window.__lastAiRecs || [])[idx];
+    if (!rec) {
+        toast('تعذر تحديد التوجيه', 'error');
+        return;
+    }
+
+    const title = rec.title || 'توجيه ذكي';
+    const idealReply = rec.suggestedRule || '';
+    const ruleNote = rec.problemObserved || '';
 
     if (btn) {
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التفعيل...';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التفعيل في عقل البوت...';
     }
 
     try {
