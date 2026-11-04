@@ -198,7 +198,9 @@ module.exports = async (req, res) => {
       message,
       formSubmit,
       channel: channelHint,
-      selectedBundle: hasBundle ? String(bundleKeyRaw).trim() : null,
+      selectedBundle: hasBundle
+        ? String(bundleKeyRaw).trim()
+        : (channelOf(sid) !== 'web' && !hasProduct ? 'brightening' : null),
       selectedProduct: hasProduct ? String(productKeyRaw).trim() : null,
       adTitle: hasAdTitle ? String(adTitleRaw).trim() : null,
       pauseBot,
