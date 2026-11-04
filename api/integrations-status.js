@@ -581,6 +581,32 @@ module.exports = async (req, res) => {
     }
   }
 
+  // Bosta E-Wallet Balance, Payout Schedules & Telegram Alerts
+  if (action === 'bosta-finance' || action === 'bosta-record-payout') {
+    try {
+      const { getBostaFinanceSummary, recordBostaPayout } = require('../lib/bostaFinance');
+      const authHeader = req.headers.authorization?.replace(/^Bearer\s+/i, '') || '';
+
+      if (action === 'bosta-record-payout') {
+        const body = req.body || {};
+        const result = await recordBostaPayout({
+          amount: body.amount,
+          bankName: body.bankName,
+          referenceNumber: body.referenceNumber,
+          notes: body.notes,
+          bearerToken: authHeader,
+        });
+        return res.json(result);
+      }
+
+      const summary = await getBostaFinanceSummary(authHeader);
+      return res.json(summary);
+    } catch (e) {
+      console.error('[bosta-finance]', e);
+      return res.status(500).json({ ok: false, error: e.message || 'error' });
+    }
+  }
+
   // Montaña AI Bot Live Inspector & Correction Trainer
   if (
     action === 'bot-conversations-list' ||

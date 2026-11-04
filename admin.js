@@ -130,6 +130,113 @@ async function loadDashboard() {
     `).join('') : '<p class="empty">لا توجد طلبات بعد</p>';
 
     loadLowStockAlerts();
+    loadAdminBostaFinance();
+}
+
+async function loadAdminBostaFinance() {
+    try {
+        const hdrs = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=bosta-finance', { headers: hdrs });
+        const d = await res.json();
+
+        if (d.ok && d.wallet) {
+            const w = d.wallet;
+            const s = d.schedule || {};
+
+            const elAvail = document.getElementById('adminBostaAvailableBalance');
+            if (elAvail) elAvail.textContent = (w.currentAvailableBalance || 0).toLocaleString('ar-EG') + ' ج.م';
+
+            const elInTransit = document.getElementById('adminBostaInTransitAmount');
+            if (elInTransit) elInTransit.textContent = (w.inTransitAmount || 0).toLocaleString('ar-EG') + ' ج.م';
+
+            const elHint = document.getElementById('adminBostaScheduleHint');
+            if (elHint) elHint.textContent = `دورية التحويل: ${s.frequency || 'أسبوعي (كل أربعاء)'} · موعد الصرف: ${s.timing || s.nextDate || 'الأربعاء القادم'}`;
+        }
+    } catch (err) {
+        console.error('loadAdminBostaFinance error:', err);
+    }
+}
+
+function openAdminBostaPayoutModal() {
+    const html = `
+        <div style="direction:rtl;text-align:right;">
+            <p style="font-size:13px;color:#475569;margin-bottom:14px;line-height:1.5;">
+                سجل أي تحويل بنكي وصل من شركة بوسطة لحساب الشركة لتحديث رصيد المحفظة وإرسال إشعار لحظي للمالك على تليجرام.
+            </p>
+            <form onsubmit="submitAdminBostaPayout(event)" style="display:flex;flex-direction:column;gap:12px;">
+                <div>
+                    <label style="display:block;font-size:12.5px;font-weight:600;color:#334155;margin-bottom:4px;">المبلغ المحوّل للبنك (ج.م) *</label>
+                    <input type="number" id="admBpAmount" required min="1" step="1" placeholder="مثلاً: 5000" style="width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:14px;box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="display:block;font-size:12.5px;font-weight:600;color:#334155;margin-bottom:4px;">البنك المستلم *</label>
+                    <input type="text" id="admBpBank" required value="البنك الأهلي المصري (NBE)" style="width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="display:block;font-size:12.5px;font-weight:600;color:#334155;margin-bottom:4px;">رقم المعاملة / المرجع (اختياري)</label>
+                    <input type="text" id="admBpRef" placeholder="مثلاً: TXN-819204" style="width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="display:block;font-size:12.5px;font-weight:600;color:#334155;margin-bottom:4px;">ملاحظات التحويل</label>
+                    <input type="text" id="admBpNotes" value="تحويل دوري لأرباح شحنات بوسطة" style="width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;box-sizing:border-box;">
+                </div>
+                <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:10px;border-radius:6px;font-size:12px;color:#166534;line-height:1.5;">
+                    <i class="fab fa-telegram"></i> <strong>تنبيه فوري:</strong> سيصل إشعار فوري على تليجرام البوت (@Montanaeg_bot) بتفاصيل التحويل وتحديث الرصيد المتبقي.
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;">
+                    <button type="button" class="btn-primary btn-outline" onclick="closeModal()">إلغاء</button>
+                    <button type="submit" class="btn-primary" id="admBpSubmitBtn" style="background:#15803d;border-color:#15803d;">
+                        <i class="fas fa-check-circle"></i> تأكيد وحفظ وإرسال التنبيه
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
+    openModal('تسجيل تحويل بنكي مستلم من بوسطة', html);
+}
+
+async function submitAdminBostaPayout(e) {
+    if (e) e.preventDefault();
+    const btn = document.getElementById('admBpSubmitBtn');
+    const amount = Number(document.getElementById('admBpAmount')?.value) || 0;
+    const bankName = document.getElementById('admBpBank')?.value || 'البنك الأهلي المصري';
+    const referenceNumber = document.getElementById('admBpRef')?.value || '';
+    const notes = document.getElementById('admBpNotes')?.value || '';
+
+    if (amount <= 0) {
+        alert('يرجى إدخال مبلغ تحويل صحيح');
+        return;
+    }
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+    }
+
+    try {
+        const hdrs = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=bosta-record-payout', {
+            method: 'POST',
+            headers: hdrs,
+            body: JSON.stringify({ amount, bankName, referenceNumber, notes })
+        });
+        const d = await res.json();
+
+        if (d.ok) {
+            alert(d.message || 'تم تسجيل التحويل وإرسال تنبيه تليجرام بنجاح');
+            closeModal();
+            loadAdminBostaFinance();
+        } else {
+            alert(d.error || 'فشل تسجيل التحويل');
+        }
+    } catch (err) {
+        alert('خطأ: ' + err.message);
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-circle"></i> تأكيد وحفظ وإرسال التنبيه';
+        }
+    }
 }
 
 const LOW_STOCK_THRESHOLD = 50;

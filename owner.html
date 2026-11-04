@@ -60,6 +60,108 @@
             </a>
         </div>
 
+        <!-- ===== BOSTA E-WALLET & CASH TRANSFERS ===== -->
+        <div class="card owner-card-full" id="ownerBostaCard" style="margin-bottom:20px;background:linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);border:1px solid #bbf7d0;box-shadow:0 4px 15px rgba(22, 163, 74, 0.08);">
+            <div class="owner-docs-head" style="border-bottom:1px solid #dcfce7;padding-bottom:12px;margin-bottom:14px;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="background:#16a34a;color:#fff;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">
+                        <i class="fas fa-wallet"></i>
+                    </span>
+                    <div>
+                        <h3 style="margin:0;font-size:17px;color:#14532d;display:flex;align-items:center;gap:8px;">
+                            محفظة وأموال بوسطة (Bosta COD & Payouts)
+                            <span style="background:#22c55e;color:#fff;font-size:11px;padding:2px 8px;border-radius:12px;font-weight:600;">مباشر</span>
+                        </h3>
+                        <p style="margin:2px 0 0;font-size:12px;color:#166534;">متابعة التحصيل النقدي من مناديب الشحن ومواعيد تحويل الأرباح لحساب البنك وتنبيهات تليجرام</p>
+                    </div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                    <button type="button" class="btn-primary" style="background:#15803d;border-color:#15803d;padding:6px 14px;font-size:12.5px;" onclick="openRecordBostaPayoutModal()">
+                        <i class="fas fa-plus-circle"></i> تسجيل تحويل بنكي مستلم
+                    </button>
+                    <button type="button" class="btn-primary btn-outline" style="border-color:#16a34a;color:#15803d;padding:6px 12px;font-size:12.5px;" onclick="loadBostaFinanceData()">
+                        <i class="fas fa-sync-alt" id="bostaSyncIcon"></i> تحديث الرصيد
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Grid for Bosta -->
+            <div class="stats-grid" style="grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));gap:12px;margin-bottom:16px;">
+                <!-- Card 1: Available Balance -->
+                <div style="background:#fff;border:1px solid #bbf7d0;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;">
+                    <div style="width:46px;height:46px;border-radius:10px;background:#dcfce7;color:#16a34a;display:flex;align-items:center;justify-content:center;font-size:22px;">
+                        <i class="fas fa-sack-dollar"></i>
+                    </div>
+                    <div>
+                        <span style="font-size:12px;color:#4b5563;font-weight:500;">رصيد بوسطة الجاهز للتحويل</span>
+                        <h4 id="bostaAvailableBalance" style="margin:2px 0 0;font-size:20px;color:#15803d;font-weight:800;">... ج.م</h4>
+                        <span id="bostaDeliveredOrdersCount" style="font-size:11px;color:#6b7280;">من 0 طلب مسلّم</span>
+                    </div>
+                </div>
+
+                <!-- Card 2: Next Payout Timing -->
+                <div style="background:#fff;border:1px solid #fed7aa;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;">
+                    <div style="width:46px;height:46px;border-radius:10px;background:#ffedd5;color:#ea580c;display:flex;align-items:center;justify-content:center;font-size:22px;">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div>
+                        <span style="font-size:12px;color:#4b5563;font-weight:500;">دورية وموعد التحويل القادم</span>
+                        <h4 id="bostaNextPayoutDate" style="margin:2px 0 0;font-size:14.5px;color:#c2410c;font-weight:700;">أسبوعي (الأربعاء)</h4>
+                        <span id="bostaPayoutTimingHint" style="font-size:11px;color:#9a3412;">جاري الحساب...</span>
+                    </div>
+                </div>
+
+                <!-- Card 3: In Transit COD -->
+                <div style="background:#fff;border:1px solid #bfdbfe;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;">
+                    <div style="width:46px;height:46px;border-radius:10px;background:#dbeafe;color:#2563eb;display:flex;align-items:center;justify-content:center;font-size:22px;">
+                        <i class="fas fa-truck-fast"></i>
+                    </div>
+                    <div>
+                        <span style="font-size:12px;color:#4b5563;font-weight:500;">في الطريق مع المناديب (معلق)</span>
+                        <h4 id="bostaInTransitAmount" style="margin:2px 0 0;font-size:19px;color:#1d4ed8;font-weight:800;">... ج.م</h4>
+                        <span id="bostaInTransitCount" style="font-size:11px;color:#6b7280;">0 شحنة جاري تسليمها</span>
+                    </div>
+                </div>
+
+                <!-- Card 4: Total Transferred -->
+                <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;">
+                    <div style="width:46px;height:46px;border-radius:10px;background:#f1f5f9;color:#475569;display:flex;align-items:center;justify-content:center;font-size:22px;">
+                        <i class="fas fa-building-columns"></i>
+                    </div>
+                    <div>
+                        <span style="font-size:12px;color:#4b5563;font-weight:500;">إجمالي التحويلات المستلمة</span>
+                        <h4 id="bostaTotalDeposited" style="margin:2px 0 0;font-size:19px;color:#334155;font-weight:800;">0 ج.م</h4>
+                        <span id="bostaBankNameHint" style="font-size:11px;color:#64748b;">البنك الأهلي المصري</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Payouts Table -->
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:12px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <strong style="font-size:13px;color:#1f2937;"><i class="fas fa-history" style="color:#16a34a;"></i> سجل تحويلات بوسطة وتنبيهات تليجرام:</strong>
+                    <span style="font-size:11.5px;color:#6b7280;" id="bostaPayoutsCountLabel">0 تحويلات مسجلة</span>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:collapse;font-size:12px;text-align:right;">
+                        <thead>
+                            <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0;color:#64748b;">
+                                <th style="padding:8px 10px;">المبلغ المحوّل</th>
+                                <th style="padding:8px 10px;">تاريخ التحويل</th>
+                                <th style="padding:8px 10px;">البنك المستلم</th>
+                                <th style="padding:8px 10px;">رقم المعاملة / المرجع</th>
+                                <th style="padding:8px 10px;">ملاحظات</th>
+                                <th style="padding:8px 10px;">تنبيه تليجرام</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bostaPayoutsTableBody">
+                            <tr><td colspan="6" style="padding:16px;text-align:center;color:#9ca3af;">لا توجد تحويلات مسجلة بعد — عند وصول أي تحويل جديد اضغط «تسجيل تحويل بنكي مستلم» وسيتم إرسال تنبيه فوري لتليجرام وتحديث الرصيد.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <div class="stats-grid owner-stats-pharm">
             <a href="crm/admin/?page=pharmacy-invoices&standalone=1" class="stat-card mini owner-stat-link"><div class="stat-info"><h3 id="odPharmCount">0</h3><span>فواتير الصيدليات</span></div></a>
             <a href="crm/admin/?page=pharmacy-invoices&standalone=1" class="stat-card mini green-soft owner-stat-link"><div class="stat-info"><h3 id="odPharmCollected">0</h3><span>محصّل (ج.م)</span></div></a>
@@ -298,6 +400,43 @@
         <div id="auditModalBody" style="padding:16px;font-family:monospace;direction:ltr;text-align:left;background:#1e1e2f;color:#e2e8f0;border-radius:8px;max-height:480px;overflow-y:auto;white-space:pre-wrap;font-size:13px"></div>
       </div>
     </div>
+
+    <!-- Bosta Payout Registration Modal -->
+    <div class="owner-modal-overlay hidden" id="ownerBostaPayoutModal" onclick="if(event.target===this)closeRecordBostaPayoutModal()">
+      <div class="owner-modal-inner" style="max-width:520px;direction:rtl;text-align:right;">
+        <div class="owner-modal-toolbar">
+          <strong style="color:#15803d;font-size:15px;"><i class="fas fa-money-bill-transfer"></i> تسجيل تحويل بنكي مستلم من بوسطة</strong>
+          <button type="button" class="btn-primary btn-outline" onclick="closeRecordBostaPayoutModal()">إلغاء</button>
+        </div>
+        <form id="bostaPayoutForm" onsubmit="submitRecordBostaPayout(event)" style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+          <div>
+            <label style="display:block;font-size:12.5px;font-weight:600;color:#374151;margin-bottom:4px;">المبلغ المحوّل للبنك (ج.م) *</label>
+            <input type="number" id="bpAmount" required min="1" step="1" placeholder="مثلاً: 5000" style="width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:14px;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:12.5px;font-weight:600;color:#374151;margin-bottom:4px;">البنك المستلم *</label>
+            <input type="text" id="bpBankName" required value="البنك الأهلي المصري (NBE)" style="width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:12.5px;font-weight:600;color:#374151;margin-bottom:4px;">رقم المعاملة البنكية / المرجع (اختياري)</label>
+            <input type="text" id="bpReference" placeholder="مثلاً: TXN-581920" style="width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:12.5px;font-weight:600;color:#374151;margin-bottom:4px;">ملاحظات التحويل</label>
+            <input type="text" id="bpNotes" value="تحويل دوري لأرباح شحنات بوسطة" style="width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;box-sizing:border-box;">
+          </div>
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:10px;border-radius:6px;font-size:12px;color:#166534;line-height:1.5;">
+            <i class="fab fa-telegram"></i> <strong>تنبيه فوري:</strong> بمجرد التأكيد، سيتم إرسال إشعار لحظي ومباشر على تليجرام البوت (@Montanaeg_bot) لحساب المالك بتفاصيل التحويل والرصيد المتبقي.
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;">
+            <button type="button" class="btn-primary btn-outline" onclick="closeRecordBostaPayoutModal()">إلغاء</button>
+            <button type="submit" class="btn-primary" id="bpSubmitBtn" style="background:#15803d;border-color:#15803d;">
+              <i class="fas fa-check-circle"></i> تأكيد وحفظ وإرسال التنبيه
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
     <iframe id="ownerPiPrintFrame" title="print" style="position:fixed;left:0;top:0;width:210mm;height:297mm;border:0;opacity:0;z-index:-1;pointer-events:none" aria-hidden="true"></iframe>
 
     <div id="toast" class="toast"></div>
@@ -352,7 +491,7 @@
         const welcome = document.getElementById('ownerWelcome');
         if (welcome) welcome.textContent = `مرحباً، ${name} — نظرة عامة على أداء Montana`;
         const s = document.createElement('script');
-        s.src = 'owner.js?v=oa11';
+        s.src = 'owner.js?v=oa12';
         document.body.appendChild(s);
         const s2 = document.createElement('script');
         s2.src = 'owner-assistant.js?v=1';

@@ -1546,6 +1546,133 @@ function closeAuditModal() {
     if (modal) modal.classList.add('hidden');
 }
 
+// ==================== BOSTA FINANCE & PAYOUTS ====================
+async function loadBostaFinanceData() {
+    const syncIcon = document.getElementById('bostaSyncIcon');
+    if (syncIcon) syncIcon.classList.add('fa-spin');
+
+    try {
+        const hdrs = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=bosta-finance', { headers: hdrs });
+        const d = await res.json();
+
+        if (d.ok && d.wallet) {
+            const w = d.wallet;
+            const s = d.schedule || {};
+
+            const elAvail = document.getElementById('bostaAvailableBalance');
+            if (elAvail) elAvail.textContent = fmtMoney(w.currentAvailableBalance);
+
+            const elDeliv = document.getElementById('bostaDeliveredOrdersCount');
+            if (elDeliv) elDeliv.textContent = `من ${w.deliveredCount || 0} طلب مسلّم (صافي التحصيل)`;
+
+            const elNext = document.getElementById('bostaNextPayoutDate');
+            if (elNext) elNext.textContent = s.frequency || 'أسبوعي (الأربعاء)';
+
+            const elTiming = document.getElementById('bostaPayoutTimingHint');
+            if (elTiming) elTiming.textContent = s.timing || s.nextDate || 'الأربعاء القادم';
+
+            const elInTransit = document.getElementById('bostaInTransitAmount');
+            if (elInTransit) elInTransit.textContent = fmtMoney(w.inTransitAmount);
+
+            const elInTransitCount = document.getElementById('bostaInTransitCount');
+            if (elInTransitCount) elInTransitCount.textContent = `${w.inTransitCount || 0} شحنة جاري تسليمها`;
+
+            const elTotalDep = document.getElementById('bostaTotalDeposited');
+            if (elTotalDep) elTotalDep.textContent = fmtMoney(w.totalPayoutsDeposited);
+
+            const elBank = document.getElementById('bostaBankNameHint');
+            if (elBank) elBank.textContent = `${s.bankName || 'البنك الأهلي المصري'} · ${s.iban || ''}`;
+
+            const payouts = d.recentPayouts || [];
+            const elCount = document.getElementById('bostaPayoutsCountLabel');
+            if (elCount) elCount.textContent = `${payouts.length} تحويلات مسجلة`;
+
+            const tbody = document.getElementById('bostaPayoutsTableBody');
+            if (tbody) {
+                if (payouts.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="padding:16px;text-align:center;color:#9ca3af;">لا توجد تحويلات مسجلة بعد — عند وصول أي تحويل جديد اضغط «تسجيل تحويل بنكي مستلم» وسيتم إرسال تنبيه فوري لتليجرام وتحديث الرصيد.</td></tr>`;
+                } else {
+                    tbody.innerHTML = payouts.map(p => `
+                        <tr style="border-bottom:1px solid #f1f5f9;">
+                            <td style="padding:8px 10px;font-weight:700;color:#15803d;">${fmtMoney(p.amount)}</td>
+                            <td style="padding:8px 10px;color:#334155;">${new Date(p.createdAt || Date.now()).toLocaleDateString('ar-EG', { year:'numeric', month:'short', day:'numeric' })}</td>
+                            <td style="padding:8px 10px;color:#475569;">${p.bankName || 'البنك الأهلي'}</td>
+                            <td style="padding:8px 10px;font-family:monospace;direction:ltr;text-align:right;"><code>${p.referenceNumber || '—'}</code></td>
+                            <td style="padding:8px 10px;color:#64748b;">${p.notes || 'تحويل دوري'}</td>
+                            <td style="padding:8px 10px;"><span style="color:#16a34a;font-weight:600;"><i class="fab fa-telegram"></i> تم الإرسال</span></td>
+                        </tr>
+                    `).join('');
+                }
+            }
+        }
+    } catch (err) {
+        console.error('loadBostaFinanceData error:', err);
+    } finally {
+        if (syncIcon) syncIcon.classList.remove('fa-spin');
+    }
+}
+
+function openRecordBostaPayoutModal() {
+    const modal = document.getElementById('ownerBostaPayoutModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        const amtInput = document.getElementById('bpAmount');
+        if (amtInput) amtInput.focus();
+    }
+}
+
+function closeRecordBostaPayoutModal() {
+    const modal = document.getElementById('ownerBostaPayoutModal');
+    if (modal) modal.classList.add('hidden');
+}
+
+async function submitRecordBostaPayout(e) {
+    if (e) e.preventDefault();
+    const btn = document.getElementById('bpSubmitBtn');
+    const amount = Number(document.getElementById('bpAmount')?.value) || 0;
+    const bankName = document.getElementById('bpBankName')?.value || 'البنك الأهلي المصري';
+    const referenceNumber = document.getElementById('bpReference')?.value || '';
+    const notes = document.getElementById('bpNotes')?.value || '';
+
+    if (amount <= 0) {
+        toast('يرجى إدخال مبلغ تحويل صحيح', 'error');
+        return;
+    }
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ وإرسال التنبيه...';
+    }
+
+    try {
+        const hdrs = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=bosta-record-payout', {
+            method: 'POST',
+            headers: hdrs,
+            body: JSON.stringify({ amount, bankName, referenceNumber, notes })
+        });
+        const d = await res.json();
+
+        if (d.ok) {
+            toast(d.message || 'تم تسجيل التحويل وإرسال تنبيه تليجرام بنجاح', 'success');
+            closeRecordBostaPayoutModal();
+            const form = document.getElementById('bostaPayoutForm');
+            if (form) form.reset();
+            loadBostaFinanceData();
+        } else {
+            toast(d.error || 'فشل تسجيل التحويل', 'error');
+        }
+    } catch (err) {
+        toast('خطأ: ' + err.message, 'error');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-circle"></i> تأكيد وحفظ وإرسال التنبيه';
+        }
+    }
+}
+
 bindOwnerDocumentsUi();
 loadOwnerDocuments();
 loadOwnerCompanyLinks();
@@ -1558,6 +1685,7 @@ bindOwnerJumiaUi();
 loadOwnerJumiaOrders();
 loadOwnerJumiaStock();
 
+loadBostaFinanceData();
 loadAuditLogs();
 loadOwnerDashboard();
 
