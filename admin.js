@@ -1771,11 +1771,13 @@ async function saveMetaToken() {
                 await api('site_settings', 'POST', { key: 'meta_system_user_token', value: token });
             }
 
-            toast('تم حفظ توكن Meta بنجاح!');
+            saveBtn.innerHTML = '<i class="fas fa-check"></i> تم الحفظ!';
+            saveBtn.style.background = '#15803d';
+            toast('تم حفظ توكن Meta وتفعيله بنجاح!');
             setTimeout(() => {
                 closeModal();
                 loadMarketing();
-            }, 1200);
+            }, 800);
         } else {
             resultDiv.style.background = '#fee2e2';
             resultDiv.style.color = '#b91c1c';
