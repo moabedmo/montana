@@ -528,16 +528,39 @@ module.exports = async (req, res) => {
   if (
     action === 'marketing-dashboard' ||
     action === 'marketing-token-test' ||
-    action === 'marketing-tracking-audit'
+    action === 'marketing-tracking-audit' ||
+    action === 'marketing-campaigns-list' ||
+    action === 'marketing-campaign-toggle' ||
+    action === 'marketing-ai-analysis'
   ) {
     try {
       const {
         getMarketingDashboardData,
         auditTrackingHealth,
         testMetaConnection,
+        listMetaCampaigns,
+        toggleCampaignStatus,
+        analyzeMarketingWithAi,
       } = require('../lib/marketingBrain');
 
       const authHeader = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+
+      if (action === 'marketing-campaigns-list') {
+        const resData = await listMetaCampaigns(authHeader);
+        return res.json(resData);
+      }
+
+      if (action === 'marketing-campaign-toggle') {
+        const campaignId = req.body?.campaignId || url.searchParams.get('campaignId');
+        const status = req.body?.status || url.searchParams.get('status');
+        const resData = await toggleCampaignStatus(campaignId, status, authHeader);
+        return res.json(resData);
+      }
+
+      if (action === 'marketing-ai-analysis') {
+        const resData = await analyzeMarketingWithAi(authHeader);
+        return res.json(resData);
+      }
 
       if (action === 'marketing-token-test') {
         const token = req.body?.token || req.query?.token;

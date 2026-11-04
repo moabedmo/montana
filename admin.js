@@ -1608,6 +1608,7 @@ async function loadMarketing() {
             }
         }
 
+        loadMetaCampaigns();
         // KPIs
         spendEl.textContent = (k.spend || 0).toLocaleString() + ' ج.م';
         deliveredEl.textContent = k.deliveredOrders || 0;
@@ -2443,5 +2444,265 @@ async function activateSuggestedRuleByIndex(btn, idx) {
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-redo"></i> إعادة المحاولة';
         }
+    }
+}
+
+
+// ===== META CAMPAIGNS & AI MARKETING AUDIT =====
+let metaCampaignsData = [];
+
+async function loadMetaCampaigns() {
+    const tableBody = document.getElementById('mktCampaignsTableBody');
+    const countEl = document.getElementById('mktCampaignsCount');
+    const refreshIcon = document.getElementById('mktCampRefreshIcon');
+
+    if (!tableBody) return;
+    if (refreshIcon) refreshIcon.className = 'fas fa-spinner fa-spin';
+
+    try {
+        const hdrs = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=marketing-campaigns-list', { headers: hdrs });
+        const data = await res.json();
+
+        if (refreshIcon) refreshIcon.className = 'fas fa-sync-alt';
+
+        if (!data.ok) {
+            tableBody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text-danger)">تعذر جلب الحملات: ${data.error || 'خطأ في الاتصال'}</td></tr>`;
+            return;
+        }
+
+        metaCampaignsData = data.campaigns || [];
+        if (countEl) countEl.textContent = metaCampaignsData.length;
+
+        if (!metaCampaignsData.length) {
+            tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text-muted)">لا توجد حملات مسجلة في هذا الحساب الإعلاني</td></tr>';
+            return;
+        }
+
+        const objectiveMap = {
+            OUTCOME_SALES: 'مبيعات (Sales)',
+            OUTCOME_ENGAGEMENT: 'تفاعل (Engagement)',
+            OUTCOME_TRAFFIC: 'زيارات (Traffic)',
+            OUTCOME_AWARENESS: 'وعي بالبراند (Awareness)',
+            MESSAGES: 'رسائل (Messages)'
+        };
+
+        tableBody.innerHTML = metaCampaignsData.map(c => {
+            const isActive = c.status === 'ACTIVE';
+            const statusBadge = isActive
+                ? '<span class="badge" style="background:#dcfce7;color:#15803d;"><i class="fas fa-circle" style="font-size:7px;margin-left:4px;"></i> نشط</span>'
+                : '<span class="badge" style="background:#f1f5f9;color:#64748b;"><i class="fas fa-pause" style="font-size:7px;margin-left:4px;"></i> متوقف</span>';
+
+            const objLabel = objectiveMap[c.objective] || c.objective;
+            const spendFormatted = Number(c.spend || 0).toLocaleString('ar-EG') + ' ج.م';
+            const budgetFormatted = c.dailyBudget ? (Number(c.dailyBudget).toLocaleString('ar-EG') + ' ج.م/يوم') : '—';
+
+            return `
+                <tr>
+                    <td style="font-weight:600;max-width:260px;direction:rtl;">
+                        <a href="https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=303958922504233" target="_blank" style="color:var(--text);text-decoration:none;" title="فتح في مدير الإعلانات">
+                            ${escapeHtml(c.name)} <i class="fas fa-external-link-alt" style="font-size:10px;color:var(--text-muted);margin-right:4px;"></i>
+                        </a>
+                    </td>
+                    <td>${statusBadge}</td>
+                    <td style="font-size:12px;color:var(--text-muted);">${objLabel}</td>
+                    <td style="font-size:12px;">${budgetFormatted}</td>
+                    <td style="font-weight:700;color:#0f172a;">${spendFormatted}</td>
+                    <td>${Number(c.clicks || 0).toLocaleString()}</td>
+                    <td>${c.cpc} ج.م</td>
+                    <td>${c.ctr}</td>
+                    <td>
+                        ${isActive ? `
+                            <button class="btn-primary btn-outline" style="color:#ef4444;border-color:#ef4444;font-size:11px;padding:4px 10px;" onclick="toggleCampaign('${c.id}', 'PAUSED', this)">
+                                <i class="fas fa-pause"></i> إيقاف
+                            </button>
+                        ` : `
+                            <button class="btn-primary btn-outline" style="color:#10b981;border-color:#10b981;font-size:11px;padding:4px 10px;" onclick="toggleCampaign('${c.id}', 'ACTIVE', this)">
+                                <i class="fas fa-play"></i> تشغيل
+                            </button>
+                        `}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+    } catch (err) {
+        if (refreshIcon) refreshIcon.className = 'fas fa-sync-alt';
+        console.error('loadMetaCampaigns error:', err);
+    }
+}
+
+async function toggleCampaign(campaignId, newStatus, btn) {
+    const isPausing = newStatus === 'PAUSED';
+    const actionWord = isPausing ? 'إيقاف' : 'تشغيل';
+
+    if (!confirm(`هل أنت متأكد من ${actionWord} هذه الحملة على Meta Ads؟`)) return;
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    }
+
+    try {
+        const hdrs = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=marketing-campaign-toggle', {
+            method: 'POST',
+            headers: hdrs,
+            body: JSON.stringify({ campaignId, status: newStatus })
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            toast(`تم ${actionWord} الحملة بنجاح على Meta Ads!`);
+            loadMetaCampaigns();
+        } else {
+            toast(`تعذر ${actionWord} الحملة: ` + (data.error || 'خطأ في Meta API'), 'error');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = isPausing ? '<i class="fas fa-pause"></i> إيقاف' : '<i class="fas fa-play"></i> تشغيل';
+            }
+        }
+    } catch (e) {
+        toast('خطأ في الاتصال: ' + e.message, 'error');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = isPausing ? '<i class="fas fa-pause"></i> إيقاف' : '<i class="fas fa-play"></i> تشغيل';
+        }
+    }
+}
+
+async function toggleCampaignFromModal(campaignId, newStatus, btn) {
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإيقاف...';
+    }
+    try {
+        const hdrs = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=marketing-campaign-toggle', {
+            method: 'POST',
+            headers: hdrs,
+            body: JSON.stringify({ campaignId, status: newStatus })
+        });
+        const data = await res.json();
+        if (data.ok) {
+            toast('تم إيقاف الحملة بنجاح على Meta Ads!');
+            btn.style.background = '#dcfce7';
+            btn.style.borderColor = '#86efac';
+            btn.style.color = '#15803d';
+            btn.innerHTML = '<i class="fas fa-check-circle"></i> تم إيقاف الحملة بنجاح';
+            loadMetaCampaigns();
+        } else {
+            toast('فشل الإيقاف: ' + (data.error || 'خطأ'), 'error');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-stop"></i> إعادة المحاولة';
+        }
+    } catch (e) {
+        toast('خطأ: ' + e.message, 'error');
+        btn.disabled = false;
+    }
+}
+
+// AI Marketing & Ad Campaign Audit
+async function triggerMarketingAiAudit() {
+    const loadingHtml = `
+        <div style="text-align:center;padding:40px 20px;direction:rtl;">
+            <div style="font-size:48px;color:#8b5cf6;margin-bottom:16px;">
+                <i class="fas fa-brain fa-spin"></i>
+            </div>
+            <h3 style="font-size:18px;color:#1e293b;margin-bottom:8px;">جاري الفحص الذكي للحملات ومقارنتها بالتسليم الفعلي...</h3>
+            <p style="font-size:13px;color:#64748b;max-width:420px;margin:0 auto 16px;line-height:1.6;">
+                الذكاء الاصطناعي يقوم بتحليل صرف كل حملة، تكلفة النقرات، والربط مع الأوردرات المسلمة من بوسطة لاكتشاف الحملات المهدرة للميزانية واقتراح إعلانات رابحة جديدة.
+            </p>
+        </div>
+    `;
+    openModal('فحص وتدقيق الإعلانات بالذكاء الاصطناعي (AI Ads Audit)', loadingHtml);
+
+    try {
+        const hdrs = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=marketing-ai-analysis', { headers: hdrs });
+        const data = await res.json();
+
+        if (!data.ok || !data.analysis) {
+            openModal('فحص الإعلانات', `
+                <div style="text-align:center;padding:30px;direction:rtl;">
+                    <div style="font-size:36px;color:#ef4444;margin-bottom:10px;"><i class="fas fa-exclamation-triangle"></i></div>
+                    <h3>تعذر تحليل الحملات</h3>
+                    <p style="color:#64748b;font-size:13px;">${escapeHtml(data.error || 'خطأ غير متوقع')}</p>
+                </div>
+            `);
+            return;
+        }
+
+        const a = data.analysis;
+        const audits = a.campaignAudit || [];
+        const creatives = a.creativeSuggestions || [];
+
+        const html = `
+            <div style="display:flex;flex-direction:column;gap:16px;direction:rtl;text-align:right;max-height:80vh;overflow-y:auto;padding-left:4px;">
+                <!-- Summary Card -->
+                <div style="background:linear-gradient(135deg, #f5f3ff, #faf5ff);border:1px solid #ddd6fe;border-radius:10px;padding:16px;">
+                    <h4 style="margin:0 0 6px;font-size:14.5px;color:#6d28d9;"><i class="fas fa-chart-line"></i> تقرير الأداء الإعلاني المباشر</h4>
+                    <p style="margin:0;font-size:13px;color:#334155;line-height:1.6;">${escapeHtml(a.summary || '')}</p>
+                </div>
+
+                <!-- Campaign Audits (Flags & Pauses) -->
+                <div>
+                    <h4 style="margin:0 0 10px;font-size:14px;color:#1e293b;"><i class="fas fa-traffic-light"></i> تدقيق الحملات الحالية (إيقاف أو توسيع):</h4>
+                    <div style="display:flex;flex-direction:column;gap:10px;">
+                        ${audits.map(item => {
+                            const isPause = item.action === 'PAUSE';
+                            const badgeColor = isPause ? 'background:#fee2e2;color:#b91c1c;' : 'background:#dcfce7;color:#15803d;';
+
+                            return `
+                                <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                                    <div style="max-width:70%;">
+                                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                                            <strong style="font-size:13.5px;color:#0f172a;">${escapeHtml(item.campaignName)}</strong>
+                                            <span class="badge" style="${badgeColor}font-size:11px;">${escapeHtml(item.actionLabel || item.action)}</span>
+                                        </div>
+                                        <div style="font-size:12px;color:#64748b;line-height:1.5;">${escapeHtml(item.reason)}</div>
+                                    </div>
+                                    <div>
+                                        ${isPause ? `
+                                            <button class="btn-primary" style="background:#ef4444;border-color:#ef4444;font-size:11.5px;padding:5px 12px;" onclick="toggleCampaignFromModal('${item.campaignId}', 'PAUSED', this)">
+                                                <i class="fas fa-stop"></i> إيقاف الحملة فوراً
+                                            </button>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+
+                <!-- Suggested New Winning Ad Creatives -->
+                <div>
+                    <h4 style="margin:0 0 10px;font-size:14px;color:#1e293b;"><i class="fas fa-wand-magic-sparkles" style="color:#d946ef;"></i> زوايا إعلانية ونصوص مقترحة للروتينات:</h4>
+                    <div style="display:flex;flex-direction:column;gap:12px;">
+                        ${creatives.map(c => `
+                            <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                                    <strong style="font-size:13.5px;color:#8b5cf6;">${escapeHtml(c.bundle)} — ${escapeHtml(c.angleName || 'زاوية جديدة')}</strong>
+                                </div>
+                                <div style="background:#f8fafc;padding:8px 12px;border-radius:6px;margin-bottom:8px;font-size:12.5px;color:#0f172a;border-right:3px solid #8b5cf6;">
+                                    <strong>Hook (أول 3 ثواني من الفيديو):</strong> "${escapeHtml(c.hook)}"
+                                </div>
+                                <div style="font-size:12.5px;color:#334155;line-height:1.6;white-space:pre-wrap;background:#fafafa;padding:10px;border-radius:6px;border:1px dashed #cbd5e1;">
+                                    ${escapeHtml(c.bodyCopy)}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div style="display:flex;justify-content:flex-end;margin-top:10px;">
+                    <button class="btn-primary btn-outline" type="button" onclick="closeModal()">إغلاق التقرير</button>
+                </div>
+            </div>
+        `;
+        openModal('تقرير فحص وتدقيق الإعلانات', html);
+
+    } catch (err) {
+        openModal('فحص الإعلانات', `<div style="text-align:center;padding:30px;color:#ef4444;">خطأ: ${err.message}</div>`);
     }
 }

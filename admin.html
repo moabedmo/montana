@@ -229,6 +229,43 @@
                     </div>
                 </div>
 
+                <!-- Live Meta Campaigns & AI Optimization Section -->
+                <div class="card" style="margin-bottom:24px;padding:16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+                        <div>
+                            <h3 style="margin:0;font-size:16px;display:flex;align-items:center;gap:8px;">
+                                <i class="fab fa-facebook" style="color:#1877f2;"></i> حملات الإعلانات الحية على Meta Ads (<span id="mktCampaignsCount">0</span>)
+                            </h3>
+                            <p style="margin:4px 0 0;font-size:12.5px;color:var(--text-muted);">تحكم مباشر في حملاتك: استعراض الصرف، النقرات، وإيقاف أو تشغيل أي حملة بضغطة زر واحدة بدون الدخول لمدير الإعلانات.</p>
+                        </div>
+                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                            <button class="btn-primary" style="background:linear-gradient(135deg, #8b5cf6, #d946ef);border:none;" type="button" onclick="triggerMarketingAiAudit()"><i class="fas fa-brain"></i> فحص وتحليل الإعلانات بالذكاء الاصطناعي (AI Ads Audit)</button>
+                            <button class="btn-primary btn-outline" type="button" onclick="loadMetaCampaigns()"><i class="fas fa-sync-alt" id="mktCampRefreshIcon"></i> تحديث الحملات</button>
+                        </div>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>اسم الحملة</th>
+                                    <th>الحالة</th>
+                                    <th>الهدف</th>
+                                    <th>الميزانية اليومية</th>
+                                    <th>الصرف</th>
+                                    <th>النقرات</th>
+                                    <th>تكلفة النقرة (CPC)</th>
+                                    <th>نسبة النقر (CTR)</th>
+                                    <th>تحكم فوري</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mktCampaignsTableBody">
+                                <tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> جاري جلب الحملات من Meta API...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- Ground Truth Orders Attribution Table -->
                 <div class="card">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
@@ -746,7 +783,7 @@
         else {
           window.__ADMIN_TOKEN__ = session.access_token;
           const s = document.createElement('script');
-          s.src = 'admin.js?v=boot5';
+          s.src = 'admin.js?v=boot6';
           s.onerror = () => showAdminBootError('فشل تحميل ملفات لوحة التحكم.');
           document.body.appendChild(s);
         }
