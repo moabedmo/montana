@@ -2635,22 +2635,36 @@ async function triggerMarketingAiAudit() {
 
         const a = data.analysis;
         const audits = a.campaignAudit || [];
-        const creatives = a.creativeSuggestions || [];
+        const creatives = a.creativeAngles || a.creativeSuggestions || [];
+        const sci = a.scientificAudit || {};
 
         const html = `
             <div style="display:flex;flex-direction:column;gap:16px;direction:rtl;text-align:right;max-height:80vh;overflow-y:auto;padding-left:4px;">
                 <!-- Summary Card -->
                 <div style="background:linear-gradient(135deg, #f5f3ff, #faf5ff);border:1px solid #ddd6fe;border-radius:10px;padding:16px;">
-                    <h4 style="margin:0 0 6px;font-size:14.5px;color:#6d28d9;"><i class="fas fa-chart-line"></i> تقرير الأداء الإعلاني المباشر</h4>
-                    <p style="margin:0;font-size:13px;color:#334155;line-height:1.6;">${escapeHtml(a.summary || '')}</p>
+                    <h4 style="margin:0 0 6px;font-size:14.5px;color:#6d28d9;"><i class="fas fa-chart-line"></i> تقرير التحليل العلمي المباشر (خوارزميات Meta وسوق التجميل بمصر)</h4>
+                    <p style="margin:0 0 10px;font-size:13px;color:#334155;line-height:1.6;">${escapeHtml(a.summary || '')}</p>
+                    
+                    ${sci.algorithmFinding ? `
+                        <div style="background:#fff;border-right:3px solid #8b5cf6;padding:10px 12px;border-radius:6px;font-size:12.5px;color:#1e293b;margin-bottom:8px;line-height:1.5;">
+                            <strong>🔬 تحليل الخوارزميات (Meta Auction Formula):</strong> ${escapeHtml(sci.algorithmFinding)}
+                        </div>
+                    ` : ''}
+                    
+                    ${sci.egyptMarketInsight ? `
+                        <div style="background:#fff;border-right:3px solid #0284c7;padding:10px 12px;border-radius:6px;font-size:12.5px;color:#0f172a;line-height:1.5;">
+                            <strong>🇪🇬 مقارنة مع منافسي السوق المصري (Starville, Infinity, etc):</strong> ${escapeHtml(sci.egyptMarketInsight)}
+                        </div>
+                    ` : ''}
                 </div>
 
                 <!-- Campaign Audits (Flags & Pauses) -->
                 <div>
-                    <h4 style="margin:0 0 10px;font-size:14px;color:#1e293b;"><i class="fas fa-traffic-light"></i> تدقيق الحملات الحالية (إيقاف أو توسيع):</h4>
+                    <h4 style="margin:0 0 10px;font-size:14px;color:#1e293b;"><i class="fas fa-traffic-light"></i> تدقيق الحملات الحالية (إيقاف أو توسيع بالأرقام):</h4>
                     <div style="display:flex;flex-direction:column;gap:10px;">
                         ${audits.map(item => {
-                            const isPause = item.action === 'PAUSE';
+                            const rec = item.recommendation || item.action || '';
+                            const isPause = rec === 'PAUSE' || rec === 'STOP';
                             const badgeColor = isPause ? 'background:#fee2e2;color:#b91c1c;' : 'background:#dcfce7;color:#15803d;';
 
                             return `
@@ -2658,9 +2672,9 @@ async function triggerMarketingAiAudit() {
                                     <div style="max-width:70%;">
                                         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                                             <strong style="font-size:13.5px;color:#0f172a;">${escapeHtml(item.campaignName)}</strong>
-                                            <span class="badge" style="${badgeColor}font-size:11px;">${escapeHtml(item.actionLabel || item.action)}</span>
+                                            <span class="badge" style="${badgeColor}font-size:11px;">${escapeHtml(item.recommendationLabel || item.actionLabel || rec)}</span>
                                         </div>
-                                        <div style="font-size:12px;color:#64748b;line-height:1.5;">${escapeHtml(item.reason)}</div>
+                                        <div style="font-size:12px;color:#64748b;line-height:1.5;">${escapeHtml(item.scientificReason || item.reason || '')}</div>
                                     </div>
                                     <div>
                                         ${isPause ? `
@@ -2677,19 +2691,25 @@ async function triggerMarketingAiAudit() {
 
                 <!-- Suggested New Winning Ad Creatives -->
                 <div>
-                    <h4 style="margin:0 0 10px;font-size:14px;color:#1e293b;"><i class="fas fa-wand-magic-sparkles" style="color:#d946ef;"></i> زوايا إعلانية ونصوص مقترحة للروتينات:</h4>
+                    <h4 style="margin:0 0 10px;font-size:14px;color:#1e293b;"><i class="fas fa-wand-magic-sparkles" style="color:#d946ef;"></i> زوايا إعلانية ونصوص مقترحة للروتينات (مبنية على سيكولوجية المستهلك المصري):</h4>
                     <div style="display:flex;flex-direction:column;gap:12px;">
                         ${creatives.map(c => `
                             <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">
                                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-                                    <strong style="font-size:13.5px;color:#8b5cf6;">${escapeHtml(c.bundle)} — ${escapeHtml(c.angleName || 'زاوية جديدة')}</strong>
+                                    <strong style="font-size:13.5px;color:#8b5cf6;">${escapeHtml(c.bundle || '')}</strong>
+                                    ${c.targetProblem ? `<span style="font-size:11.5px;color:#64748b;background:#f1f5f9;padding:2px 8px;border-radius:4px;">حل مشكلة: ${escapeHtml(c.targetProblem)}</span>` : ''}
                                 </div>
                                 <div style="background:#f8fafc;padding:8px 12px;border-radius:6px;margin-bottom:8px;font-size:12.5px;color:#0f172a;border-right:3px solid #8b5cf6;">
-                                    <strong>Hook (أول 3 ثواني من الفيديو):</strong> "${escapeHtml(c.hook)}"
+                                    <strong>Hook (أول 3 ثواني من الفيديو):</strong> "${escapeHtml(c.hook3Sec || c.hook || '')}"
                                 </div>
-                                <div style="font-size:12.5px;color:#334155;line-height:1.6;white-space:pre-wrap;background:#fafafa;padding:10px;border-radius:6px;border:1px dashed #cbd5e1;">
-                                    ${escapeHtml(c.bodyCopy)}
+                                <div style="font-size:12.5px;color:#334155;line-height:1.6;white-space:pre-wrap;background:#fafafa;padding:10px;border-radius:6px;border:1px dashed #cbd5e1;margin-bottom:8px;">
+                                    ${escapeHtml(c.bodyCopy || '')}
                                 </div>
+                                ${c.competitorEdge ? `
+                                    <div style="font-size:11.5px;color:#166534;background:#f0fdf4;padding:6px 10px;border-radius:5px;border:1px solid #bbf7d0;">
+                                        <strong>💡 الميزة التنافسية ضد منتجات الصيدليات:</strong> ${escapeHtml(c.competitorEdge)}
+                                    </div>
+                                ` : ''}
                             </div>
                         `).join('')}
                     </div>
