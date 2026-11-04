@@ -558,6 +558,72 @@ module.exports = async (req, res) => {
     }
   }
 
+  // Montaña AI Bot Live Inspector & Correction Trainer
+  if (
+    action === 'bot-conversations-list' ||
+    action === 'bot-conversation-detail' ||
+    action === 'bot-corrections-list' ||
+    action === 'bot-correction-save' ||
+    action === 'bot-correction-delete' ||
+    action === 'bot-pause-toggle'
+  ) {
+    try {
+      const {
+        listBotConversations,
+        getBotConversationDetail,
+        getBotLearnedRules,
+        saveBotCorrection,
+        deleteBotCorrection,
+      } = require('../lib/botMonitor');
+
+      if (action === 'bot-conversations-list') {
+        const limit = Number(url.searchParams.get('limit') || req.body?.limit || 50);
+        const channel = url.searchParams.get('channel') || req.body?.channel || '';
+        const search = url.searchParams.get('search') || req.body?.search || '';
+        const resData = await listBotConversations({ limit, channel, search });
+        return res.json(resData);
+      }
+
+      if (action === 'bot-conversation-detail') {
+        const sid = url.searchParams.get('sessionId') || req.body?.sessionId || '';
+        const resData = await getBotConversationDetail(sid);
+        return res.json(resData);
+      }
+
+      if (action === 'bot-corrections-list') {
+        const resData = await getBotLearnedRules();
+        return res.json(resData);
+      }
+
+      if (action === 'bot-correction-save') {
+        const payload = req.body || {};
+        const resData = await saveBotCorrection(payload);
+        return res.json(resData);
+      }
+
+      if (action === 'bot-correction-delete') {
+        const ruleId = url.searchParams.get('ruleId') || req.body?.ruleId || '';
+        const resData = await deleteBotCorrection(ruleId);
+        return res.json(resData);
+      }
+
+      if (action === 'bot-pause-toggle') {
+        const { pauseBotForSession, resumeBotForSession } = require('../lib/chatEngine');
+        const sid = req.body?.sessionId || url.searchParams.get('sessionId');
+        const pause = !!req.body?.pause;
+        if (pause) {
+          await pauseBotForSession(sid);
+        } else {
+          await resumeBotForSession(sid);
+        }
+        return res.json({ ok: true, paused: pause });
+      }
+    } catch (e) {
+      console.error('[bot-monitor-api]', e);
+      return res.status(500).json({ ok: false, error: e.message || 'error' });
+    }
+  }
+
   // Amazon SP-API (Egypt) — token test + orders + inventory + listing optimization
   if (
     action === 'amazon-token-test' ||

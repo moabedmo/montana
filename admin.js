@@ -64,7 +64,11 @@ document.querySelectorAll('.nav-link').forEach(link => {
         if (page === 'reviews') loadReviews();
         if (page === 'ingredients') loadIngredients();
         if (page === 'shipping') loadShippingRates();
-        if (page === 'messages') loadMessages();
+        if (page === 'messages') {
+            loadBotConversations();
+            loadBotRules();
+            loadMessages();
+        }
         if (page === 'returns') loadReturns();
         if (page === 'invoices') { loadInvoicesPage(); loadAdminSalesReport(); }
         if (page === 'crm') loadCrmPage();
@@ -1799,3 +1803,465 @@ async function saveMetaToken() {
 loadDashboard();
 const startPage = new URLSearchParams(location.search).get('page');
 if (startPage) document.querySelector(`[data-page="${startPage}"]`)?.click();
+
+
+// ===== BOT MONITOR & TRAINING HUB =====
+let currentBotFilterChannel = '';
+let currentActiveSessionId = '';
+let botConversationsData = [];
+let botSearchDebounceTimer = null;
+
+function switchBotTab(tab) {
+    const liveContent = document.getElementById('botLiveTabContent');
+    const rulesContent = document.getElementById('botRulesTabContent');
+    const contactContent = document.getElementById('botContactTabContent');
+    const tabBtnLive = document.getElementById('tabBtnBotLive');
+    const tabBtnRules = document.getElementById('tabBtnBotRules');
+    const tabBtnContact = document.getElementById('tabBtnContactForm');
+
+    if (!liveContent) return;
+
+    // Reset styles
+    [tabBtnLive, tabBtnRules, tabBtnContact].forEach(btn => {
+        if (btn) {
+            btn.className = 'btn-primary btn-outline';
+        }
+    });
+
+    liveContent.style.display = 'none';
+    rulesContent.style.display = 'none';
+    contactContent.style.display = 'none';
+
+    if (tab === 'live') {
+        liveContent.style.display = 'grid';
+        if (tabBtnLive) tabBtnLive.className = 'btn-primary';
+    } else if (tab === 'rules') {
+        rulesContent.style.display = 'block';
+        if (tabBtnRules) tabBtnRules.className = 'btn-primary';
+        loadBotRules();
+    } else if (tab === 'contact') {
+        contactContent.style.display = 'block';
+        if (tabBtnContact) tabBtnContact.className = 'btn-primary';
+        loadMessages();
+    }
+}
+
+async function loadBotConversations() {
+    const listEl = document.getElementById('botConversationsList');
+    const icon = document.getElementById('botRefreshIcon');
+    const countEl = document.getElementById('botConvsCount');
+    const searchInput = document.getElementById('botConvSearchInput');
+    const search = searchInput ? searchInput.value.trim() : '';
+
+    if (!listEl) return;
+    if (icon) icon.className = 'fas fa-spinner fa-spin';
+
+    try {
+        const hdrs = await authHeaders();
+        const url = `/api/integrations-status?action=bot-conversations-list&channel=${encodeURIComponent(currentBotFilterChannel)}&search=${encodeURIComponent(search)}&limit=60`;
+        const res = await fetch(url, { headers: hdrs });
+        const data = await res.json();
+
+        if (icon) icon.className = 'fas fa-sync-alt';
+
+        if (!data.ok) {
+            listEl.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-danger,#ef4444);font-size:13px;">تعذر تحميل المحادثات: ${data.error || 'خطأ في الاتصال'}</div>`;
+            return;
+        }
+
+        botConversationsData = data.conversations || [];
+        if (countEl) countEl.textContent = botConversationsData.length;
+
+        if (!botConversationsData.length) {
+            listEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px;">لا توجد محادثات مسجلة بهذه الفلاتر</div>';
+            return;
+        }
+
+        listEl.innerHTML = botConversationsData.map(c => {
+            const isActive = c.sessionId === currentActiveSessionId;
+            const channelIcons = {
+                instagram: '<i class="fab fa-instagram" style="color:#e1306c;"></i>',
+                messenger: '<i class="fab fa-facebook-messenger" style="color:#0084ff;"></i>',
+                whatsapp: '<i class="fab fa-whatsapp" style="color:#25d366;"></i>',
+                web: '<i class="fas fa-globe" style="color:#8b5cf6;"></i>'
+            };
+            const chIcon = channelIcons[c.channel] || '<i class="fas fa-comments"></i>';
+
+            const statusColors = {
+                converted: 'background:#dcfce7;color:#15803d;',
+                needs_human: 'background:#fee2e2;color:#b91c1c;',
+                hesitant: 'background:#fef3c7;color:#b45309;',
+                active: 'background:#f1f5f9;color:#475569;'
+            };
+            const sStyle = statusColors[c.status] || statusColors.active;
+
+            const timeStr = c.updatedAt ? new Date(c.updatedAt).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date(c.updatedAt).toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' }) : '';
+
+            return `
+                <div onclick="selectBotConversation('${c.sessionId}')" style="padding:10px 12px;border-radius:8px;border:1px solid ${isActive ? 'var(--primary,#8b5cf6)' : 'var(--border,#e2e8f0)'};background:${isActive ? '#f5f3ff' : '#ffffff'};cursor:pointer;transition:all 0.15s ease;display:flex;flex-direction:column;gap:5px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span>${chIcon}</span>
+                            <strong style="font-size:13px;color:${isActive ? '#6d28d9' : '#1e293b'};">${c.customerName || 'عميلة'}</strong>
+                        </div>
+                        <span style="font-size:10px;padding:2px 6px;border-radius:4px;${sStyle}">${c.statusLabel}</span>
+                    </div>
+                    <div style="font-size:11.5px;color:var(--text-muted,#64748b);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:rtl;">
+                        💬 ${c.lastUserMsg || c.lastBotReply || 'بدء المحادثة...'}
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;font-size:10.5px;color:var(--text-muted,#94a3b8);margin-top:2px;">
+                        <span>${c.customerPhone ? ('📞 ' + c.customerPhone) : ('💬 ' + c.turnsCount + ' رسالة')}</span>
+                        <span>${timeStr}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+    } catch (err) {
+        if (icon) icon.className = 'fas fa-sync-alt';
+        console.error('loadBotConversations error:', err);
+    }
+}
+
+function filterBotChannel(channel, btn) {
+    currentBotFilterChannel = channel;
+    const pills = btn.parentElement.querySelectorAll('button');
+    pills.forEach(p => p.className = 'btn-primary btn-outline');
+    btn.className = 'btn-primary';
+    loadBotConversations();
+}
+
+function debounceBotSearch() {
+    clearTimeout(botSearchDebounceTimer);
+    botSearchDebounceTimer = setTimeout(() => {
+        loadBotConversations();
+    }, 350);
+}
+
+async function selectBotConversation(sessionId) {
+    currentActiveSessionId = sessionId;
+    // Re-render list to highlight active item
+    loadBotConversations();
+
+    const emptyState = document.getElementById('botChatEmptyState');
+    const activeView = document.getElementById('botChatActiveView');
+    const msgContainer = document.getElementById('botChatMessagesContainer');
+
+    if (!emptyState || !activeView || !msgContainer) return;
+
+    emptyState.style.display = 'none';
+    activeView.style.display = 'flex';
+    msgContainer.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);"><i class="fas fa-spinner fa-spin fa-2x"></i><br><br>جاري تحميل نص المحادثة...</div>';
+
+    try {
+        const hdrs = await authHeaders();
+        const res = await fetch(`/api/integrations-status?action=bot-conversation-detail&sessionId=${encodeURIComponent(sessionId)}`, { headers: hdrs });
+        const data = await res.json();
+
+        if (!data.ok || !data.conversation) {
+            msgContainer.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-danger);">تعذر جلب تفاصيل المحادثة</div>';
+            return;
+        }
+
+        const conv = data.conversation;
+        const nameEl = document.getElementById('botChatCustomerName');
+        const phoneEl = document.getElementById('botChatCustomerPhone');
+        const badgeEl = document.getElementById('botChatChannelBadge');
+        const sidEl = document.getElementById('botChatSessionIdShort');
+        const timeEl = document.getElementById('botChatTime');
+        const avatarEl = document.getElementById('botChatCustomerAvatar');
+
+        if (nameEl) nameEl.textContent = conv.customerName || 'عميلة مونتانيا';
+        if (phoneEl) phoneEl.textContent = conv.customerPhone ? ('هاتف: ' + conv.customerPhone) : 'الهاتف غير مسجل بعد';
+        if (badgeEl) badgeEl.textContent = conv.channel.toUpperCase();
+        if (sidEl) sidEl.textContent = 'ID: ' + conv.sessionId.slice(-14);
+        if (timeEl && conv.updatedAt) timeEl.textContent = new Date(conv.updatedAt).toLocaleTimeString('ar-EG');
+        if (avatarEl) avatarEl.textContent = (conv.customerName || 'ع').trim().charAt(0);
+
+        const history = conv.history || [];
+        if (!history.length) {
+            msgContainer.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">لا توجد رسائل سابقة في هذه الجلسة</div>';
+            return;
+        }
+
+        let html = '';
+        let lastUserText = '';
+
+        history.forEach((m, idx) => {
+            const isBot = m.role === 'bot';
+            if (!isBot) {
+                lastUserText = m.text;
+                html += `
+                    <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;max-width:80%;align-self:flex-start;">
+                        <div style="width:32px;height:32px;border-radius:50%;background:#e2e8f0;color:#475569;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div style="background:#ffffff;border:1px solid #e2e8f0;padding:10px 14px;border-radius:12px 12px 12px 2px;color:#1e293b;font-size:13px;line-height:1.6;box-shadow:0 1px 2px rgba(0,0,0,0.03);white-space:pre-wrap;direction:rtl;">
+                            ${escapeHtml(m.text)}
+                        </div>
+                    </div>
+                `;
+            } else {
+                const encodedUser = encodeURIComponent(lastUserText || '');
+                const encodedBot = encodeURIComponent(m.text || '');
+                html += `
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;margin-bottom:12px;max-width:85%;align-self:flex-end;">
+                        <div style="display:flex;align-items:flex-start;gap:10px;flex-direction:row-reverse;">
+                            <div style="width:32px;height:32px;border-radius:50%;background:#9275A4;color:white;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;box-shadow:0 2px 4px rgba(146,117,164,0.3);">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div style="background:#9275A4;color:#ffffff;padding:10px 14px;border-radius:12px 12px 2px 12px;font-size:13px;line-height:1.6;box-shadow:0 2px 6px rgba(146,117,164,0.25);white-space:pre-wrap;direction:rtl;">
+                                ${escapeHtml(m.text)}
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:6px;margin-top:5px;padding-right:42px;">
+                            <button type="button" class="btn-primary btn-outline" style="font-size:11px;padding:3px 8px;border-radius:6px;background:#ffffff;" onclick="openCorrectModal(decodeURIComponent('${encodedUser}'), decodeURIComponent('${encodedBot}'), '${conv.sessionId}')">
+                                <i class="fas fa-pencil-alt" style="color:#8b5cf6;"></i> تصحيح هذا الرد وتدريب البوت
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        msgContainer.innerHTML = html;
+        msgContainer.scrollTop = msgContainer.scrollHeight;
+
+    } catch (e) {
+        msgContainer.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-danger);">خطأ في تحميل المحادثة: ' + e.message + '</div>';
+    }
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+// Modal to teach and correct bot reply
+function openCorrectModal(userMsg, botReply, sessionId) {
+    const html = `
+        <div style="display:flex;flex-direction:column;gap:14px;direction:rtl;text-align:right;">
+            <div style="background:#f8fafc;padding:12px;border-radius:8px;border-right:4px solid #8b5cf6;">
+                <div style="font-size:12px;font-weight:700;color:#64748b;margin-bottom:4px;">سؤال / رسالة العميل:</div>
+                <div style="font-size:13px;color:#1e293b;font-weight:600;" id="correctModalUserMsg">${escapeHtml(userMsg || 'سؤال عام')}</div>
+            </div>
+
+            <div style="background:#fff1f2;padding:12px;border-radius:8px;border-right:4px solid #f43f5e;">
+                <div style="font-size:12px;font-weight:700;color:#e11d48;margin-bottom:4px;">رد البوت القديم (الذي ترغب في تصحيحه):</div>
+                <div style="font-size:12.5px;color:#881337;" id="correctModalOldReply">${escapeHtml(botReply || '—')}</div>
+            </div>
+
+            <div>
+                <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px;color:#1e293b;">
+                    الرد النموذجي المعتمد (الذي يجب أن يقوله البوت من الآن فصاعداً):
+                </label>
+                <textarea id="correctModalIdealReply" rows="4" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border,#cbd5e1);font-size:13px;line-height:1.6;" placeholder="اكتب الرد الصحيح بالعامية المصرية كما ترغب أن تقوله البائعة للعميلة..."></textarea>
+            </div>
+
+            <div>
+                <label style="display:block;font-size:12px;font-weight:600;margin-bottom:4px;color:#64748b;">
+                    ملاحظة أو توجيه عام للبوت (اختياري):
+                </label>
+                <input type="text" id="correctModalNote" style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid var(--border,#cbd5e1);font-size:12.5px;" placeholder="مثال: لو سألت عن الشحن للمحافظات قول كذا...">
+            </div>
+
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px;">
+                <button class="btn-primary btn-outline" type="button" onclick="closeModal()">إلغاء</button>
+                <button class="btn-primary" type="button" id="saveBotCorrectionBtn" onclick="submitBotCorrection('${sessionId}')">
+                    <i class="fas fa-graduation-cap"></i> حفظ وتدريب البوت فوراً
+                </button>
+            </div>
+        </div>
+    `;
+    openModal('تعليم وتصحيح ذكاء البوت (Teach Bot)', html);
+}
+
+function openNewRuleModal() {
+    const html = `
+        <div style="display:flex;flex-direction:column;gap:14px;direction:rtl;text-align:right;">
+            <div>
+                <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px;color:#1e293b;">
+                    سؤال أو موضوع العميل (Trigger Query):
+                </label>
+                <input type="text" id="correctModalUserMsg" style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid var(--border,#cbd5e1);font-size:13px;" placeholder="مثال: عند السؤال عن التوصيل المجاني أو التقسيط...">
+            </div>
+
+            <div>
+                <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px;color:#1e293b;">
+                    الرد النموذجي المعتمد (Approved Bot Reply):
+                </label>
+                <textarea id="correctModalIdealReply" rows="4" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border,#cbd5e1);font-size:13px;line-height:1.6;" placeholder="اكتب رد البوت الذي تريده أن يلتزم به دائماً..."></textarea>
+            </div>
+
+            <div>
+                <label style="display:block;font-size:12px;font-weight:600;margin-bottom:4px;color:#64748b;">
+                    ملاحظة أو قاعدة تشغيلية (اختياري):
+                </label>
+                <input type="text" id="correctModalNote" style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid var(--border,#cbd5e1);font-size:12.5px;" placeholder="مثال: يمنع الوعد بتوصيل نفس اليوم...">
+            </div>
+
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px;">
+                <button class="btn-primary btn-outline" type="button" onclick="closeModal()">إلغاء</button>
+                <button class="btn-primary" type="button" id="saveBotCorrectionBtn" onclick="submitBotCorrection('')">
+                    <i class="fas fa-check"></i> حفظ التوجيه في عقل البوت
+                </button>
+            </div>
+        </div>
+    `;
+    openModal('إضافة توجيه جديد لذكاء البوت', html);
+}
+
+async function submitBotCorrection(sessionId) {
+    const userMsgEl = document.getElementById('correctModalUserMsg');
+    const oldReplyEl = document.getElementById('correctModalOldReply');
+    const idealReplyEl = document.getElementById('correctModalIdealReply');
+    const noteEl = document.getElementById('correctModalNote');
+    const saveBtn = document.getElementById('saveBotCorrectionBtn');
+
+    const customerQuery = userMsgEl ? (userMsgEl.value || userMsgEl.textContent || '') : '';
+    const badReply = oldReplyEl ? oldReplyEl.textContent : '';
+    const idealReply = idealReplyEl ? idealReplyEl.value.trim() : '';
+    const ruleNote = noteEl ? noteEl.value.trim() : '';
+
+    if (!idealReply) {
+        toast('يرجى كتابة الرد النموذجي أولاً', 'error');
+        return;
+    }
+
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التدريب والحفظ...';
+    }
+
+    try {
+        const hdrs = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=bot-correction-save', {
+            method: 'POST',
+            headers: hdrs,
+            body: JSON.stringify({
+                customerQuery,
+                badReply,
+                idealReply,
+                ruleNote,
+                sessionId
+            })
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            toast('تم تدريب البوت بنجاح! سيتم تطبيق هذا التوجيه على جميع المحادثات القادمة.');
+            closeModal();
+            loadBotRules();
+        } else {
+            toast('فشل الحفظ: ' + (data.error || 'خطأ غير معروف'), 'error');
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-graduation-cap"></i> إعادة المحاولة';
+            }
+        }
+    } catch (e) {
+        toast('خطأ في الاتصال: ' + e.message, 'error');
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fas fa-graduation-cap"></i> إعادة المحاولة';
+        }
+    }
+}
+
+async function loadBotRules() {
+    const tableBody = document.getElementById('botRulesTableBody');
+    const countEl = document.getElementById('botRulesCount');
+    if (!tableBody) return;
+
+    try {
+        const hdrs = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=bot-corrections-list', { headers: hdrs });
+        const data = await res.json();
+
+        if (!data.ok) {
+            tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-danger)">تعذر تحميل القواعد</td></tr>';
+            return;
+        }
+
+        const rules = data.rules || [];
+        if (countEl) countEl.textContent = rules.length;
+
+        if (!rules.length) {
+            tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--text-muted)">لا توجد تصحيحات حتى الآن. يمكنك تصحيح أي رد مباشرة من نافذة المحادثات الحية!</td></tr>';
+            return;
+        }
+
+        tableBody.innerHTML = rules.map(r => `
+            <tr>
+                <td style="font-weight:600;color:#1e293b;max-width:200px;">${escapeHtml(r.customerQuery || 'سؤال عام')}</td>
+                <td style="color:#0f172a;line-height:1.5;max-width:320px;white-space:pre-wrap;background:#f8fafc;padding:8px 12px;border-radius:6px;">${escapeHtml(r.idealReply)}</td>
+                <td style="color:#64748b;font-size:12px;">${escapeHtml(r.ruleNote || '—')}</td>
+                <td>
+                    <button class="btn-primary btn-outline" style="color:#ef4444;border-color:#ef4444;font-size:11px;padding:3px 8px;" onclick="deleteBotRule('${r.id}')">
+                        <i class="fas fa-trash"></i> حذف
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+
+    } catch (e) {
+        console.error('loadBotRules error:', e);
+    }
+}
+
+async function deleteBotRule(ruleId) {
+    if (!confirm('هل أنت متأكد من حذف هذه القاعدة من ذاكرة البوت؟')) return;
+    try {
+        const hdrs = await authHeaders();
+        const res = await fetch(`/api/integrations-status?action=bot-correction-delete&ruleId=${encodeURIComponent(ruleId)}`, { headers: hdrs });
+        const data = await res.json();
+        if (data.ok) {
+            toast('تم حذف القاعدة من البوت');
+            loadBotRules();
+        } else {
+            toast('تعذر الحذف', 'error');
+        }
+    } catch (e) {
+        toast('خطأ: ' + e.message, 'error');
+    }
+}
+
+async function toggleCurrentSessionPause() {
+    if (!currentActiveSessionId) return;
+    const btn = document.getElementById('botChatPauseBtn');
+    if (!btn) return;
+    const isPaused = btn.innerHTML.includes('استئناف');
+
+    btn.disabled = true;
+    try {
+        const hdrs = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=bot-pause-toggle', {
+            method: 'POST',
+            headers: hdrs,
+            body: JSON.stringify({ sessionId: currentActiveSessionId, pause: !isPaused })
+        });
+        const data = await res.json();
+        btn.disabled = false;
+        if (data.ok) {
+            if (data.paused) {
+                btn.innerHTML = '<i class="fas fa-play"></i> استئناف البوت لهذه العميلة';
+                btn.style.color = '#15803d';
+                btn.style.borderColor = '#15803d';
+                toast('تم إيقاف البوت مؤقتاً لهذة المحادثة بنجاح');
+            } else {
+                btn.innerHTML = '<i class="fas fa-pause"></i> إيقاف البوت لهذه العميلة';
+                btn.style.color = '';
+                btn.style.borderColor = '';
+                toast('تم استئناف ردود البوت');
+            }
+        }
+    } catch (e) {
+        btn.disabled = false;
+        toast('خطأ: ' + e.message, 'error');
+    }
+}
