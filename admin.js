@@ -409,6 +409,13 @@ async function openManualOrderModal() {
                         </label>
                     </div>
                 </div>
+                <div style="display:flex;gap:12px;flex-wrap:wrap">
+                    <div class="form-group" style="flex:1;min-width:140px"><label>خصم خاص (ج.م أو %)</label>
+                        <input id="moDiscountInput" placeholder="مثال: 50 أو 10%" oninput="onManualOrderDiscountChange()"></div>
+                    <div class="form-group" style="flex:1;min-width:140px"><label>أو إجمالي مخصص (المطلوب كاش)</label>
+                        <input id="moCustomTotal" type="number" min="0" placeholder="مثال: 700 ج" oninput="onManualOrderCustomTotalChange()"></div>
+                </div>
+
                 <div class="form-group"><label>ملاحظات</label>
                     <input id="moNotes" placeholder="اختياري — مصدر الطلب / ملاحظات داخلية"></div>
 
@@ -421,7 +428,8 @@ async function openManualOrderModal() {
                 <div style="background:var(--bg,#f7f5fa);border-radius:10px;padding:12px;font-size:13px;line-height:1.9">
                     <div style="display:flex;justify-content:space-between"><span>المنتجات</span><strong id="moSubtotal">0 ج.م</strong></div>
                     <div style="display:flex;justify-content:space-between"><span>الشحن</span><strong id="moShip">0 ج.م</strong></div>
-                    <div style="display:flex;justify-content:space-between;font-size:15px;margin-top:4px"><span>الإجمالي</span><strong style="color:var(--purple)" id="moTotal">0 ج.م</strong></div>
+                    <div id="moDiscountRow" style="display:none;justify-content:space-between;color:#dc2626;font-weight:600"><span>الخصم</span><strong id="moDiscountVal">-0 ج.م</strong></div>
+                    <div style="display:flex;justify-content:space-between;font-size:16px;margin-top:6px;border-top:1px dashed var(--border);padding-top:6px"><span>المبلغ المطلوب من العميل</span><strong style="color:var(--purple);font-size:18px" id="moTotal">0 ج.م</strong></div>
                 </div>
 
                 <button type="submit" class="btn-primary" id="moSubmitBtn"><i class="fas fa-check"></i> تسجيل الطلب</button>
@@ -450,6 +458,28 @@ function productOptionsHtml(selectedId) {
     }).join('');
 }
 
+function onManualOrderDiscountChange() {
+    const customTotalInput = document.getElementById('moCustomTotal');
+    if (customTotalInput) customTotalInput.value = '';
+    recalcManualOrderTotals();
+}
+
+function onManualOrderCustomTotalChange() {
+    const discountInput = document.getElementById('moDiscountInput');
+    if (discountInput) discountInput.value = '';
+    recalcManualOrderTotals();
+}
+
+function onManualOrderProductChange(sel) {
+    const row = sel.closest('.mo-line');
+    const priceInput = row?.querySelector('.mo-price');
+    const opt = sel.selectedOptions?.[0];
+    if (priceInput && opt?.dataset?.price) {
+        priceInput.value = opt.dataset.price;
+    }
+    recalcManualOrderTotals();
+}
+
 function addManualOrderLine() {
     const wrap = document.getElementById('moLines');
     if (!wrap) return;
@@ -459,11 +489,23 @@ function addManualOrderLine() {
     row.dataset.lineId = String(id);
     row.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px;border:1px solid var(--border);border-radius:10px';
     row.innerHTML = `
-        <select class="mo-product" style="flex:1;min-width:180px" onchange="recalcManualOrderTotals()">${productOptionsHtml()}</select>
-        <input class="mo-qty" type="number" min="1" value="1" style="width:72px" onchange="recalcManualOrderTotals()" oninput="recalcManualOrderTotals()">
+        <select class="mo-product" style="flex:1;min-width:160px" onchange="onManualOrderProductChange(this)">${productOptionsHtml()}</select>
+        <div style="display:flex;align-items:center;gap:4px">
+            <span style="font-size:11px;color:var(--text-muted)">سعر:</span>
+            <input class="mo-price" type="number" min="0" style="width:75px" title="سعر القطعة" oninput="recalcManualOrderTotals()">
+        </div>
+        <div style="display:flex;align-items:center;gap:4px">
+            <span style="font-size:11px;color:var(--text-muted)">الكمية:</span>
+            <input class="mo-qty" type="number" min="1" value="1" style="width:55px" title="الكمية" oninput="recalcManualOrderTotals()">
+        </div>
         <button type="button" class="btn-sm btn-delete" onclick="this.closest('.mo-line').remove();recalcManualOrderTotals()" title="حذف"><i class="fas fa-trash"></i></button>
     `;
     wrap.appendChild(row);
+    const sel = row.querySelector('.mo-product');
+    const priceInput = row.querySelector('.mo-price');
+    if (sel && priceInput && sel.selectedOptions?.[0]?.dataset?.price) {
+        priceInput.value = sel.selectedOptions[0].dataset.price;
+    }
     recalcManualOrderTotals();
 }
 
@@ -472,12 +514,14 @@ function collectManualOrderLines() {
     const items = [];
     for (const row of rows) {
         const sel = row.querySelector('.mo-product');
+        const priceInput = row.querySelector('.mo-price');
         const qtyInput = row.querySelector('.mo-qty');
         const pid = Number(sel?.value);
         const qty = Math.max(1, parseInt(qtyInput?.value, 10) || 1);
         const opt = sel?.selectedOptions?.[0];
         if (!pid || !opt || opt.disabled) continue;
-        const price = Number(opt.dataset.price) || 0;
+        const catalogPrice = Number(opt.dataset.price) || 0;
+        const price = (priceInput && priceInput.value !== '') ? (parseFloat(priceInput.value) || 0) : catalogPrice;
         const stock = Number(opt.dataset.stock) || 0;
         const p = _manualOrderProducts.find((x) => String(x.id) === String(pid));
         items.push({
@@ -494,19 +538,49 @@ function collectManualOrderLines() {
 
 function recalcManualOrderTotals() {
     const items = collectManualOrderLines();
-    const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
+    const subtotal = items.reduce((s, i) => s + (i.price * i.qty), 0);
     const free = document.getElementById('moFreeShip')?.checked;
     const govSel = document.getElementById('moGov');
     const cost = Number(govSel?.selectedOptions?.[0]?.dataset?.cost) || 0;
     const shipping = free ? 0 : cost;
-    const total = subtotal + shipping;
+
+    let discount = 0;
+    const customTotalVal = document.getElementById('moCustomTotal')?.value?.trim();
+    const discountVal = document.getElementById('moDiscountInput')?.value?.trim();
+
+    if (customTotalVal !== '' && !isNaN(Number(customTotalVal))) {
+        const targetTotal = Math.max(0, parseFloat(customTotalVal) || 0);
+        discount = Math.max(0, (subtotal + shipping) - targetTotal);
+    } else if (discountVal) {
+        if (discountVal.endsWith('%')) {
+            const pct = Math.max(0, Math.min(100, parseFloat(discountVal) || 0));
+            discount = Math.round(subtotal * (pct / 100));
+        } else {
+            discount = Math.max(0, parseFloat(discountVal) || 0);
+        }
+    }
+
+    discount = Math.min(discount, subtotal + shipping);
+    const total = Math.max(0, (subtotal + shipping) - discount);
+
     const subEl = document.getElementById('moSubtotal');
     const shipEl = document.getElementById('moShip');
+    const discRow = document.getElementById('moDiscountRow');
+    const discEl = document.getElementById('moDiscountVal');
     const totEl = document.getElementById('moTotal');
+
     if (subEl) subEl.textContent = `${Math.round(subtotal)} ج.م`;
     if (shipEl) shipEl.textContent = shipping > 0 ? `${Math.round(shipping)} ج.م` : 'مجاني';
+    if (discRow && discEl) {
+        if (discount > 0) {
+            discRow.style.display = 'flex';
+            discEl.textContent = `-${Math.round(discount)} ج.م`;
+        } else {
+            discRow.style.display = 'none';
+        }
+    }
     if (totEl) totEl.textContent = `${Math.round(total)} ج.م`;
-    return { items, subtotal, shipping, total };
+    return { items, subtotal, shipping, discount, total };
 }
 
 async function submitManualOrder(e) {
@@ -582,23 +656,33 @@ async function submitManualOrder(e) {
         const orderId = order?.id;
         const orderNumber = order?.order_number;
 
-        // RPC currently forces shipping=0 store-wide — apply admin-chosen shipping when needed
-        if (orderId && shipping > 0) {
-            const realTotal = Math.round((Number(order.subtotal) || subtotal) + shipping);
+        // Save exact custom pricing, discounts, shipping and notes
+        if (orderId) {
             await api('orders', 'PATCH', {
-                shipping_cost: shipping,
-                total: realTotal,
+                subtotal: Math.round(subtotal),
+                shipping_cost: Math.round(shipping),
+                discount: Math.round(discount),
+                total: Math.round(total),
                 notes,
                 updated_at: new Date().toISOString(),
             }, `?id=eq.${orderId}`);
+
+            // If unit prices were customized by the admin, keep order_items in sync
+            for (const it of items) {
+                await api('order_items', 'PATCH', {
+                    price: it.price,
+                    total: it.price * it.qty,
+                }, `?order_id=eq.${orderId}&product_id=eq.${it.id}`);
+            }
         }
 
+        const discSummary = discount > 0 ? ` (خصم: ${Math.round(discount)} ج)` : '';
         logAdminActivity({
             action_type: 'CREATE',
             entity_type: 'order',
             entity_ref: orderNumber,
-            summary: `تسجيل طلب يدوي جديد ${orderNumber || ''} للعميل (${name} - ${phone}) بمبلغ ${total} ج.م - ${governorate}`,
-            details: { order_number: orderNumber, customer_name: name, customer_phone: phone, governorate, total, items_count: items.length }
+            summary: `تسجيل طلب يدوي جديد ${orderNumber || ''} للعميل (${name} - ${phone}) بمبلغ ${Math.round(total)} ج.م${discSummary} - ${governorate}`,
+            details: { order_number: orderNumber, customer_name: name, customer_phone: phone, governorate, total: Math.round(total), discount: Math.round(discount), items_count: items.length }
         });
 
         toast(`تم تسجيل الطلب ${orderNumber || ''} ✅`);
