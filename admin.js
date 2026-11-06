@@ -591,7 +591,7 @@ async function submitManualOrder(e) {
     const governorate = document.getElementById('moGov')?.value;
     const payment = document.getElementById('moPay')?.value || 'cod';
     const notesRaw = document.getElementById('moNotes')?.value.trim();
-    const { items, subtotal, shipping, total } = recalcManualOrderTotals();
+    const { items, subtotal, shipping, discount, total } = recalcManualOrderTotals();
 
     if (!name || !phone || !address || !governorate) {
         toast('املي بيانات العميل والمحافظة', 'error');
@@ -636,10 +636,10 @@ async function submitManualOrder(e) {
                 p_delivery_method: 'standard',
                 p_coupon_code: null,
                 p_notes: notes,
-                p_subtotal: subtotal,
-                p_shipping_cost: shipping,
-                p_discount: 0,
-                p_total: total,
+                p_subtotal: Math.round(subtotal),
+                p_shipping_cost: Math.round(shipping),
+                p_discount: Math.round(discount || 0),
+                p_total: Math.round(total),
                 p_governorate: governorate,
                 p_payment_proof_url: null,
                 p_deposit_amount: 0,
