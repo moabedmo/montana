@@ -77,10 +77,10 @@ function assert(cond, label) {
 
   const keepGemini = resolveEffectiveIntent(
     { intent: 'POINTS_ASK', products: [], slots: {} },
-    'بكم',
+    'نظام النقاط',
     {}
   );
-  assert(keepGemini.intent === 'POINTS_ASK', 'Gemini POINTS_ASK wins over بكم text');
+  assert(keepGemini.intent === 'POINTS_ASK', 'Gemini POINTS_ASK wins over non-price text');
 
   const fail = resolveEffectiveIntent(null, 'مجموعه كلها', {});
   assert(fail.intent === 'ROUTINE_OR_SET', 'null classifier → ROUTINE_OR_SET fallback');
