@@ -180,7 +180,8 @@ module.exports = async (req, res) => {
     // Repeat of the same text on a ManyChat-driven channel → send nothing.
     // Cleared again in the catch below, so a retry after a real failure still
     // gets answered instead of being silently swallowed.
-    dupKey = message && channelOf(sid) !== 'web' ? inboundKey(sid, message) : null;
+    const dedupText = message || (hasImage ? '__photo__' : '');
+    dupKey = dedupText && channelOf(sid) !== 'web' ? inboundKey(sid, dedupText) : null;
     if (dupKey && !(await claimInbound(dupKey))) {
       console.warn('[chat] duplicate inbound swallowed', sid, String(message).slice(0, 60));
       return res.json({
@@ -233,8 +234,8 @@ module.exports = async (req, res) => {
       if (reply.length <= 380) {
         parts = [reply];
       } else {
-        parts = reply.split(/\n\s*\n+/).map(p => p.trim()).filter(Boolean);
-        if (parts.length === 1 && reply.length > 380) {
+        const rawParas = reply.split(/\n\s*\n+/).map(p => p.trim()).filter(p => p && !/^[-─=_*~]{3,}$/.test(p));
+        if (rawParas.length <= 1) {
           // Hard split long single paragraphs
           parts = [];
           let rest = reply;
@@ -245,8 +246,25 @@ module.exports = async (req, res) => {
             rest = rest.slice(cut).trim();
           }
           if (rest) parts.push(rest);
+        } else {
+          // Pack paragraphs into at most 3 bubbles without ever dropping any content!
+          parts = [];
+          let cur = '';
+          for (let i = 0; i < rawParas.length; i++) {
+            const p = rawParas[i];
+            const remainingParas = rawParas.length - i;
+            const remainingBubbles = 3 - parts.length;
+            const wouldExceed = cur && (cur.length + 2 + p.length > 380);
+            const needToFlush = cur && (remainingParas === remainingBubbles);
+            if (remainingBubbles > 1 && (wouldExceed || needToFlush)) {
+              parts.push(cur);
+              cur = p;
+            } else {
+              cur = cur ? `${cur}\n\n${p}` : p;
+            }
+          }
+          if (cur) parts.push(cur);
         }
-        parts = parts.slice(0, 3);
       }
       payload.reply1 = parts[0] || 'NONE';
       payload.reply2 = parts[1] || 'NONE';
