@@ -1,6 +1,7 @@
 const {
   resolveSelectedBundle,
   resolveBundleFromCustomerText,
+  resolveProductAdButton,
   isVagueOfferQuestion,
   allocateBundleUnitPrices,
   getBundleByKey,
@@ -16,6 +17,8 @@ assert(resolveBundleFromCustomerText('روتين التفتيح الكامل ب�
 assert(resolveBundleFromCustomerText('عرض ما بعد الليزر بـ 618').key === 'post-laser', '618 text');
 assert(resolveBundleFromCustomerText('عرض ما بعد الليزر بـ 549').key === 'post-laser', 'legacy 549 text');
 assert(resolveBundleFromCustomerText('عناية الوش والجسم غسول حب الشباب + لوشن بـ 558').key === 'face-body', '558 text');
+assert(resolveBundleFromCustomerText('الكريم والشامبو اللي هو للتفتيح للاماكن')?.key === 'brightening', 'cream+shampoo brightening');
+assert(resolveProductAdButton('الكريم والشامبو اللي هو للتفتيح للاماكن') === null, 'cream+shampoo is not single-SKU button');
 
 assert(resolveSelectedBundle('post-laser').key === 'post-laser', 'selectedBundle post-laser');
 assert(resolveSelectedBundle('brightening').key === 'brightening', 'selectedBundle brightening');

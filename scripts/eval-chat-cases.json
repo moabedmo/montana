@@ -873,6 +873,19 @@
       "expect": {
         "namedGovShipping": true
       }
+    },
+    {
+      "id": "saiiy-cream-shampoo-brightening",
+      "notes": "Customer said she wanted the product, then clarified 'الكريم والشامبو اللي هو للتفتيح للاماكن'. Bot must recognize الشامبو+الكريم للتفتيح as the brightening routine and never reset with the single 249 EGP cream ad greeting.",
+      "selectedBundle": "brightening",
+      "steps": [
+        "تمام هو كنت عاوزه المنتج",
+        "الكريم والشامبو اللي هو للتفتيح للاماكن"
+      ],
+      "expect": {
+        "brighteningRoutine": true,
+        "notSingleWhiteningCream": true
+      }
     }
   ]
 }

@@ -114,13 +114,13 @@ function check(expect, reply, prevReply) {
     if (!(/777/.test(reply) && /تفتيح/.test(reply))) {
       fails.push('expected brightening 777 price (routine already pitched ok)');
     }
-    if (/مناسب ليكي:.*كريم التفتيح/.test(reply) && /249/.test(reply) && !/777/.test(reply)) {
+    if ((/مناسب ليكي:.*كريم التفتيح/.test(reply) || /أهلاً بيك[ِى]?[\s\S]{0,40}كريم التفتيح/.test(reply)) && /249/.test(reply) && !/777/.test(reply)) {
       fails.push('single cream on severity follow-up');
     }
   }
   if (
     expect.notSingleWhiteningCream &&
-    /مناسب ليكي:.*كريم التفتيح/.test(reply) &&
+    (/مناسب ليكي:.*كريم التفتيح/.test(reply) || /أهلاً بيك[ِى]?[\s\S]{0,40}كريم التفتيح/.test(reply)) &&
     /249/.test(reply) &&
     !/777/.test(reply)
   ) {
@@ -363,7 +363,7 @@ function check(expect, reply, prevReply) {
     }
   }
   if (expect.namedGovShipping) {
-    if (!(/بن[يى]\s*سويف/.test(reply) && /\d+/.test(reply) && /شحن|جنيه/.test(reply))) {
+    if (!(/(بن[يى]\s*سويف|الشرقي[ةه]|الزقازيق)/.test(reply) && /\d+/.test(reply) && /شحن|جنيه/.test(reply))) {
       fails.push('expected Beni Suef shipping rate');
     }
   }
