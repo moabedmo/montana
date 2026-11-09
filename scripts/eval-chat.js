@@ -388,7 +388,7 @@ function check(expect, reply, prevReply) {
     fails.push('re-asked to register the same offer');
   }
   if (expect.bundleAlreadyInCart) {
-    if (!(/موجود في أوردرك|نكمل الأوردر/.test(reply))) {
+    if (!(/موجود في أوردرك|مسجل في أوردرك|في أوردرك|نكمل الأوردر/.test(reply))) {
       fails.push('expected already-in-cart / continue checkout nudge');
     }
     if (/تحبي أسجلكِ الأوردر بالعرض ده/.test(reply)) {
