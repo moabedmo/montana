@@ -886,6 +886,68 @@
         "brighteningRoutine": true,
         "notSingleWhiteningCream": true
       }
+    },
+    {
+      "id": "messenger-no-thanks-cancel-checkout",
+      "steps": [
+        "عاوزة أطلب روتين التفتيح (عرض 777 ج)",
+        "لا شكرااا يافندم"
+      ],
+      "expect": {
+        "walkAwaySoftClose": true
+      }
+    },
+    {
+      "id": "messenger-waiting-for-money-not-name",
+      "steps": [
+        "عاوزة أطلب روتين التفتيح (عرض 777 ج)",
+        "لسع منتظر الفلوس تجي اشان اكلمك"
+      ],
+      "expect": {
+        "walkAwaySoftClose": true
+      }
+    },
+    {
+      "id": "messenger-inner-thighs-darkening",
+      "steps": [
+        "هل مناسب لبين الفخدين لا فيه غمقان عميق"
+      ],
+      "expect": {
+        "answersSuitability": true,
+        "notProductCatalogDump": true
+      }
+    },
+    {
+      "id": "messenger-cleanser-and-whitening-ar",
+      "steps": [
+        "عاوزة أطلب روتين التفتيح (عرض 777 ج)",
+        "الغسول والوايتينج للمناطق الحساسه"
+      ],
+      "expect": {
+        "brighteningRoutine": true,
+        "notProductCatalogDump": true
+      }
+    },
+    {
+      "id": "messenger-bkam-cleanser-and-cream-bare",
+      "steps": [
+        "بكام  الغسول و الكريم"
+      ],
+      "expect": {
+        "cleanserAndCreamUnitPrices": true
+      }
+    },
+    {
+      "id": "messenger-kaam-stretched-ad",
+      "selectedBundle": "brightening",
+      "steps": [
+        "كاام"
+      ],
+      "expect": {
+        "onlyAdBundle": true,
+        "adKey": "brightening",
+        "brighteningRoutine": true
+      }
     }
   ]
 }
