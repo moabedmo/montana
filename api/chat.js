@@ -158,8 +158,23 @@ module.exports = async (req, res) => {
     );
     // The URL, not just the fact that a photo arrived. Without it the engine
     // can only answer every photo with the same canned pitch.
+    const isAudioMsg = (str) => {
+      const s = String(str || '').trim();
+      return /audioclip-|\.(mp4|m4a|aac|ogg|opus|wav|amr)(\?|$)/i.test(s)
+        || /^(audio|voice|voice_note|voicenote)$/i.test(s);
+    };
+    const hasAudio = !!(
+      isAudioMsg(message) ||
+      flagOn(body.hasAudio) ||
+      flagOn(body.has_audio) ||
+      flagOn(body.isAudio) ||
+      flagOn(body.is_audio) ||
+      flagOn(body.voice) ||
+      (typeof body.attachment_type === 'string' && /audio|voice/i.test(body.attachment_type)) ||
+      (Array.isArray(body.attachments) && body.attachments.some((a) => /audio|voice/i.test(String(a?.type || a || ''))))
+    );
     const imageUrl = extractImageUrl(body);
-    if (!message && !formSubmit && !hasBundle && !hasProduct && !hasAdTitle && !pauseBot && !resumeBot && !hasImage && !imageUrl) {
+    if (!message && !formSubmit && !hasBundle && !hasProduct && !hasAdTitle && !pauseBot && !resumeBot && !hasImage && !imageUrl && !hasAudio) {
       return res.status(400).json({ error: 'message required' });
     }
     if (message && String(message).length > 2000) {
