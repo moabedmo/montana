@@ -222,9 +222,9 @@ function check(expect, reply, prevReply) {
   if (expect.notGovNotFound && /المحافظة دي مش ظاهرة/.test(reply)) {
     fails.push('governorate-not-found after address re-paste');
   }
-  if (expect.orderPlaced && !(/تم تسجيل أوردرك|رقم الطلب|MON-/i.test(prevReply || '') || /تم تسجيل أوردرك|رقم الطلب|MON-/i.test(reply))) {
+  if (expect.orderPlaced && !(/تم تسجيل أوردرك|رقم الطلب|MON-|طلب حضرتك اتسجل/i.test(prevReply || '') || /تم تسجيل أوردرك|رقم الطلب|MON-|طلب حضرتك اتسجل/i.test(reply))) {
     // order confirm is on previous step; soft-close is current reply
-    const histOk = /تم تسجيل أوردرك|رقم الطلب|MON-/i.test(prevReply || '');
+    const histOk = /تم تسجيل أوردرك|رقم الطلب|MON-|طلب حضرتك اتسجل/i.test(prevReply || '');
     if (!histOk) fails.push('expected order confirmation before soft close');
   }
   if (expect.softCloseAfterOrder) {
