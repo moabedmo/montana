@@ -210,6 +210,8 @@ module.exports = async (req, res) => {
     }
 
     const payload = await handleInboundMessage({
+      // Set from the verified X-Montana-Secret header only — never from the body.
+      trustedCaller: trusted === true,
       sid,
       message,
       formSubmit,

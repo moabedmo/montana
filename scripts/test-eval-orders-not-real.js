@@ -40,11 +40,11 @@ assert.ok(!isEvalSession(null));
 const body = engine.slice(engine.indexOf('async function create_order'));
 assert.ok(/const evalRun = isEvalSession\(sid\)/.test(body),
   'create_order must decide once whether this is an eval run');
-assert.ok(/evalRun\s*\?[\s\S]{0,200}?create_guest_order/.test(body),
+assert.ok(/evalRun\s*\?[\s\S]{0,200}?create_guest_order|if\s*\(evalRun\)[\s\S]{0,1200}?create_guest_order/.test(body),
   'the order insert must be skipped for an eval session');
 assert.ok(/orderNumber && !evalRun/.test(body),
   'Telegram must not be told about an eval order');
-assert.ok(/if \(!evalRun\) \{[\s\S]{0,300}?notifyStockCrossings/.test(body),
+assert.ok(/if \(!evalRun[^\)]*\) \{[\s\S]{0,300}?notifyStockCrossings/.test(body),
   'stock alerts must not fire for an eval order');
 
 console.log('PASS eval orders are not real — sid shape, predicate, three consequences');

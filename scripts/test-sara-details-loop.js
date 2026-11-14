@@ -65,7 +65,7 @@ const src = fs.readFileSync(require('path').join(__dirname, '..', 'lib', 'chatEn
 const lines = src.split('\n');
 
 const seedAt = lines.findIndex((l) => l.includes('await seedCartFromPromisedProduct('));
-const gateAt = lines.findIndex((l) => l.includes("if ((sessionCarts[sid] || []).length && looksLikeVolunteeredDeliveryDetails(message))"));
+const gateAt = lines.findIndex((l) => l.includes("(sessionCarts[sid] || []).length && looksLikeVolunteeredDeliveryDetails(message)"));
 assert(seedAt !== -1, 'the cart is seeded from the promised product');
 assert(gateAt !== -1, 'the cart-gated checkout call is still there');
 assert(seedAt !== -1 && gateAt !== -1 && seedAt < gateAt, 'seeding runs BEFORE the cart gate');
