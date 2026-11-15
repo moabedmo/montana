@@ -480,6 +480,31 @@
             .inv-stamp-circle { width: 60px; height: 60px; font-size: 8px; }
             .inv-watermark { padding: 10px; font-size: 9px; }
         }
+
+        /* Direct Inline Editable Styling */
+        [contenteditable="true"] {
+            outline: none;
+            border-radius: 4px;
+            padding: 2px 4px;
+            transition: background 0.15s, outline 0.15s, box-shadow 0.15s;
+        }
+        [contenteditable="true"]:hover {
+            background: rgba(155, 108, 184, 0.1);
+            outline: 1px dashed #9B6CB8;
+            cursor: text;
+        }
+        [contenteditable="true"]:focus {
+            background: #fff;
+            outline: 2px solid #9B6CB8;
+            box-shadow: 0 0 0 3px rgba(155, 108, 184, 0.2);
+        }
+        @media print {
+            [contenteditable="true"] {
+                outline: none !important;
+                background: transparent !important;
+                box-shadow: none !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -489,11 +514,12 @@
         <button class="print-btn" onclick="window.print()">🖨️ طباعة</button>
         <button class="print-btn outline" onclick="openClientPicker()">👤 بيانات العميل</button>
         <button class="print-btn outline" onclick="openStockPicker()">📦 من المخزون</button>
-        <button class="print-btn outline" onclick="toggleEdit()">✏️ تعديل</button>
+        <button class="print-btn outline" onclick="addShippingRow()" style="color:#27ae60;border-color:#27ae60;font-weight:700">🚚 إضافة / تعديل الشحن</button>
+        <button class="print-btn outline" onclick="toggleEdit()">✏️ تعديل الكل</button>
         <button class="print-btn outline" onclick="addRow()">➕ صنف يدوي</button>
         <button class="print-btn outline" onclick="newInvoice()">📄 فاتورة جديدة</button>
         <label class="inv-deduct"><input type="checkbox" id="deductStock" checked> خصم من المخزون</label>
-        <button class="print-btn outline" onclick="saveInvoice()">💾 حفظ</button>
+        <button class="print-btn outline" onclick="saveInvoice()" style="color:#2980b9;border-color:#2980b9;font-weight:700">💾 حفظ الفاتورة</button>
         <button class="print-btn outline" id="btn-return-invoice" onclick="returnInvoiceAsCredit()" style="display:none;color:#c0392b;border-color:#c0392b">↩️ إلغاء كمرتجع</button>
         <button class="print-btn outline" onclick="deleteInvoice()">🗑️ حذف</button>
     </div>
@@ -544,11 +570,11 @@
             </p>
         </div>
         <div class="inv-info-block">
-            <h3>بيانات العميل</h3>
+            <h3>بيانات العميل <span class="no-print" style="font-size:11px;font-weight:normal;color:#9B6CB8;margin-right:6px">✏️ (انقر لتعديل أي بيان)</span></h3>
             <p>
-                <strong id="clientName">—</strong><br>
-                <span id="clientAddress"></span>
-                <span class="label">الهاتف:</span> <span id="clientPhone">—</span>
+                <strong id="clientName" contenteditable="true" title="انقر لتعديل اسم العميل">—</strong><br>
+                <span id="clientAddress" contenteditable="true" title="انقر لتعديل عنوان العميل"></span><br>
+                <span class="label">الهاتف:</span> <span id="clientPhone" contenteditable="true" title="انقر لتعديل رقم الهاتف">—</span>
             </p>
             <div class="inv-source-tag" id="clientSource"></div>
         </div>
@@ -718,7 +744,7 @@ async function refreshInvoiceNumberPreview() {
 function setClient(name, phone, address, sourceLabel) {
     document.getElementById('clientName').textContent = name || 'اسم العميل';
     document.getElementById('clientPhone').textContent = phone || '-';
-    document.getElementById('clientAddress').innerHTML = address ? address + '<br>' : '';
+    document.getElementById('clientAddress').textContent = address || '';
     document.getElementById('clientSource').textContent = sourceLabel || '';
 }
 
@@ -743,7 +769,7 @@ function applyDepositTotals(subtotal) {
     const subEl = document.getElementById('subtotalAmount');
     const taxEl = document.getElementById('taxAmount');
     const grandEl = document.getElementById('grandTotalAmount');
-    const grand = orderGrandTotal > 0 ? orderGrandTotal : subtotal;
+    const grand = subtotal; // Follow dynamic table total
     if (subEl) subEl.textContent = subtotal.toFixed(2) + ' ج.م';
     if (taxEl) taxEl.textContent = '0.00 ج.م';
     if (orderDeposit > 0 && depositRow && balanceRow && depositEl && balanceEl) {
@@ -775,7 +801,7 @@ function addRowFromData(name, price, qty, discountPct, pharmacyPrice, rowTotal, 
     const rowNum = tbody.children.length + 1;
     const row = document.createElement('tr');
     if (productId) row.dataset.productId = productId;
-    row.innerHTML = `<td>${rowNum}</td><td class="product-name">${name}</td><td>${Number(price).toFixed(2)}</td><td>${qty}</td><td><span class="discount">${discountPct}%</span></td><td>${Number(pharmacyPrice).toFixed(1)}</td><td class="row-total">${Number(rowTotal).toFixed(1)}</td><td class="no-print"><button type="button" class="del-btn">✕</button></td>`;
+    row.innerHTML = `<td>${rowNum}</td><td class="product-name" contenteditable="true" title="انقر لتعديل اسم الصنف">${name}</td><td contenteditable="true" title="انقر لتعديل سعر الجمهور">${Number(price).toFixed(2)}</td><td contenteditable="true" title="انقر لتعديل الكمية">${qty}</td><td><span class="discount" contenteditable="true" title="انقر لتعديل نسبة الخصم">${discountPct}%</span></td><td class="pharmacy-price" contenteditable="true" title="انقر لتعديل سعر البيع النهائي">${Number(pharmacyPrice).toFixed(1)}</td><td class="row-total">${Number(rowTotal).toFixed(1)}</td><td class="no-print"><button type="button" class="del-btn">✕</button></td>`;
     row.querySelector('.del-btn').addEventListener('click', () => { row.remove(); calcTotal(); });
     tbody.appendChild(row);
 }
@@ -784,24 +810,74 @@ function addBlankRow() {
     const tbody = document.getElementById('invTableBody');
     const rowNum = tbody.children.length + 1;
     const row = document.createElement('tr');
-    row.innerHTML = `<td>${rowNum}</td><td class="product-name" contenteditable="true" style="outline:1px dashed #9B6CB8">اسم المنتج</td><td contenteditable="true" style="outline:1px dashed #9B6CB8">0.00</td><td contenteditable="true" style="outline:1px dashed #9B6CB8">1</td><td><span class="discount" contenteditable="true" style="outline:1px dashed #9B6CB8">0%</span></td><td contenteditable="true" style="outline:1px dashed #9B6CB8">0.00</td><td class="row-total">0.00</td><td class="no-print"><button type="button" class="del-btn">✕</button></td>`;
+    row.innerHTML = `<td>${rowNum}</td><td class="product-name" contenteditable="true" style="outline:1px dashed #9B6CB8">اسم المنتج</td><td contenteditable="true" style="outline:1px dashed #9B6CB8">0.00</td><td contenteditable="true" style="outline:1px dashed #9B6CB8">1</td><td><span class="discount" contenteditable="true" style="outline:1px dashed #9B6CB8">0%</span></td><td class="pharmacy-price" contenteditable="true" style="outline:1px dashed #9B6CB8">0.00</td><td class="row-total">0.00</td><td class="no-print"><button type="button" class="del-btn">✕</button></td>`;
     row.querySelector('.del-btn').addEventListener('click', () => { row.remove(); calcTotal(); });
     tbody.appendChild(row);
+}
+
+function addShippingRow(customAmount) {
+    let shipAmount = customAmount;
+    if (shipAmount == null) {
+        const input = prompt(
+            'أدخل قيمة مصاريف الشحن (ج.م):\n' +
+            '• الشرقية / المنوفية / القليوبية: 65 أو 60\n' +
+            '• الجيزة / القاهرة: 70 أو 80\n' +
+            '• الإسكندرية: 100\n' +
+            'أو اكتب أي مبلغ تريده:',
+            '65'
+        );
+        if (input === null) return;
+        shipAmount = parseFloat(input);
+        if (isNaN(shipAmount) || shipAmount < 0) {
+            alert('يرجى إدخال مبلغ صحيح');
+            return;
+        }
+    }
+
+    const tbody = document.getElementById('invTableBody');
+    let existingRow = null;
+    tbody.querySelectorAll('tr').forEach(tr => {
+        const nameCell = tr.querySelector('.product-name');
+        if (nameCell && (nameCell.textContent.includes('شحن') || nameCell.textContent.includes('توصيل'))) {
+            existingRow = tr;
+        }
+    });
+
+    if (existingRow) {
+        const cells = existingRow.querySelectorAll('td');
+        cells[2].textContent = Number(shipAmount).toFixed(2);
+        cells[4].textContent = '0%';
+        cells[5].textContent = Number(shipAmount).toFixed(1);
+        cells[6].textContent = Number(shipAmount).toFixed(1);
+        calcTotal();
+    } else {
+        addRowFromData('مصاريف الشحن والتوصيل', shipAmount, 1, 0, shipAmount, shipAmount);
+        calcTotal();
+    }
 }
 
 document.getElementById('invoiceDate').textContent = new Date().toLocaleDateString('en-CA');
 setMeta('cod', 'confirmed');
 
-function toggleEdit() {
+function toggleEdit(btn) {
     editMode = !editMode;
     const cells = document.querySelectorAll('.inv-table td:not(:last-child), #clientName, #clientPhone, #clientAddress, #invoiceDate, #paymentMethod, #paymentStatus');
     cells.forEach(cell => {
-        cell.contentEditable = editMode;
+        cell.contentEditable = true;
         cell.style.outline = editMode ? '1px dashed #9B6CB8' : 'none';
         cell.style.borderRadius = editMode ? '4px' : '';
     });
-    event.target.textContent = editMode ? '✅ تم التعديل' : '✏️ تعديل البيانات';
+    const targetBtn = btn || (window.event && window.event.target);
+    if (targetBtn && targetBtn.textContent) {
+        targetBtn.textContent = editMode ? '✅ إنهاء التعديل' : '✏️ وضع التعديل';
+    }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('#clientName, #clientPhone, #clientAddress, #invoiceDate').forEach(el => {
+        el.contentEditable = true;
+    });
+});
 
 function addRow() { addBlankRow(); calcTotal(); }
 
@@ -864,26 +940,74 @@ function getMaxRowDiscount() {
     return max;
 }
 
-function calcTotal() {
+function calcTotal(e) {
     let subtotal = 0;
+    const active = (e && e.target && e.target.tagName === 'TD') ? e.target : document.activeElement;
     document.querySelectorAll('#invTableBody tr').forEach((row, i) => {
         const cells = row.querySelectorAll('td');
         if (cells.length < 7) return;
-        const price = parseFloat(cells[2].textContent) || 0;
-        const qty = parseInt(cells[3].textContent, 10) || 0;
-        const discountText = cells[4].textContent.replace('%', '').trim();
+        const name = (cells[1].textContent || '').trim();
+        const isShipping = name.includes('شحن') || name.includes('توصيل');
+
+        let price = parseFloat(cells[2].textContent) || 0;
+        let qty = parseInt(cells[3].textContent, 10) || 1;
+        if (qty < 1) qty = 1;
+
+        let discountText = cells[4].textContent.replace('%', '').trim();
         let discount = parseFloat(discountText) || 0;
-        if (discount > MAX_DISCOUNT_PCT && !discountApproved) {
-            discount = MAX_DISCOUNT_PCT;
-            cells[4].textContent = MAX_DISCOUNT_PCT + '%';
+
+        let pharmacyPrice = parseFloat(cells[5].textContent) || 0;
+
+        if (isShipping) {
+            // Shipping row: no discount, price and pharmacyPrice are identical
+            if (active === cells[5]) {
+                price = pharmacyPrice;
+                cells[2].textContent = price.toFixed(2);
+            } else {
+                pharmacyPrice = price;
+                cells[5].textContent = pharmacyPrice.toFixed(1);
+            }
+            cells[4].textContent = '0%';
+            discount = 0;
+        } else if (active === cells[5]) {
+            // User is currently editing the selling price (cells[5])
+            if (price > 0 && price >= pharmacyPrice) {
+                discount = Math.round((1 - pharmacyPrice / price) * 100);
+                cells[4].textContent = discount + '%';
+            } else {
+                price = pharmacyPrice;
+                cells[2].textContent = price.toFixed(2);
+                discount = 0;
+                cells[4].textContent = '0%';
+            }
+        } else if (active === cells[2] || active === cells[4]) {
+            // User is editing public price or discount
+            if (discount > MAX_DISCOUNT_PCT && !discountApproved) {
+                discount = MAX_DISCOUNT_PCT;
+                cells[4].textContent = MAX_DISCOUNT_PCT + '%';
+            }
+            pharmacyPrice = price * (1 - discount / 100);
+            cells[5].textContent = pharmacyPrice.toFixed(1);
+        } else {
+            // Passive update (e.g. on blur, row deletion, or script evaluation)
+            const computedPrice = price * (1 - discount / 100);
+            if (pharmacyPrice > 0 && Math.abs(pharmacyPrice - computedPrice) > 0.5) {
+                if (price > 0 && price >= pharmacyPrice) {
+                    discount = Math.round((1 - pharmacyPrice / price) * 100);
+                    cells[4].textContent = discount + '%';
+                }
+            } else {
+                pharmacyPrice = computedPrice;
+                cells[5].textContent = pharmacyPrice.toFixed(1);
+            }
         }
-        const pharmacyPrice = price * (1 - discount / 100);
+
         const rowTotal = pharmacyPrice * qty;
-        cells[5].textContent = pharmacyPrice.toFixed(1);
         cells[6].textContent = rowTotal.toFixed(1);
         cells[0].textContent = i + 1;
         subtotal += rowTotal;
     });
+
     const maxD = getMaxRowDiscount();
     const warn = document.getElementById('discount-warn');
     if (warn) {
@@ -894,6 +1018,7 @@ function calcTotal() {
 }
 
 document.querySelector('.inv-table').addEventListener('input', calcTotal);
+document.querySelector('.inv-table').addEventListener('blur', calcTotal, true);
 
 function collectRows() {
     const rows = [];
@@ -901,12 +1026,12 @@ function collectRows() {
         const cells = row.querySelectorAll('td');
         if (cells.length < 7) return;
         const item = {
-            name: cells[1].textContent,
-            price: cells[2].textContent,
-            qty: cells[3].textContent,
+            name: (cells[1].textContent || '').trim(),
+            price: parseFloat(cells[2].textContent) || 0,
+            qty: parseInt(cells[3].textContent, 10) || 1,
             discount: cells[4].textContent.replace('%', '').trim(),
-            pharmacyPrice: cells[5].textContent,
-            total: cells[6].textContent
+            pharmacyPrice: parseFloat(cells[5].textContent) || 0,
+            total: parseFloat(cells[6].textContent) || 0
         };
         if (row.dataset.productId) item.product_id = parseInt(row.dataset.productId, 10);
         rows.push(item);
@@ -954,9 +1079,9 @@ async function saveInvoice() {
         line_items: rows,
         subtotal: subtotalNum,
         tax: 0,
-        total: orderGrandTotal > 0 ? orderGrandTotal : subtotalNum,
+        total: subtotalNum,
         deposit_amount: orderDeposit,
-        balance_due: Math.max(0, (orderGrandTotal > 0 ? orderGrandTotal : subtotalNum) - orderDeposit),
+        balance_due: Math.max(0, subtotalNum - orderDeposit),
         due_date: visitInvoiceDueDate || null,
         amount_paid: visitInvoiceAmountPaid || 0,
         payment_type: visitInvoicePaymentType || 'cash',
@@ -973,12 +1098,30 @@ async function saveInvoice() {
 
     if (adminToken) {
         try {
+            if (linkedOrderId) {
+                const shippingRow = rows.find(r => r.name && (r.name.includes('شحن') || r.name.includes('توصيل')));
+                const shipCost = shippingRow ? (parseFloat(shippingRow.total) || 0) : 0;
+                fetch(`${SUPABASE_URL}/rest/v1/orders?id=eq.${linkedOrderId}`, {
+                    method: 'PATCH',
+                    headers: adminHeaders(),
+                    body: JSON.stringify({
+                        customer_name: payload.customer_name,
+                        customer_phone: payload.customer_phone,
+                        address: payload.customer_address,
+                        shipping_cost: shipCost,
+                        subtotal: Math.max(0, subtotalNum - shipCost),
+                        total: subtotalNum,
+                        updated_at: new Date().toISOString()
+                    })
+                }).catch(e => console.warn('Order sync warning:', e));
+            }
+
             if (linkedDoctorId && ['credit', 'partial'].includes(visitInvoicePaymentType)) {
                 const crRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/validate_pharmacy_credit_for_invoice`, {
                     method: 'POST', headers: adminHeaders(),
                     body: JSON.stringify({
                         p_doctor_id: linkedDoctorId,
-                        p_total: orderGrandTotal > 0 ? orderGrandTotal : subtotalNum,
+                        p_total: subtotalNum,
                         p_amount_paid: visitInvoiceAmountPaid || 0,
                         p_payment_type: visitInvoicePaymentType
                     })
