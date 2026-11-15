@@ -3179,7 +3179,7 @@ async function changeCommentStatus(commentId, newStatus) {
 
 async function syncFacebookComments() {
     try {
-        toast('جارٍ فحص ومزامنة أحدث التعليقات من صفحة فيسبوك...');
+        toast('جارٍ فحص ومزامنة التعليقات من صفحة فيسبوك...');
         const hdrs = await authHeaders();
         const res = await fetch('/api/integrations-status?action=fb-comments-sync', {
             method: 'POST',
@@ -3188,7 +3188,13 @@ async function syncFacebookComments() {
         });
         const data = await res.json();
         if (!data.ok) throw new Error(data.error || 'فشل الاتصال بفيسبوك');
-        toast(`✅ تمت المزامنة بنجاح! تم استيراد وتحديث ${data.synced || 0} تعليق.`);
+        if (data.synced > 0) {
+            toast(`✅ تم استيراد وتحديث ${data.synced} تعليق جديد بنجاح!`);
+        } else if (data.info) {
+            toast(`ℹ️ ${data.info}`, 'info');
+        } else {
+            toast('✅ تم فحص التعليقات بنجاح');
+        }
         loadFacebookComments();
     } catch (err) {
         toast('خطأ أثناء المزامنة: ' + (err.message || err), 'error');
