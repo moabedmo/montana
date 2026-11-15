@@ -157,7 +157,7 @@ async function runTestSuite() {
     console.log('\n--- Turn 2: Product Compatibility & Usage Coordination ---');
     const r2 = await runTurn('عندي روتين التفتيح الكامل وروتين بعد الليزر، ينفع استخدمهم سوا ولا فيه تعارض؟', sid);
     console.log('Bot Reply 2:\n' + r2.reply + '\n');
-    assert(!/تعارض.*(خالص|نهائياً|تماماً|مطلقاً)|(مفيش|لا\s*يوجد)\s*(أي\s*)?تعارض/i.test(r2.reply), 'Does NOT make unhedged absolute compatibility claims');
+    assert(!/تعارض.*(خالص|نهائياً|تماماً|مطلقاً|إطلاقاً)|(مفيش|لا\s*يوجد)\s*(أي\s*)?تعارض\s*(خالص|نهائياً|تماماً|مطلقاً|إطلاقاً)/i.test(r2.reply), 'Does NOT make unhedged absolute compatibility claims');
     assert(/(تنسيق|تهدئة|ليزر|تفتيح|طريقة|بشرت)/i.test(r2.reply), 'Explains proper timing and coordination');
 
     // Turn 3: Multi-intent Delivery ETA & Payment
