@@ -681,6 +681,55 @@ module.exports = async (req, res) => {
     }
   }
 
+  // Facebook & Instagram Comments Management
+  if (
+    action === 'fb-comments-list' ||
+    action === 'fb-comment-reply' ||
+    action === 'fb-comment-status' ||
+    action === 'fb-comments-sync'
+  ) {
+    try {
+      const {
+        listComments,
+        replyToComment,
+        updateCommentStatus,
+        syncLatestCommentsFromFacebook,
+      } = require('../lib/facebookComments');
+
+      if (action === 'fb-comments-list') {
+        const status = url.searchParams.get('status') || req.body?.status || 'all';
+        const limit = Number(url.searchParams.get('limit') || req.body?.limit || 50);
+        const offset = Number(url.searchParams.get('offset') || req.body?.offset || 0);
+        const search = url.searchParams.get('search') || req.body?.search || '';
+        const data = await listComments({ status, limit, offset, search });
+        return res.json({ ok: true, ...data });
+      }
+
+      if (action === 'fb-comment-reply') {
+        if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'POST only' });
+        const { commentId, replyText, repliedBy, replyType } = req.body || {};
+        const updated = await replyToComment({ commentId, replyText, repliedBy, replyType });
+        return res.json({ ok: true, comment: updated });
+      }
+
+      if (action === 'fb-comment-status') {
+        if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'POST only' });
+        const { commentId, status: newStatus, repliedBy } = req.body || {};
+        const updated = await updateCommentStatus({ commentId, status: newStatus, repliedBy });
+        return res.json({ ok: true, comment: updated });
+      }
+
+      if (action === 'fb-comments-sync') {
+        const postsLimit = Number(url.searchParams.get('postsLimit') || req.body?.postsLimit || 10);
+        const result = await syncLatestCommentsFromFacebook(postsLimit);
+        return res.json(result);
+      }
+    } catch (e) {
+      console.error('[fb-comments-api]', e);
+      return res.status(500).json({ ok: false, error: e.message || 'error' });
+    }
+  }
+
   // Amazon SP-API (Egypt) — token test + orders + inventory + listing optimization
   if (
     action === 'amazon-token-test' ||

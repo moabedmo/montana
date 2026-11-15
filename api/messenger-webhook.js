@@ -81,20 +81,36 @@ module.exports = async (req, res) => {
         const changes = entry?.changes || [];
         for (const change of changes) {
           if (change?.field === 'feed' && change.value?.item === 'comment' && change.value?.verb === 'add') {
-            const { comment_id, message: commentText, from } = change.value;
-            if (commentText && from?.id && comment_id) {
-              const sid = `messenger:${from.id}`;
-              const payload = await handleInboundMessage({
-                sid,
-                message: commentText,
-                channel: 'messenger',
-              });
-              if (payload?.reply) {
-                await sendFacebookCommentPrivateReply(
-                  process.env.MESSENGER_PAGE_TOKEN,
-                  comment_id,
-                  payload.reply
-                );
+            const { comment_id, post_id, message: commentText, from, created_time } = change.value;
+            if (commentText && comment_id) {
+              try {
+                const { recordInboundComment } = require('../lib/facebookComments');
+                await recordInboundComment({
+                  commentId: comment_id,
+                  postId: post_id || null,
+                  fromName: from?.name || 'عميل فيسبوك',
+                  fromId: from?.id || null,
+                  message: commentText,
+                  createdTime: created_time || null,
+                });
+              } catch (cErr) {
+                console.warn('[webhook] recordComment error:', cErr.message);
+              }
+
+              if (from?.id) {
+                const sid = `messenger:${from.id}`;
+                const payload = await handleInboundMessage({
+                  sid,
+                  message: commentText,
+                  channel: 'messenger',
+                });
+                if (payload?.reply) {
+                  await sendFacebookCommentPrivateReply(
+                    process.env.MESSENGER_PAGE_TOKEN,
+                    comment_id,
+                    payload.reply
+                  );
+                }
               }
             }
           }

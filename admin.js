@@ -64,6 +64,7 @@ document.querySelectorAll('.nav-link').forEach(link => {
         if (page === 'reviews') loadReviews();
         if (page === 'ingredients') loadIngredients();
         if (page === 'shipping') loadShippingRates();
+        if (page === 'comments') loadFacebookComments();
         if (page === 'messages') {
             loadBotConversations();
             loadBotRules();
@@ -2915,5 +2916,281 @@ async function triggerMarketingAiAudit() {
 
     } catch (err) {
         openModal('فحص الإعلانات', `<div style="text-align:center;padding:30px;color:#ef4444;">خطأ: ${err.message}</div>`);
+    }
+}
+
+
+// ===== FACEBOOK COMMENTS MANAGEMENT =====
+let currentCommentsFilter = 'pending';
+let currentCommentsSearch = '';
+let commentsSearchTimer = null;
+let fbCommentsData = [];
+
+async function loadFacebookComments() {
+    const container = document.getElementById('fbCommentsContainer');
+    const refreshIcon = document.getElementById('fbCommentsRefreshIcon');
+    if (refreshIcon) refreshIcon.classList.add('fa-spin');
+
+    try {
+        const hdrs = await authHeaders();
+        const url = `/api/integrations-status?action=fb-comments-list&status=${encodeURIComponent(currentCommentsFilter)}&search=${encodeURIComponent(currentCommentsSearch)}`;
+        const res = await fetch(url, { headers: hdrs });
+        const data = await res.json();
+
+        if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+
+        if (!data.ok) {
+            container.innerHTML = `<div style="text-align:center;padding:40px;color:#ef4444;"><i class="fas fa-exclamation-triangle"></i> تعذر تحميل التعليقات: ${data.error || 'خطأ غير معروف'}</div>`;
+            return;
+        }
+
+        fbCommentsData = data.comments || [];
+        const pendingCount = data.pendingCount || 0;
+        const totalCount = data.total || 0;
+
+        // Update badges & counts
+        const pendingBadge = document.getElementById('pendingCommentsBadge');
+        if (pendingBadge) {
+            if (pendingCount > 0) {
+                pendingBadge.textContent = pendingCount;
+                pendingBadge.style.display = 'inline-block';
+            } else {
+                pendingBadge.style.display = 'none';
+            }
+        }
+        const countPendingEl = document.getElementById('fbCountPending');
+        if (countPendingEl) countPendingEl.textContent = pendingCount;
+        const countTotalEl = document.getElementById('fbCountTotal');
+        if (countTotalEl) countTotalEl.textContent = totalCount;
+
+        renderFacebookComments(fbCommentsData);
+
+    } catch (err) {
+        if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+        container.innerHTML = `<div style="text-align:center;padding:40px;color:#ef4444;"><i class="fas fa-exclamation-triangle"></i> خطأ في جلب التعليقات: ${err.message}</div>`;
+    }
+}
+
+function filterCommentsStatus(status, btn) {
+    currentCommentsFilter = status;
+    document.querySelectorAll('#page-comments .filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    loadFacebookComments();
+}
+
+function debounceCommentsSearch() {
+    clearTimeout(commentsSearchTimer);
+    commentsSearchTimer = setTimeout(() => {
+        currentCommentsSearch = document.getElementById('fbCommentsSearch')?.value.trim() || '';
+        loadFacebookComments();
+    }, 350);
+}
+
+function renderFacebookComments(comments) {
+    const container = document.getElementById('fbCommentsContainer');
+    if (!container) return;
+
+    if (!comments || comments.length === 0) {
+        container.innerHTML = `
+            <div class="card" style="text-align:center;padding:50px 20px;color:var(--text-muted,#94a3b8);">
+                <div style="font-size:42px;color:#cbd5e1;margin-bottom:12px;"><i class="fab fa-facebook"></i></div>
+                <h3 style="color:#475569;font-size:16px;">لا توجد تعليقات في هذا القسم</h3>
+                <p style="font-size:13px;margin-top:6px;">أي تعليق جديد على منشورات أو إعلانات صفحة فيسبوك سيظهر هنا تلقائياً ليرد عليه الموظف فوراً.</p>
+            </div>
+        `;
+        return;
+    }
+
+    const html = comments.map(c => {
+        const isReplied = c.status === 'replied';
+        const isIgnored = c.status === 'ignored';
+        const dateStr = c.created_at ? new Date(c.created_at).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : '—';
+        const repliedTimeStr = c.replied_at ? new Date(c.replied_at).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : '';
+
+        return `
+            <div class="card" id="comment_card_${escapeHtml(c.comment_id)}" style="padding:16px;border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.05);transition:all 0.2s;">
+                <!-- Header -->
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;flex-wrap:wrap;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:38px;height:38px;border-radius:50%;background:#e0e7ff;color:#3730a3;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;">
+                            ${escapeHtml((c.from_name || 'ع').charAt(0))}
+                        </div>
+                        <div>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <strong style="font-size:14px;color:#0f172a;">${escapeHtml(c.from_name || 'عميل فيسبوك')}</strong>
+                                <span style="font-size:11px;color:#1877f2;background:#eff6ff;padding:2px 6px;border-radius:4px;"><i class="fab fa-facebook"></i> فيسبوك</span>
+                            </div>
+                            <div style="font-size:11.5px;color:var(--text-muted,#94a3b8);margin-top:2px;">
+                                <i class="fas fa-clock"></i> ${dateStr} ${c.post_name ? ` · <span>منشور: ${escapeHtml(c.post_name)}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        ${isReplied ? `
+                            <span style="background:#d1fae5;color:#065f46;padding:4px 10px;border-radius:12px;font-size:11.5px;font-weight:700;"><i class="fas fa-check-circle"></i> تم الرد بنجاح</span>
+                        ` : isIgnored ? `
+                            <span style="background:#f1f5f9;color:#64748b;padding:4px 10px;border-radius:12px;font-size:11.5px;font-weight:700;"><i class="fas fa-archive"></i> متجاهل / مكتمل</span>
+                        ` : `
+                            <span style="background:#fef3c7;color:#b45309;padding:4px 10px;border-radius:12px;font-size:11.5px;font-weight:700;"><i class="fas fa-clock"></i> بانتظار الرد</span>
+                        `}
+                    </div>
+                </div>
+
+                <!-- Comment Body -->
+                <div style="font-size:13.5px;color:#1e293b;line-height:1.6;background:#f8fafc;padding:12px 14px;border-radius:8px;border-right:3px solid #1877f2;margin-bottom:12px;">
+                    ${escapeHtml(c.message)}
+                </div>
+
+                <!-- Replied Box if already replied -->
+                ${isReplied ? `
+                    <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:10px 14px;border-radius:8px;font-size:13px;color:#166534;margin-bottom:8px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                            <strong><i class="fas fa-reply"></i> رد الصفحة (${escapeHtml(c.replied_by || 'الموظف')}):</strong>
+                            <span style="font-size:11px;color:#15803d;">${repliedTimeStr}</span>
+                        </div>
+                        <div style="white-space:pre-wrap;">${escapeHtml(c.reply_text || '')}</div>
+                    </div>
+                ` : ''}
+
+                <!-- Actions / Reply Form (if not replied) -->
+                ${!isReplied ? `
+                    <!-- Quick Reply Chips -->
+                    <div style="margin-bottom:8px;">
+                        <div style="font-size:11px;color:#64748b;margin-bottom:4px;font-weight:700;">💡 ردود سريعة بضغطة واحدة:</div>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                            <button type="button" class="btn-sm" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;border-radius:14px;padding:3px 10px;font-size:11.5px;cursor:pointer;" onclick="setQuickReply('${escapeHtml(c.comment_id)}', 'أهلاً بحضرتك يا فندم 💜 روتين التفتيح الكامل 3 منتجات بـ 777 ج والشحن مجاناً والمعاينة قبل الدفع عند الاستلام 🌸')">روتين التفتيح (777 ج)</button>
+                            <button type="button" class="btn-sm" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;border-radius:14px;padding:3px 10px;font-size:11.5px;cursor:pointer;" onclick="setQuickReply('${escapeHtml(c.comment_id)}', 'أهلاً بحضرتك يا فندم 💜 روتين بعد الليزر والنضارة بـ 618 ج والشحن مجاني والمعاينة قبل الدفع عند الاستلام ✨')">روتين بعد الليزر (618 ج)</button>
+                            <button type="button" class="btn-sm" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;border-radius:14px;padding:3px 10px;font-size:11.5px;cursor:pointer;" onclick="setQuickReply('${escapeHtml(c.comment_id)}', 'أهلاً بحضرتك يا فندم 💜 روتين نضارة الوجه وترطيب الجسم بـ 558 ج والشحن مجاني والمعاينة قبل الدفع 🌿')">نضارة الوجه (558 ج)</button>
+                            <button type="button" class="btn-sm" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;border-radius:14px;padding:3px 10px;font-size:11.5px;cursor:pointer;" onclick="setQuickReply('${escapeHtml(c.comment_id)}', 'أهلاً بحضرتك يا فندم نورتينا 💜 بعتنا لحضرتك كل التفاصيل على الخاص، شيكي على رسايلك 🌸')">تم الرد في الخاص</button>
+                        </div>
+                    </div>
+
+                    <!-- Reply Input -->
+                    <div style="margin-bottom:8px;">
+                        <textarea id="replyInput_${escapeHtml(c.comment_id)}" rows="2" placeholder="اكتب ردك على التعليق هنا..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #cbd5e1;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                        <div style="display:flex;gap:8px;">
+                            <button type="button" id="btnReplyPub_${escapeHtml(c.comment_id)}" class="btn-primary" style="background:#1877f2;border-color:#1877f2;padding:6px 14px;font-size:12.5px;" onclick="submitCommentReply('${escapeHtml(c.comment_id)}', 'public')">
+                                <i class="fas fa-paper-plane"></i> إرسال رد في التعليقات
+                            </button>
+                            <button type="button" id="btnReplyPriv_${escapeHtml(c.comment_id)}" class="btn-primary btn-outline" style="padding:6px 14px;font-size:12.5px;color:#0084ff;border-color:#0084ff;" onclick="submitCommentReply('${escapeHtml(c.comment_id)}', 'private')">
+                                <i class="fab fa-facebook-messenger"></i> رد في الخاص (رسالة)
+                            </button>
+                        </div>
+                        <div style="display:flex;gap:6px;">
+                            <button type="button" class="btn-sm" style="background:#f8fafc;color:#64748b;border:1px solid #cbd5e1;border-radius:6px;padding:6px 10px;cursor:pointer;" onclick="changeCommentStatus('${escapeHtml(c.comment_id)}', 'ignored')">
+                                <i class="fas fa-check"></i> اكتمال / تجاهل
+                            </button>
+                            ${c.permalink_url ? `
+                                <a href="${escapeHtml(c.permalink_url)}" target="_blank" rel="noopener noreferrer" class="btn-sm" style="background:#f8fafc;color:#1877f2;border:1px solid #cbd5e1;border-radius:6px;padding:6px 10px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+                                    <i class="fas fa-external-link-alt"></i> فتح البوست
+                                </a>
+                            ` : ''}
+                        </div>
+                    </div>
+                ` : `
+                    <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:6px;">
+                        <button type="button" class="btn-sm" style="background:#f8fafc;color:#64748b;border:1px solid #cbd5e1;border-radius:6px;padding:4px 8px;cursor:pointer;" onclick="changeCommentStatus('${escapeHtml(c.comment_id)}', 'pending')">
+                            <i class="fas fa-undo"></i> إعادة كمعلق
+                        </button>
+                        ${c.permalink_url ? `
+                            <a href="${escapeHtml(c.permalink_url)}" target="_blank" rel="noopener noreferrer" class="btn-sm" style="background:#f8fafc;color:#1877f2;border:1px solid #cbd5e1;border-radius:6px;padding:4px 8px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+                                <i class="fas fa-external-link-alt"></i> فتح البوست
+                            </a>
+                        ` : ''}
+                    </div>
+                `}
+            </div>
+        `;
+    }).join('');
+
+    container.innerHTML = html;
+}
+
+function setQuickReply(commentId, text) {
+    const input = document.getElementById(`replyInput_${commentId}`);
+    if (input) {
+        input.value = text;
+        input.focus();
+    }
+}
+
+async function submitCommentReply(commentId, replyType = 'public') {
+    const input = document.getElementById(`replyInput_${commentId}`);
+    const replyText = input ? input.value.trim() : '';
+
+    if (!replyText) {
+        toast('من فضلك اكتب نص الرد أولاً', 'error');
+        if (input) input.focus();
+        return;
+    }
+
+    const pubBtn = document.getElementById(`btnReplyPub_${commentId}`);
+    const privBtn = document.getElementById(`btnReplyPriv_${commentId}`);
+    if (pubBtn) pubBtn.disabled = true;
+    if (privBtn) privBtn.disabled = true;
+
+    try {
+        toast('جارٍ إرسال الرد إلى فيسبوك...');
+        const hdrs = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=fb-comment-reply', {
+            method: 'POST',
+            headers: hdrs,
+            body: JSON.stringify({
+                commentId,
+                replyText,
+                repliedBy: 'مسؤول الصفحة',
+                replyType,
+            }),
+        });
+
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'فشل إرسال الرد لفيسبوك');
+
+        toast(replyType === 'private' ? '✅ تم إرسال الرد في رسالة خاصة بنجاح!' : '✅ تم نشر الرد في التعليقات بنجاح!');
+        loadFacebookComments();
+
+    } catch (err) {
+        toast('خطأ في إرسال الرد: ' + (err.message || err), 'error');
+        if (pubBtn) pubBtn.disabled = false;
+        if (privBtn) privBtn.disabled = false;
+    }
+}
+
+async function changeCommentStatus(commentId, newStatus) {
+    try {
+        const hdrs = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=fb-comment-status', {
+            method: 'POST',
+            headers: hdrs,
+            body: JSON.stringify({ commentId, status: newStatus }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'فشل تحديث الحالة');
+        toast('تم تحديث حالة التعليق');
+        loadFacebookComments();
+    } catch (err) {
+        toast('خطأ: ' + err.message, 'error');
+    }
+}
+
+async function syncFacebookComments() {
+    try {
+        toast('جارٍ فحص ومزامنة أحدث التعليقات من صفحة فيسبوك...');
+        const hdrs = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=fb-comments-sync', {
+            method: 'POST',
+            headers: hdrs,
+            body: JSON.stringify({ postsLimit: 10 }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'فشل الاتصال بفيسبوك');
+        toast(`✅ تمت المزامنة بنجاح! تم استيراد وتحديث ${data.synced || 0} تعليق.`);
+        loadFacebookComments();
+    } catch (err) {
+        toast('خطأ أثناء المزامنة: ' + (err.message || err), 'error');
     }
 }
