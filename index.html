@@ -1792,18 +1792,18 @@ function handleOrderRoutine(type) {
     if (window.Cart && typeof window.Cart.add === 'function') {
         if (type === 'brightening') {
             // Brightening bundle: P3 (Cleanser), P2 (Cream), P4 (Lotion)
-            window.Cart.add({ id: 3, name: 'غسول التفتيح (ضمن الروتين)', price: 275, image: 'images/p3-premium.webp' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 2, name: 'كريم التفتيح (ضمن الروتين)', price: 228, image: 'images/p2-premium.webp' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 4, name: 'لوشن الجسم (ضمن الروتين)', price: 274, image: 'images/p4-premium.webp' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 3, name: 'غسول التفتيح (ضمن الروتين)', price: 275, image: 'images/p3-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 2, name: 'كريم التفتيح (ضمن الروتين)', price: 228, image: 'images/p2-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 4, name: 'لوشن الجسم (ضمن الروتين)', price: 274, image: 'images/p4-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
         } else if (type === 'post-laser') {
             // Post laser bundle: P5 (Post Laser Cream), P2 (Whitening Cream)
-            window.Cart.add({ id: 5, name: 'كريم ما بعد الليزر (ضمن الروتين)', price: 345, image: 'images/p5-premium.webp' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 2, name: 'كريم التفتيح (ضمن الروتين)', price: 273, image: 'images/p2-premium.webp' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 5, name: 'كريم ما بعد الليزر (ضمن الروتين)', price: 345, image: 'images/p5-premium.webp', bundleSlug: 'post-laser-glow' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 2, name: 'كريم التفتيح (ضمن الروتين)', price: 273, image: 'images/p2-premium.webp', bundleSlug: 'post-laser-glow' }, 1, { skipMeta: true });
         } else if (type === 'face-body') {
-            window.Cart.add({ id: 1, name: 'غسول حب الشباب (ضمن الروتين)', price: 299, image: 'images/p1-premium.webp' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 4, name: 'لوشن اليدين والجسم (ضمن الروتين)', price: 259, image: 'images/p4-premium.webp' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 1, name: 'غسول حب الشباب (ضمن الروتين)', price: 299, image: 'images/p1-premium.webp', bundleSlug: 'face-and-body' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 4, name: 'لوشن اليدين والجسم (ضمن الروتين)', price: 259, image: 'images/p4-premium.webp', bundleSlug: 'face-and-body' }, 1, { skipMeta: true });
         }
-        updateBadges();
+        try { updateBadges(); } catch (_) {}
         window.location.href = 'checkout.html';
     } else {
         window.location.href = 'checkout.html';
@@ -1812,8 +1812,8 @@ function handleOrderRoutine(type) {
 
 function updateBadges() {
     if (!window.Cart) return;
-    const items = window.Cart.get() || [];
-    const count = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    const items = (typeof window.Cart.get === 'function' ? window.Cart.get() : (typeof window.Cart.getItems === 'function' ? window.Cart.getItems() : [])) || [];
+    const count = items.reduce((sum, item) => sum + (item.quantity || item.qty || 1), 0);
     document.querySelectorAll('.cart-badge').forEach(b => {
         if (count > 0) {
             b.textContent = count;
@@ -1830,7 +1830,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function updateShippingBar() {
     if (!window.Cart) return;
-    const items = window.Cart.get() || [];
+    const items = (typeof window.Cart.get === 'function' ? window.Cart.get() : (typeof window.Cart.getItems === 'function' ? window.Cart.getItems() : [])) || [];
     const count = items.reduce((sum, i) => sum + (i.quantity || i.qty || 1), 0);
     const hasBundle = items.some(i => i.bundleSlug || (i.name && i.name.includes('روتين')));
 
@@ -1858,12 +1858,22 @@ function updateShippingBar() {
 }
 
 function openQuickOrder(name, price, img, type, id) {
+    const modal = document.getElementById('qoModal');
+    if (!modal) {
+        if (type === 'brightening' || type === 'post-laser' || type === 'face-body') {
+            handleOrderRoutine(type);
+        } else {
+            handleAddToCart(id || 1, name, price, img);
+            window.location.href = 'checkout.html';
+        }
+        return;
+    }
     document.getElementById('qoName').textContent = name;
     document.getElementById('qoPrice').textContent = price;
     document.getElementById('qoImg').src = img || 'images/hero-products-mobile.webp';
     document.getElementById('qoItemType').value = type || 'product';
     document.getElementById('qoItemId').value = id || '1';
-    document.getElementById('qoModal').classList.add('active');
+    modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 

@@ -1097,17 +1097,17 @@ function handleAddToCart(id, name, price, image) {
 function handleOrderRoutine(type) {
     if (window.Cart && typeof window.Cart.add === 'function') {
         if (type === 'brightening') {
-            window.Cart.add({ id: 3, name: 'Cleanser التفتيح (ضمن الروتين)', price: 275, image: 'images/p3-premium.webp' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 2, name: 'كريم التفتيح (ضمن الروتين)', price: 228, image: 'images/p2-premium.webp' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 4, name: 'Body Lotion (ضمن الروتين)', price: 274, image: 'images/p4-premium.webp' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 3, name: 'Cleanser التفتيح (ضمن الروتين)', price: 275, image: 'images/p3-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 2, name: 'كريم التفتيح (ضمن الروتين)', price: 228, image: 'images/p2-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 4, name: 'Body Lotion (ضمن الروتين)', price: 274, image: 'images/p4-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
         } else if (type === 'post-laser') {
-            window.Cart.add({ id: 5, name: 'كريم ما بعد الليزر (ضمن الروتين)', price: 345, image: 'images/p5-premium.webp' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 2, name: 'كريم التفتيح (ضمن الروتين)', price: 273, image: 'images/p2-premium.webp' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 5, name: 'كريم ما بعد الليزر (ضمن الروتين)', price: 345, image: 'images/p5-premium.webp', bundleSlug: 'post-laser-glow' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 2, name: 'كريم التفتيح (ضمن الروتين)', price: 273, image: 'images/p2-premium.webp', bundleSlug: 'post-laser-glow' }, 1, { skipMeta: true });
         } else if (type === 'face-body') {
-            window.Cart.add({ id: 1, name: 'Acne Facial Cleanser (ضمن الروتين)', price: 299, image: 'images/p1-premium.webp' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 4, name: 'Hand & Body Lotion (ضمن الروتين)', price: 259, image: 'images/p4-premium.webp' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 1, name: 'Acne Facial Cleanser (ضمن الروتين)', price: 299, image: 'images/p1-premium.webp', bundleSlug: 'face-and-body' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 4, name: 'Hand & Body Lotion (ضمن الروتين)', price: 259, image: 'images/p4-premium.webp', bundleSlug: 'face-and-body' }, 1, { skipMeta: true });
         }
-        updateBadges();
+        try { updateBadges(); } catch (_) {}
         window.location.href = 'checkout.html';
     } else {
         window.location.href = 'checkout.html';

@@ -96,6 +96,7 @@
       else items = items.map(i => i.id === productId ? { ...i, qty } : i);
       writeCart(items);
     },
+    get() { return readCart(); },
     getItems() { return readCart(); },
     getTotal() { return readCart().reduce((s, i) => s + i.price * i.qty, 0); },
     getCount() { return readCart().reduce((s, i) => s + i.qty, 0); },
