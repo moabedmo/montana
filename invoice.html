@@ -514,7 +514,8 @@
         <button class="print-btn" onclick="window.print()">🖨️ طباعة</button>
         <button class="print-btn outline" onclick="openClientPicker()">👤 بيانات العميل</button>
         <button class="print-btn outline" onclick="openStockPicker()">📦 من المخزون</button>
-        <button class="print-btn outline" onclick="addShippingRow()" style="color:#27ae60;border-color:#27ae60;font-weight:700">🚚 إضافة / تعديل الشحن</button>
+        <button class="print-btn outline" onclick="editShippingFee()" style="color:#27ae60;border-color:#27ae60;font-weight:700">🚚 إضافة / تعديل الشحن</button>
+        <button class="print-btn outline" onclick="editOverallDiscount()" style="color:#e67e22;border-color:#e67e22;font-weight:700">🏷️ خصم على الفاتورة</button>
         <button class="print-btn outline" onclick="toggleEdit()">✏️ تعديل الكل</button>
         <button class="print-btn outline" onclick="addRow()">➕ صنف يدوي</button>
         <button class="print-btn outline" onclick="newInvoice()">📄 فاتورة جديدة</button>
@@ -632,6 +633,21 @@
                 <span>المجموع الفرعي</span>
                 <span id="subtotalAmount">0.00 ج.م</span>
             </div>
+            <div class="inv-totals-row" id="overallDiscountRow" style="cursor:pointer" onclick="editOverallDiscount()" title="اضغط لتعديل الخصم على الفاتورة">
+                <span style="display:flex;align-items:center;gap:5px">
+                    <span>خصم إجمالي</span>
+                    <span id="overallDiscountLabel" style="font-size:11px;color:#888;background:#f0eef5;padding:1px 6px;border-radius:4px;display:none">0%</span>
+                    <button type="button" class="no-print" style="border:none;background:none;color:#e67e22;cursor:pointer;font-size:12px;padding:0" title="تعديل الخصم">✏️</button>
+                </span>
+                <span id="overallDiscountAmount" style="color:#e74c3c;font-weight:700">0.00 ج.م</span>
+            </div>
+            <div class="inv-totals-row" id="shippingFeeRow" style="cursor:pointer" onclick="editShippingFee()" title="اضغط لتعديل مصاريف الشحن">
+                <span style="display:flex;align-items:center;gap:5px">
+                    <span>مصاريف الشحن</span>
+                    <button type="button" class="no-print" style="border:none;background:none;color:#27ae60;cursor:pointer;font-size:12px;padding:0" title="تعديل الشحن">✏️</button>
+                </span>
+                <span id="shippingFeeAmount" style="color:#27ae60;font-weight:700">0.00 ج.م</span>
+            </div>
             <div class="inv-totals-row">
                 <span>الضريبة (0%)</span>
                 <span id="taxAmount">0.00 ج.م</span>
@@ -709,6 +725,9 @@ let adminToken = resolveAdminToken();
 let orderDeposit = 0;
 let orderGrandTotal = 0;
 let currentPaymentMethod = 'cod';
+let overallDiscountRaw = '0';
+let overallDiscountAmount = 0;
+let shippingFee = 0;
 let pickerMode = 'client';
 let pickerTab = 'crm';
 let productCatalog = [];
@@ -769,19 +788,103 @@ function applyDepositTotals(subtotal) {
     const subEl = document.getElementById('subtotalAmount');
     const taxEl = document.getElementById('taxAmount');
     const grandEl = document.getElementById('grandTotalAmount');
-    const grand = subtotal; // Follow dynamic table total
-    if (subEl) subEl.textContent = subtotal.toFixed(2) + ' ج.م';
+    const discEl = document.getElementById('overallDiscountAmount');
+    const discLabel = document.getElementById('overallDiscountLabel');
+    const shipEl = document.getElementById('shippingFeeAmount');
+
+    if (subEl) subEl.textContent = Number(subtotal).toFixed(2) + ' ج.م';
     if (taxEl) taxEl.textContent = '0.00 ج.م';
+
+    // Calculate overall discount
+    let discVal = 0;
+    const rawDisc = String(overallDiscountRaw || '0').trim();
+    if (rawDisc.includes('%')) {
+        const pct = parseFloat(rawDisc) || 0;
+        discVal = subtotal * (pct / 100);
+        if (discLabel) {
+            discLabel.textContent = pct + '%';
+            discLabel.style.display = pct > 0 ? 'inline' : 'none';
+        }
+    } else {
+        discVal = parseFloat(rawDisc) || 0;
+        if (discLabel) discLabel.style.display = 'none';
+    }
+    discVal = Math.max(0, Math.min(subtotal, discVal));
+    overallDiscountAmount = discVal;
+
+    if (discEl) {
+        discEl.textContent = (discVal > 0 ? '- ' : '') + Number(discVal).toFixed(2) + ' ج.م';
+    }
+
+    // Shipping fee
+    const shipVal = Math.max(0, parseFloat(shippingFee) || 0);
+    if (shipEl) {
+        shipEl.textContent = (shipVal > 0 ? '+ ' : '') + Number(shipVal).toFixed(2) + ' ج.م';
+    }
+
+    // Grand total: Subtotal - Overall Discount + Shipping
+    const grand = Math.max(0, subtotal - discVal) + shipVal;
+
     if (orderDeposit > 0 && depositRow && balanceRow && depositEl && balanceEl) {
         depositRow.style.display = '';
         balanceRow.style.display = '';
-        depositEl.textContent = orderDeposit.toFixed(2) + ' ج.م';
+        depositEl.textContent = Number(orderDeposit).toFixed(2) + ' ج.م';
         balanceEl.textContent = Math.max(0, grand - orderDeposit).toFixed(2) + ' ج.م';
     } else if (depositRow && balanceRow) {
         depositRow.style.display = 'none';
         balanceRow.style.display = 'none';
     }
-    if (grandEl) grandEl.textContent = grand.toFixed(2) + ' ج.م';
+    if (grandEl) grandEl.textContent = Number(grand).toFixed(2) + ' ج.م';
+}
+
+function editOverallDiscount(customVal) {
+    let input = customVal;
+    if (input == null) {
+        input = prompt(
+            'أدخل قيمة الخصم على إجمالي الفاتورة:\n' +
+            '• اكتب مبلغ كاش (مثال: 50 أو 100)\n' +
+            '• أو اكتب نسبة مئوية (مثال: 10% أو 15%)\n' +
+            '• لإلغاء الخصم اكتب: 0',
+            overallDiscountRaw !== '0' ? overallDiscountRaw : '50'
+        );
+        if (input === null) return;
+    }
+    overallDiscountRaw = String(input).trim();
+    calcTotal();
+}
+
+function editShippingFee(customAmount) {
+    let shipAmount = customAmount;
+    if (shipAmount == null) {
+        const input = prompt(
+            'أدخل قيمة مصاريف الشحن والتوصيل (ج.م):\n' +
+            '• الشرقية / المنوفية / القليوبية: 65 أو 60\n' +
+            '• الجيزة / القاهرة: 70 أو 80\n' +
+            '• الإسكندرية / الصعيد: 100\n' +
+            '• شحن مجاني: 0\n' +
+            'أو اكتب أي مبلغ تريده:',
+            shippingFee > 0 ? String(shippingFee) : '65'
+        );
+        if (input === null) return;
+        shipAmount = parseFloat(input);
+        if (isNaN(shipAmount) || shipAmount < 0) {
+            alert('يرجى إدخال مبلغ صحيح');
+            return;
+        }
+    }
+    shippingFee = shipAmount;
+    // Clean up any legacy shipping row in table so it is not duplicated
+    document.querySelectorAll('#invTableBody tr').forEach(tr => {
+        const nameCell = tr.querySelector('.product-name');
+        if (nameCell && (nameCell.textContent.includes('شحن') || nameCell.textContent.includes('توصيل'))) {
+            tr.remove();
+        }
+    });
+    calcTotal();
+}
+
+function addShippingRow(customAmount) {
+    editShippingFee(customAmount);
 }
 
 function setMeta(paymentMethod, paymentStatus) {
@@ -917,6 +1020,9 @@ function newInvoice() {
     savedInvoiceDbId = null;
     stockDeducted = false;
     discountApproved = false;
+    overallDiscountRaw = '0';
+    overallDiscountAmount = 0;
+    shippingFee = 0;
     refreshInvoiceNumberPreview();
     document.getElementById('invoiceDate').textContent = new Date().toLocaleDateString('en-CA');
     setClient('اسم العميل', '-', '', '');
@@ -1005,7 +1111,9 @@ function calcTotal(e) {
         const rowTotal = pharmacyPrice * qty;
         cells[6].textContent = rowTotal.toFixed(1);
         cells[0].textContent = i + 1;
-        subtotal += rowTotal;
+        if (!isShipping) {
+            subtotal += rowTotal;
+        }
     });
 
     const maxD = getMaxRowDiscount();
@@ -1043,8 +1151,10 @@ async function saveInvoice() {
     const idEl = document.getElementById('invoiceNum');
     const id = idEl.textContent.replace(/\s*\(تقديري\)\s*$/, '').trim();
     const rows = collectRows();
-    const subtotalText = document.getElementById('grandTotalAmount')?.textContent || '0';
+    const subtotalText = document.getElementById('subtotalAmount')?.textContent || '0';
     const subtotalNum = parseFloat(subtotalText) || 0;
+    const grandTotalText = document.getElementById('grandTotalAmount')?.textContent || '0';
+    const grandTotalNum = parseFloat(grandTotalText) || subtotalNum;
     const maxDisc = getMaxRowDiscount();
     if (maxDisc > MAX_DISCOUNT_PCT && !discountApproved) {
         const ok = confirm(`الخصم ${maxDisc}% أعلى من ${MAX_DISCOUNT_PCT}%\n\nموافقة المدير مطلوبة — هل أنت مدير وتُقرّ بالخصم؟`);
@@ -1079,9 +1189,9 @@ async function saveInvoice() {
         line_items: rows,
         subtotal: subtotalNum,
         tax: 0,
-        total: subtotalNum,
+        total: grandTotalNum,
         deposit_amount: orderDeposit,
-        balance_due: Math.max(0, subtotalNum - orderDeposit),
+        balance_due: Math.max(0, grandTotalNum - orderDeposit),
         due_date: visitInvoiceDueDate || null,
         amount_paid: visitInvoiceAmountPaid || 0,
         payment_type: visitInvoicePaymentType || 'cash',
@@ -1192,7 +1302,7 @@ async function saveInvoice() {
     }
 
     const finalNum = idEl.textContent.replace(/\s*\(تقديري\)\s*$/, '').trim();
-    allInvoices[finalNum] = { id: finalNum, date: payload.invoice_date, client: payload.customer_name, phone: payload.customer_phone, rows, subtotal: subtotalText };
+    allInvoices[finalNum] = { id: finalNum, date: payload.invoice_date, client: payload.customer_name, phone: payload.customer_phone, rows, subtotal: subtotalText, total: grandTotalText, overallDiscountRaw, overallDiscountAmount, shippingFee };
     localStorage.setItem('montana_invoices', JSON.stringify(allInvoices));
     currentInvId = finalNum;
     await loadDbInvoiceList();
@@ -1211,6 +1321,9 @@ function loadInvoiceLocal(id) {
     document.getElementById('invoiceDate').textContent = inv.date;
     setClient(inv.client, inv.phone, '');
     clearTable();
+    overallDiscountRaw = inv.overallDiscountRaw || '0';
+    overallDiscountAmount = inv.overallDiscountAmount || 0;
+    shippingFee = inv.shippingFee || 0;
     inv.rows.forEach(r => addRowFromData(r.name, r.price, r.qty, r.discount, r.pharmacyPrice, r.total, r.product_id));
     calcTotal();
     renderInvList();
@@ -1242,6 +1355,16 @@ async function loadInvoiceFromDb(id) {
     setMeta(inv.payment_method, inv.status === 'paid' ? 'confirmed' : 'pending');
     setOrderPaymentSummary(inv.deposit_amount, inv.total, inv.order_number);
     clearTable();
+    overallDiscountRaw = inv.discount_pct ? (inv.discount_pct + '%') : '0';
+    if (inv.notes && inv.notes.includes('خصم:')) {
+        const mDisc = inv.notes.match(/خصم:\s*([^|]+)/);
+        if (mDisc) overallDiscountRaw = mDisc[1].trim();
+    }
+    shippingFee = 0;
+    if (inv.notes && inv.notes.includes('شحن:')) {
+        const mShip = inv.notes.match(/شحن:\s*([\d.]+)/);
+        if (mShip) shippingFee = parseFloat(mShip[1]) || 0;
+    }
     (inv.line_items || []).forEach(r => addRowFromData(r.name, r.price, r.qty, r.discount, r.pharmacyPrice, r.total, r.product_id));
     calcTotal();
     renderInvList();
@@ -1352,8 +1475,12 @@ async function loadFromOrder(orderId) {
         addRowFromData(it.product_name, pub, it.quantity, disc, ph, it.total, it.product_id);
     });
     if (parseFloat(o.shipping_cost) > 0) {
-        addRowFromData('رسوم الشحن', o.shipping_cost, 1, 0, o.shipping_cost, o.shipping_cost);
+        shippingFee = parseFloat(o.shipping_cost);
+    } else {
+        shippingFee = 0;
     }
+    overallDiscountRaw = '0';
+    overallDiscountAmount = 0;
     calcTotal();
     currentInvId = o.order_number;
     renderInvList();
