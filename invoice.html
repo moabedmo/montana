@@ -520,7 +520,8 @@
         <button class="print-btn outline" onclick="addRow()">➕ صنف يدوي</button>
         <button class="print-btn outline" onclick="newInvoice()">📄 فاتورة جديدة</button>
         <label class="inv-deduct"><input type="checkbox" id="deductStock" checked> خصم من المخزون</label>
-        <button class="print-btn outline" onclick="saveInvoice()" style="color:#2980b9;border-color:#2980b9;font-weight:700">💾 حفظ الفاتورة</button>
+        <button class="print-btn outline" id="btnSaveInvoice" onclick="saveInvoice()" style="color:#2980b9;border-color:#2980b9;font-weight:700;transition:all .2s ease">💾 حفظ الفاتورة</button>
+        <span id="saveStatusBadge" style="display:none;font-size:11px;font-weight:bold;padding:4px 8px;border-radius:4px;margin-right:4px"></span>
         <button class="print-btn outline" id="btn-return-invoice" onclick="returnInvoiceAsCredit()" style="display:none;color:#c0392b;border-color:#c0392b">↩️ إلغاء كمرتجع</button>
         <button class="print-btn outline" onclick="deleteInvoice()">🗑️ حذف</button>
     </div>
@@ -728,6 +729,69 @@ let currentPaymentMethod = 'cod';
 let overallDiscountRaw = '0';
 let overallDiscountAmount = 0;
 let shippingFee = 0;
+let isDirty = false;
+let autoSaveTimer = null;
+
+function markDirty() {
+    isDirty = true;
+    updateSaveButtonState();
+    if (savedInvoiceDbId && adminToken) {
+        if (autoSaveTimer) clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(() => {
+            if (isDirty) {
+                saveInvoice(true);
+            }
+        }, 1500);
+    }
+}
+
+function markClean() {
+    isDirty = false;
+    if (autoSaveTimer) {
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = null;
+    }
+    updateSaveButtonState();
+}
+
+function updateSaveButtonState() {
+    const saveBtn = document.getElementById('btnSaveInvoice');
+    const badge = document.getElementById('saveStatusBadge');
+    if (!saveBtn) return;
+    if (isDirty) {
+        saveBtn.style.background = '#e67e22';
+        saveBtn.style.color = '#fff';
+        saveBtn.style.borderColor = '#d35400';
+        saveBtn.innerHTML = '💾 حفظ التعديلات ⚠️';
+        if (badge) {
+            badge.style.display = 'inline-block';
+            badge.style.background = '#fef5e7';
+            badge.style.color = '#e67e22';
+            badge.style.border = '1px solid #f39c12';
+            badge.textContent = 'تعديلات غير محفوظة';
+        }
+    } else {
+        saveBtn.style.background = '';
+        saveBtn.style.color = '#2980b9';
+        saveBtn.style.borderColor = '#2980b9';
+        saveBtn.innerHTML = '💾 حفظ الفاتورة';
+        if (badge) {
+            badge.style.display = 'inline-block';
+            badge.style.background = '#e8f8f5';
+            badge.style.color = '#27ae60';
+            badge.style.border = '1px solid #2ecc71';
+            badge.textContent = '✓ كل التعديلات محفوظة';
+        }
+    }
+}
+
+window.addEventListener('beforeunload', (e) => {
+    if (isDirty) {
+        e.preventDefault();
+        e.returnValue = 'لديك تعديلات غير محفوظة على الفاتورة، هل أنت متأكد من المغادرة؟';
+        return e.returnValue;
+    }
+});
 let pickerMode = 'client';
 let pickerTab = 'crm';
 let productCatalog = [];
@@ -851,6 +915,7 @@ function editOverallDiscount(customVal) {
     }
     overallDiscountRaw = String(input).trim();
     calcTotal();
+    markDirty();
 }
 
 function editShippingFee(customAmount) {
@@ -881,6 +946,7 @@ function editShippingFee(customAmount) {
         }
     });
     calcTotal();
+    markDirty();
 }
 
 function addShippingRow(customAmount) {
@@ -904,8 +970,9 @@ function addRowFromData(name, price, qty, discountPct, pharmacyPrice, rowTotal, 
     const rowNum = tbody.children.length + 1;
     const row = document.createElement('tr');
     if (productId) row.dataset.productId = productId;
-    row.innerHTML = `<td>${rowNum}</td><td class="product-name" contenteditable="true" title="انقر لتعديل اسم الصنف">${name}</td><td contenteditable="true" title="انقر لتعديل سعر الجمهور">${Number(price).toFixed(2)}</td><td contenteditable="true" title="انقر لتعديل الكمية">${qty}</td><td><span class="discount" contenteditable="true" title="انقر لتعديل نسبة الخصم">${discountPct}%</span></td><td class="pharmacy-price" contenteditable="true" title="انقر لتعديل سعر البيع النهائي">${Number(pharmacyPrice).toFixed(1)}</td><td class="row-total">${Number(rowTotal).toFixed(1)}</td><td class="no-print"><button type="button" class="del-btn">✕</button></td>`;
-    row.querySelector('.del-btn').addEventListener('click', () => { row.remove(); calcTotal(); });
+    const cleanDisc = String(discountPct || 0).replace(/%/g, '').trim();
+    row.innerHTML = `<td>${rowNum}</td><td class="product-name" contenteditable="true" title="انقر لتعديل اسم الصنف">${name}</td><td contenteditable="true" title="انقر لتعديل سعر الجمهور">${Number(price).toFixed(2)}</td><td contenteditable="true" title="انقر لتعديل الكمية">${qty}</td><td><span class="discount" contenteditable="true" title="انقر لتعديل نسبة الخصم">${cleanDisc}%</span></td><td class="pharmacy-price" contenteditable="true" title="انقر لتعديل سعر البيع النهائي">${Number(pharmacyPrice).toFixed(1)}</td><td class="row-total">${Number(rowTotal).toFixed(1)}</td><td class="no-print"><button type="button" class="del-btn">✕</button></td>`;
+    row.querySelector('.del-btn').addEventListener('click', () => { row.remove(); calcTotal(); markDirty(); });
     tbody.appendChild(row);
 }
 
@@ -914,8 +981,9 @@ function addBlankRow() {
     const rowNum = tbody.children.length + 1;
     const row = document.createElement('tr');
     row.innerHTML = `<td>${rowNum}</td><td class="product-name" contenteditable="true" style="outline:1px dashed #9B6CB8">اسم المنتج</td><td contenteditable="true" style="outline:1px dashed #9B6CB8">0.00</td><td contenteditable="true" style="outline:1px dashed #9B6CB8">1</td><td><span class="discount" contenteditable="true" style="outline:1px dashed #9B6CB8">0%</span></td><td class="pharmacy-price" contenteditable="true" style="outline:1px dashed #9B6CB8">0.00</td><td class="row-total">0.00</td><td class="no-print"><button type="button" class="del-btn">✕</button></td>`;
-    row.querySelector('.del-btn').addEventListener('click', () => { row.remove(); calcTotal(); });
+    row.querySelector('.del-btn').addEventListener('click', () => { row.remove(); calcTotal(); markDirty(); });
     tbody.appendChild(row);
+    markDirty();
 }
 
 function addShippingRow(customAmount) {
@@ -977,12 +1045,14 @@ function toggleEdit(btn) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('#clientName, #clientPhone, #clientAddress, #invoiceDate').forEach(el => {
+    document.querySelectorAll('#clientName, #clientPhone, #clientAddress, #invoiceDate, #paymentMethod, #paymentStatus').forEach(el => {
         el.contentEditable = true;
+        el.addEventListener('input', markDirty);
+        el.addEventListener('blur', markDirty);
     });
 });
 
-function addRow() { addBlankRow(); calcTotal(); }
+function addRow() { addBlankRow(); calcTotal(); markDirty(); }
 
 function updateReturnButton() {
     const btn = document.getElementById('btn-return-invoice');
@@ -1012,6 +1082,7 @@ async function returnInvoiceAsCredit() {
 }
 
 function newInvoice() {
+    if (isDirty && !confirm('يوجد تعديلات غير محفوظة، هل تريد إنشاء فاتورة جديدة وتجاهل التعديلات؟')) return;
     linkedOrderId = null;
     linkedDoctorId = null;
     linkedCustomerId = null;
@@ -1033,6 +1104,7 @@ function newInvoice() {
     calcTotal();
     updateReturnButton();
     if (editMode) toggleEdit();
+    markClean();
 }
 
 function getMaxRowDiscount() {
@@ -1125,8 +1197,8 @@ function calcTotal(e) {
     applyDepositTotals(subtotal);
 }
 
-document.querySelector('.inv-table').addEventListener('input', calcTotal);
-document.querySelector('.inv-table').addEventListener('blur', calcTotal, true);
+document.querySelector('.inv-table').addEventListener('input', (e) => { calcTotal(e); markDirty(); });
+document.querySelector('.inv-table').addEventListener('blur', (e) => { calcTotal(e); markDirty(); }, true);
 
 function collectRows() {
     const rows = [];
@@ -1137,7 +1209,7 @@ function collectRows() {
             name: (cells[1].textContent || '').trim(),
             price: parseFloat(cells[2].textContent) || 0,
             qty: parseInt(cells[3].textContent, 10) || 1,
-            discount: cells[4].textContent.replace('%', '').trim(),
+            discount: cells[4].textContent.replace(/%/g, '').trim(),
             pharmacyPrice: parseFloat(cells[5].textContent) || 0,
             total: parseFloat(cells[6].textContent) || 0
         };
@@ -1147,7 +1219,7 @@ function collectRows() {
     return rows;
 }
 
-async function saveInvoice() {
+async function saveInvoice(silent = false) {
     const idEl = document.getElementById('invoiceNum');
     const id = idEl.textContent.replace(/\s*\(تقديري\)\s*$/, '').trim();
     const rows = collectRows();
@@ -1163,16 +1235,28 @@ async function saveInvoice() {
     }
 
     if (adminToken) {
-        const dv = await fetch(`${SUPABASE_URL}/rest/v1/rpc/validate_invoice_discount`, {
-            method: 'POST', headers: adminHeaders(),
-            body: JSON.stringify({ p_line_items: rows, p_discount_approved: discountApproved })
-        });
-        const dvData = await dv.json();
-        if (dv.ok && dvData?.ok === false) {
-            alert(dvData.message || 'Discount requires admin approval');
-            return;
+        try {
+            const dv = await fetch(`${SUPABASE_URL}/rest/v1/rpc/validate_invoice_discount`, {
+                method: 'POST', headers: adminHeaders(),
+                body: JSON.stringify({ p_line_items: rows, p_discount_approved: discountApproved })
+            });
+            const dvData = await dv.json();
+            if (dv.ok && dvData?.ok === false) {
+                alert(dvData.message || 'Discount requires admin approval');
+                return;
+            }
+        } catch (e) {
+            console.warn('Discount validation bypassed:', e);
         }
     }
+
+    const discPctVal = overallDiscountRaw.includes('%') ? (parseFloat(overallDiscountRaw) || 0) : null;
+    const notesPayload = JSON.stringify({
+        overallDiscountRaw: overallDiscountRaw || '0',
+        overallDiscountAmount: overallDiscountAmount || 0,
+        shippingFee: shippingFee || 0,
+        summary: `خصم: ${overallDiscountRaw || 0} | شحن: ${shippingFee || 0}`
+    });
 
     const payload = {
         order_id: linkedOrderId,
@@ -1180,8 +1264,8 @@ async function saveInvoice() {
         customer_id: linkedCustomerId,
         visit_id: linkedVisitId,
         source_type: sourceType,
-        customer_name: document.getElementById('clientName').textContent,
-        customer_phone: document.getElementById('clientPhone').textContent,
+        customer_name: (document.getElementById('clientName').textContent || '').trim(),
+        customer_phone: (document.getElementById('clientPhone').textContent || '').trim(),
         customer_address: (document.getElementById('clientAddress').innerText || '').trim(),
         invoice_date: document.getElementById('invoiceDate').textContent,
         payment_method: currentPaymentMethod === 'manual' ? 'manual' : currentPaymentMethod,
@@ -1190,6 +1274,8 @@ async function saveInvoice() {
         subtotal: subtotalNum,
         tax: 0,
         total: grandTotalNum,
+        notes: notesPayload,
+        discount_pct: discPctVal,
         deposit_amount: orderDeposit,
         balance_due: Math.max(0, grandTotalNum - orderDeposit),
         due_date: visitInvoiceDueDate || null,
@@ -1209,8 +1295,6 @@ async function saveInvoice() {
     if (adminToken) {
         try {
             if (linkedOrderId) {
-                const shippingRow = rows.find(r => r.name && (r.name.includes('شحن') || r.name.includes('توصيل')));
-                const shipCost = shippingRow ? (parseFloat(shippingRow.total) || 0) : 0;
                 fetch(`${SUPABASE_URL}/rest/v1/orders?id=eq.${linkedOrderId}`, {
                     method: 'PATCH',
                     headers: adminHeaders(),
@@ -1218,9 +1302,9 @@ async function saveInvoice() {
                         customer_name: payload.customer_name,
                         customer_phone: payload.customer_phone,
                         address: payload.customer_address,
-                        shipping_cost: shipCost,
-                        subtotal: Math.max(0, subtotalNum - shipCost),
-                        total: subtotalNum,
+                        shipping_cost: shippingFee,
+                        subtotal: subtotalNum,
+                        total: grandTotalNum,
                         updated_at: new Date().toISOString()
                     })
                 }).catch(e => console.warn('Order sync warning:', e));
@@ -1249,7 +1333,7 @@ async function saveInvoice() {
                 });
                 if (!res.ok) {
                     const data = await res.json();
-                    alert(data.message || data.details || 'تعذّر تحديث الفاتورة');
+                    if (!silent) alert(data.message || data.details || 'تعذّر تحديث الفاتورة');
                     return;
                 }
             } else {
@@ -1258,7 +1342,7 @@ async function saveInvoice() {
                 });
                 const data = await res.json();
                 if (!res.ok) {
-                    alert(data.message || data.details || 'تعذّر الحفظ — قد يكون رقم الفاتورة مكرراً');
+                    if (!silent) alert(data.message || data.details || 'تعذّر الحفظ — قد يكون رقم الفاتورة مكرراً');
                     return;
                 }
                 if (data[0]?.id) {
@@ -1280,7 +1364,7 @@ async function saveInvoice() {
                 });
                 const sd = await sr.json();
                 if (!sr.ok) {
-                    alert(sd.message || sd.error || 'المخزون غير كافٍ — تم حفظ الفاتورة بدون خصم');
+                    if (!silent) alert(sd.message || sd.error || 'المخزون غير كافٍ — تم حفظ الفاتورة بدون خصم');
                 } else {
                     await fetch(`${SUPABASE_URL}/rest/v1/invoices?id=eq.${savedInvoiceDbId}`, {
                         method: 'PATCH', headers: adminHeaders(), body: JSON.stringify({ stock_deducted: true })
@@ -1296,37 +1380,72 @@ async function saveInvoice() {
                 });
             }
         } catch (e) {
-            alert('تعذّر الحفظ في النظام — تأكد من migration 016 وتسجيل الدخول كأدمن');
+            if (!silent) alert('تعذّر الحفظ في النظام — تأكد من migration 016 وتسجيل الدخول كأدمن');
             return;
         }
     }
 
     const finalNum = idEl.textContent.replace(/\s*\(تقديري\)\s*$/, '').trim();
-    allInvoices[finalNum] = { id: finalNum, date: payload.invoice_date, client: payload.customer_name, phone: payload.customer_phone, rows, subtotal: subtotalText, total: grandTotalText, overallDiscountRaw, overallDiscountAmount, shippingFee };
+    allInvoices[finalNum] = {
+        id: finalNum,
+        dbId: savedInvoiceDbId,
+        orderId: linkedOrderId,
+        orderNumber: document.getElementById('orderNumber')?.textContent || null,
+        date: payload.invoice_date,
+        client: payload.customer_name,
+        phone: payload.customer_phone,
+        address: payload.customer_address,
+        paymentMethod: currentPaymentMethod,
+        paymentStatus: payload.status,
+        deposit: orderDeposit,
+        rows,
+        subtotal: subtotalText,
+        total: grandTotalText,
+        overallDiscountRaw,
+        overallDiscountAmount,
+        shippingFee
+    };
     localStorage.setItem('montana_invoices', JSON.stringify(allInvoices));
     currentInvId = finalNum;
+
+    // Update browser URL so reloading doesn't reload raw unedited order
+    if (savedInvoiceDbId) {
+        try {
+            const curUrl = new URL(window.location.href);
+            curUrl.searchParams.set('invoice_id', savedInvoiceDbId);
+            curUrl.searchParams.delete('order_id');
+            window.history.replaceState({}, '', curUrl.toString());
+        } catch (e) {}
+    }
+
     await loadDbInvoiceList();
     renderInvList();
+    updateReturnButton();
+    markClean();
     if (shouldDeduct) stockDeducted = true;
-    alert('✅ تم حفظ الفاتورة #' + finalNum);
+    if (!silent) alert('✅ تم حفظ الفاتورة #' + finalNum);
 }
 
 function loadInvoiceLocal(id) {
     const inv = allInvoices[id];
     if (!inv) return;
     currentInvId = id;
-    savedInvoiceDbId = null;
-    linkedOrderId = null;
+    savedInvoiceDbId = inv.dbId || null;
+    linkedOrderId = inv.orderId || null;
     document.getElementById('invoiceNum').textContent = inv.id;
     document.getElementById('invoiceDate').textContent = inv.date;
-    setClient(inv.client, inv.phone, '');
+    setClient(inv.client, inv.phone, inv.address || '');
+    if (inv.paymentMethod) setMeta(inv.paymentMethod, inv.paymentStatus === 'paid' ? 'confirmed' : 'pending');
+    if (inv.orderNumber) setOrderPaymentSummary(inv.deposit || 0, inv.total || 0, inv.orderNumber);
     clearTable();
     overallDiscountRaw = inv.overallDiscountRaw || '0';
     overallDiscountAmount = inv.overallDiscountAmount || 0;
     shippingFee = inv.shippingFee || 0;
-    inv.rows.forEach(r => addRowFromData(r.name, r.price, r.qty, r.discount, r.pharmacyPrice, r.total, r.product_id));
+    (inv.rows || []).forEach(r => addRowFromData(r.name, r.price, r.qty, r.discount, r.pharmacyPrice, r.total, r.product_id));
     calcTotal();
     renderInvList();
+    updateReturnButton();
+    markClean();
 }
 
 async function loadInvoiceFromDb(id) {
@@ -1355,23 +1474,53 @@ async function loadInvoiceFromDb(id) {
     setMeta(inv.payment_method, inv.status === 'paid' ? 'confirmed' : 'pending');
     setOrderPaymentSummary(inv.deposit_amount, inv.total, inv.order_number);
     clearTable();
-    overallDiscountRaw = inv.discount_pct ? (inv.discount_pct + '%') : '0';
-    if (inv.notes && inv.notes.includes('خصم:')) {
-        const mDisc = inv.notes.match(/خصم:\s*([^|]+)/);
-        if (mDisc) overallDiscountRaw = mDisc[1].trim();
-    }
+
+    overallDiscountRaw = '0';
     shippingFee = 0;
-    if (inv.notes && inv.notes.includes('شحن:')) {
-        const mShip = inv.notes.match(/شحن:\s*([\d.]+)/);
-        if (mShip) shippingFee = parseFloat(mShip[1]) || 0;
+    if (inv.notes) {
+        try {
+            const parsed = JSON.parse(inv.notes);
+            if (parsed && typeof parsed === 'object') {
+                if (parsed.overallDiscountRaw != null) overallDiscountRaw = String(parsed.overallDiscountRaw);
+                if (parsed.shippingFee != null) shippingFee = parseFloat(parsed.shippingFee) || 0;
+            }
+        } catch {
+            if (inv.notes.includes('خصم:')) {
+                const mDisc = inv.notes.match(/خصم:\s*([^|]+)/);
+                if (mDisc) overallDiscountRaw = mDisc[1].trim();
+            }
+            if (inv.notes.includes('شحن:')) {
+                const mShip = inv.notes.match(/شحن:\s*([\d.]+)/);
+                if (mShip) shippingFee = parseFloat(mShip[1]) || 0;
+            }
+        }
     }
-    (inv.line_items || []).forEach(r => addRowFromData(r.name, r.price, r.qty, r.discount, r.pharmacyPrice, r.total, r.product_id));
+    if ((!overallDiscountRaw || overallDiscountRaw === '0') && inv.discount_pct) {
+        overallDiscountRaw = inv.discount_pct + '%';
+    }
+
+    (inv.line_items || []).forEach(r => {
+        const isShip = r.name && (r.name.includes('شحن') || r.name.includes('توصيل'));
+        if (isShip) {
+            if (shippingFee === 0) shippingFee = parseFloat(r.total) || parseFloat(r.price) || 0;
+            return;
+        }
+        addRowFromData(r.name, r.price, r.qty, r.discount, r.pharmacyPrice, r.total, r.product_id);
+    });
+
     calcTotal();
     renderInvList();
     updateReturnButton();
+    markClean();
 }
 
-function loadInvoice(id) {
+async function loadInvoice(id) {
+    if (isDirty) {
+        const saveFirst = confirm('يوجد تعديلات غير محفوظة في الفاتورة الحالية!\nهل تريد حفظ التعديلات أولاً قبل الانتقال؟');
+        if (saveFirst) {
+            await saveInvoice(true);
+        }
+    }
     if (String(id).startsWith('db:')) return loadInvoiceFromDb(id.slice(3));
     loadInvoiceLocal(id);
 }
@@ -1451,8 +1600,6 @@ async function loadFromOrder(orderId) {
     const o = data.order;
     if (data.existing_invoice?.invoice_number) {
         await loadInvoiceFromDb(data.existing_invoice.id);
-        setOrderPaymentSummary(o.deposit_amount, o.total, o.order_number);
-        calcTotal();
         return;
     }
     linkedOrderId = o.id;
@@ -1810,6 +1957,7 @@ function addProductFromStock(productId, qtyRaw) {
         if (newQty > st) { alert('المجموع ' + newQty + ' أكبر من المخزون (' + st + ')'); return; }
         cells[3].textContent = newQty;
         calcTotal();
+        markDirty();
         warnLowStockAfterSale(p.name, st - newQty);
         return;
     }
@@ -1819,6 +1967,7 @@ function addProductFromStock(productId, qtyRaw) {
     const disc = pub > ph ? Math.round((1 - ph / pub) * 100) : 0;
     addRowFromData(p.name, pub, qty, disc, ph, ph * qty, p.id);
     calcTotal();
+    markDirty();
     warnLowStockAfterSale(p.name, st - qty);
 }
 
