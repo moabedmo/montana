@@ -421,6 +421,14 @@
         box-shadow: var(--shadow-elevated);
         border-color: var(--brand-purple);
       }
+      .lux-prod-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+      }
+      .lux-prod-link:hover .lux-prod-title {
+        color: var(--brand-purple);
+      }
       .lux-discount-chip {
         position: absolute;
         top: 12px;
@@ -950,111 +958,121 @@
 <section class="container" id="all-products">
     <div class="shop-section-head">
         <h2 class="shop-section-title"><i class="fas fa-sparkles"></i> المنتجات الفردية</h2>
-        <span class="shop-section-note">✨ خصم 20% BackToSchool مطبق تلقائياً</span>
+        <span class="shop-section-note">✨ شحن مجاني عند اختيار 3 منتجات أو أي روتين</span>
     </div>
 
     <div class="shop-products-grid">
-        <!-- P2: Whitening Cream -->
+        <!-- P3: Whitening Cream -->
         <div class="lux-product-card" data-cat="cream">
-            <span class="lux-discount-chip">خصم 20%</span>
-            <div class="lux-prod-img-box">
-                <img src="images/p2-premium.webp" alt="كريم التفتيح من مونتانيا" loading="lazy">
-            </div>
+            <a href="product.html?slug=whitening-cream" class="lux-prod-link" title="عرض تفاصيل كريم التفتيح">
+                <div class="lux-prod-img-box">
+                    <img src="images/p3-premium.webp" alt="كريم التفتيح من مونتانيا" loading="lazy">
+                </div>
+            </a>
             <div class="lux-prod-stars">
                 <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                 <span>(4.9)</span>
             </div>
-            <h4 class="lux-prod-title">كريم التفتيح المركز</h4>
+            <a href="product.html?slug=whitening-cream" class="lux-prod-link" title="عرض تفاصيل كريم التفتيح">
+                <h4 class="lux-prod-title">كريم التفتيح المركز</h4>
+            </a>
             <p class="lux-prod-benefit">لتفتيح المناطق الحساسة، الرقبة، والكلف وآثار الحبوب.</p>
             <div class="lux-prod-price-row">
-                <div class="lux-prod-now">199 <span>ج.م</span></div>
-                <div class="lux-prod-was">249 ج</div>
+                <div class="lux-prod-now">249 <span>ج.م</span></div>
             </div>
-            <button class="btn-add-product" onclick="handleAddToCart(2, 'كريم التفتيح', 199, 'images/p2-premium.webp')">
+            <button class="btn-add-product" onclick="handleAddToCart(3, 'كريم التفتيح', 249, 'images/p3-premium.webp')">
                 <i class="fas fa-cart-plus"></i> أضيفي للسلة
             </button>
         </div>
 
-        <!-- P3: Whitening Cleanser -->
+        <!-- P2: Whitening Cleanser -->
         <div class="lux-product-card" data-cat="cleanser">
-            <span class="lux-discount-chip">خصم 20%</span>
-            <div class="lux-prod-img-box">
-                <img src="images/p3-premium.webp" alt="غسول التفتيح من مونتانيا" loading="lazy">
-            </div>
+            <a href="product.html?slug=whitening-cleanser" class="lux-prod-link" title="عرض تفاصيل غسول التفتيح">
+                <div class="lux-prod-img-box">
+                    <img src="images/p2-premium.webp" alt="غسول التفتيح من مونتانيا" loading="lazy">
+                </div>
+            </a>
             <div class="lux-prod-stars">
                 <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                 <span>(4.8)</span>
             </div>
-            <h4 class="lux-prod-title">غسول تفتيح الوجه والجسم</h4>
+            <a href="product.html?slug=whitening-cleanser" class="lux-prod-link" title="عرض تفاصيل غسول التفتيح">
+                <h4 class="lux-prod-title">غسول تفتيح الوجه والجسم</h4>
+            </a>
             <p class="lux-prod-benefit">تنظيف لطيف مع خلاصة العرقسوس لتوحيد لون البشرة.</p>
             <div class="lux-prod-price-row">
-                <div class="lux-prod-now">239 <span>ج.م</span></div>
-                <div class="lux-prod-was">299 ج</div>
+                <div class="lux-prod-now">299 <span>ج.م</span></div>
             </div>
-            <button class="btn-add-product" onclick="handleAddToCart(3, 'غسول التفتيح', 239, 'images/p3-premium.webp')">
+            <button class="btn-add-product" onclick="handleAddToCart(2, 'غسول التفتيح', 299, 'images/p2-premium.webp')">
                 <i class="fas fa-cart-plus"></i> أضيفي للسلة
             </button>
         </div>
 
         <!-- P1: Acne Cleanser -->
         <div class="lux-product-card" data-cat="cleanser">
-            <span class="lux-discount-chip">خصم 20%</span>
-            <div class="lux-prod-img-box">
-                <img src="images/p1-premium.webp" alt="غسول حب الشباب من مونتانيا" loading="lazy">
-            </div>
+            <a href="product.html?slug=acne-facial-cleanser" class="lux-prod-link" title="عرض تفاصيل غسول حب الشباب">
+                <div class="lux-prod-img-box">
+                    <img src="images/p1-premium.webp" alt="غسول حب الشباب من مونتانيا" loading="lazy">
+                </div>
+            </a>
             <div class="lux-prod-stars">
                 <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                 <span>(4.9)</span>
             </div>
-            <h4 class="lux-prod-title">غسول حب الشباب الطبي</h4>
+            <a href="product.html?slug=acne-facial-cleanser" class="lux-prod-link" title="عرض تفاصيل غسول حب الشباب">
+                <h4 class="lux-prod-title">غسول حب الشباب الطبي</h4>
+            </a>
             <p class="lux-prod-benefit">بحمض الساليسيليك والأرجان لتنقية المسام وتقليل الحبوب.</p>
             <div class="lux-prod-price-row">
-                <div class="lux-prod-now">239 <span>ج.م</span></div>
-                <div class="lux-prod-was">299 ج</div>
+                <div class="lux-prod-now">299 <span>ج.م</span></div>
             </div>
-            <button class="btn-add-product" onclick="handleAddToCart(1, 'غسول حب الشباب', 239, 'images/p1-premium.webp')">
+            <button class="btn-add-product" onclick="handleAddToCart(1, 'غسول حب الشباب', 299, 'images/p1-premium.webp')">
                 <i class="fas fa-cart-plus"></i> أضيفي للسلة
             </button>
         </div>
 
         <!-- P4: Body Lotion -->
         <div class="lux-product-card" data-cat="lotion">
-            <span class="lux-discount-chip">خصم 20%</span>
-            <div class="lux-prod-img-box">
-                <img src="images/p4-premium.webp" alt="لوشن اليدين والجسم من مونتانيا" loading="lazy">
-            </div>
+            <a href="product.html?slug=hand-body-lotion" class="lux-prod-link" title="عرض تفاصيل لوشن اليدين والجسم">
+                <div class="lux-prod-img-box">
+                    <img src="images/p4-premium.webp" alt="لوشن اليدين والجسم من مونتانيا" loading="lazy">
+                </div>
+            </a>
             <div class="lux-prod-stars">
                 <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                 <span>(4.7)</span>
             </div>
-            <h4 class="lux-prod-title">لوشن اليدين والجسم 72h</h4>
+            <a href="product.html?slug=hand-body-lotion" class="lux-prod-link" title="عرض تفاصيل لوشن اليدين والجسم">
+                <h4 class="lux-prod-title">لوشن اليدين والجسم 72h</h4>
+            </a>
             <p class="lux-prod-benefit">ترطيب مخملي مكثف بزبدة الكاكاو والجوجوبا وفيتامين E.</p>
             <div class="lux-prod-price-row">
-                <div class="lux-prod-now">215 <span>ج.م</span></div>
-                <div class="lux-prod-was">269 ج</div>
+                <div class="lux-prod-now">229 <span>ج.م</span></div>
             </div>
-            <button class="btn-add-product" onclick="handleAddToCart(4, 'لوشن اليدين والجسم', 215, 'images/p4-premium.webp')">
+            <button class="btn-add-product" onclick="handleAddToCart(4, 'لوشن اليدين والجسم', 229, 'images/p4-premium.webp')">
                 <i class="fas fa-cart-plus"></i> أضيفي للسلة
             </button>
         </div>
 
         <!-- P5: Post Laser Cream -->
         <div class="lux-product-card" data-cat="cream">
-            <span class="lux-discount-chip">خصم 20%</span>
-            <div class="lux-prod-img-box">
-                <img src="images/p5-premium.webp" alt="كريم ما بعد الليزر من مونتانيا" loading="lazy">
-            </div>
+            <a href="product.html?slug=post-laser-cream" class="lux-prod-link" title="عرض تفاصيل كريم ما بعد الليزر">
+                <div class="lux-prod-img-box">
+                    <img src="images/p5-premium.webp" alt="كريم ما بعد الليزر من مونتانيا" loading="lazy">
+                </div>
+            </a>
             <div class="lux-prod-stars">
                 <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                 <span>(5.0)</span>
             </div>
-            <h4 class="lux-prod-title">كريم ما بعد الليزر والترميم</h4>
+            <a href="product.html?slug=post-laser-cream" class="lux-prod-link" title="عرض تفاصيل كريم ما بعد الليزر">
+                <h4 class="lux-prod-title">كريم ما بعد الليزر والترميم</h4>
+            </a>
             <p class="lux-prod-benefit">لتهدئة فورية للبشرة ومنع الاحمرار والتصبغات بعد الجلسات.</p>
             <div class="lux-prod-price-row">
-                <div class="lux-prod-now">295 <span>ج.م</span></div>
-                <div class="lux-prod-was">369 ج</div>
+                <div class="lux-prod-now">369 <span>ج.م</span></div>
             </div>
-            <button class="btn-add-product" onclick="handleAddToCart(5, 'كريم ما بعد الليزر', 295, 'images/p5-premium.webp')">
+            <button class="btn-add-product" onclick="handleAddToCart(5, 'كريم ما بعد الليزر', 369, 'images/p5-premium.webp')">
                 <i class="fas fa-cart-plus"></i> أضيفي للسلة
             </button>
         </div>
@@ -1097,12 +1115,12 @@ function handleAddToCart(id, name, price, image) {
 function handleOrderRoutine(type) {
     if (window.Cart && typeof window.Cart.add === 'function') {
         if (type === 'brightening') {
-            window.Cart.add({ id: 3, name: 'غسول التفتيح (ضمن الروتين)', price: 275, image: 'images/p3-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 2, name: 'كريم التفتيح (ضمن الروتين)', price: 228, image: 'images/p2-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 2, name: 'غسول التفتيح (ضمن الروتين)', price: 275, image: 'images/p2-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 228, image: 'images/p3-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
             window.Cart.add({ id: 4, name: 'لوشن الجسم (ضمن الروتين)', price: 274, image: 'images/p4-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
         } else if (type === 'post-laser') {
             window.Cart.add({ id: 5, name: 'كريم ما بعد الليزر (ضمن الروتين)', price: 345, image: 'images/p5-premium.webp', bundleSlug: 'post-laser-glow' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 2, name: 'كريم التفتيح (ضمن الروتين)', price: 273, image: 'images/p2-premium.webp', bundleSlug: 'post-laser-glow' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 273, image: 'images/p3-premium.webp', bundleSlug: 'post-laser-glow' }, 1, { skipMeta: true });
         } else if (type === 'face-body') {
             window.Cart.add({ id: 1, name: 'غسول حب الشباب (ضمن الروتين)', price: 299, image: 'images/p1-premium.webp', bundleSlug: 'face-and-body' }, 1, { skipMeta: true });
             window.Cart.add({ id: 4, name: 'لوشن اليدين والجسم (ضمن الروتين)', price: 259, image: 'images/p4-premium.webp', bundleSlug: 'face-and-body' }, 1, { skipMeta: true });
@@ -1227,12 +1245,12 @@ async function submitQuickOrder(e) {
     if (window.Cart) {
         window.Cart.clear?.();
         if (itemType === 'brightening') {
-            window.Cart.add({ id: 3, name: 'غسول التفتيح (ضمن الروتين)', price: 275, image: 'images/p3-premium.webp' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 2, name: 'كريم التفتيح (ضمن الروتين)', price: 228, image: 'images/p2-premium.webp' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 2, name: 'غسول التفتيح (ضمن الروتين)', price: 275, image: 'images/p2-premium.webp' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 228, image: 'images/p3-premium.webp' }, 1, { skipMeta: true });
             window.Cart.add({ id: 4, name: 'لوشن الجسم (ضمن الروتين)', price: 274, image: 'images/p4-premium.webp' }, 1, { skipMeta: true });
         } else if (itemType === 'post-laser') {
             window.Cart.add({ id: 5, name: 'كريم ما بعد الليزر (ضمن الروتين)', price: 345, image: 'images/p5-premium.webp' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 2, name: 'كريم التفتيح (ضمن الروتين)', price: 273, image: 'images/p2-premium.webp' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 273, image: 'images/p3-premium.webp' }, 1, { skipMeta: true });
         } else if (itemType === 'face-body') {
             window.Cart.add({ id: 1, name: 'غسول حب الشباب (ضمن الروتين)', price: 299, image: 'images/p1-premium.webp' }, 1, { skipMeta: true });
             window.Cart.add({ id: 4, name: 'لوشن اليدين والجسم (ضمن الروتين)', price: 259, image: 'images/p4-premium.webp' }, 1, { skipMeta: true });

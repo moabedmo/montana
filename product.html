@@ -81,6 +81,98 @@
             from { opacity: 0; transform: translate(-50%, 10px); }
             to { opacity: 1; transform: translate(-50%, 0); }
         }
+        /* Rich usage & active ingredients styling */
+        .pd-usage-card {
+            background: rgba(146, 117, 164, 0.05);
+            border: 1px solid rgba(146, 117, 164, 0.18);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 10px;
+        }
+        .pd-usage-steps {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .pd-usage-step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13.5px;
+            color: var(--text-dark, #2D1B3D);
+            line-height: 1.6;
+        }
+        .pd-usage-step-badge {
+            background: linear-gradient(135deg, #9275A4, #6E5480);
+            color: #fff;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .pd-actives-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .pd-active-card {
+            background: #FFFFFF;
+            border: 1px solid rgba(146, 117, 164, 0.15);
+            border-right: 4px solid var(--brand-purple, #9275A4);
+            border-radius: 10px;
+            padding: 12px 14px;
+            box-shadow: 0 2px 8px rgba(45, 27, 61, 0.03);
+            transition: all 0.2s ease;
+        }
+        .pd-active-card:hover {
+            border-right-color: var(--brand-gold, #C9A84C);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(45, 27, 61, 0.07);
+        }
+        .pd-active-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .pd-active-name {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--brand-purple-dark, #4a2c5a);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pd-active-name i {
+            color: var(--brand-gold, #C9A84C);
+            font-size: 12px;
+        }
+        .pd-active-role {
+            font-size: 11px;
+            font-weight: 700;
+            color: #8a6c1e;
+            background: rgba(216, 181, 89, 0.14);
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+        .pd-active-benefit {
+            font-size: 12.5px;
+            color: var(--text-muted, #555);
+            line-height: 1.6;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -108,7 +200,7 @@
 <script src="/js/lang-switch.js?v=2"></script>
 <script type="module">
 import { products as productsApi, ingredients as ingredientsApi, reviews as reviewsApi } from '/js/store-api.js';
-import { getProductIndications, PRODUCT_NAMES, COSMETIC_DISCLAIMER } from '/js/indications-data.js';
+import { getProductIndications, getProductDetails, PRODUCT_NAMES, COSMETIC_DISCLAIMER } from '/js/indications-data.js';
 import { localizeProduct, formatPrice, getLocale, productUrl } from '/js/i18n/locale.js?v=3';
 import { UI_STRINGS, PRODUCT_COPY, COSMETIC_DISCLAIMER as EN_DISCLAIMER } from '/js/i18n/en.js';
 import { escapeHtml } from '/js/escape-html.js';
@@ -241,6 +333,68 @@ function renderIndicationsSection(slug) {
             </div>`;
 }
 
+function renderUsageSection(slug) {
+    const details = getProductDetails(slug);
+    if (!details?.howToUse) return '';
+    const { frequency, steps, tips } = details.howToUse;
+    const stepsHtml = (steps || []).map((step, idx) => `
+        <li class="pd-usage-step-item">
+            <span class="pd-usage-step-badge">${idx + 1}</span>
+            <span>${escapeHtml(step)}</span>
+        </li>
+    `).join('');
+
+    return `
+        <div class="pd-divider"></div>
+        <div class="pd-section">
+            <div class="pd-section-header">
+                <h3><i class="fas fa-hand-holding-heart" style="color:var(--brand-purple);margin-left:6px;"></i> طريقة الاستعمال الصحيحة</h3>
+            </div>
+            <div class="pd-usage-card">
+                <div style="font-size:13.5px;font-weight:700;color:var(--brand-purple-dark, #4a2c5a);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+                    <i class="fas fa-clock" style="color:var(--brand-gold, #C9A84C);"></i>
+                    <span>توقيت ومعدل الاستخدام: ${escapeHtml(frequency)}</span>
+                </div>
+                <ul class="pd-usage-steps">
+                    ${stepsHtml}
+                </ul>
+                ${tips ? `
+                <div style="margin-top:14px;padding:10px 14px;background:rgba(216, 181, 89, 0.12);border-radius:8px;font-size:12.5px;color:#7a5a14;display:flex;align-items:center;gap:8px;">
+                    <i class="fas fa-lightbulb" style="color:#C9A84C;font-size:14px;"></i>
+                    <span><strong>نصيحة الصيدلي:</strong> ${escapeHtml(tips)}</span>
+                </div>` : ''}
+            </div>
+        </div>`;
+}
+
+function renderActiveIngredientsDetailedSection(slug) {
+    const details = getProductDetails(slug);
+    const actives = details?.activeIngredients;
+    if (!actives?.length) return '';
+
+    const cardsHtml = actives.map(act => `
+        <div class="pd-active-card">
+            <div class="pd-active-header">
+                <span class="pd-active-name"><i class="fas fa-sparkles"></i> ${escapeHtml(act.name)}</span>
+                <span class="pd-active-role">${escapeHtml(act.role)}</span>
+            </div>
+            <p class="pd-active-benefit">${escapeHtml(act.benefit)}</p>
+        </div>
+    `).join('');
+
+    return `
+        <div class="pd-divider"></div>
+        <div class="pd-section">
+            <div class="pd-section-header">
+                <h3><i class="fas fa-flask" style="color:var(--brand-gold);margin-left:6px;"></i> المواد الفعالة وسر فعاليتها (كل مادة بتعمل إيه)</h3>
+            </div>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">تركيبة صيدلانية متطورة خالية من البارابين ومصرحة من هيئة الدواء المصرية (EDA):</p>
+            <div class="pd-actives-grid">
+                ${cardsHtml}
+            </div>
+        </div>`;
+}
+
 function renderProduct(p, related, ingredientsList, reviewList) {
     if (window.MontanaSEO) window.MontanaSEO.setProductMeta(p);
     const pn = escapeHtml(p.name);
@@ -302,19 +456,9 @@ function renderProduct(p, related, ingredientsList, reviewList) {
 
             ${renderIndicationsSection(p.slug)}
 
-            ${ingredients.length ? `
-            <div class="pd-divider"></div>
-            <div class="pd-section">
-                <h3>${L()?.ingredients || 'المكونات'}</h3>
-                <ul class="pd-features">
-                    ${ingredients.map(i => {
-                        const match = matchIngredient(i);
-                        return match
-                            ? `<li><i class="fas fa-check-circle"></i> <a href="/ingredients.html?slug=${match.slug}" style="color:inherit;text-decoration:underline;text-underline-offset:3px">${i}</a></li>`
-                            : `<li><i class="fas fa-check-circle"></i> ${i}</li>`;
-                    }).join('')}
-                </ul>
-            </div>` : ''}
+            ${renderUsageSection(p.slug)}
+
+            ${renderActiveIngredientsDetailedSection(p.slug)}
 
             <div class="pd-divider"></div>
             ${renderReviewsSection(p, reviewList)}

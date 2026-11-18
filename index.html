@@ -771,6 +771,14 @@
         font-size: 11px;
         margin-right: 4px;
       }
+      .lux-prod-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+      }
+      .lux-prod-link:hover .lux-prod-title {
+        color: var(--brand-purple);
+      }
       .lux-prod-title {
         font-size: 15px;
         font-weight: 800;
@@ -778,6 +786,7 @@
         line-height: 1.35;
         margin-bottom: 6px;
         min-height: 40px;
+        transition: color 0.2s ease;
       }
       .lux-prod-benefit {
         font-size: 12px;
@@ -1572,14 +1581,18 @@
         <div class="lux-products-grid">
             <!-- P3: Whitening Cream -->
             <div class="lux-product-card">
-                <div class="lux-prod-img-box">
-                    <img src="images/p3-premium.webp" alt="كريم التفتيح من مونتانيا" loading="lazy">
-                </div>
+                <a href="product.html?slug=whitening-cream" class="lux-prod-link" title="عرض تفاصيل كريم التفتيح">
+                    <div class="lux-prod-img-box">
+                        <img src="images/p3-premium.webp" alt="كريم التفتيح من مونتانيا" loading="lazy">
+                    </div>
+                </a>
                 <div class="lux-prod-stars">
                     <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                     <span>(4.9)</span>
                 </div>
-                <h4 class="lux-prod-title">كريم التفتيح المركز</h4>
+                <a href="product.html?slug=whitening-cream" class="lux-prod-link" title="عرض تفاصيل كريم التفتيح">
+                    <h4 class="lux-prod-title">كريم التفتيح المركز</h4>
+                </a>
                 <p class="lux-prod-benefit">لتفتيح المناطق الحساسة، الرقبة، والكلف وآثار الحبوب.</p>
                 <div class="lux-prod-ingredients">
                     <span class="ing-badge"><i class="fas fa-sparkles"></i> ألفا أربوتين</span>
@@ -1598,14 +1611,18 @@
 
             <!-- P2: Whitening Cleanser -->
             <div class="lux-product-card">
-                <div class="lux-prod-img-box">
-                    <img src="images/p2-premium.webp" alt="غسول التفتيح من مونتانيا" loading="lazy">
-                </div>
+                <a href="product.html?slug=whitening-cleanser" class="lux-prod-link" title="عرض تفاصيل غسول التفتيح">
+                    <div class="lux-prod-img-box">
+                        <img src="images/p2-premium.webp" alt="غسول التفتيح من مونتانيا" loading="lazy">
+                    </div>
+                </a>
                 <div class="lux-prod-stars">
                     <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                     <span>(4.8)</span>
                 </div>
-                <h4 class="lux-prod-title">غسول تفتيح الوجه والجسم</h4>
+                <a href="product.html?slug=whitening-cleanser" class="lux-prod-link" title="عرض تفاصيل غسول التفتيح">
+                    <h4 class="lux-prod-title">غسول تفتيح الوجه والجسم</h4>
+                </a>
                 <p class="lux-prod-benefit">تنظيف لطيف مع خلاصة العرقسوس لتوحيد لون البشرة.</p>
                 <div class="lux-prod-ingredients">
                     <span class="ing-badge"><i class="fas fa-leaf"></i> خلاصة العرقسوس</span>
@@ -1624,14 +1641,18 @@
 
             <!-- P1: Acne Cleanser -->
             <div class="lux-product-card">
-                <div class="lux-prod-img-box">
-                    <img src="images/p1-premium.webp" alt="غسول حب الشباب من مونتانيا" loading="lazy">
-                </div>
+                <a href="product.html?slug=acne-facial-cleanser" class="lux-prod-link" title="عرض تفاصيل غسول حب الشباب">
+                    <div class="lux-prod-img-box">
+                        <img src="images/p1-premium.webp" alt="غسول حب الشباب من مونتانيا" loading="lazy">
+                    </div>
+                </a>
                 <div class="lux-prod-stars">
                     <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                     <span>(4.9)</span>
                 </div>
-                <h4 class="lux-prod-title">غسول حب الشباب الطبي</h4>
+                <a href="product.html?slug=acne-facial-cleanser" class="lux-prod-link" title="عرض تفاصيل غسول حب الشباب">
+                    <h4 class="lux-prod-title">غسول حب الشباب الطبي</h4>
+                </a>
                 <p class="lux-prod-benefit">بحمض الساليسيليك والأرجان لتنقية المسام وتقليل الحبوب.</p>
                 <div class="lux-prod-ingredients">
                     <span class="ing-badge"><i class="fas fa-flask"></i> حمض الساليسيليك</span>
@@ -1650,14 +1671,18 @@
 
             <!-- P4: Body Lotion -->
             <div class="lux-product-card">
-                <div class="lux-prod-img-box">
-                    <img src="images/p4-premium.webp" alt="لوشن اليدين والجسم من مونتانيا" loading="lazy">
-                </div>
+                <a href="product.html?slug=hand-body-lotion" class="lux-prod-link" title="عرض تفاصيل لوشن اليدين والجسم">
+                    <div class="lux-prod-img-box">
+                        <img src="images/p4-premium.webp" alt="لوشن اليدين والجسم من مونتانيا" loading="lazy">
+                    </div>
+                </a>
                 <div class="lux-prod-stars">
                     <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                     <span>(4.7)</span>
                 </div>
-                <h4 class="lux-prod-title">لوشن اليدين والجسم 72h</h4>
+                <a href="product.html?slug=hand-body-lotion" class="lux-prod-link" title="عرض تفاصيل لوشن اليدين والجسم">
+                    <h4 class="lux-prod-title">لوشن اليدين والجسم 72h</h4>
+                </a>
                 <p class="lux-prod-benefit">ترطيب مخملي مكثف بزبدة الكاكاو والجوجوبا وفيتامين E.</p>
                 <div class="lux-prod-ingredients">
                     <span class="ing-badge"><i class="fas fa-heart"></i> زبدة الشيا والكاكاو</span>
@@ -1675,14 +1700,18 @@
 
             <!-- P5: Post Laser Cream -->
             <div class="lux-product-card">
-                <div class="lux-prod-img-box">
-                    <img src="images/p5-premium.webp" alt="كريم ما بعد الليزر من مونتانيا" loading="lazy">
-                </div>
+                <a href="product.html?slug=post-laser-cream" class="lux-prod-link" title="عرض تفاصيل كريم ما بعد الليزر">
+                    <div class="lux-prod-img-box">
+                        <img src="images/p5-premium.webp" alt="كريم ما بعد الليزر من مونتانيا" loading="lazy">
+                    </div>
+                </a>
                 <div class="lux-prod-stars">
                     <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                     <span>(5.0)</span>
                 </div>
-                <h4 class="lux-prod-title">كريم ما بعد الليزر والترميم</h4>
+                <a href="product.html?slug=post-laser-cream" class="lux-prod-link" title="عرض تفاصيل كريم ما بعد الليزر">
+                    <h4 class="lux-prod-title">كريم ما بعد الليزر والترميم</h4>
+                </a>
                 <p class="lux-prod-benefit">لتهدئة فورية للبشرة ومنع الاحمرار والتصبغات بعد الجلسات.</p>
                 <div class="lux-prod-ingredients">
                     <span class="ing-badge"><i class="fas fa-shield-alt"></i> زيت السمسم الطبيعي</span>
