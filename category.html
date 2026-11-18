@@ -429,6 +429,39 @@
       .lux-prod-link:hover .lux-prod-title {
         color: var(--brand-purple);
       }
+      .lux-details-hint {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(45, 31, 53, 0.88);
+        color: #FAF8F5;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 11px;
+        border-radius: 20px;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+        border: 1px solid rgba(216, 181, 89, 0.5);
+        transition: all 0.25s ease;
+        white-space: nowrap;
+        pointer-events: none;
+        z-index: 3;
+      }
+      .lux-details-hint i {
+        color: #D8B559;
+        font-size: 10px;
+      }
+      .lux-prod-link:hover .lux-details-hint {
+        background: #9275A4;
+        border-color: #D8B559;
+        transform: translateX(-50%) translateY(-2px);
+        box-shadow: 0 4px 12px rgba(146, 117, 164, 0.4);
+      }
       .lux-discount-chip {
         position: absolute;
         top: 12px;
@@ -967,6 +1000,7 @@
             <a href="product.html?slug=whitening-cream" class="lux-prod-link" title="عرض تفاصيل كريم التفتيح">
                 <div class="lux-prod-img-box">
                     <img src="images/p3-premium.webp" alt="كريم التفتيح من مونتانيا" loading="lazy">
+                    <span class="lux-details-hint"><i class="fas fa-search-plus"></i> اضغط للتفاصيل</span>
                 </div>
             </a>
             <div class="lux-prod-stars">
@@ -990,6 +1024,7 @@
             <a href="product.html?slug=whitening-cleanser" class="lux-prod-link" title="عرض تفاصيل غسول التفتيح">
                 <div class="lux-prod-img-box">
                     <img src="images/p2-premium.webp" alt="غسول التفتيح من مونتانيا" loading="lazy">
+                    <span class="lux-details-hint"><i class="fas fa-search-plus"></i> اضغط للتفاصيل</span>
                 </div>
             </a>
             <div class="lux-prod-stars">
@@ -1013,6 +1048,7 @@
             <a href="product.html?slug=acne-facial-cleanser" class="lux-prod-link" title="عرض تفاصيل غسول حب الشباب">
                 <div class="lux-prod-img-box">
                     <img src="images/p1-premium.webp" alt="غسول حب الشباب من مونتانيا" loading="lazy">
+                    <span class="lux-details-hint"><i class="fas fa-search-plus"></i> اضغط للتفاصيل</span>
                 </div>
             </a>
             <div class="lux-prod-stars">
@@ -1036,6 +1072,7 @@
             <a href="product.html?slug=hand-body-lotion" class="lux-prod-link" title="عرض تفاصيل لوشن اليدين والجسم">
                 <div class="lux-prod-img-box">
                     <img src="images/p4-premium.webp" alt="لوشن اليدين والجسم من مونتانيا" loading="lazy">
+                    <span class="lux-details-hint"><i class="fas fa-search-plus"></i> اضغط للتفاصيل</span>
                 </div>
             </a>
             <div class="lux-prod-stars">
@@ -1059,6 +1096,7 @@
             <a href="product.html?slug=post-laser-cream" class="lux-prod-link" title="عرض تفاصيل كريم ما بعد الليزر">
                 <div class="lux-prod-img-box">
                     <img src="images/p5-premium.webp" alt="كريم ما بعد الليزر من مونتانيا" loading="lazy">
+                    <span class="lux-details-hint"><i class="fas fa-search-plus"></i> اضغط للتفاصيل</span>
                 </div>
             </a>
             <div class="lux-prod-stars">
