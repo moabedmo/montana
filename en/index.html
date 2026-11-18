@@ -783,8 +783,38 @@
         font-size: 12px;
         color: var(--ink-muted);
         line-height: 1.4;
-        margin-bottom: 14px;
+        margin-bottom: 10px;
         min-height: 34px;
+      }
+      .lux-prod-ingredients {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-bottom: 14px;
+        min-height: 52px;
+        align-content: flex-start;
+      }
+      .ing-badge {
+        font-size: 10px;
+        font-weight: 700;
+        background: rgba(146, 117, 164, 0.08);
+        color: var(--brand-purple-dark, #5a3d6e);
+        padding: 3px 6px;
+        border-radius: 6px;
+        border: 1px solid rgba(146, 117, 164, 0.16);
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        line-height: 1.2;
+        transition: all 0.2s ease;
+      }
+      .ing-badge i {
+        font-size: 8.5px;
+        color: var(--brand-gold-dark, #b59235);
+      }
+      .lux-product-card:hover .ing-badge {
+        background: rgba(146, 117, 164, 0.13);
+        border-color: rgba(146, 117, 164, 0.28);
       }
       .lux-prod-price-row {
         display: flex;
@@ -1552,6 +1582,13 @@
                 </div>
                 <h4 class="lux-prod-title">كريم التفتيح المركز</h4>
                 <p class="lux-prod-benefit">لتفتيح المناطق الحساسة، الرقبة، وAllف وآثار الحبوب.</p>
+                <div class="lux-prod-ingredients">
+                    <span class="ing-badge"><i class="fas fa-sparkles"></i> ألفا أربوتين</span>
+                    <span class="ing-badge"><i class="fas fa-leaf"></i> مستخلص عرقسوس</span>
+                    <span class="ing-badge"><i class="fas fa-tint"></i> نياسيناميد B3</span>
+                    <span class="ing-badge"><i class="fas fa-flask"></i> حمض اللاكتيك</span>
+                    <span class="ing-badge"><i class="fas fa-sun"></i> فيتامين C & E</span>
+                </div>
                 <div class="lux-prod-price-row">
                     <div class="lux-prod-now">199 <span>EGP</span></div>
                     <div class="lux-prod-was">249 ج</div>
@@ -1573,6 +1610,13 @@
                 </div>
                 <h4 class="lux-prod-title">Cleanser تفتيح الوجه والجسم</h4>
                 <p class="lux-prod-benefit">تنظيف لطيف مع خلاصة العرقسوس لتوحيد لون البشرة.</p>
+                <div class="lux-prod-ingredients">
+                    <span class="ing-badge"><i class="fas fa-leaf"></i> خلاصة العرقسوس</span>
+                    <span class="ing-badge"><i class="fas fa-tint"></i> نياسيناميد B3</span>
+                    <span class="ing-badge"><i class="fas fa-bolt"></i> زنك PCA</span>
+                    <span class="ing-badge"><i class="fas fa-sun"></i> فيتامين C</span>
+                    <span class="ing-badge"><i class="fas fa-seedling"></i> زيت شجرة الشاي</span>
+                </div>
                 <div class="lux-prod-price-row">
                     <div class="lux-prod-now">239 <span>EGP</span></div>
                     <div class="lux-prod-was">299 ج</div>
@@ -1594,6 +1638,13 @@
                 </div>
                 <h4 class="lux-prod-title">Acne Facial Cleanser الطبي</h4>
                 <p class="lux-prod-benefit">بحمض الساليسيليك والأرجان لتنقية المسام وتقليل الحبوب.</p>
+                <div class="lux-prod-ingredients">
+                    <span class="ing-badge"><i class="fas fa-flask"></i> حمض الساليسيليك</span>
+                    <span class="ing-badge"><i class="fas fa-bolt"></i> زنك PCA</span>
+                    <span class="ing-badge"><i class="fas fa-tint"></i> نياسيناميد B3</span>
+                    <span class="ing-badge"><i class="fas fa-seedling"></i> زيت الأرجان</span>
+                    <span class="ing-badge"><i class="fas fa-leaf"></i> زيت الجوجوبا</span>
+                </div>
                 <div class="lux-prod-price-row">
                     <div class="lux-prod-now">239 <span>EGP</span></div>
                     <div class="lux-prod-was">299 ج</div>
@@ -1615,6 +1666,12 @@
                 </div>
                 <h4 class="lux-prod-title">Hand & Body Lotion 72h</h4>
                 <p class="lux-prod-benefit">ترطيب مخملي مكثف بزبدة الكاكاو والجوجوبا وفيتامين E.</p>
+                <div class="lux-prod-ingredients">
+                    <span class="ing-badge"><i class="fas fa-heart"></i> زبدة الشيا والكاكاو</span>
+                    <span class="ing-badge"><i class="fas fa-leaf"></i> زيت الجوجوبا واللوز</span>
+                    <span class="ing-badge"><i class="fas fa-sun"></i> فيتامين E</span>
+                    <span class="ing-badge"><i class="fas fa-tint"></i> جلسرين نقي 72h</span>
+                </div>
                 <div class="lux-prod-price-row">
                     <div class="lux-prod-now">215 <span>EGP</span></div>
                     <div class="lux-prod-was">269 ج</div>
@@ -1636,6 +1693,13 @@
                 </div>
                 <h4 class="lux-prod-title">كريم ما بعد الليزر والترميم</h4>
                 <p class="lux-prod-benefit">لتهدئة فورية للبشرة ومنع الاحمرار والتصبغات بعد الجلسات.</p>
+                <div class="lux-prod-ingredients">
+                    <span class="ing-badge"><i class="fas fa-shield-alt"></i> زيت السمسم الطبيعي</span>
+                    <span class="ing-badge"><i class="fas fa-tint"></i> بانثينول B5</span>
+                    <span class="ing-badge"><i class="fas fa-leaf"></i> ألوفيرا وشاي أخضر</span>
+                    <span class="ing-badge"><i class="fas fa-magic"></i> ألانتوين وشمع عسل</span>
+                    <span class="ing-badge"><i class="fas fa-sun"></i> فيتامين E & B3</span>
+                </div>
                 <div class="lux-prod-price-row">
                     <div class="lux-prod-now">295 <span>EGP</span></div>
                     <div class="lux-prod-was">369 ج</div>
