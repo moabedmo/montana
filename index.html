@@ -1570,10 +1570,10 @@
         </div>
         
         <div class="lux-products-grid">
-            <!-- P2: Whitening Cream -->
+            <!-- P3: Whitening Cream -->
             <div class="lux-product-card">
                 <div class="lux-prod-img-box">
-                    <img src="images/p2-premium.webp" alt="كريم التفتيح من مونتانيا" loading="lazy">
+                    <img src="images/p3-premium.webp" alt="كريم التفتيح من مونتانيا" loading="lazy">
                 </div>
                 <div class="lux-prod-stars">
                     <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
@@ -1591,15 +1591,15 @@
                 <div class="lux-prod-price-row">
                     <div class="lux-prod-now">249 <span>ج.م</span></div>
                 </div>
-                <button class="btn-add-product" onclick="handleAddToCart(2, 'كريم التفتيح', 249, 'images/p2-premium.webp')">
+                <button class="btn-add-product" onclick="handleAddToCart(3, 'كريم التفتيح', 249, 'images/p3-premium.webp')">
                     <i class="fas fa-cart-plus"></i> أضيفي للسلة
                 </button>
             </div>
 
-            <!-- P3: Whitening Cleanser -->
+            <!-- P2: Whitening Cleanser -->
             <div class="lux-product-card">
                 <div class="lux-prod-img-box">
-                    <img src="images/p3-premium.webp" alt="غسول التفتيح من مونتانيا" loading="lazy">
+                    <img src="images/p2-premium.webp" alt="غسول التفتيح من مونتانيا" loading="lazy">
                 </div>
                 <div class="lux-prod-stars">
                     <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
@@ -1617,7 +1617,7 @@
                 <div class="lux-prod-price-row">
                     <div class="lux-prod-now">299 <span>ج.م</span></div>
                 </div>
-                <button class="btn-add-product" onclick="handleAddToCart(3, 'غسول التفتيح', 299, 'images/p3-premium.webp')">
+                <button class="btn-add-product" onclick="handleAddToCart(2, 'غسول التفتيح', 299, 'images/p2-premium.webp')">
                     <i class="fas fa-cart-plus"></i> أضيفي للسلة
                 </button>
             </div>
@@ -1845,14 +1845,14 @@ function handleAddToCart(id, name, price, image) {
 function handleOrderRoutine(type) {
     if (window.Cart && typeof window.Cart.add === 'function') {
         if (type === 'brightening') {
-            // Brightening bundle: P3 (Cleanser), P2 (Cream), P4 (Lotion)
-            window.Cart.add({ id: 3, name: 'غسول التفتيح (ضمن الروتين)', price: 275, image: 'images/p3-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 2, name: 'كريم التفتيح (ضمن الروتين)', price: 228, image: 'images/p2-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
+            // Brightening bundle: P2 (Cleanser), P3 (Cream), P4 (Lotion)
+            window.Cart.add({ id: 2, name: 'غسول التفتيح (ضمن الروتين)', price: 275, image: 'images/p2-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 228, image: 'images/p3-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
             window.Cart.add({ id: 4, name: 'لوشن الجسم (ضمن الروتين)', price: 274, image: 'images/p4-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
         } else if (type === 'post-laser') {
-            // Post laser bundle: P5 (Post Laser Cream), P2 (Whitening Cream)
+            // Post laser bundle: P5 (Post Laser Cream), P3 (Whitening Cream)
             window.Cart.add({ id: 5, name: 'كريم ما بعد الليزر (ضمن الروتين)', price: 345, image: 'images/p5-premium.webp', bundleSlug: 'post-laser-glow' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 2, name: 'كريم التفتيح (ضمن الروتين)', price: 273, image: 'images/p2-premium.webp', bundleSlug: 'post-laser-glow' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 273, image: 'images/p3-premium.webp', bundleSlug: 'post-laser-glow' }, 1, { skipMeta: true });
         } else if (type === 'face-body') {
             window.Cart.add({ id: 1, name: 'غسول حب الشباب (ضمن الروتين)', price: 299, image: 'images/p1-premium.webp', bundleSlug: 'face-and-body' }, 1, { skipMeta: true });
             window.Cart.add({ id: 4, name: 'لوشن اليدين والجسم (ضمن الروتين)', price: 259, image: 'images/p4-premium.webp', bundleSlug: 'face-and-body' }, 1, { skipMeta: true });
@@ -1955,12 +1955,12 @@ async function submitQuickOrder(e) {
     if (window.Cart) {
         window.Cart.clear?.();
         if (itemType === 'brightening') {
-            window.Cart.add({ id: 3, name: 'غسول التفتيح (ضمن الروتين)', price: 275, image: 'images/p3-premium.webp' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 2, name: 'كريم التفتيح (ضمن الروتين)', price: 228, image: 'images/p2-premium.webp' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 2, name: 'غسول التفتيح (ضمن الروتين)', price: 275, image: 'images/p2-premium.webp' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 228, image: 'images/p3-premium.webp' }, 1, { skipMeta: true });
             window.Cart.add({ id: 4, name: 'لوشن الجسم (ضمن الروتين)', price: 274, image: 'images/p4-premium.webp' }, 1, { skipMeta: true });
         } else if (itemType === 'post-laser') {
             window.Cart.add({ id: 5, name: 'كريم ما بعد الليزر (ضمن الروتين)', price: 345, image: 'images/p5-premium.webp' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 2, name: 'كريم التفتيح (ضمن الروتين)', price: 273, image: 'images/p2-premium.webp' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 273, image: 'images/p3-premium.webp' }, 1, { skipMeta: true });
         } else if (itemType === 'face-body') {
             window.Cart.add({ id: 1, name: 'غسول حب الشباب (ضمن الروتين)', price: 299, image: 'images/p1-premium.webp' }, 1, { skipMeta: true });
             window.Cart.add({ id: 4, name: 'لوشن اليدين والجسم (ضمن الروتين)', price: 259, image: 'images/p4-premium.webp' }, 1, { skipMeta: true });
