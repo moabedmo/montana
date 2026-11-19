@@ -147,7 +147,7 @@ existing `api/*.js`, never add a file) and 2 cron jobs (both used).
   selling. `needsHuman: true`.
 - **"الشحن مجاني من 3 منتجات" is said once per conversation.** Repeating it after
   every price reads as pushy; never saying it loses the upsell.
-- **Silicone / scar gel is never mentioned to customers.**
+- **AntiScar / Silicone Gel:** Never recommended proactively. When a customer explicitly asks about AntiScar Silicone Gel or sends a photo/post/ad of it, the bot directly clarifies that it is currently out of stock / unavailable ("غير متوفر حالياً للأسف"), and offers assistance on other skin concerns. Never say "I can't see the image".
 - Cosmetic claims only — every product reply carries the "دواعي استعمال تجميلية"
   line. Keep it.
 

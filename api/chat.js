@@ -95,6 +95,20 @@ module.exports = async (req, res) => {
       body.ad_name ??
       body.campaign_name ??
       body.facebook_ad_title ??
+      body.post_title ??
+      body.postTitle ??
+      body.post_text ??
+      body.postText ??
+      body.post_name ??
+      body.headline ??
+      body.ad_headline ??
+      body.referral?.ad_title ??
+      body.referral?.headline ??
+      body.referral?.post_title ??
+      body.referral?.ref ??
+      (Array.isArray(body.attachments) ? body.attachments[0]?.payload?.elements?.[0]?.title : null) ??
+      (Array.isArray(body.attachments) ? body.attachments[0]?.payload?.elements?.[0]?.subtitle : null) ??
+      (Array.isArray(body.attachments) ? body.attachments[0]?.title : null) ??
       null;
     const unresolvedTpl = typeof bundleKeyRaw === 'string' && /^\{\{[^}]+\}\}$/.test(bundleKeyRaw.trim());
     console.log(
