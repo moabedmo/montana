@@ -769,6 +769,22 @@ function sendOrderToBostaAuto(orderId) {
     sendOrderToBostaAndPrint(orderId);
 }
 
+async function updateBostaOrder(orderId) {
+    try {
+        toast('جارٍ تحديث بيانات الشحنة على بوسطة…');
+        const res = await fetch('/api/bosta-create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order_id: orderId, force_update: true }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'تعذّر تحديث الشحنة على بوسطة');
+        toast('✅ تم تحديث بيانات الشحنة في بوسطة بنجاح، يمكنك طباعة البوليصة الآن');
+    } catch (e) {
+        toast('بوسطة: ' + (e.message || e), 'error');
+    }
+}
+
 function openBostaPickupModal() {
     const today = new Date();
     const tomorrow = new Date(today);
@@ -951,6 +967,7 @@ async function viewOrder(id) {
                 <div style="display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap">
                     <p style="margin:0;color:#059669;font-weight:700;font-size:13px">✓ مُرسَل لبوسطة: ${o.bosta_tracking_number || ''}</p>
                     <button type="button" class="btn-primary" style="background:#2563eb;padding:6px 14px;font-size:13px" onclick="printBostaAwb('${o.bosta_delivery_id || o.bosta_tracking_number}')"><i class="fas fa-print"></i> طباعة بوليصة بوسطة</button>
+                    <button type="button" class="btn-sm" style="background:#f59e0b;color:#fff;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;border:none;font-weight:700" onclick="updateBostaOrder(${o.id})" title="تحديث بيانات الشحنة على بوسطة"><i class="fas fa-sync-alt"></i> تحديث بوسطة</button>
                 </div>
             `}
             <button class="btn-primary" style="margin-top:16px" onclick="closeModal(); openOrderInvoice(${o.id})"><i class="fas fa-file-invoice"></i> إصدار / طباعة فاتورة</button>

@@ -1307,6 +1307,12 @@ async function saveInvoice(silent = false) {
                         total: grandTotalNum,
                         updated_at: new Date().toISOString()
                     })
+                }).then(() => {
+                    fetch('/api/bosta-create', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ order_id: linkedOrderId, force_update: true })
+                    }).catch(e => console.warn('Bosta auto-sync warning:', e));
                 }).catch(e => console.warn('Order sync warning:', e));
             }
 
