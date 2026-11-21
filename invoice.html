@@ -1294,26 +1294,55 @@ async function saveInvoice(silent = false) {
 
     if (adminToken) {
         try {
-            if (linkedOrderId) {
-                fetch(`${SUPABASE_URL}/rest/v1/orders?id=eq.${linkedOrderId}`, {
-                    method: 'PATCH',
-                    headers: adminHeaders(),
-                    body: JSON.stringify({
-                        customer_name: payload.customer_name,
-                        customer_phone: payload.customer_phone,
-                        address: payload.customer_address,
-                        shipping_cost: shippingFee,
-                        subtotal: subtotalNum,
-                        total: grandTotalNum,
-                        updated_at: new Date().toISOString()
-                    })
-                }).then(() => {
-                    fetch('/api/bosta-create', {
+            const targetOrderId = linkedOrderId;
+            const targetOrderNum = document.getElementById('orderNumber')?.textContent?.trim() || payload.order_number;
+
+            if (targetOrderId || targetOrderNum) {
+                const patchUrl = targetOrderId
+                    ? `${SUPABASE_URL}/rest/v1/orders?id=eq.${targetOrderId}`
+                    : `${SUPABASE_URL}/rest/v1/orders?order_number=eq.${encodeURIComponent(targetOrderNum)}`;
+                
+                try {
+                    await fetch(patchUrl, {
+                        method: 'PATCH',
+                        headers: adminHeaders(),
+                        body: JSON.stringify({
+                            customer_name: payload.customer_name,
+                            customer_phone: payload.customer_phone,
+                            address: payload.customer_address,
+                            shipping_cost: shippingFee,
+                            subtotal: subtotalNum,
+                            total: grandTotalNum,
+                            updated_at: new Date().toISOString()
+                        })
+                    });
+                } catch (e) {
+                    console.warn('Order sync warning:', e);
+                }
+
+                try {
+                    const bRes = await fetch('/api/bosta-create', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ order_id: linkedOrderId, force_update: true })
-                    }).catch(e => console.warn('Bosta auto-sync warning:', e));
-                }).catch(e => console.warn('Order sync warning:', e));
+                        body: JSON.stringify({
+                            order_id: targetOrderId || undefined,
+                            order_number: targetOrderNum || undefined,
+                            force_update: true
+                        })
+                    });
+                    const bData = await bRes.json().catch(() => ({}));
+                    if (bData?.ok && bData?.tracking_number) {
+                        const badge = document.getElementById('saveStatusBadge');
+                        if (badge) {
+                            badge.style.display = 'inline-block';
+                            badge.style.background = '#059669';
+                            badge.style.color = '#fff';
+                            badge.textContent = `تم تحديث بوسطة: ${bData.tracking_number}`;
+                        }
+                    }
+                } catch (bErr) {
+                    console.warn('Bosta auto-sync warning:', bErr);
+                }
             }
 
             if (linkedDoctorId && ['credit', 'partial'].includes(visitInvoicePaymentType)) {
