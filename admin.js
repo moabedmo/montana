@@ -738,6 +738,7 @@ function printBostaAwb(deliveryId, orderId) {
         toast('لا يوجد رقم بوليصة أو طلب متاح', 'error');
         return;
     }
+    q.set('_t', String(Date.now()));
     const url = `/api/bosta-awb?${q.toString()}`;
     window.open(url, '_blank');
 }

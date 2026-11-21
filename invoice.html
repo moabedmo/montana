@@ -717,10 +717,18 @@ function resolveAdminToken() {
         return fromUrl;
     }
     try {
-        return localStorage.getItem('__ADMIN_TOKEN__') || sessionStorage.getItem('__ADMIN_TOKEN__') || '';
-    } catch {
-        return sessionStorage.getItem('__ADMIN_TOKEN__') || '';
-    }
+        const stored = localStorage.getItem('__ADMIN_TOKEN__') || sessionStorage.getItem('__ADMIN_TOKEN__');
+        if (stored) return stored;
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.includes('auth-token')) {
+                const item = JSON.parse(localStorage.getItem(k) || '{}');
+                const tok = item?.access_token || item?.currentSession?.access_token;
+                if (tok) return tok;
+            }
+        }
+    } catch { /* ignore */ }
+    return '';
 }
 
 let adminToken = resolveAdminToken();
@@ -845,16 +853,33 @@ function setOrderPaymentSummary(deposit, grandTotal, orderNumber) {
     }
 }
 
-function printLinkedOrderBostaAwb() {
+async function printLinkedOrderBostaAwb() {
     const rawNum = document.getElementById('orderNumber')?.textContent?.trim() || '';
     const num = (rawNum && rawNum !== '—' && rawNum !== '-' && !rawNum.includes('لا يوجد')) ? rawNum : null;
     if (!linkedOrderId && !num) {
         alert('هذه الفاتورة غير مرتبطة بطلب شحن محدد');
         return;
     }
+    const btn = document.getElementById('btnPrintBostaAwb');
+    const oldText = btn ? btn.textContent : '';
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = '⏳ جاري تحديث البوليصة…';
+    }
+    try {
+        await saveInvoice(true);
+    } catch (e) {
+        console.warn('Auto-save before waybill failed:', e);
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = oldText || '📦 بوليصة بوسطة';
+        }
+    }
     const q = new URLSearchParams();
     if (linkedOrderId) q.set('order_id', String(linkedOrderId));
     if (num) q.set('order_number', num);
+    q.set('_t', String(Date.now()));
     window.open(`/api/bosta-awb?${q.toString()}`, '_blank');
 }
 
@@ -1342,7 +1367,14 @@ async function saveInvoice(silent = false) {
                         body: JSON.stringify({
                             order_id: targetOrderId || undefined,
                             order_number: targetOrderNum || undefined,
-                            force_update: true
+                            force_update: true,
+                            customer_name: payload.customer_name,
+                            customer_phone: payload.customer_phone,
+                            customer_address: payload.customer_address,
+                            subtotal: subtotalNum,
+                            shipping_cost: shippingFee,
+                            total: grandTotalNum,
+                            rows: rows
                         })
                     });
                     const bData = await bRes.json().catch(() => ({}));
