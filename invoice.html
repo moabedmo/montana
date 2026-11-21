@@ -521,6 +521,7 @@
         <button class="print-btn outline" onclick="newInvoice()">📄 فاتورة جديدة</button>
         <label class="inv-deduct"><input type="checkbox" id="deductStock" checked> خصم من المخزون</label>
         <button class="print-btn outline" id="btnSaveInvoice" onclick="saveInvoice()" style="color:#2980b9;border-color:#2980b9;font-weight:700;transition:all .2s ease">💾 حفظ الفاتورة</button>
+        <button class="print-btn outline" id="btnPrintBostaAwb" onclick="printLinkedOrderBostaAwb()" style="color:#059669;border-color:#059669;font-weight:700" title="طباعة بوليصة شحن بوسطة للطلب">📦 بوليصة بوسطة</button>
         <span id="saveStatusBadge" style="display:none;font-size:11px;font-weight:bold;padding:4px 8px;border-radius:4px;margin-right:4px"></span>
         <button class="print-btn outline" id="btn-return-invoice" onclick="returnInvoiceAsCredit()" style="display:none;color:#c0392b;border-color:#c0392b">↩️ إلغاء كمرتجع</button>
         <button class="print-btn outline" onclick="deleteInvoice()">🗑️ حذف</button>
@@ -842,6 +843,19 @@ function setOrderPaymentSummary(deposit, grandTotal, orderNumber) {
     } else if (meta) {
         meta.style.display = 'none';
     }
+}
+
+function printLinkedOrderBostaAwb() {
+    const rawNum = document.getElementById('orderNumber')?.textContent?.trim() || '';
+    const num = (rawNum && rawNum !== '—' && rawNum !== '-' && !rawNum.includes('لا يوجد')) ? rawNum : null;
+    if (!linkedOrderId && !num) {
+        alert('هذه الفاتورة غير مرتبطة بطلب شحن محدد');
+        return;
+    }
+    const q = new URLSearchParams();
+    if (linkedOrderId) q.set('order_id', String(linkedOrderId));
+    if (num) q.set('order_number', num);
+    window.open(`/api/bosta-awb?${q.toString()}`, '_blank');
 }
 
 function applyDepositTotals(subtotal) {
@@ -1294,8 +1308,9 @@ async function saveInvoice(silent = false) {
 
     if (adminToken) {
         try {
+            const rawNum = document.getElementById('orderNumber')?.textContent?.trim() || payload.order_number || '';
+            const targetOrderNum = (rawNum && rawNum !== '—' && rawNum !== '-' && !rawNum.includes('لا يوجد')) ? rawNum : null;
             const targetOrderId = linkedOrderId;
-            const targetOrderNum = document.getElementById('orderNumber')?.textContent?.trim() || payload.order_number;
 
             if (targetOrderId || targetOrderNum) {
                 const patchUrl = targetOrderId

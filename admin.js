@@ -718,7 +718,7 @@ async function loadOrders(status = 'all') {
         <td>${o.bosta_tracking_number ? `
             <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-start">
                 <span style="color:#059669;font-weight:700;font-size:12px">📦 ${o.bosta_tracking_number}</span>
-                <button type="button" class="btn-sm" style="background:#2563eb;color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;border:none" onclick="printBostaAwb('${o.bosta_delivery_id || o.bosta_tracking_number}')" title="طباعة بوليصة الشحن"><i class="fas fa-print"></i> بوليصة</button>
+                <button type="button" class="btn-sm" style="background:#2563eb;color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;border:none" onclick="printBostaAwb('${o.bosta_delivery_id || o.bosta_tracking_number}', ${o.id})" title="طباعة بوليصة الشحن"><i class="fas fa-print"></i> بوليصة</button>
             </div>
         ` : `
             <button type="button" class="btn-sm" style="background:#0d9488;color:#fff;border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;border:none" onclick="sendOrderToBostaAndPrint(${o.id})" title="إرسال الشحنة لبوسطة"><i class="fas fa-truck"></i> إرسال لبوسطة</button>
@@ -730,12 +730,15 @@ async function loadOrders(status = 'all') {
     </tr>`).join('') : '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">لا توجد طلبات</td></tr>';
 }
 
-function printBostaAwb(deliveryId) {
-    if (!deliveryId) {
-        toast('لا يوجد رقم بوليصة متاح', 'error');
+function printBostaAwb(deliveryId, orderId) {
+    const q = new URLSearchParams();
+    if (orderId) q.set('order_id', String(orderId));
+    else if (deliveryId) q.set('id', String(deliveryId));
+    else {
+        toast('لا يوجد رقم بوليصة أو طلب متاح', 'error');
         return;
     }
-    const url = `/api/bosta-awb?id=${encodeURIComponent(deliveryId)}`;
+    const url = `/api/bosta-awb?${q.toString()}`;
     window.open(url, '_blank');
 }
 
@@ -966,7 +969,7 @@ async function viewOrder(id) {
             ` : `
                 <div style="display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap">
                     <p style="margin:0;color:#059669;font-weight:700;font-size:13px">✓ مُرسَل لبوسطة: ${o.bosta_tracking_number || ''}</p>
-                    <button type="button" class="btn-primary" style="background:#2563eb;padding:6px 14px;font-size:13px" onclick="printBostaAwb('${o.bosta_delivery_id || o.bosta_tracking_number}')"><i class="fas fa-print"></i> طباعة بوليصة بوسطة</button>
+                    <button type="button" class="btn-primary" style="background:#2563eb;padding:6px 14px;font-size:13px" onclick="printBostaAwb('${o.bosta_delivery_id || o.bosta_tracking_number}', ${o.id})"><i class="fas fa-print"></i> طباعة بوليصة بوسطة</button>
                     <button type="button" class="btn-sm" style="background:#f59e0b;color:#fff;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;border:none;font-weight:700" onclick="updateBostaOrder(${o.id})" title="تحديث بيانات الشحنة على بوسطة"><i class="fas fa-sync-alt"></i> تحديث بوسطة</button>
                 </div>
             `}
