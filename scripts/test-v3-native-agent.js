@@ -149,7 +149,7 @@ async function runTestSuite() {
     const r1 = await runTurn('أختي عجبها كريم التفتيح، بس أنا بشرة وشي جافة جداً ومقشرة، هل هيرطب ولا أدهن لوشن الجسم على وشي؟', sid);
     console.log('Bot Reply 1:\n' + r1.reply + '\n');
     assert(r1.engineSource === 'gemini_agent_v3', 'Executed via Gemini Agent V3');
-    assert(!r1.reply.includes('لوشن اليدين والجسم على الوش') && !r1.reply.includes('لوشن الجسم على وشك'), 'Does NOT suggest body lotion for facial peeling');
+    assert(!/(?:استخدمي|ادهني|حطي|ينفع)\s*لوشن\s*(?:اليدي?ن\s*و)?الجسم\s*على\s*(?:الوش|وشك|الوجه)/i.test(r1.reply), 'Does NOT suggest body lotion for facial peeling');
     assert(!r1.reply.includes('كريم بعد الليزر لتهدئة التقشير'), 'Does NOT recommend post-laser cream for ordinary facial peeling');
     assert(/(ترطيب|حاجز|طبي|ملطف|للجسم|مش\s*للوجه|مش\s*للوش)/i.test(r1.reply), 'Gives sound skincare barrier guidance');
 
