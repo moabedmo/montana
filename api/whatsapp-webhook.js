@@ -27,8 +27,10 @@ module.exports = async (req, res) => {
       if (!text) return res.status(200).send('EVENT_RECEIVED'); // non-text message — out of scope for v1
 
       const sid = `whatsapp:${from}`;
-      const payload = await handleInboundMessage({ sid, message: text });
-      await sendWhatsAppText(from, payload.reply);
+      const payload = await handleInboundMessage({ sid, message: text, channel: 'whatsapp' });
+      if (payload?.reply && payload.reply !== 'NONE') {
+        await sendWhatsAppText(from, payload.reply);
+      }
       res.status(200).send('EVENT_RECEIVED');
     } catch (err) {
       console.error('WhatsApp webhook error:', err.message);
