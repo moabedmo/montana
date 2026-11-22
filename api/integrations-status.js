@@ -439,8 +439,15 @@ module.exports = async (req, res) => {
         let itemIds = req.body?.orderItemIds || req.body?.item_ids;
         if (!itemIds || !itemIds.length) {
           if (!orderId) return res.status(400).json({ ok: false, error: 'order_id or orderItemIds required' });
-          const items = await getJumiaOrderItems([orderId]);
-          itemIds = items.map((it) => it.id || it.orderItemId || it.order_item_id).filter(Boolean);
+          const rawItems = await getJumiaOrderItems([orderId]);
+          itemIds = [];
+          for (const r of rawItems) {
+            const list = Array.isArray(r.items) ? r.items : [r];
+            for (const it of list) {
+              const id = it.id || it.orderItemId || it.order_item_id;
+              if (id) itemIds.push(id);
+            }
+          }
         }
         if (!itemIds.length) return res.status(400).json({ ok: false, error: 'No order items found for this order' });
         const result = await setJumiaReadyToShip(itemIds);
@@ -452,8 +459,15 @@ module.exports = async (req, res) => {
         let itemIds = req.body?.orderItemIds || req.body?.item_ids;
         if (!itemIds || !itemIds.length) {
           if (!orderId) return res.status(400).json({ ok: false, error: 'order_id or orderItemIds required' });
-          const items = await getJumiaOrderItems([orderId]);
-          itemIds = items.map((it) => it.id || it.orderItemId || it.order_item_id).filter(Boolean);
+          const rawItems = await getJumiaOrderItems([orderId]);
+          itemIds = [];
+          for (const r of rawItems) {
+            const list = Array.isArray(r.items) ? r.items : [r];
+            for (const it of list) {
+              const id = it.id || it.orderItemId || it.order_item_id;
+              if (id) itemIds.push(id);
+            }
+          }
         }
         if (!itemIds.length) return res.status(400).json({ ok: false, error: 'No order items found for this order' });
         const result = await getJumiaShippingLabel(itemIds);
@@ -472,12 +486,23 @@ module.exports = async (req, res) => {
       if (withItems && result.orders.length) {
         try {
           const ids = result.orders.map((o) => o.id).slice(0, 30);
-          const items = await getJumiaOrderItems(ids);
+          const rawItems = await getJumiaOrderItems(ids);
           const byOrder = new Map();
-          for (const it of items) {
+          for (const it of rawItems) {
             const oid = String(it.orderId || it.order_id || it.orderNumber || '');
             if (!byOrder.has(oid)) byOrder.set(oid, []);
-            byOrder.get(oid).push(it);
+            const subItems = Array.isArray(it.items) ? it.items : [it];
+            for (const sub of subItems) {
+              byOrder.get(oid).push({
+                id: sub.id,
+                name: sub.product?.name || sub.name || sub.title,
+                sku: sub.product?.sellerSku || sub.sellerSku || sub.sku,
+                status: sub.status,
+                price: sub.itemPriceLocal || sub.itemPrice,
+                shippingAddress: sub.shippingAddress,
+                trackingNumber: sub.trackingNumber,
+              });
+            }
           }
           result.orders = result.orders.map((o) => ({
             ...o,
