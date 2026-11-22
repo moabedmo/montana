@@ -662,14 +662,18 @@ function renderJumiaOrdersList(el, orders, meta = {}) {
         return;
     }
     const head = `<div class="owner-channel-table">
-        <div class="owner-channel-head"><span>رقم الطلب</span><span>العميل</span><span>الإجمالي</span><span>الحالة</span><span>التاريخ</span></div>
+        <div class="owner-channel-head"><span>رقم الطلب</span><span>العميل والعنوان</span><span>الإجمالي</span><span>الحالة</span><span>التاريخ</span></div>
         ${orders.map((o) => {
             const total = o.total != null ? `${fmtNum(o.total)} ${o.currency || 'EGP'}` : '—';
+            const orderNum = o.order_number || o.raw?.number || o.id;
             return `<div class="owner-channel-row">
-                <span dir="ltr"><strong>${o.id}</strong></span>
-                <span>${o.customer_name || '—'}${o.customer_phone ? ` · <span dir="ltr">${o.customer_phone}</span>` : ''}</span>
+                <span dir="ltr"><strong>${orderNum}</strong></span>
+                <span>
+                    <strong>${o.customer_name || '—'}</strong>
+                    ${o.customer_address ? `<div style="font-size:11px;opacity:.8;margin-top:2px">${o.customer_address}</div>` : ''}
+                </span>
                 <span>${total}</span>
-                <span>${o.status || '—'}</span>
+                <span><span class="status status-${String(o.status || '').toLowerCase()}">${o.status || '—'}</span></span>
                 <span>${fmtJumiaDate(o.created_at)}</span>
             </div>`;
         }).join('')}

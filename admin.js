@@ -1027,16 +1027,26 @@ function fmtJumiaDate(v) {
     return d.toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' });
 }
 
+function jumiaStatusBadge(status) {
+    const s = String(status || '').toUpperCase();
+    if (s.includes('PENDING') || s.includes('معلق')) return '<span class="status status-pending" style="background:#fef3c7;color:#92400e;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">معلق (Pending)</span>';
+    if (s.includes('READY') || s.includes('PACKED') || s.includes('جاهز')) return '<span class="status status-ready" style="background:#dbeafe;color:#1e40af;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">جاهز للشحن 📦</span>';
+    if (s.includes('SHIPPED') || s.includes('مشحون')) return '<span class="status status-shipped" style="background:#ede9fe;color:#5b21b6;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">مشحون 🚚</span>';
+    if (s.includes('DELIVERED') || s.includes('تم التوصيل')) return '<span class="status status-delivered" style="background:#dcfce7;color:#166534;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">تم التوصيل ✓</span>';
+    if (s.includes('CANCEL') || s.includes('ملغي')) return '<span class="status status-cancelled" style="background:#fee2e2;color:#991b1b;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">ملغي ✕</span>';
+    return `<span class="status" style="padding:4px 8px;border-radius:6px;font-size:12px">${status || '—'}</span>`;
+}
+
 async function loadJumiaOrders() {
     const tb = document.getElementById('jumiaOrdersTable');
     const meta = document.getElementById('adminJumiaMeta');
     if (!tb) return;
-    tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)">جارٍ سحب الطلبات من جوميا…</td></tr>';
+    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">جارٍ سحب الطلبات من جوميا…</td></tr>';
     if (meta) meta.textContent = '';
     const days = Number(document.getElementById('adminJumiaDays')?.value || 30);
     try {
         const headers = await authHeaders();
-        const res = await fetch(`/api/integrations-status?action=jumia-orders&days=${days}&size=50`, { headers });
+        const res = await fetch(`/api/integrations-status?action=jumia-orders&days=${days}&size=50&items=1`, { headers });
         const data = await res.json().catch(() => ({}));
         if (!res.ok || data.ok === false) throw new Error(data.error || `HTTP ${res.status}`);
         const orders = data.orders || [];
@@ -1044,22 +1054,112 @@ async function loadJumiaOrders() {
         tb.innerHTML = orders.length
             ? orders.map((o) => {
                 const total = o.total != null ? `${Number(o.total).toLocaleString('ar-EG')} ${o.currency || 'EGP'}` : '—';
+                const orderNum = o.order_number || o.raw?.number || o.id;
+                const isPending = String(o.status || '').toUpperCase().includes('PENDING');
+
+                const itemsHtml = (o.items && o.items.length)
+                    ? o.items.map((it) => {
+                        const name = it.name || it.productName || it.title || it.sellerSku || 'منتج';
+                        const qty = it.quantity || 1;
+                        return `<div style="font-size:12px;margin-bottom:3px;line-height:1.4"><strong>${qty}×</strong> ${name}</div>`;
+                    }).join('')
+                    : `<span style="font-size:12px;color:var(--muted)">${o.items_count ? `${o.items_count} عناصر` : '—'}</span>`;
+
                 return `<tr>
-                    <td dir="ltr"><strong>${o.id}</strong></td>
-                    <td>${o.customer_name || '—'}</td>
-                    <td dir="ltr">${o.customer_phone || '—'}</td>
-                    <td>${total}</td>
-                    <td><span class="status">${o.status || '—'}</span></td>
-                    <td>${fmtJumiaDate(o.created_at)}</td>
+                    <td dir="ltr" style="vertical-align:top">
+                        <strong style="font-size:14px;color:var(--primary);display:block">${orderNum}</strong>
+                        ${o.raw?.number && o.raw?.number !== o.id ? `<span style="font-size:11px;color:var(--muted);display:block">ID: ${o.id.slice(0, 8)}…</span>` : ''}
+                        <a href="https://sellercenter.jumia.com.eg/order/index" target="_blank" rel="noopener" style="font-size:11px;color:#f68b1e;display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-weight:600;text-decoration:none">
+                            <i class="fas fa-external-link-alt"></i> في جوميا
+                        </a>
+                    </td>
+                    <td style="vertical-align:top">
+                        <div style="font-weight:700;font-size:13px">${o.customer_name || '—'}</div>
+                        <div style="font-size:12px;color:var(--muted);margin-top:4px;line-height:1.4">${o.customer_address || o.country || '—'}</div>
+                        ${o.customer_phone ? `<div dir="ltr" style="font-size:12px;color:var(--primary);margin-top:4px">${o.customer_phone}</div>` : ''}
+                    </td>
+                    <td style="vertical-align:top;max-width:240px">${itemsHtml}</td>
+                    <td style="vertical-align:top"><strong style="font-size:14px">${total}</strong></td>
+                    <td style="vertical-align:top">${jumiaStatusBadge(o.status)}</td>
+                    <td style="vertical-align:top;font-size:12px">${fmtJumiaDate(o.created_at)}</td>
+                    <td style="vertical-align:top;white-space:nowrap">
+                        <div style="display:flex;flex-direction:column;gap:6px">
+                            ${isPending ? `
+                                <button class="btn-primary" style="padding:6px 10px;font-size:12px;background:#f68b1e;border-color:#f68b1e;color:#fff" onclick="handleJumiaReadyToShip('${o.id}', this)">
+                                    <i class="fas fa-box"></i> جاهز للشحن
+                                </button>
+                            ` : ''}
+                            <button class="btn-primary btn-outline" style="padding:6px 10px;font-size:12px" onclick="handleJumiaPrintLabel('${o.id}', this)">
+                                <i class="fas fa-print"></i> البوليصة
+                            </button>
+                        </div>
+                    </td>
                 </tr>`;
             }).join('')
-            : '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)">لا توجد طلبات جوميا في الفترة المحددة</td></tr>';
+            : '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">لا توجد طلبات جوميا في الفترة المحددة</td></tr>';
     } catch (e) {
         console.error(e);
-        tb.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#c0392b">تعذّر السحب: ${e.message || e}</td></tr>`;
+        tb.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:#c0392b">تعذّر السحب: ${e.message || e}</td></tr>`;
         toast(e.message || 'فشل سحب طلبات جوميا', 'error');
     }
 }
+
+window.handleJumiaReadyToShip = async function(orderId, btn) {
+    if (!confirm('هل تريد تأكيد الطلب وتجهيزه للشحن عبر جوميا؟')) return;
+    const origHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ الإرسال…';
+    try {
+        const headers = await authHeaders();
+        const res = await fetch('/api/integrations-status?action=jumia-ready-to-ship', {
+            method: 'POST',
+            headers: { ...headers, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order_id: orderId }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || 'فشل التحديث لجاهز للشحن');
+        toast('تم تأكيد الطلب كـ "جاهز للشحن" في جوميا بنجاح 📦', 'success');
+        loadJumiaOrders();
+    } catch (e) {
+        console.error(e);
+        toast(e.message || 'تعذّر إرسال جاهز للشحن لجوميا', 'error');
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+    }
+};
+
+window.handleJumiaPrintLabel = async function(orderId, btn) {
+    const origHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ سحب البوليصة…';
+    try {
+        const headers = await authHeaders();
+        const res = await fetch(`/api/integrations-status?action=jumia-shipping-label&order_id=${encodeURIComponent(orderId)}`, {
+            headers,
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || 'فشل سحب بوليصة جوميا');
+        
+        const docUrl = data.result?.url || data.result?.documentUrl || data.result?.document?.url || data.result?.pdfUrl;
+        if (docUrl) {
+            window.open(docUrl, '_blank');
+        } else if (data.result?.content || data.result?.file) {
+            const base64 = data.result.content || data.result.file;
+            const win = window.open();
+            win.document.write(`<iframe src="data:application/pdf;base64,${base64}" frameborder="0" style="border:0; top:0; left:0; width:100%; height:100%;" allowfullscreen></iframe>`);
+        } else {
+            toast('تم تجهيز المستند، جاري الفتح في جوميا…', 'info');
+            window.open('https://sellercenter.jumia.com.eg/order/index', '_blank');
+        }
+    } catch (e) {
+        console.error(e);
+        toast(e.message || 'تعذّر جلب البوليصة، جاري فتح الطلب في جوميا', 'error');
+        window.open('https://sellercenter.jumia.com.eg/order/index', '_blank');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+    }
+};
 
 document.getElementById('adminJumiaRefreshBtn')?.addEventListener('click', () => loadJumiaOrders());
 document.getElementById('adminJumiaDays')?.addEventListener('change', () => loadJumiaOrders());

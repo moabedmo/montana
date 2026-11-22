@@ -411,13 +411,20 @@ module.exports = async (req, res) => {
   }
 
   // Jumia orders (owner + store admin)
-  if (action === 'jumia-orders' || action === 'jumia-shops') {
+  if (
+    action === 'jumia-orders' ||
+    action === 'jumia-shops' ||
+    action === 'jumia-ready-to-ship' ||
+    action === 'jumia-shipping-label'
+  ) {
     try {
       const {
         assertJumiaViewer,
         listJumiaOrders,
         listJumiaShops,
         getJumiaOrderItems,
+        setJumiaReadyToShip,
+        getJumiaShippingLabel,
       } = require('../lib/jumiaClient');
       await assertJumiaViewer(bearer(req));
       const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
@@ -427,18 +434,44 @@ module.exports = async (req, res) => {
         return res.json({ ok: true, shops });
       }
 
+      if (action === 'jumia-ready-to-ship') {
+        const orderId = url.searchParams.get('order_id') || req.body?.order_id || req.body?.orderId;
+        let itemIds = req.body?.orderItemIds || req.body?.item_ids;
+        if (!itemIds || !itemIds.length) {
+          if (!orderId) return res.status(400).json({ ok: false, error: 'order_id or orderItemIds required' });
+          const items = await getJumiaOrderItems([orderId]);
+          itemIds = items.map((it) => it.id || it.orderItemId || it.order_item_id).filter(Boolean);
+        }
+        if (!itemIds.length) return res.status(400).json({ ok: false, error: 'No order items found for this order' });
+        const result = await setJumiaReadyToShip(itemIds);
+        return res.json({ ok: true, result });
+      }
+
+      if (action === 'jumia-shipping-label') {
+        const orderId = url.searchParams.get('order_id') || req.body?.order_id || req.body?.orderId;
+        let itemIds = req.body?.orderItemIds || req.body?.item_ids;
+        if (!itemIds || !itemIds.length) {
+          if (!orderId) return res.status(400).json({ ok: false, error: 'order_id or orderItemIds required' });
+          const items = await getJumiaOrderItems([orderId]);
+          itemIds = items.map((it) => it.id || it.orderItemId || it.order_item_id).filter(Boolean);
+        }
+        if (!itemIds.length) return res.status(400).json({ ok: false, error: 'No order items found for this order' });
+        const result = await getJumiaShippingLabel(itemIds);
+        return res.json({ ok: true, result });
+      }
+
       const days = Number(url.searchParams.get('days') || req.body?.days || 30);
       const size = Number(url.searchParams.get('size') || req.body?.size || 50);
       const status = url.searchParams.get('status') || req.body?.status || '';
       const country = url.searchParams.get('country') || req.body?.country || '';
       const shopId = url.searchParams.get('shop_id') || req.body?.shop_id || '';
       const token = url.searchParams.get('token') || req.body?.token || '';
-      const withItems = String(url.searchParams.get('items') || '') === '1';
+      const withItems = String(url.searchParams.get('items') || '1') !== '0';
 
       const result = await listJumiaOrders({ days, size, status, country, shopId, token });
       if (withItems && result.orders.length) {
         try {
-          const ids = result.orders.map((o) => o.id).slice(0, 20);
+          const ids = result.orders.map((o) => o.id).slice(0, 30);
           const items = await getJumiaOrderItems(ids);
           const byOrder = new Map();
           for (const it of items) {
