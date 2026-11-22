@@ -1057,13 +1057,25 @@ async function loadJumiaOrders() {
                 const orderNum = o.order_number || o.raw?.number || o.id;
                 const isPending = String(o.status || '').toUpperCase().includes('PENDING');
 
-                const itemsHtml = (o.items && o.items.length)
-                    ? o.items.map((it) => {
-                        const name = it.name || it.productName || it.title || it.sellerSku || 'منتج';
-                        const qty = it.quantity || 1;
-                        return `<div style="font-size:12px;margin-bottom:3px;line-height:1.4"><strong>${qty}×</strong> ${name}</div>`;
-                    }).join('')
-                    : `<span style="font-size:12px;color:var(--muted)">${o.items_count ? `${o.items_count} عناصر` : '—'}</span>`;
+                let itemsHtml = '<span style="font-size:12px;color:var(--muted)">—</span>';
+                if (o.items && o.items.length) {
+                    const grouped = {};
+                    for (const it of o.items) {
+                        const name = (it.name || it.productName || it.title || it.sellerSku || 'منتج').trim();
+                        const price = it.price != null ? `${it.price} ج` : '';
+                        const key = `${name}__${price}`;
+                        if (!grouped[key]) grouped[key] = { name, price, qty: 0 };
+                        grouped[key].qty += (it.quantity || 1);
+                    }
+                    itemsHtml = Object.values(grouped).map((g) => {
+                        return `<div style="font-size:12px;margin-bottom:4px;line-height:1.4">
+                            <strong style="color:var(--primary);font-size:13px">${g.qty}×</strong> ${g.name}
+                            ${g.price ? `<span style="font-size:11px;color:var(--muted)">(${g.price}/قطعة)</span>` : ''}
+                        </div>`;
+                    }).join('');
+                } else if (o.items_count) {
+                    itemsHtml = `<span style="font-size:12px;color:var(--muted)">${o.items_count} عناصر</span>`;
+                }
 
                 return `<tr>
                     <td dir="ltr" style="vertical-align:top">
