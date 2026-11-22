@@ -665,7 +665,7 @@ module.exports = async (req, res) => {
     }
   }
 
-  // Montaña AI Bot Live Inspector & Correction Trainer
+  // Montaña AI Bot Live Inspector & Correction Trainer & Customer Follow-Up
   if (
     action === 'bot-conversations-list' ||
     action === 'bot-conversation-detail' ||
@@ -673,9 +673,34 @@ module.exports = async (req, res) => {
     action === 'bot-correction-save' ||
     action === 'bot-correction-delete' ||
     action === 'bot-pause-toggle' ||
-    action === 'bot-ai-deep-scan'
+    action === 'bot-ai-deep-scan' ||
+    action === 'customer-followup-preview' ||
+    action === 'customer-followup-send' ||
+    action === 'customer-followup-batch'
   ) {
     try {
+      if (action === 'customer-followup-preview') {
+        const { getFollowupCandidates } = require('../lib/customerFollowup');
+        const limit = Number(url.searchParams.get('limit') || req.body?.limit || 20);
+        const resData = await getFollowupCandidates({ limit });
+        return res.json(resData);
+      }
+
+      if (action === 'customer-followup-send') {
+        const { sendFollowupToCandidate } = require('../lib/customerFollowup');
+        const { contactId, channel, messageText } = req.body || {};
+        const resData = await sendFollowupToCandidate({ contactId, channel, messageText });
+        return res.json(resData);
+      }
+
+      if (action === 'customer-followup-batch') {
+        const { runAutoFollowups } = require('../lib/customerFollowup');
+        const limit = Number(url.searchParams.get('limit') || req.body?.limit || 15);
+        const dryRun = req.body?.dryRun === true || url.searchParams.get('dryRun') === 'true';
+        const resData = await runAutoFollowups({ limit, dryRun });
+        return res.json(resData);
+      }
+
       const {
         listBotConversations,
         getBotConversationDetail,

@@ -2139,28 +2139,40 @@ let botSearchDebounceTimer = null;
 
 function switchBotTab(tab) {
     const liveContent = document.getElementById('botLiveTabContent');
+    const followupContent = document.getElementById('botFollowupTabContent');
     const rulesContent = document.getElementById('botRulesTabContent');
     const contactContent = document.getElementById('botContactTabContent');
     const tabBtnLive = document.getElementById('tabBtnBotLive');
+    const tabBtnFollowup = document.getElementById('tabBtnBotFollowup');
     const tabBtnRules = document.getElementById('tabBtnBotRules');
     const tabBtnContact = document.getElementById('tabBtnContactForm');
 
     if (!liveContent) return;
 
     // Reset styles
-    [tabBtnLive, tabBtnRules, tabBtnContact].forEach(btn => {
+    [tabBtnLive, tabBtnFollowup, tabBtnRules, tabBtnContact].forEach(btn => {
         if (btn) {
             btn.className = 'btn-primary btn-outline';
         }
     });
 
     liveContent.style.display = 'none';
+    if (followupContent) followupContent.style.display = 'none';
     rulesContent.style.display = 'none';
     contactContent.style.display = 'none';
 
     if (tab === 'live') {
         liveContent.style.display = 'grid';
         if (tabBtnLive) tabBtnLive.className = 'btn-primary';
+    } else if (tab === 'followup') {
+        if (followupContent) followupContent.style.display = 'block';
+        if (tabBtnFollowup) {
+            tabBtnFollowup.className = 'btn-primary';
+            tabBtnFollowup.style.background = '#0ea5e9';
+            tabBtnFollowup.style.borderColor = '#0ea5e9';
+            tabBtnFollowup.style.color = '#fff';
+        }
+        loadFollowupCandidates();
     } else if (tab === 'rules') {
         rulesContent.style.display = 'block';
         if (tabBtnRules) tabBtnRules.className = 'btn-primary';
@@ -2169,6 +2181,157 @@ function switchBotTab(tab) {
         contactContent.style.display = 'block';
         if (tabBtnContact) tabBtnContact.className = 'btn-primary';
         loadMessages();
+    }
+}
+
+let _currentFollowupCandidates = [];
+
+async function loadFollowupCandidates() {
+    const tableBody = document.getElementById('followupCandidatesTable');
+    const countEl = document.getElementById('followupCandidatesCount');
+    const statusMsg = document.getElementById('followupStatusMsg');
+    const scanIcon = document.getElementById('followupScanIcon');
+    const tabCount = document.getElementById('botFollowupCount');
+
+    if (!tableBody) return;
+    if (scanIcon) scanIcon.className = 'fas fa-spinner fa-spin';
+    if (statusMsg) statusMsg.textContent = 'جاري فحص المحادثات والتحقق من سياسة الـ 24 ساعة...';
+
+    try {
+        const res = await fetch('/api/integrations-status?action=customer-followup-preview&limit=25');
+        const data = await res.json();
+        
+        if (!data.ok) {
+            tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#ef4444;padding:20px;">خطأ أثناء الفحص: ${data.error || 'مشكلة في الاتصال'}</td></tr>`;
+            if (statusMsg) statusMsg.textContent = 'حدث خطأ';
+            return;
+        }
+
+        const candidates = data.candidates || [];
+        _currentFollowupCandidates = candidates;
+        if (countEl) countEl.textContent = candidates.length;
+        if (tabCount) tabCount.textContent = candidates.length;
+        if (statusMsg) statusMsg.textContent = `تم العثور على ${candidates.length} عميل مؤهل للمتابعة الآمنة`;
+
+        if (!candidates.length) {
+            tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:30px;">
+                <i class="fas fa-check-circle" style="color:#10b981;font-size:24px;margin-bottom:8px;display:block;"></i>
+                ممتاز! لا يوجد عملاء معلقين يحتاجون متابعة حالياً (جميع من تحدثوا إما أتموا طلباتهم أو تمت متابعتهم بالفعل).
+            </td></tr>`;
+            return;
+        }
+
+        tableBody.innerHTML = candidates.map((c, idx) => {
+            const channelIcon = c.channel === 'instagram'
+                ? '<i class="fab fa-instagram" style="color:#e1306c;"></i> إنستجرام'
+                : '<i class="fab fa-facebook-messenger" style="color:#0084ff;"></i> ماسنجر';
+            
+            return `<tr>
+                <td>
+                    <div style="font-weight:600;font-size:13px;color:var(--text-main);">${escapeHtml(c.subscriberName)}</div>
+                    <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">${channelIcon} (${escapeHtml(c.contactId)})</div>
+                </td>
+                <td>
+                    <div style="font-size:12.5px;color:var(--text-main);">${escapeHtml(c.lastInput || 'استفسار عن العرض')}</div>
+                    <div style="font-size:11px;color:#8b5cf6;margin-top:2px;">${escapeHtml(c.selectedBundle || 'منتج')}</div>
+                </td>
+                <td>
+                    <span style="display:inline-block;padding:2px 7px;border-radius:10px;background:#f1f5f9;font-size:11.5px;font-weight:600;color:#334155;">
+                        منذ ${c.elapsedHours} ساعة
+                    </span>
+                </td>
+                <td>
+                    <div id="followupMsg_${idx}" style="font-size:12px;background:#f8fafc;padding:8px 10px;border-radius:6px;border:1px solid #e2e8f0;line-height:1.45;color:#1e293b;">
+                        ${escapeHtml(c.messageText)}
+                    </div>
+                </td>
+                <td style="white-space:nowrap;">
+                    <button class="btn-primary" type="button" style="font-size:11.5px;padding:5px 10px;background:#0ea5e9;border-color:#0ea5e9;" onclick="sendSingleFollowup('${c.contactId}', '${c.channel}', ${idx}, this)">
+                        <i class="fas fa-paper-plane"></i> إرسال الآن
+                    </button>
+                </td>
+            </tr>`;
+        }).join('');
+    } catch (e) {
+        console.error('loadFollowupCandidates error:', e);
+        tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#ef4444;padding:20px;">خطأ في الاتصال بالخادم</td></tr>`;
+    } finally {
+        if (scanIcon) scanIcon.className = 'fas fa-search';
+    }
+}
+
+async function sendSingleFollowup(contactId, channel, idx, btn) {
+    if (!confirm('هل تريد إرسال رسالة المتابعة لهذا العميل عبر ماني شات الآن؟')) return;
+    
+    const candidate = _currentFollowupCandidates[idx];
+    if (!candidate) return;
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> إرسال...';
+    }
+
+    try {
+        const res = await fetch('/api/integrations-status?action=customer-followup-send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contactId: candidate.contactId,
+                channel: candidate.channel,
+                messageText: candidate.messageText,
+            }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+            btn.className = 'btn-primary';
+            btn.style.background = '#10b981';
+            btn.style.borderColor = '#10b981';
+            btn.innerHTML = '<i class="fas fa-check"></i> تم الإرسال';
+            showToast('تم إرسال رسالة المتابعة ووسم العميل بنجاح!', 'success');
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> فشل';
+            showToast('تعذر الإرسال: ' + (data.error || 'خطأ غير معروف'), 'error');
+        }
+    } catch (e) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> خطأ';
+        showToast('خطأ في الاتصال', 'error');
+    }
+}
+
+async function sendBatchFollowups() {
+    if (!_currentFollowupCandidates || !_currentFollowupCandidates.length) {
+        await loadFollowupCandidates();
+        if (!_currentFollowupCandidates.length) {
+            alert('لا يوجد عملاء مؤهلين للإرسال في الوقت الحالي.');
+            return;
+        }
+    }
+
+    const count = _currentFollowupCandidates.length;
+    if (!confirm(`هل تريد إرسال المتابعات التلقائية المجهزة لجميع الـ (${count}) عملاء المؤهلين دفعة واحدة؟`)) return;
+
+    const icon = document.getElementById('followupSendAllIcon');
+    if (icon) icon.className = 'fas fa-spinner fa-spin';
+
+    try {
+        const res = await fetch('/api/integrations-status?action=customer-followup-batch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ limit: 25 }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+            showToast(`تم إرسال ${data.sent} رسالة متابعة بنجاح!`, 'success');
+            loadFollowupCandidates();
+        } else {
+            showToast('حدث خطأ أثناء الإرسال الجماعي: ' + (data.error || ''), 'error');
+        }
+    } catch (e) {
+        showToast('خطأ في الاتصال', 'error');
+    } finally {
+        if (icon) icon.className = 'fas fa-paper-plane';
     }
 }
 
