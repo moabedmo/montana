@@ -554,8 +554,54 @@
       }
       .lux-routines-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 30px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 28px;
+      }
+      .lux-routine-visual {
+        background: radial-gradient(circle at 50% 60%, rgba(146, 117, 164, 0.16) 0%, #F7F4FA 65%, #FFFFFF 100%);
+        padding: 26px 20px 18px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 16px;
+        min-height: 220px;
+        border-bottom: 1px solid rgba(146, 117, 164, 0.12);
+        position: relative;
+      }
+      .lux-routine-visual img {
+        height: 178px;
+        width: auto;
+        max-width: 44%;
+        object-fit: contain;
+        filter: drop-shadow(0 14px 20px rgba(61, 44, 78, 0.22));
+        transition: transform 0.3s ease;
+      }
+      .lux-routine-card:hover .lux-routine-visual img {
+        transform: translateY(-5px) scale(1.03);
+      }
+      .lux-routine-plus {
+        font-size: 26px;
+        font-weight: 800;
+        color: #9275A4;
+        margin-bottom: 66px;
+      }
+      .lux-save-badge {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        background: #D8B559;
+        color: #1c1427;
+        font-size: 13px;
+        font-weight: 800;
+        padding: 5px 14px;
+        border-radius: 999px;
+        box-shadow: 0 4px 12px rgba(216, 181, 89, 0.35);
+      }
+      .lux-price-strike {
+        text-decoration: line-through;
+        color: #8f849a;
+        font-size: 14px;
+        font-weight: 600;
       }
       .lux-routine-card {
         background: #FFFFFF;
@@ -1472,86 +1518,45 @@
         </div>
         
         <div class="lux-routines-grid">
-            <!-- Routine 1: Brightening Routine -->
+            <!-- Routine 1: Post-Laser Duo (549 EGP) -->
             <article class="lux-routine-card">
                 <div class="lux-routine-banner">
-                    <span class="lux-routine-pill">الأعلى طلباً والأنسب للعرائس</span>
+                    <span class="lux-routine-pill">الأكثر طلباً بعد الليزر</span>
                     <span class="lux-routine-shipping"><i class="fas fa-truck-fast"></i> شحن Free هدية</span>
                 </div>
-                <div class="lux-routine-body">
-                    <h3 class="lux-routine-title">روتين التفتيح والنضارة الكامل</h3>
-                    <p class="lux-routine-desc">برنامج تفتيح ثلاثي متكامل للجسم والوجه والمناطق الحساسة يزيل التصبغات ويوحد اللون بأمان وسرعة.</p>
-                    
-                    <div class="lux-steps-list">
-                        <div class="lux-step-item">
-                            <div class="lux-step-num">1</div>
-                            <div class="lux-step-info">
-                                <h5>Cleanser التفتيح (200 مل)</h5>
-                                <p>تنظيف عميق وتقشير لطيف يهيئ البشرة لامتصاص كريم التفتيح</p>
-                            </div>
-                        </div>
-                        <div class="lux-step-item">
-                            <div class="lux-step-num">2</div>
-                            <div class="lux-step-info">
-                                <h5>كريم التفتيح المركز (50 مل)</h5>
-                                <p>مزيج الألفا أربوتين والنياسيناميد وفيتامين C لتفتيح البقع الداكنة</p>
-                            </div>
-                        </div>
-                        <div class="lux-step-item">
-                            <div class="lux-step-num">3</div>
-                            <div class="lux-step-info">
-                                <h5>Hand & Body Lotion (50 مل)</h5>
-                                <p>حبس الرطوبة وتنعيم ملمس البشرة لحمايتها من عودة Nameرار</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="lux-routine-footer">
-                        <div class="lux-price-tag">
-                            <div class="lux-price-current">777 <span>جنيه</span></div>
-                            <div class="lux-price-orig">قيمة المنتجات منفردة 847 ج</div>
-                        </div>
-                        <button class="btn-quick-order" onclick="openQuickOrder('روتين التفتيح والنضارة الكامل', 777, 'images/p2-premium.webp', 'brightening')"><i class="fas fa-bolt"></i> طلب سريع</button>
-                        <button class="btn-add-routine" onclick="handleOrderRoutine('brightening')">
-                            <i class="fas fa-shopping-bag"></i> اطلبي العرض (شحن Free)
-                        </button>
-                    </div>
-                </div>
-            </article>
-
-            <!-- Routine 2: Post Laser Routine -->
-            <article class="lux-routine-card">
-                <div class="lux-routine-banner">
-                    <span class="lux-routine-pill">موصى به بعد الجلسات</span>
-                    <span class="lux-routine-shipping"><i class="fas fa-truck-fast"></i> شحن Free هدية</span>
+                <div class="lux-routine-visual">
+                    <span class="lux-save-badge">وفري 69 ج</span>
+                    <img src="../images/p5-cut.webp" alt="Post-laser cream" loading="lazy" decoding="async">
+                    <span class="lux-routine-plus">+</span>
+                    <img src="../images/p3-cut.webp" alt="كريم التفتيح المركز" loading="lazy" decoding="async">
                 </div>
                 <div class="lux-routine-body">
-                    <h3 class="lux-routine-title">روتين عناية وترميم ما بعد الليزر</h3>
-                    <p class="lux-routine-desc">حماية وترميم سريع للبشرة المتهيجة بعد جلسات إزالة Hair بالليزر أو التقشير لمنع Nameرار والحروق.</p>
+                    <h3 class="lux-routine-title">ثنائي عناية ما بعد الليزر</h3>
+                    <p class="lux-routine-desc">تهدئة فورية للاحمرار والحرقان بعد جلسات الليزر + تفتيح آمن للمناطق الحساسة لمنع Nameرار.</p>
                     
                     <div class="lux-steps-list">
                         <div class="lux-step-item">
                             <div class="lux-step-num">1</div>
                             <div class="lux-step-info">
                                 <h5>كريم ما بعد الليزر (50 مل)</h5>
-                                <p>مستخلص السنتيلا وزيت السمسم لتهدئة الحرارة وسرعة التئام الأنسجة</p>
+                                <p>زيت السمسم والألوفيرا والشاي الأخضر لتهدئة فورية وترميم الجلد أول 3 أيام</p>
                             </div>
                         </div>
                         <div class="lux-step-item">
                             <div class="lux-step-num">2</div>
                             <div class="lux-step-info">
-                                <h5>كريم التفتيح (50 مل)</h5>
-                                <p>حماية حاجز البشرة من تكون التصبغات الحرارية بعد زوال الاحمرار</p>
+                                <h5>كريم التفتيح المركز (50 مل)</h5>
+                                <p>ألفا أربوتين وفيتامين C وعرقسوس لمنع التصبغات وتوحيد لون المكان بأمان</p>
                             </div>
                         </div>
                     </div>
                     
                     <div class="lux-routine-footer">
                         <div class="lux-price-tag">
-                            <div class="lux-price-current">618 <span>جنيه</span></div>
-                            <div class="lux-price-orig">بدون مصاريف شحن</div>
+                            <div class="lux-price-current">549 <span>جنيه</span></div>
+                            <div class="lux-price-orig"><span class="lux-price-strike">618 ج</span> · شحن Free</div>
                         </div>
-                        <button class="btn-quick-order" onclick="openQuickOrder('روتين عناية وترميم ما بعد الليزر', 618, 'images/p5-premium.webp', 'post-laser')"><i class="fas fa-bolt"></i> طلب سريع</button>
+                        <button class="btn-quick-order" onclick="openQuickOrder('ثنائي عناية ما بعد الليزر', 549, 'images/p5-premium.webp', 'post-laser')"><i class="fas fa-bolt"></i> طلب سريع</button>
                         <button class="btn-add-routine" onclick="handleOrderRoutine('post-laser')">
                             <i class="fas fa-shopping-bag"></i> اطلبي العرض (شحن Free)
                         </button>
@@ -1559,40 +1564,138 @@
                 </div>
             </article>
 
-            <!-- Routine 3: Face & Body Care Routine -->
+            <!-- Routine 2: Body Brightening Duo (449 EGP) -->
             <article class="lux-routine-card">
                 <div class="lux-routine-banner">
-                    <span class="lux-routine-pill">عناية متكاملة للوجه والجسم</span>
+                    <span class="lux-routine-pill">السعر الأوفر لتفتيح الجسم</span>
                     <span class="lux-routine-shipping"><i class="fas fa-truck-fast"></i> شحن Free هدية</span>
                 </div>
+                <div class="lux-routine-visual">
+                    <span class="lux-save-badge">وفري 29 ج</span>
+                    <img src="../images/p3-cut.webp" alt="كريم التفتيح المركز" loading="lazy" decoding="async">
+                    <span class="lux-routine-plus">+</span>
+                    <img src="../images/p4-cut.webp" alt="Hand & Body Lotion" loading="lazy" decoding="async">
+                </div>
                 <div class="lux-routine-body">
-                    <h3 class="lux-routine-title">روتين نضارة الوجه وترطيب الجسم</h3>
-                    <p class="lux-routine-desc">تنظيف طبي عميق لمسام الوجه المعرضة للحبوب مع ترطيب مخملي مكثف لليدين والجسم يدوم 72 ساعة.</p>
+                    <h3 class="lux-routine-title">ثنائي تفتيح ونعومة الجسم</h3>
+                    <p class="lux-routine-desc">تفتيح آمن للمناطق الحساسة والركب والأكواع + ترطيب عميق يمنع جفاف الجلد وعودة الغمقان.</p>
                     
                     <div class="lux-steps-list">
                         <div class="lux-step-item">
                             <div class="lux-step-num">1</div>
                             <div class="lux-step-info">
-                                <h5>Cleanser الوجه وحب الشباب (200 مل)</h5>
-                                <p>تنقية المسام من الإفرازات الدهنية بحمض الساليسيليك دون التسبب في جفاف</p>
+                                <h5>كريم التفتيح المركز (50 مل)</h5>
+                                <p>لتفتيح وتوحيد لون الأندرآرم والبكيني والجسم تدريجياً بدون تقشير قاسي</p>
                             </div>
                         </div>
                         <div class="lux-step-item">
                             <div class="lux-step-num">2</div>
                             <div class="lux-step-info">
-                                <h5>Hand & Body Lotion 72h (50 مل)</h5>
-                                <p>ترطيب مخملي فائق النعومة بزبدة الكاكاو والجوجوبا وفيتامين E للجسم</p>
+                                <h5>Hand & Body Lotion 72h (200 مل)</h5>
+                                <p>زبدة الشيا والكاكاو والجوجوبا لترطيب ونعومة تدوم وتثبّت نتيجة التفتيح</p>
                             </div>
                         </div>
                     </div>
                     
                     <div class="lux-routine-footer">
                         <div class="lux-price-tag">
-                            <div class="lux-price-current">558 <span>جنيه</span></div>
-                            <div class="lux-price-orig">بدون مصاريف شحن</div>
+                            <div class="lux-price-current">449 <span>جنيه</span></div>
+                            <div class="lux-price-orig"><span class="lux-price-strike">478 ج</span> · شحن Free</div>
                         </div>
-                        <button class="btn-quick-order" onclick="openQuickOrder('روتين نضارة الوجه وترطيب الجسم', 558, 'images/p1-premium.webp', 'face-body')"><i class="fas fa-bolt"></i> طلب سريع</button>
-                        <button class="btn-add-routine" onclick="handleOrderRoutine('face-body')">
+                        <button class="btn-quick-order" onclick="openQuickOrder('ثنائي تفتيح ونعومة الجسم', 449, 'images/p3-premium.webp', 'body-brightening')"><i class="fas fa-bolt"></i> طلب سريع</button>
+                        <button class="btn-add-routine" onclick="handleOrderRoutine('body-brightening')">
+                            <i class="fas fa-shopping-bag"></i> اطلبي العرض (شحن Free)
+                        </button>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Routine 3: Face Brightening Duo (499 EGP) -->
+            <article class="lux-routine-card">
+                <div class="lux-routine-banner">
+                    <span class="lux-routine-pill">تفتيح الوجه والتصبغات</span>
+                    <span class="lux-routine-shipping"><i class="fas fa-truck-fast"></i> شحن Free هدية</span>
+                </div>
+                <div class="lux-routine-visual">
+                    <span class="lux-save-badge">وفري 49 ج</span>
+                    <img src="../images/p2-cut.webp" alt="Cleanser التفتيح اليومي" loading="lazy" decoding="async">
+                    <span class="lux-routine-plus">+</span>
+                    <img src="../images/p3-cut.webp" alt="كريم التفتيح المركز" loading="lazy" decoding="async">
+                </div>
+                <div class="lux-routine-body">
+                    <h3 class="lux-routine-title">ثنائي تفتيح الوجه والتصبغات</h3>
+                    <p class="lux-routine-desc">خطوتين بس في يومك لبشرة صافية ونضرة وخالية من البقع والتصبغات — Sensitive-skin friendly.</p>
+                    
+                    <div class="lux-steps-list">
+                        <div class="lux-step-item">
+                            <div class="lux-step-num">1</div>
+                            <div class="lux-step-info">
+                                <h5>Cleanser التفتيح اليومي (200 مل)</h5>
+                                <p>خالي من السلفات القاسية — ينظف المسام ويدي إشراقة بدون جفاف</p>
+                            </div>
+                        </div>
+                        <div class="lux-step-item">
+                            <div class="lux-step-num">2</div>
+                            <div class="lux-step-info">
+                                <h5>كريم التفتيح المركز (50 مل)</h5>
+                                <p>يوحد لون الوجه والرقبة ويخفف مظهر البقع الداكنة مع الاستخدام المنتظم</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="lux-routine-footer">
+                        <div class="lux-price-tag">
+                            <div class="lux-price-current">499 <span>جنيه</span></div>
+                            <div class="lux-price-orig"><span class="lux-price-strike">548 ج</span> · شحن Free</div>
+                        </div>
+                        <button class="btn-quick-order" onclick="openQuickOrder('ثنائي تفتيح الوجه والتصبغات', 499, 'images/p2-premium.webp', 'face-brightening')"><i class="fas fa-bolt"></i> طلب سريع</button>
+                        <button class="btn-add-routine" onclick="handleOrderRoutine('face-brightening')">
+                            <i class="fas fa-shopping-bag"></i> اطلبي العرض (شحن Free)
+                        </button>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Routine 4: Clear Skin Duo (529 EGP) -->
+            <article class="lux-routine-card">
+                <div class="lux-routine-banner">
+                    <span class="lux-routine-pill">للبشرة الدهنية وآثار الحبوب</span>
+                    <span class="lux-routine-shipping"><i class="fas fa-truck-fast"></i> شحن Free هدية</span>
+                </div>
+                <div class="lux-routine-visual">
+                    <span class="lux-save-badge">وفري 49 ج</span>
+                    <img src="../images/p1-cut.webp" alt="Acne Facial Cleanser" loading="lazy" decoding="async">
+                    <span class="lux-routine-plus">+</span>
+                    <img src="../images/p3-cut.webp" alt="كريم التفتيح المركز" loading="lazy" decoding="async">
+                </div>
+                <div class="lux-routine-body">
+                    <h3 class="lux-routine-title">ثنائي الحبوب وآثارها</h3>
+                    <p class="lux-routine-desc">تنقية عميقة للمسام وتقليل الحبوب والدهون الزائدة + تفتيح آمن لآثار وبقع الحبوب القديمة.</p>
+                    
+                    <div class="lux-steps-list">
+                        <div class="lux-step-item">
+                            <div class="lux-step-num">1</div>
+                            <div class="lux-step-info">
+                                <h5>Acne Facial Cleanser الطبي (200 مل)</h5>
+                                <p>بحمض الساليسيليك وشجرة الشاي لتنقية المسام والدهون دون جفاف</p>
+                            </div>
+                        </div>
+                        <div class="lux-step-item">
+                            <div class="lux-step-num">2</div>
+                            <div class="lux-step-info">
+                                <h5>كريم التفتيح المركز (50 مل)</h5>
+                                <p>يشتغل على تفتيح آثار الحبوب الغامقة وتوحيد لون البشرة بأمان</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="lux-routine-footer">
+                        <div class="lux-price-tag">
+                            <div class="lux-price-current">529 <span>جنيه</span></div>
+                            <div class="lux-price-orig"><span class="lux-price-strike">578 ج</span> · شحن Free</div>
+                        </div>
+                        <button class="btn-quick-order" onclick="openQuickOrder('ثنائي الحبوب وآثارها', 529, 'images/p1-premium.webp', 'clear-skin')"><i class="fas fa-bolt"></i> طلب سريع</button>
+                        <button class="btn-add-routine" onclick="handleOrderRoutine('clear-skin')">
                             <i class="fas fa-shopping-bag"></i> اطلبي العرض (شحن Free)
                         </button>
                     </div>
@@ -1911,18 +2014,25 @@ function handleAddToCart(id, name, price, image) {
 
 function handleOrderRoutine(type) {
     if (window.Cart && typeof window.Cart.add === 'function') {
-        if (type === 'brightening') {
-            // Brightening bundle: P2 (Cleanser), P3 (Cream), P4 (Lotion)
-            window.Cart.add({ id: 2, name: 'Cleanser التفتيح (ضمن الروتين)', price: 275, image: 'images/p2-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 228, image: 'images/p3-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 4, name: 'Body Lotion (ضمن الروتين)', price: 274, image: 'images/p4-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
-        } else if (type === 'post-laser') {
-            // Post laser bundle: P5 (Post Laser Cream), P3 (Whitening Cream)
-            window.Cart.add({ id: 5, name: 'كريم ما بعد الليزر (ضمن الروتين)', price: 345, image: 'images/p5-premium.webp', bundleSlug: 'post-laser-glow' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 273, image: 'images/p3-premium.webp', bundleSlug: 'post-laser-glow' }, 1, { skipMeta: true });
+        if (type === 'post-laser') {
+            window.Cart.add({ id: 5, name: 'كريم ما بعد الليزر (ضمن الروتين)', price: 328, image: 'images/p5-premium.webp', bundleSlug: 'post-laser-glow' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 221, image: 'images/p3-premium.webp', bundleSlug: 'post-laser-glow' }, 1, { skipMeta: true });
+        } else if (type === 'body-brightening') {
+            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 234, image: 'images/p3-premium.webp', bundleSlug: 'body-brightening-duo' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 4, name: 'Body Lotion (ضمن الروتين)', price: 215, image: 'images/p4-premium.webp', bundleSlug: 'body-brightening-duo' }, 1, { skipMeta: true });
+        } else if (type === 'face-brightening') {
+            window.Cart.add({ id: 2, name: 'Cleanser التفتيح (ضمن الروتين)', price: 272, image: 'images/p2-premium.webp', bundleSlug: 'face-brightening-duo' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 227, image: 'images/p3-premium.webp', bundleSlug: 'face-brightening-duo' }, 1, { skipMeta: true });
+        } else if (type === 'clear-skin') {
+            window.Cart.add({ id: 1, name: 'Acne Facial Cleanser (ضمن الروتين)', price: 301, image: 'images/p1-premium.webp', bundleSlug: 'clear-skin-duo' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 228, image: 'images/p3-premium.webp', bundleSlug: 'clear-skin-duo' }, 1, { skipMeta: true });
+        } else if (type === 'brightening') {
+            window.Cart.add({ id: 2, name: 'Cleanser التفتيح (ضمن الروتين)', price: 299, image: 'images/p2-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 249, image: 'images/p3-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 4, name: 'Body Lotion (ضمن الروتين)', price: 229, image: 'images/p4-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
         } else if (type === 'face-body') {
-            window.Cart.add({ id: 1, name: 'Acne Facial Cleanser (ضمن الروتين)', price: 299, image: 'images/p1-premium.webp', bundleSlug: 'face-and-body' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 4, name: 'Hand & Body Lotion (ضمن الروتين)', price: 259, image: 'images/p4-premium.webp', bundleSlug: 'face-and-body' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 1, name: 'Acne Facial Cleanser (ضمن الروتين)', price: 329, image: 'images/p1-premium.webp', bundleSlug: 'face-and-body' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 4, name: 'Hand & Body Lotion (ضمن الروتين)', price: 229, image: 'images/p4-premium.webp', bundleSlug: 'face-and-body' }, 1, { skipMeta: true });
         }
         try { updateBadges(); } catch (_) {}
         window.location.href = 'checkout.html';
@@ -2021,16 +2131,25 @@ async function submitQuickOrder(e) {
     // Put item in cart so existing checkout/confirmation flow works flawlessly
     if (window.Cart) {
         window.Cart.clear?.();
-        if (itemType === 'brightening') {
-            window.Cart.add({ id: 2, name: 'Cleanser التفتيح (ضمن الروتين)', price: 275, image: 'images/p2-premium.webp' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 228, image: 'images/p3-premium.webp' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 4, name: 'Body Lotion (ضمن الروتين)', price: 274, image: 'images/p4-premium.webp' }, 1, { skipMeta: true });
-        } else if (itemType === 'post-laser') {
-            window.Cart.add({ id: 5, name: 'كريم ما بعد الليزر (ضمن الروتين)', price: 345, image: 'images/p5-premium.webp' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 273, image: 'images/p3-premium.webp' }, 1, { skipMeta: true });
+        if (itemType === 'post-laser') {
+            window.Cart.add({ id: 5, name: 'كريم ما بعد الليزر (ضمن الروتين)', price: 328, image: 'images/p5-premium.webp', bundleSlug: 'post-laser-glow' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 221, image: 'images/p3-premium.webp', bundleSlug: 'post-laser-glow' }, 1, { skipMeta: true });
+        } else if (itemType === 'body-brightening') {
+            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 234, image: 'images/p3-premium.webp', bundleSlug: 'body-brightening-duo' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 4, name: 'Body Lotion (ضمن الروتين)', price: 215, image: 'images/p4-premium.webp', bundleSlug: 'body-brightening-duo' }, 1, { skipMeta: true });
+        } else if (itemType === 'face-brightening') {
+            window.Cart.add({ id: 2, name: 'Cleanser التفتيح (ضمن الروتين)', price: 272, image: 'images/p2-premium.webp', bundleSlug: 'face-brightening-duo' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 227, image: 'images/p3-premium.webp', bundleSlug: 'face-brightening-duo' }, 1, { skipMeta: true });
+        } else if (itemType === 'clear-skin') {
+            window.Cart.add({ id: 1, name: 'Acne Facial Cleanser (ضمن الروتين)', price: 301, image: 'images/p1-premium.webp', bundleSlug: 'clear-skin-duo' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 228, image: 'images/p3-premium.webp', bundleSlug: 'clear-skin-duo' }, 1, { skipMeta: true });
+        } else if (itemType === 'brightening') {
+            window.Cart.add({ id: 2, name: 'Cleanser التفتيح (ضمن الروتين)', price: 299, image: 'images/p2-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 3, name: 'كريم التفتيح (ضمن الروتين)', price: 249, image: 'images/p3-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 4, name: 'Body Lotion (ضمن الروتين)', price: 229, image: 'images/p4-premium.webp', bundleSlug: 'brightening-routine' }, 1, { skipMeta: true });
         } else if (itemType === 'face-body') {
-            window.Cart.add({ id: 1, name: 'Acne Facial Cleanser (ضمن الروتين)', price: 299, image: 'images/p1-premium.webp' }, 1, { skipMeta: true });
-            window.Cart.add({ id: 4, name: 'Hand & Body Lotion (ضمن الروتين)', price: 259, image: 'images/p4-premium.webp' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 1, name: 'Acne Facial Cleanser (ضمن الروتين)', price: 329, image: 'images/p1-premium.webp', bundleSlug: 'face-and-body' }, 1, { skipMeta: true });
+            window.Cart.add({ id: 4, name: 'Hand & Body Lotion (ضمن الروتين)', price: 229, image: 'images/p4-premium.webp', bundleSlug: 'face-and-body' }, 1, { skipMeta: true });
         } else {
             window.Cart.add({ id: itemId, name: itemName, price: itemPrice, image: document.getElementById('qoImg').src }, 1);
         }
