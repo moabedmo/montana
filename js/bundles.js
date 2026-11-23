@@ -1,43 +1,80 @@
 /**
  * Product bundles — single source of truth for storefront.
- * Offer price = sum of live website product prices (no second discount).
- * Perk = free shipping.
+ * Calm duo routine offers (with real bundle savings + free shipping) + full brightening course.
  *
  * Landing-page copy (headline / blurbs) lives here so ads reuse the same
  * config — never a second price source.
  *
  * Keep create_guest_order bundle definitions in sync
- * (supabase/migrations/110_bundle_retail_prices_free_ship.sql).
+ * (supabase/migrations/125_calm_duo_bundle_pricing.sql).
  */
 
 export const BUNDLES = [
   {
     slug: 'post-laser-glow',
-    name: 'عناية ما بعد الليزر',
+    name: 'ثنائي عناية ما بعد الليزر',
     productSlugs: ['post-laser-cream', 'whitening-cream'],
-    // Fallback if catalog missing — real price = sum of live product.price
-    bundlePrice: 618,
-    headline: 'بعد جلسة الليزر، بشرتك محتاجة عناية',
+    bundlePrice: 549,
+    headline: 'تهدئة فورية + تفتيح آمن بعد الليزر بدون اسمرار',
     blurbs: {
       'post-laser-cream':
-        'كريم خفيف بعد الجلسة — يساعد على تهدئة الإحساس بالسخونة وترطيب البشرة ودعم راحتها خلال أيام التعافي.',
+        'كريم خفيف بعد الجلسة — يهدي الاحمرار والحرقان فوراً ويدعم تعافي البشرة في أول 3 أيام.',
       'whitening-cream':
-        'يكمل الروتين بعد ما البشرة تهدأ — يساعد على تحسين مظهر التصبغات وتوحيد لون البشرة مع الاستخدام المنتظم.',
+        'تبدأي بيه بعد ما البشرة تهدأ — يمنع أي اسمرار ويوحد لون المناطق الحساسة بأمان.',
+    },
+  },
+  {
+    slug: 'body-brightening-duo',
+    name: 'ثنائي تفتيح ونعومة الجسم',
+    productSlugs: ['whitening-cream', 'hand-body-lotion'],
+    bundlePrice: 449,
+    headline: 'تفتيح آمن للمناطق الحساسة والجسم + ترطيب يمنع رجوع الغمقان',
+    blurbs: {
+      'whitening-cream':
+        'بمستخلص العرقسوس والأربوتين وفيتامين C لتفتيح وتوحيد لون المناطق الحساسة والجسم تدريجياً بدون التهاب.',
+      'hand-body-lotion':
+        'لوشن ترطيب عميق 200 مل يحافظ على نعومة البشرة عشان النتيجة تثبت والغمقان ميرجعش.',
+    },
+  },
+  {
+    slug: 'face-brightening-duo',
+    name: 'ثنائي تفتيح الوجه والتصبغات',
+    productSlugs: ['whitening-cleanser', 'whitening-cream'],
+    bundlePrice: 499,
+    headline: 'خطوتين بس لبشرة صافية ونضرة بدون بقع',
+    blurbs: {
+      'whitening-cleanser':
+        'غسول تفتيح يومي 200 مل خالي من السلفات القاسية — ينظف المسام ويدي إشراقة بدون جفاف.',
+      'whitening-cream':
+        'كريم تفتيح مركز لتوحيد لون الوجه والرقبة وتحسين مظهر البقع والتصبغات مع الاستخدام المنتظم.',
+    },
+  },
+  {
+    slug: 'clear-skin-duo',
+    name: 'ثنائي الحبوب وآثارها',
+    productSlugs: ['acne-facial-cleanser', 'whitening-cream'],
+    bundlePrice: 529,
+    headline: 'تنقية البشرة من الحبوب + تفتيح الآثار القديمة',
+    blurbs: {
+      'acne-facial-cleanser':
+        'غسول 200 مل للبشرة الدهنية والمعرضة للحبوب — ينقي المسام ويقلل الدهون بدون ما ينشف الوش.',
+      'whitening-cream':
+        'كريم تفتيح لطيف يساعد على توحيد لون البشرة وتخفيف مظهر آثار الحبوب الغامقة.',
     },
   },
   {
     slug: 'brightening-routine',
-    name: 'روتين التفتيح',
+    name: 'روتين التفتيح الكامل (3 قطع)',
     productSlugs: ['whitening-cleanser', 'whitening-cream', 'hand-body-lotion'],
     bundlePrice: 777,
-    headline: 'تصبغات وكلف؟ روتين تفتيح كامل',
+    headline: 'كورس التفتيح المتكامل — للوجه والجسم (3 عبوات كبيرة)',
     blurbs: {
       'whitening-cleanser':
-        'غسول يومي يساعد على تنظيف البشرة بلُطف ودعم مظهر أكثر إشراقاً وتجانساً من أول خطوة في الروتين.',
+        'غسول يومي يساعد على تنظيف البشرة بلُطف ودعم مظهر أكثر إشراقاً وتجانساً من أول خطوة.',
       'whitening-cream':
-        'كريم ليلي/يومي يساعد على تحسين مظهر البقع والتصبغات مع الاستمرار — من غير مبالغة ولا وعود سحرية.',
+        'كريم مركز يساعد على تحسين مظهر البقع والتصبغات وتوحيد اللون مع الاستمرار.',
       'hand-body-lotion':
-        'لوشن غني يساعد على ترطيب اليدين والجسم يومياً ونعومة ملموسة — يكمل روتين التفتيح للجسم كمان.',
+        'لوشن غني يساعد على ترطيب اليدين والجسم يومياً ونعومة ملموسة.',
     },
   },
   {
@@ -45,6 +82,7 @@ export const BUNDLES = [
     name: 'عناية الوش والجسم',
     productSlugs: ['acne-facial-cleanser', 'hand-body-lotion'],
     bundlePrice: 558,
+    hiddenFromGrid: true,
     headline: 'عناية كاملة — للوش والجسم',
     blurbs: {
       'acne-facial-cleanser':
@@ -60,17 +98,37 @@ export function calcOriginalTotal(products) {
   return (products || []).reduce((sum, p) => sum + (Number(p?.price) || 0), 0);
 }
 
-/** No second discount — perk is free shipping. Kept for API compat. */
-export function calcSavings() {
-  return 0;
+/** Real savings = list sum - configured bundlePrice. */
+export function calcSavings(originalTotal, bundlePrice) {
+  return Math.max(0, Math.round((Number(originalTotal) || 0) - (Number(bundlePrice) || 0)));
 }
 
 /**
- * Unit prices = website retail prices (same as storefront).
+ * Proportionally allocate bundlePrice across products so line totals equal bundlePrice exactly.
  * @returns {number[]} unit prices in the same order as `products`
  */
-export function allocateBundleUnitPrices(products) {
-  return (products || []).map((p) => Math.round(Number(p?.price) || 0));
+export function allocateBundleUnitPrices(products, targetBundlePrice) {
+  const list = products || [];
+  const orig = calcOriginalTotal(list);
+  const target = Number(targetBundlePrice) > 0 && Number(targetBundlePrice) < orig
+    ? Math.round(Number(targetBundlePrice))
+    : Math.round(orig);
+  if (!list.length || orig <= 0) return list.map(() => 0);
+  if (target === Math.round(orig)) {
+    return list.map((p) => Math.round(Number(p?.price) || 0));
+  }
+  const alloc = [];
+  let head = 0;
+  for (let i = 0; i < list.length; i++) {
+    if (i < list.length - 1) {
+      const unit = Math.round((target * (Number(list[i]?.price) || 0)) / orig);
+      alloc.push(unit);
+      head += unit;
+    } else {
+      alloc.push(Math.max(1, target - head));
+    }
+  }
+  return alloc;
 }
 
 /**
@@ -86,10 +144,12 @@ export function resolveBundle(bundle, bySlug, opts = {}) {
   const inStock = products.every((p) => (p.stock ?? 0) > 0);
   if (!opts.allowOos && !inStock) return null;
   const originalTotal = calcOriginalTotal(products);
-  // Offer total = live website prices (fallback to configured bundlePrice)
-  const bundlePrice = originalTotal > 0 ? Math.round(originalTotal) : Math.round(Number(bundle.bundlePrice) || 0);
-  const savings = 0;
-  const unitPrices = allocateBundleUnitPrices(products);
+  const configured = Math.round(Number(bundle.bundlePrice) || 0);
+  const bundlePrice = configured > 0 && (originalTotal <= 0 || configured <= originalTotal)
+    ? configured
+    : Math.round(originalTotal);
+  const savings = calcSavings(originalTotal, bundlePrice);
+  const unitPrices = allocateBundleUnitPrices(products, bundlePrice);
   return { bundle, products, originalTotal, bundlePrice, savings, unitPrices, inStock };
 }
 

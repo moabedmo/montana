@@ -6,7 +6,7 @@ import { products as productsApi } from '/js/store-api.js';
 import {
   BUNDLES,
   resolveBundle,
-} from '/js/bundles.js?v=4';
+} from '/js/bundles.js?v=5';
 
 const IS_EN =
   document.documentElement.lang === 'en' ||
@@ -187,6 +187,7 @@ export async function mountBundles(selector = '#bundlesMount') {
   const resolvedList = [];
   const resolvedMap = new Map();
   for (const bundle of BUNDLES) {
+    if (bundle.hiddenFromGrid) continue;
     const resolved = resolveBundle(bundle, bySlug);
     if (!resolved) continue;
     resolvedList.push(resolved);

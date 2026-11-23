@@ -665,7 +665,7 @@ function renderDepositBox() {
 }
 
 /** Free ship: 3+ units, or pure ad-routine cart (matches chatEngine). */
-const ROUTINE_BUNDLE_SLUGS = new Set(['post-laser-glow', 'brightening-routine', 'face-and-body']);
+const ROUTINE_BUNDLE_SLUGS = new Set(['post-laser-glow', 'body-brightening-duo', 'face-brightening-duo', 'clear-skin-duo', 'brightening-routine', 'face-and-body']);
 function cartGetsFreeShipping(items) {
     const list = items || window.Cart.getItems();
     if (!list.length) return false;

@@ -3,7 +3,7 @@
  * Reuses js/bundles.js (single price source). No chat, no newsletter.
  */
 import { products as productsApi, reviews as reviewsApi } from '/js/store-api.js';
-import { BUNDLES, getBundleBySlug, resolveBundle } from '/js/bundles.js?v=4';
+import { BUNDLES, getBundleBySlug, resolveBundle } from '/js/bundles.js?v=5';
 
 const WEBP_BY_SLUG = {
   'acne-facial-cleanser': '/images/p1-premium.webp',
