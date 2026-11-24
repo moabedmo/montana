@@ -32,7 +32,7 @@ assert(isVagueOfferQuestion('بكام'), 'vague بكام');
 assert(isVagueOfferQuestion('العرض'), 'vague العرض');
 assert(!isVagueOfferQuestion('عايزة غسول التفتيح لوحده'), 'not vague product');
 
-assert(getBundleByKey('post-laser').bundlePrice === 618, 'price post-laser');
+assert(getBundleByKey('post-laser').bundlePrice === 549, 'price post-laser');
 assert(getBundleByKey('brightening').bundlePrice === 777, 'price brightening');
 assert(getBundleByKey('face-body').bundlePrice === 558, 'price face-body');
 

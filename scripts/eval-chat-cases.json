@@ -948,6 +948,17 @@
         "adKey": "brightening",
         "brighteningRoutine": true
       }
+    },
+    {
+      "id": "whatsapp-laser-routine-details-and-usage",
+      "selectedBundle": "brightening",
+      "steps": [
+        "هوا روتين الليزر عباره عن ايه وبيستخدم ازاي"
+      ],
+      "expect": {
+        "notBrighteningRoutinePitch": true,
+        "usageSteps": true
+      }
     }
   ]
 }
