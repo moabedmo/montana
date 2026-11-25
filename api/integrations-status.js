@@ -415,6 +415,7 @@ module.exports = async (req, res) => {
     action === 'jumia-orders' ||
     action === 'jumia-shops' ||
     action === 'jumia-ready-to-ship' ||
+    action === 'jumia-shipment-providers' ||
     action === 'jumia-shipping-label'
   ) {
     try {
@@ -424,6 +425,8 @@ module.exports = async (req, res) => {
         listJumiaShops,
         getJumiaOrderItems,
         setJumiaReadyToShip,
+        packAndSetJumiaReadyToShip,
+        listJumiaShipmentProviders,
         getJumiaShippingLabel,
       } = require('../lib/jumiaClient');
       await assertJumiaViewer(bearer(req));
@@ -432,6 +435,11 @@ module.exports = async (req, res) => {
       if (action === 'jumia-shops') {
         const shops = await listJumiaShops();
         return res.json({ ok: true, shops });
+      }
+
+      if (action === 'jumia-shipment-providers') {
+        const providers = await listJumiaShipmentProviders([]);
+        return res.json({ ok: true, providers });
       }
 
       if (action === 'jumia-ready-to-ship') {
@@ -450,7 +458,7 @@ module.exports = async (req, res) => {
           }
         }
         if (!itemIds.length) return res.status(400).json({ ok: false, error: 'No order items found for this order' });
-        const result = await setJumiaReadyToShip(itemIds);
+        const result = await packAndSetJumiaReadyToShip(itemIds);
         return res.json({ ok: true, result });
       }
 

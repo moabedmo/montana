@@ -1152,8 +1152,12 @@ window.handleJumiaPrintLabel = async function(orderId, btn) {
         const data = await res.json().catch(() => ({}));
         if (!res.ok || data.ok === false) throw new Error(data.error || 'فشل سحب بوليصة جوميا');
         
+        const labelB64 = (data.result?.success?.labels || []).map((l) => l.label).find(Boolean);
         const docUrl = data.result?.url || data.result?.documentUrl || data.result?.document?.url || data.result?.pdfUrl;
-        if (docUrl) {
+        if (labelB64) {
+            const bytes = Uint8Array.from(atob(labelB64), (ch) => ch.charCodeAt(0));
+            window.open(URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' })), '_blank');
+        } else if (docUrl) {
             window.open(docUrl, '_blank');
         } else if (data.result?.content || data.result?.file) {
             const base64 = data.result.content || data.result.file;
@@ -1165,8 +1169,7 @@ window.handleJumiaPrintLabel = async function(orderId, btn) {
         }
     } catch (e) {
         console.error(e);
-        toast(e.message || 'تعذّر جلب البوليصة، جاري فتح الطلب في جوميا', 'error');
-        window.open('https://sellercenter.jumia.com.eg/order/index', '_blank');
+        toast(e.message || 'تعذّر جلب البوليصة', 'error');
     } finally {
         btn.disabled = false;
         btn.innerHTML = origHtml;
