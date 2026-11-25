@@ -240,8 +240,14 @@ silently collapsed the hero to a 165px letterbox.
 
 - Products and prices live in Supabase; the bot must read them with its tools,
   never state a price from memory.
-- Routine bundles: brightening 777, post-laser 618, face-body 558 — these are the
-  **sum of live product prices**, not a discount. The perk is free shipping.
+- Routine bundles: Match storefront and database (125_calm_duo_bundle_pricing.sql) exactly:
+  * ثنائي عناية ما بعد الليزر: 549 EGP (was 618)
+  * ثنائي تفتيح ونعومة الجسم: 449 EGP (was 478)
+  * ثنائي تفتيح الوجه والتصبغات: 499 EGP (was 548)
+  * ثنائي الحبوب وآثارها: 529 EGP (was 578)
+  * روتين التفتيح الكامل (3 قطع): 777 EGP
+  * روتين نضارة الوجه وترطيب الجسم: 558 EGP
+  All routine bundles include 100% free shipping. Unit prices: Whitening Cream 249, Body Lotion 229, Whitening Cleanser 299, Acne Cleanser 329, Post-Laser Cream 369.
 - `lib/adOffers.js` `formatAllRoutineOffersList()` runs ~426 chars and the reply
   cap is 420 — the cap exempts anything containing `────` for exactly this reason.
   Don't remove that exemption.
