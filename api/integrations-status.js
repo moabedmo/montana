@@ -438,7 +438,9 @@ module.exports = async (req, res) => {
       }
 
       if (action === 'jumia-shipment-providers') {
-        const providers = await listJumiaShipmentProviders([]);
+        const itemId = url.searchParams.get('order_item_id');
+        if (!itemId) return res.status(400).json({ ok: false, error: 'order_item_id required' });
+        const providers = await listJumiaShipmentProviders([itemId]);
         return res.json({ ok: true, providers });
       }
 
